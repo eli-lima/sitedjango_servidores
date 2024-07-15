@@ -1,5 +1,5 @@
 from django.db import models
-
+from datetime import datetime
 from django.utils import timezone
 
 
@@ -22,5 +22,8 @@ class Gesipe_adm(models.Model):
     os_diversos = models.IntegerField(default=0)
     portarias = models.IntegerField(default=0)
     total = models.IntegerField(default=0)
-    data_edicao = models.DateTimeField (default=timezone.now)
+    data_edicao = models.DateTimeField(default=timezone.now)
     usuario_id = models.IntegerField()
+
+    def __str__(self):
+        return self.data.strftime("%d/%m/%Y")
