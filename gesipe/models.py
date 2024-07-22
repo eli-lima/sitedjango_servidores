@@ -5,7 +5,7 @@ from django.utils import timezone
 
 # Create your models here.
 class Gesipe_adm(models.Model):
-    data = models.DateField(default=timezone.now)
+    data = models.DateField(default=timezone.now, unique=True)
     processos = models.IntegerField(default=0)
     memorandos_diarias = models.IntegerField(default=0)
     memorandos_documentos_capturados = models.IntegerField(default=0)

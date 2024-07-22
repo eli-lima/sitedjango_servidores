@@ -23,7 +23,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('seappb.urls')),
-    #path('gesipe_adm/', include('gesipe_adm.urls'))
+    path('gesipe/', include('gesipe.urls'))
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
