@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block titulo %}
+Gesipe Administrativo
+{% endblock %}
+
+
+
+{% block content %}
+<div class="py-20">
+    <a href=""><h1>Detalhes de Edicoes da Data {{ object.data }}</h1></a>
+    <p>{{ object }}</p>
+    <p>{{ object.memorandos_diarias }}</p>
+    <p>{{ object.total }}</p>
+
+
+</div>
+
+
+<a href="">Link Personalizado</a>
+{% endblock %}
