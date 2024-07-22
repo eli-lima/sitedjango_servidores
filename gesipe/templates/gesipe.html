@@ -16,11 +16,13 @@ Gesipe
             </h1>
             <div class="py-5">
                 {% for data in object_list %}
-                    <p>{{ data }}</p>
+                <a href="{% url 'gesipe:gesipe_adm_data' data.id %}"><p>{{ data }}</p></a>
                     <hr>
                     <p> {{ data.processos }} </p>
                     <hr>
                     <p> {{ data.memorandos_diarias }} </p>
+                     <hr>
+                    <p> {{ data.total }} </p>
 
                 {% endfor %}
             </div>

@@ -1,10 +1,11 @@
 #urls - view - template
 
 from django.urls import path, include
-from .views import homepage
+from .views import Homepage
 
+app_name = 'seappb'
 
 urlpatterns = [
-    path('', homepage),
+    path('', Homepage.as_view(), name='homepage'),
 
 ]
