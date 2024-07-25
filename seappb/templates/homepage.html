@@ -85,6 +85,27 @@ HomePage SeapPB
             <img src="{% static 'images/seap-pb.png' %}" class="w-8/12" alt="">
         </div>
     </section>
+
+     <section class='flex flex-col md:flex-row items-center border-gray-900 border-b-8' style="min-height: 70vh;">
+        <div class="md:w-1/2 flex flex-col justify-center text-center md:text-left p-5 md:p-10">
+            <h2 class="md:text-5xl text-4xl font-semibold mb-4">
+                {% for data in request.user.edicoes_adm.all %}
+                    <p>{{ data.data }}</p>
+                    <p>{{ data.id }}</p>
+                    <p>{{ data.total }}</p>
+
+
+                {% endfor %}
+            </h2>
+            <h5 class="md:text-xl text-lg">
+                Send kids on adventures with their favorite characters in a space made just for them—free with your membership.
+            </h5>
+        </div>
+        <div class='md:w-1/2 flex justify-center items-center'>
+            <img src="{% static 'images/seap-pb.png' %}" class="w-8/12" alt="">
+        </div>
+    </section>
+
     <footer class=" px-5 py-10 ">
         <ul class="flex justify-between items-center">
 
