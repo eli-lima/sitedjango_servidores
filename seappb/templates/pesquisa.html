@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block titulo %}
+SeapPB
+{% endblock %}
+
+
+{% block content %}
+
+    <main class='bg-primary_black min-h-screen w-full'>
+        <section class='bg-primary_black  min-h-screen flex justify-center py-10'>
+            <div class="p-8 w-10/12 relative" >
+                <h2 class="text-gray-200 text-2xl font-medium">
+                    Resultados da Busca
+                </h2>
+                <div class="flex flex-wrap items-center min-w-full movie_lis">
+                    {% for data in gesipe_adm_list %}
+                <a href="{% url 'gesipe:gesipe_adm_data' data.id %}"><p>{{ data }}</p></a>
+                    <hr>
+                    <p> {{ data.processos }} </p>
+                    <hr>
+                    <p> {{ data.memorandos_diarias }} </p>
+                     <hr>
+                    <p> {{ data.total }} </p>
+
+                {% endfor %}
+                </div>
+
+
+            </div>
+        </section>
+    </main>
+    <div>
+        <h1>mostrar lista completa</h1>
+        {{ gesipe_adm_list.all }}
+    </div>
+{% endblock %}

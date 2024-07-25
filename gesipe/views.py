@@ -38,3 +38,4 @@ class Gesipe_adm_data(DetailView):
         #adicionar novos dados a pagina que nao faz referencial ao Detailview
         #self.get_object()
         return context
+

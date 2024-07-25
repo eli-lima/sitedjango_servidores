@@ -23,7 +23,7 @@ class Gesipe_adm(models.Model):
     portarias = models.IntegerField(default=0)
     total = models.IntegerField(default=0)
     data_edicao = models.DateTimeField(default=timezone.now)
-    usuario_id = models.IntegerField()
+    usuario = models.ForeignKey('seappb.Usuario', on_delete=models.CASCADE, related_name='edicoes_adm')
 
     def save(self, *args, **kwargs):
         self.total = (self.processos + self.memorandos_diarias +
