@@ -3,6 +3,8 @@ from django.views.generic import TemplateView, ListView
 from gesipe.models import Gesipe_adm
 from datetime import datetime
 from django.contrib.auth.mixins import LoginRequiredMixin
+from .mixins import HideNavMixin
+from django.contrib.auth.views import LoginView
 
 # Create your views here.
 # def homepage(request):
@@ -47,11 +49,12 @@ class PesquisarSite(LoginRequiredMixin, ListView):
 class Paginaperfil(LoginRequiredMixin, TemplateView):
     template_name = 'editarperfil.html'
 
-class Criarconta( TemplateView):
+class Criarconta(HideNavMixin, TemplateView):
     template_name = 'criarconta.html'
 
 
-
+class CustomLoginView(HideNavMixin, LoginView):
+    template_name = 'login.html'
 #adicionar novas listas ao menu de pesquisar
 
     # def get_context_data(self, **kwargs):
