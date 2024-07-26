@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from .models import Gesipe_adm
 from django.views.generic import ListView, DetailView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 # Create your views here.
 
@@ -11,14 +12,14 @@ from django.views.generic import ListView, DetailView
 #     context ['lista_datas'] = lista_datas
 #     return render(request, "gesipe.html", context)
 
-class Gesipe(ListView):
+class Gesipe(LoginRequiredMixin, ListView):
     template_name = "gesipe.html"
     model = Gesipe_adm
     #object list -> lista de itens do modelo
 
 
 
-class Gesipe_adm_data(DetailView):
+class Gesipe_adm_data(LoginRequiredMixin, DetailView):
     template_name = "gesipe_adm_data.html"
     model = Gesipe_adm
     #object -> item especifico do modelo

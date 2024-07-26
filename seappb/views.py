@@ -2,18 +2,18 @@ from django.shortcuts import render
 from django.views.generic import TemplateView, ListView
 from gesipe.models import Gesipe_adm
 from datetime import datetime
-
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 # Create your views here.
 # def homepage(request):
 #     return render(request, "homepage.html")
 
-class Homepage(TemplateView):
+class Homepage(LoginRequiredMixin, TemplateView):
     template_name = "homepage.html"
 
 
 
-class PesquisarSite(ListView):
+class PesquisarSite(LoginRequiredMixin, ListView):
     template_name = "pesquisa.html"
     model = Gesipe_adm
     context_object_name = 'gesipe_adm_list'  # Nome do contexto para o modelo principal
