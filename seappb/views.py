@@ -44,6 +44,13 @@ class PesquisarSite(LoginRequiredMixin, ListView):
         # Adiciona mais contextos aqui, se necessário
         return context
 
+class Paginaperfil(LoginRequiredMixin, TemplateView):
+    template_name = 'editarperfil.html'
+
+class Criarconta( TemplateView):
+    template_name = 'criarconta.html'
+
+
 
 #adicionar novas listas ao menu de pesquisar
 
