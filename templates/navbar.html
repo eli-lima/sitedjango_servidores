@@ -20,7 +20,13 @@
         <div class="flex flex-shrink-0 items-center">
           <a href="/"><img class="h-8 w-auto" src="{% static 'images/GOVPBBranco.png' %}" alt="Your Company"></a>
         </div>
+        <a class="flex items-end">
+          <button class="bg-red-600 text-white py-1 px-3 rounded-md">
+            Login
+          </button>
+        </a>
         <div class="hidden sm:ml-6 sm:block">
+          {% if user.is_authenticated %}
           <div class="flex space-x-4">
             <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
             <a href="/" class="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white" aria-current="page">Inicio</a>
@@ -28,6 +34,7 @@
             <a href="#" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Smp</a>
             <a href="#" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Contatos</a>
           </div>
+
         </div>
       </div>
       <div class="md:flex md:items-center md:justify-center hidden">-->
@@ -92,6 +99,8 @@
       </div>
     </div>
   </div>
+  {% endif %}
+
 </nav>
 
 
