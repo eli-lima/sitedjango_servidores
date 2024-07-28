@@ -1,10 +1,12 @@
-from django.shortcuts import render
-from django.views.generic import TemplateView, ListView
+from django.shortcuts import render, redirect, reverse
+from django.views.generic import TemplateView, ListView, FormView
 from gesipe.models import Gesipe_adm
 from datetime import datetime
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .mixins import HideNavMixin
 from django.contrib.auth.views import LoginView
+from .forms import CriarContaForm
+
 
 # Create your views here.
 # def homepage(request):
@@ -49,8 +51,18 @@ class PesquisarSite(LoginRequiredMixin, ListView):
 class Paginaperfil(LoginRequiredMixin, TemplateView):
     template_name = 'editarperfil.html'
 
-class Criarconta(HideNavMixin, TemplateView):
+
+class Criarconta(HideNavMixin, FormView):
     template_name = 'criarconta.html'
+    form_class = CriarContaForm
+
+    def form_valid(self, form):
+        form.save()
+
+    def get_success_url(self):
+        return reverse('seappb:login')
+
+
 
 
 class CustomLoginView(HideNavMixin, LoginView):

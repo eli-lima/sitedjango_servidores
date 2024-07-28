@@ -13,10 +13,9 @@ class Usuario(AbstractUser):
         ('GESIPE - Copen', 'GESIPE - Copen'),
     ]
 
-    setor = models.CharField(max_length=50, choices=SETOR_CHOICES, blank=False, null=False)
     foto_perfil = models.ImageField(upload_to='profile_pics', default='default.jpg')
     matricula = models.IntegerField(null=True, blank=True)
-
+    setor = models.CharField(max_length=50, choices=SETOR_CHOICES, blank=False, null=False)
 
 
     #caso eu queira uma abordagem de muito para muitos
