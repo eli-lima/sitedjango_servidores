@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render, redirect
 from django.views.generic import TemplateView, ListView, FormView
 from gesipe.models import Gesipe_adm
 from datetime import datetime
@@ -6,11 +6,10 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from .mixins import HideNavMixin
 from django.contrib.auth.views import LoginView
 from .forms import CriarContaForm
-
+from django.urls import reverse_lazy
 
 # Create your views here.
-# def homepage(request):
-#     return render(request, "homepage.html")
+
 
 class Homepage(LoginRequiredMixin, TemplateView):
     template_name = "homepage.html"
@@ -55,12 +54,14 @@ class Paginaperfil(LoginRequiredMixin, TemplateView):
 class Criarconta(HideNavMixin, FormView):
     template_name = 'criarconta.html'
     form_class = CriarContaForm
+    success_url = reverse_lazy('seappb:login')  # Redirecionar para a página de login após a criação da conta
 
     def form_valid(self, form):
-        form.save()
-
-    def get_success_url(self):
-        return reverse('seappb:login')
+        usuario = form.save(commit=False)
+        if self.request.FILES:
+            usuario.foto_perfil = self.request.FILES['foto_perfil']
+        usuario.save()
+        return super().form_valid(form)
 
 
 

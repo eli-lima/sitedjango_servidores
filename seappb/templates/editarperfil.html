@@ -8,6 +8,20 @@ Editar Perfil
 {% block content %}
 
 
-    <h1 class="py-20">Editar Perfil</h1>
+    <header class="min-h-screen showcase border-gray-600 border-b-8 flex justify-center items-center bg-no-repeat">
+        <div class="z-10 h-full py-32 md:py-0 text-center flex items-center flex-col">
+            <h2>Usuario</h2>
+
+            <form method="post">
+                <fieldset class="form-group">
+                    <legend class="border-bottom mb-4">Edite os campos abaixo para editar seu perfil</legend>
+
+                </fieldset>
+                <button class="bg-primary_red py-1 px-3 text-white md:text-lg rounded-md" type="submit">Editar Perfil</button>
+            </form>
+            <small><a href="#">Quer mudar sua senha?</a></small>
+        </div>
+    </header>
+
 
 {% endblock %}
