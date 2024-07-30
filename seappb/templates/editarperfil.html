@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load crispy_forms_tags %}
 {% block titulo %}
 Editar Perfil
 {% endblock %}
@@ -10,16 +11,17 @@ Editar Perfil
 
     <header class="min-h-screen showcase border-gray-600 border-b-8 flex justify-center items-center bg-no-repeat">
         <div class="z-10 h-full py-32 md:py-0 text-center flex items-center flex-col">
-            <h2>Usuario</h2>
+            <h2>{{ user.email }}</h2>
 
             <form method="post">
+                {% csrf_token %}
                 <fieldset class="form-group">
                     <legend class="border-bottom mb-4">Edite os campos abaixo para editar seu perfil</legend>
-
+                {{ form|crispy }}
                 </fieldset>
-                <button class="bg-primary_red py-1 px-3 text-white md:text-lg rounded-md" type="submit">Editar Perfil</button>
+                <button class="bg-gray-900 py-1 px-3 md:text-lg text-white rounded-md mt-4" type="submit">Editar Perfil</button>
             </form>
-            <small><a href="#">Quer mudar sua senha?</a></small>
+            <small class="mb-24 mt-1"><a href="#">Quer mudar sua senha?</a></small>
         </div>
     </header>
 

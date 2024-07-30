@@ -18,19 +18,19 @@
       </div>
       <div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
         <div class="flex flex-shrink-0 items-center">
-          <a href="/"><img class="h-8 w-auto" src="{% static 'images/GOVPBBranco.png' %}" alt="Your Company"></a>
+          <a href="/"><img class="h-8 w-auto" src="{% static 'images/GOVPBBranco.png' %}" alt="Governo da Paraiba"></a>
         </div>
 
         <div class="hidden sm:ml-6 sm:block">
           {% if user.is_authenticated %}
           <div class="flex space-x-4">
             <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
-            <a href="/" class="rounded-md px-3 py-2 text-sm font-medium {% if request.path == '/' %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}" aria-current="page">Inicio</a>
+            <a href="/" class="rounded-md px-3 py-2 text-lg font-medium {% if request.path == '/' %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}" aria-current="page">Inicio</a>
              <!-- Página Gesipe -->
             {% url 'gesipe:gesipe' as gesipe_url %}
-            <a href="{{ gesipe_url }}" class="rounded-md px-3 py-2 text-sm font-medium {% if request.path == gesipe_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">Gesipe</a>
-            <a href="#" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Geati</a>
-            <a href="#" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Recursos Humanos</a>
+            <a href="{{ gesipe_url }}" class="rounded-md px-3 py-2 text-lg font-medium {% if request.path == gesipe_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">Gesipe</a>
+            <a href="#" class="rounded-md px-3 py-2 text-lg font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Geati</a>
+            <a href="#" class="rounded-md px-3 py-2 text-lg font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Recursos Humanos</a>
           </div>
 
         </div>
@@ -72,7 +72,7 @@
           -->
           <div class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none hidden" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1" id="user-menu">
             <!-- Active: "bg-gray-100", Not Active: "" -->
-            <a href="{% url 'seappb:editarperfil'%}" class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-0">Seu Perfil</a>
+            <a href="{% url 'seappb:editarperfil' user.pk %}" class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-0">Seu Perfil</a>
             <a href="#" class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-1">Configurações</a>
              <!-- Formulário de logout -->
             <form id="logout-form" action="{% url 'seappb:logout' %}" method="POST" style="display: none;">

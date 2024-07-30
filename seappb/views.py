@@ -1,12 +1,13 @@
 from django.shortcuts import render, redirect
-from django.views.generic import TemplateView, ListView, FormView
+from .models import Usuario
+from django.views.generic import TemplateView, ListView, FormView, UpdateView
 from gesipe.models import Gesipe_adm
 from datetime import datetime
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .mixins import HideNavMixin
 from django.contrib.auth.views import LoginView
 from .forms import CriarContaForm
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 
 # Create your views here.
 
@@ -47,8 +48,14 @@ class PesquisarSite(LoginRequiredMixin, ListView):
         # Adiciona mais contextos aqui, se necessário
         return context
 
-class Paginaperfil(LoginRequiredMixin, TemplateView):
+class Paginaperfil(LoginRequiredMixin, UpdateView):
+    model = Usuario
     template_name = 'editarperfil.html'
+    fields = ['first_name', 'last_name', 'email', 'username', 'matricula', 'foto_perfil', 'setor']
+
+    def get_success_url(self):
+        return reverse('seappb:homepage')
+
 
 
 class Criarconta(HideNavMixin, FormView):

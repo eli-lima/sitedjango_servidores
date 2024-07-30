@@ -11,6 +11,6 @@ urlpatterns = [
     path('pesquisa/', PesquisarSite.as_view(), name='pesquisarsite'),
     path('login/', CustomLoginView.as_view(), name='login'),
     path('logout/', auth_view.LogoutView.as_view(template_name="logout.html"), name='logout'),
-    path('editarperfil/', Paginaperfil.as_view(), name='editarperfil'),
+    path('editarperfil/<int:pk>', Paginaperfil.as_view(), name='editarperfil'),
     path('criarconta/', Criarconta.as_view(), name='criarconta')
 ]
