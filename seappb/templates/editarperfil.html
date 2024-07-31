@@ -9,11 +9,13 @@ Editar Perfil
 {% block content %}
 
 
-    <header class="min-h-screen showcase border-gray-600 border-b-8 flex justify-center items-center bg-no-repeat">
-        <div class="z-10 h-full py-32 md:py-0 text-center flex items-center flex-col">
-            <h2>{{ user.email }}</h2>
+    <header class="min-h-screen showcase bg-gray-100 border-gray-600 border-b-8 flex justify-center items-center bg-no-repeat">
+    <div class="mb-28 md:mb-8 mt-4 bg-white rounded-3xl w-3/4 shadow-lg md:w-3/4 md:py-24 py-12 z-10 text-center md:flex" id="form-container">
+        <div class="md:w-3/4 w-full md:order-1 order-2 px-12 h-full">
+           <div class="z-10 h-full py-32 md:py-0 text-center flex items-center flex-col">
 
-            <form method="post">
+
+            <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <fieldset class="form-group">
                     <legend class="border-bottom mb-4">Edite os campos abaixo para editar seu perfil</legend>
@@ -21,9 +23,27 @@ Editar Perfil
                 </fieldset>
                 <button class="bg-gray-900 py-1 px-3 md:text-lg text-white rounded-md mt-4" type="submit">Editar Perfil</button>
             </form>
-            <small class="mb-24 mt-1"><a href="#">Quer mudar sua senha?</a></small>
+            <small class="mb-24 mt-1"><a href="{% url 'seappb:mudarsenha' %}">Quer mudar sua senha?</a></small>
         </div>
-    </header>
+        </div>
+        <div class="md:w-1/4 w-full md:order-2 order-1 flex justify-start items-start md:p-0 md:m-8">
+            <fieldset class="form-group border border-indigo-600 bg-slate-100 font-semibold">
+                <h2 class="p-2">Nome: {{ user.first_name }} {{ user.last_name }}</h2>
+                <h2 class="p-2">Email: {{ user.email }}</h2>
+                <h2 class="p-2">Matrícula: {{ user.matricula }}</h2>
+                <h2 class="p-2">Setor: {{ user.setor }}</h2>
+                <div class="flex justify-center">
+                    {% if user.foto_perfil %}
+                        <img class="py-4 w-36 h-48 object-cover rounded-full" src="{{ user.foto_perfil.url }}" alt="Foto de Perfil">
+                    {% else %}
+                        <img class="py-4 w-36 h-48 object-cover rounded-full" src="{% static 'profile_pics/default.jpg' %}" alt="Foto de Perfil">
+                    {% endif %}
+                </div>
+                <h2 class="p-2">Setor: {{ user.setor }}</h2>
+            </fieldset>
+        </div>
+    </div>
+</header>
 
 
 {% endblock %}

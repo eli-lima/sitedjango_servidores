@@ -8,6 +8,10 @@ from .mixins import HideNavMixin
 from django.contrib.auth.views import LoginView
 from .forms import CriarContaForm
 from django.urls import reverse_lazy, reverse
+from PIL import Image
+from io import BytesIO
+from django.core.files.base import ContentFile
+import os
 
 # Create your views here.
 
@@ -52,6 +56,33 @@ class Paginaperfil(LoginRequiredMixin, UpdateView):
     model = Usuario
     template_name = 'editarperfil.html'
     fields = ['first_name', 'last_name', 'email', 'username', 'matricula', 'foto_perfil', 'setor']
+
+    def form_valid(self, form):
+        if self.request.FILES:
+            foto_perfil = self.request.FILES['foto_perfil']
+
+            # Abrir a imagem usando Pillow
+            image = Image.open(foto_perfil)
+
+            # Converter a imagem para RGB, se necessário
+            if image.mode in ("RGBA", "P"):  # RGBA inclui transparência, P é para paletas
+                image = image.convert("RGB")
+
+            # Reduzir a resolução da imagem (ajustar conforme necessário)
+            max_size = (300, 300)  # Define o tamanho máximo da imagem
+            image.thumbnail(max_size, Image.LANCZOS)
+
+            # Salvar a imagem em um buffer
+            buffer = BytesIO()
+            image.save(buffer, format='JPEG')
+
+            # Criar um novo arquivo de imagem a partir do buffer
+            file_buffer = ContentFile(buffer.getvalue())
+            form.instance.foto_perfil.save(foto_perfil.name, file_buffer)
+
+
+
+        return super().form_valid(form)
 
     def get_success_url(self):
         return reverse('seappb:homepage')
