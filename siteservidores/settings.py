@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'gesipe',
     'crispy_forms',
     'crispy_bootstrap5',
+    'cloudinary_storage',
+    'cloudinary',
 ]
 
 MIDDLEWARE = [
@@ -156,3 +158,12 @@ LOGIN_URL = "seappb:login"
 CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap5'
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'hlhi4j5jp',
+    'API_KEY': '294488267377748',
+    'API_SECRET': 'suIa821EBlCR7UcLkehMPRbn-Gk'
+}
+
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
