@@ -6,6 +6,433 @@ Gesipe
 
 
 {% block content %}
+<section class="overflow-hidden flex items-center justify-center">
+    <div class="pt-52">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-4xl font-extrabold  sm:text-5xl">
+            Gesipe
+          </h2>
+          <p class="mt-4 text-xl text-gray-700">
+            Consulte ou adicione informacoes.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 gap-8 sm:grid-cols-3 lg:grid-cols-4">
+
+            <!-- Administrativo -->
+            <div class=" rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+            <div class="mb-8">
+              <h3 class="text-2xl font-semibold ">Administrativo</h3>
+              <p class="mt-4 text-gray-600">Total de Movimentacoes realizadas pelo adminstrativo da gesipe.</p>
+            </div>
+            <div class="mb-8">
+              <span class="text-xl font-medium text-gray-600">Total de Movimentaçoes:</span>
+              <span class="text-3xl font-extrabold "> 108</span>
+
+            </div>
+
+            <a href="#" class="block w-full py-3 px-6 text-center text-white text-base rounded-md  font-medium bg-gray-400">
+              Adicionar Informaçoes:
+            </a>
+            </div>
+
+            <!-- SMP -->
+            <div class=" rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+            <div class="mb-8">
+              <h3 class="text-2xl font-semibold ">SMP</h3>
+              <p class="mt-4 text-gray-600">Total de acoes realizadas pelo Setor de Movimentacao Prisional da Gesipe.</p>
+            </div>
+            <div class="mb-8">
+              <span class="text-xl font-medium text-gray-600">Total de Movimentaçoes:</span>
+              <span class="text-3xl font-extrabold "> 108</span>
+
+            </div>
+
+            <a href="#" class="block py-3 px-6 text-center text-white text-base rounded-md  font-medium bg-gray-400">
+              Adicionar Informaçoes:
+            </a>
+            </div>
+
+            <!-- SMP -->
+            <div class=" rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+            <div class="mb-8">
+              <h3 class="text-2xl font-semibold ">SMP</h3>
+              <p class="mt-4 text-gray-600">Total de acoes realizadas pelo Setor de Movimentacao Prisional da Gesipe.</p>
+            </div>
+            <div class="mb-8">
+              <span class="text-xl font-medium text-gray-600">Total de Movimentaçoes:</span>
+              <span class="text-3xl font-extrabold "> 108</span>
+
+            </div>
+
+            <a href="#" class="block py-3 px-6 text-center text-white text-base rounded-md  font-medium bg-gray-400">
+              Adicionar Informaçoes:
+            </a>
+            </div>
+
+            <!-- SMP -->
+            <div class=" rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+            <div class="mb-8">
+              <h3 class="text-2xl font-semibold ">SMP</h3>
+              <p class="mt-4 text-gray-600">Total de acoes realizadas pelo Setor de Movimentacao Prisional da Gesipe.</p>
+            </div>
+            <div class="mb-8">
+              <span class="text-xl font-medium text-gray-600">Total de Movimentaçoes:</span>
+              <span class="text-3xl font-extrabold "> 108</span>
+
+            </div>
+
+                <a href="#" class="block py-3 px-6 text-center text-white text-base rounded-md  font-medium bg-gray-400">
+                  Adicionar Informaçoes:
+                </a>
+            </div>
+
+
+         </div>
+
+<!--tabela com os dados gesipe administrativo-->
+
+           <div class="mb-12 pt-24 flex justify-start ">
+              <div class="bg-white shadow-lg rounded-lg max-w-full">
+                <div class="p-6 rounded-t-lg">
+                  <h1 class="text-3xl font-bold text-center">Dados Administrativos</h1>
+                  <div class="mt-4 flex justify-end">
+                    <form method="GET">
+                      <input type="text" name="query" id="searchInput" class="form-input w-full sm:w-auto sm:ml-4 p-2 rounded-md border-gray-300" placeholder="Pesquisar..." value="{{ query }}">
+                      <button type="submit" class="hidden"></button>
+                    </form>
+                  </div>
+                </div>
+                <div class="overflow-x-auto">
+                  <table class="min-w-full  bg-white divide-y divide-gray-200">
+                    <thead class="bg-gray-100">
+                      <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Memorandos</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Despachos</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Oficios</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ordem de Serviço</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Portarias</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Geral de Inserções</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuário</th>
+
+                      </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                      {% for data in object_list %}
+                      <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ data.data|date:"d/m/Y" }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ data.total_memorando }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ data.total_despacho }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ data.total_oficio }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ data.total_os }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ data.portarias }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ data.total }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ data.usuario }}</td>
+                      </tr>
+                      {% empty %}
+                      <tr>
+                        <td colspan="3" class="px-6 py-4 text-center text-gray-500">Nenhum dado encontrado</td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- Bloco de Depuração -->
+                <div class="p-6">
+                  <p>Current Page: {{ page_obj.number }}</p>
+                  <p>Total Pages: {{ page_obj.paginator.num_pages }}</p>
+                  <p>Has Next: {{ page_obj.has_next }}</p>
+                  <p>Has Previous: {{ page_obj.has_previous }}</p>
+                </div>
+
+                <div class="p-6 bg-gray-100 rounded-b-lg">
+                  <nav aria-label="Page navigation">
+                    <ul class="inline-flex items-center -space-x-px">
+                      {% if page_obj.has_previous %}
+                      <li>
+                        <a href="?page=1&query={{ query }}" class="px-3 py-2 ml-0 text-sm font-medium text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100">Primeira</a>
+                      </li>
+                      <li>
+                        <a href="?page={{ data.previous_page_number }}&query={{ query }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">Anterior</a>
+                      </li>
+                      {% endif %}
+
+                      {% for p in page_obj.paginator.page_range %}
+                      {% if p == page_obj.number %}
+                      <li>
+                        <span class="px-3 py-2 text-sm font-medium text-white bg-blue-500 border border-gray-300">{{ p }}</span>
+                      </li>
+                      {% else %}
+                      <li>
+                        <a href="?page={{ p }}&query={{ query }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">{{ p }}</a>
+                      </li>
+                      {% endif %}
+                      {% endfor %}
+
+                      {% if page_obj.has_next %}
+                      <li>
+                        <a href="?page={{ data.next_page_number }}&query={{ query }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">Próxima</a>
+                      </li>
+                      <li>
+                        <a href="?page={{ data.paginator.num_pages }}&query={{ query }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100">Última</a>
+                      </li>
+                      {% endif %}
+                    </ul>
+                  </nav>
+                </div>
+              </div>
+            </div>
+
+
+
+
+            <!--nova tabela-->
+
+            <div class="relative flex flex-col w-full min-w-0 mb-0 break-words bg-white border-0 border-transparent border-solid shadow-xl rounded-2xl bg-clip-border">
+              <div class="p-6 pb-0 mb-0 bg-white rounded-t-2xl">
+                <h6>Authors table</h6>
+              </div>
+              <div class="flex-auto px-0 pt-0 pb-2">
+                <div class="p-0 overflow-x-auto">
+                  <table class="items-center w-full mb-0 align-top border-gray-200 text-slate-500">
+                    <thead class="align-bottom">
+                      <tr>
+                        <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Author</th>
+                        <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Function</th>
+                        <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Status</th>
+                        <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Employed</th>
+                        <th class="px-6 py-3 font-semibold capitalize align-middle bg-transparent border-b border-gray-200 border-solid shadow-none tracking-none whitespace-nowrap text-slate-400 opacity-70"></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                          <div class="flex px-2 py-1">
+                            <div>
+                              <img src="../assets/img/team-2.jpg" class="inline-flex items-center justify-center mr-4 text-white transition-all duration-200 ease-in-out text-sm h-9 w-9 rounded-xl" alt="user1" />
+                            </div>
+                            <div class="flex flex-col justify-center">
+                              <h6 class="mb-0 leading-normal text-sm">John Michael</h6>
+                              <p class="mb-0 leading-tight text-xs text-slate-400">john@creative-tim.com</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                          <p class="mb-0 font-semibold leading-tight text-xs">Manager</p>
+                          <p class="mb-0 leading-tight text-xs text-slate-400">Organization</p>
+                        </td>
+                        <td class="p-2 leading-normal text-center align-middle bg-transparent border-b text-sm whitespace-nowrap shadow-transparent">
+                          <span class="bg-gradient-to-tl from-emerald-500 to-teal-400 px-3.6 text-xs rounded-1.8 py-2.2 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">Online</span>
+                        </td>
+                        <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                          <span class="font-semibold leading-tight text-xs text-slate-400">23/04/18</span>
+                        </td>
+                        <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                          <a href="javascript:;" class="font-semibold leading-tight text-xs text-slate-400"> Edit </a>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                          <div class="flex px-2 py-1">
+                            <div>
+                              <img src="../assets/img/team-3.jpg" class="inline-flex items-center justify-center mr-4 text-white transition-all duration-200 ease-in-out text-sm h-9 w-9 rounded-xl" alt="user2" />
+                            </div>
+                            <div class="flex flex-col justify-center">
+                              <h6 class="mb-0 leading-normal text-sm">Alexa Liras</h6>
+                              <p class="mb-0 leading-tight text-xs text-slate-400">alexa@creative-tim.com</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                          <p class="mb-0 font-semibold leading-tight text-xs">Programator</p>
+                          <p class="mb-0 leading-tight text-xs text-slate-400">Developer</p>
+                        </td>
+                        <td class="p-2 leading-normal text-center align-middle bg-transparent border-b text-sm whitespace-nowrap shadow-transparent">
+                          <span class="bg-gradient-to-tl from-slate-600 to-slate-300 px-3.6 text-xs rounded-1.8 py-2.2 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">Offline</span>
+                        </td>
+                        <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                          <span class="font-semibold leading-tight text-xs text-slate-400">11/01/19</span>
+                        </td>
+                        <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                          <a href="javascript:;" class="font-semibold leading-tight text-xs text-slate-400"> Edit </a>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                          <div class="flex px-2 py-1">
+                            <div>
+                              <img src="../assets/img/team-4.jpg" class="inline-flex items-center justify-center mr-4 text-white transition-all duration-200 ease-in-out text-sm h-9 w-9 rounded-xl" alt="user3" />
+                            </div>
+                            <div class="flex flex-col justify-center">
+                              <h6 class="mb-0 leading-normal text-sm">Laurent Perrier</h6>
+                              <p class="mb-0 leading-tight text-xs text-slate-400">laurent@creative-tim.com</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                          <p class="mb-0 font-semibold leading-tight text-xs">Executive</p>
+                          <p class="mb-0 leading-tight text-xs text-slate-400">Projects</p>
+                        </td>
+                        <td class="p-2 leading-normal text-center align-middle bg-transparent border-b text-sm whitespace-nowrap shadow-transparent">
+                          <span class="bg-gradient-to-tl from-emerald-500 to-teal-400 px-3.6 text-xs rounded-1.8 py-2.2 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">Online</span>
+                        </td>
+                        <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                          <span class="font-semibold leading-tight text-xs text-slate-400">19/09/17</span>
+                        </td>
+                        <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                          <a href="javascript:;" class="font-semibold leading-tight text-xs text-slate-400"> Edit </a>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="p-2 align-middle bg-transparent border-b-0 whitespace-nowrap shadow-transparent">
+                          <div class="flex px-2 py-1">
+                            <div>
+                              <img src="../assets/img/team-4.jpg" class="inline-flex items-center justify-center mr-4 text-white transition-all duration-200 ease-in-out text-sm h-9 w-9 rounded-xl" alt="user6" />
+                            </div>
+                            <div class="flex flex-col justify-center">
+                              <h6 class="mb-0 leading-normal text-sm">Miriam Eric</h6>
+                              <p class="mb-0 leading-tight text-xs text-slate-400">miriam@creative-tim.com</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td class="p-2 align-middle bg-transparent border-b-0 whitespace-nowrap shadow-transparent">
+                          <p class="mb-0 font-semibold leading-tight text-xs">Programtor</p>
+                          <p class="mb-0 leading-tight text-xs text-slate-400">Developer</p>
+                        </td>
+                        <td class="p-2 leading-normal text-center align-middle bg-transparent border-b-0 text-sm whitespace-nowrap shadow-transparent">
+                          <span class="bg-gradient-to-tl from-emerald-500 to-teal-400 px-3.6 text-xs rounded-1.8 py-2.2 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">Online</span>
+                        </td>
+                        <td class="p-2 text-center align-middle bg-transparent border-b-0 whitespace-nowrap shadow-transparent">
+                          <span class="font-semibold leading-tight text-xs text-slate-400">14/09/20</span>
+                        </td>
+                        <td class="p-2 align-middle bg-transparent border-b-0 whitespace-nowrap shadow-transparent">
+                          <a href="javascript:;" class="font-semibold leading-tight text-xs text-slate-400"> Edit </a>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+
+
+
+
+        <div class="overflow-x-auto">
+
+          <table class="w-full max-w-[700px] bg-white divide-y divide-gray-200">
+            <thead class="bg-gray-100">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Geral de Inserções</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuário</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                  {% for row in data %}
+                  <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">{{ row.data|date:"d/m/Y" }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">{{ row.total }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">{{ row.usuario.username }}</td>
+                  </tr>
+                  {% empty %}
+                  <tr>
+                    <td colspan="3" class="px-6 py-4 text-center text-gray-500">Nenhum dado encontrado</td>
+                  </tr>
+                  {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+
+
+
+      </div>
+    </div>
+</section>
+
+
+<section>
+    <div class=" flex items-center justify-center pt-28">
+
+            <div class="grid grid-cols-1 gap-8 sm:grid-cols-2">
+
+
+
+
+
+
+
+
+             <!-- Administrativo -->
+            <div class=" rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+                <div class="mb-8">
+                  <h3 class="text-2xl font-semibold ">Administrativo</h3>
+                  <p class="mt-4 text-gray-600">Total de Movimentacoes realizadas pelo adminstrativo da gesipe.</p>
+                </div>
+                <div class="mb-8">
+                  <span class="text-xl font-medium text-gray-600">Total de Movimentaçoes:</span>
+                  <span class="text-3xl font-extrabold "> 108</span>
+
+                </div>
+
+                <a href="#" class="block w-full py-3 px-6 text-center text-white text-base rounded-md  font-medium bg-gray-400">
+                  Adicionar Informaçoes:
+                </a>
+            </div>
+        </div>
+    </div>
+
+
+
+
+</section>
+
+
+
+
+		<!-- Formularios primeira linha -->
+
+
+
+    <div class="max-w-sm rounded overflow-hidden shadow-lg bg-white">
+        <img class="w-full" src="https://via.placeholder.com/400x200" alt="Imagem do Card">
+        <div class="px-6 py-4">
+            <div class="font-bold text-xl mb-2">Título do Card</div>
+            <p class="text-gray-700 text-base">
+                Este é um exemplo de descrição de card. Você pode adicionar mais conteúdo aqui para descrever os detalhes do card.
+            </p>
+        </div>
+        <div class="px-6 pt-4 pb-2">
+            <span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">Tag1</span>
+            <span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">Tag2</span>
+            <span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">Tag3</span>
+        </div>
+    </div>
+
+    <div class="container mx-auto mt-4">
+  <div class="flex flex-wrap">
+    <div class="w-full sm:w-1/2 md:w-1/4 p-2">
+      <div class="bg-gray-100 rounded-lg shadow p-4 flex items-center">
+        <div class="bg-green-500 rounded-full p-3 mr-4">
+          <i class="bi bi-stickies-fill text-white text-2xl"></i>
+        </div>
+        <div>
+          <h6 class="text-gray-800 font-bold">Movimentações Totais</h6>
+          <span class="text-gray-600">Total de Movimentacoes</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
 
 
     <header class="min-h-screen showcase border-gray-600 border-b-8 flex justify-center items-center bg-no-repeat">
@@ -33,14 +460,7 @@ Gesipe
         </div>
 
     </header>
-    <footer class=" px-5 py-10 ">
-        <ul class="flex justify-between items-center">
 
-            <li>&copy; 2021</li>
-            <li> Feito com Python (Django)</li>
-            <li>Hashtag</li>
-        </ul>
-    </footer>
 
 {{ object_list.all }}
 

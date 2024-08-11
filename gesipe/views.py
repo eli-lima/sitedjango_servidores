@@ -2,20 +2,37 @@ from django.shortcuts import render
 from .models import Gesipe_adm
 from django.views.generic import ListView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.paginator import Paginator
+from django.db.models import Q  # Para pesquisas com OR lógico
 
 # Create your views here.
 
 # url - view - html
-# def gesipe(request):
-#     context = {}
-#     lista_datas = Gesipe_adm.objects.all()
-#     context ['lista_datas'] = lista_datas
-#     return render(request, "gesipe.html", context)
+
 
 class Gesipe(LoginRequiredMixin, ListView):
     template_name = "gesipe.html"
     model = Gesipe_adm
-    #object list -> lista de itens do modelo
+    paginate_by = 5  # Itens por página
+    ordering = ['data']  # Ordena pelo campo 'data'
+
+    def get_queryset(self):
+        query = self.request.GET.get('query', '')
+        queryset = super().get_queryset()
+
+        if query:
+            queryset = queryset.filter(
+                Q(usuario__username__icontains=query) |  # Filtra pelo nome de usuário
+                Q(data__icontains=query) |  # Filtra pela data
+                Q(total__icontains=query)  # Filtra pelo total de inserções
+            )
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['query'] = self.request.GET.get('query', '')
+        return context
 
 
 

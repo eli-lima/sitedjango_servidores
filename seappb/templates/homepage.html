@@ -8,39 +8,224 @@ HomePage SeapPB
 {% block content %}
 
 
-    <header class="min-h-screen showcase border-gray-600 border-b-8 flex justify-center items-center bg-no-repeat">
-        <div class="z-10 h-full py-32 md:py-0 text-center flex items-center flex-col">
 
-            <h1 class="font-semibold text-4xl md:text-5xl w-10/12 md:w-3/4 text-center">
-                Filmes e séries da Hashtag, tudo em um só lugar.
-            </h1>
-            <h3 class="text-xl md:text-xl py-5">
-                Assista onde quiser. Cancele quando quiser.
-            </h3>
-            <h4 class="text-sm md:text-lg pb-3">
-                Quer começar? Coloque seu e-mail abaixo para acessar.
-            </h4>
 
-            <div class="w-full flex justify-center">
-                <div class="flex justify-center items-center w-11/12 md:w-10/12">
-                    <form method="post" class="w-6/12 justify-center">
-                        <div class="flex flex-grow items-stretch">
-                            <input
-                            >
-                        <button class=" bg-red-600 font-medium md:font-normal flex justify-center items-center py-2 px-3 md:px-0 rounded-br-sm rounded-tr-sm md:text-2xl" type="submit">
-                            <span class="text-white">
-                                Acessar
-                            </span>
-                            <ion-icon name="chevron-forward-outline" class="text-2xl"></ion-icon>
-                        </button>
+
+
+    <header class="showcase border-gray-600 border-b-8 flex flex-col gap-8 px-8 py-36">
+
+<!--        cards iniciais-->
+        <div class="flex flex-wrap gap-4">
+<!--        card1-->
+            <div class="w-full md:w-1/2 lg:w-1/4 p-2">
+                <div class="flex flex-row gap-4 items-center justify-between">
+                    <div class="md:h-1/4 h-1/2 flex flex-col min-w-0 break-words bg-white shadow-xl rounded-2xl bg-clip-border">
+                      <div class="flex-auto p-4">
+                        <div class="flex flex-row -mx-3">
+                          <div class="flex-none w-2/3 max-w-full px-3">
+                            <div>
+                              <p class="mb-0 font-sans font-semibold leading-normal uppercase text-sm">Today's Money</p>
+                              <h5 class="mb-2 font-bold dark:text-white">$53,000</h5>
+                              <p class="mb-0 dark:text-white dark:opacity-60">
+                                <span class="font-bold leading-normal text-sm text-emerald-500">+55%</span>
+                                since yesterday
+                              </p>
+                            </div>
+                          </div>
+                          <div class="px-3 text-right basis-1/3">
+                            <div class="inline-block w-12 h-12 text-center rounded-circle bg-gradient-to-tl from-blue-500 to-violet-500">
+                              <i class="fa fa-coins text-lg relative top-3.5 text-white"></i>
+                            </div>
+                          </div>
                         </div>
-                    </form>
-                    </a>
+                      </div>
+                    </div>
+                </div>
+            </div>
+    <!--            card2-->
+
+            <div class="w-full md:w-1/2 lg:w-1/4 p-2">
+                <div class="flex flex-row gap-4 items-center justify-between">
+                    <div class="md:h-1/4 h-1/2 flex flex-col min-w-0 break-words bg-white shadow-xl rounded-2xl bg-clip-border">
+                      <div class="flex-auto p-4">
+                        <div class="flex flex-row -mx-3">
+                          <div class="flex-none w-2/3 max-w-full px-3">
+                            <div>
+                              <p class="mb-0 font-sans font-semibold leading-normal uppercase text-sm">Today's Money</p>
+                              <h5 class="mb-2 font-bold dark:text-white">$53,000</h5>
+                              <p class="mb-0 dark:text-white dark:opacity-60">
+                                <span class="font-bold leading-normal text-sm text-emerald-500">+55%</span>
+                                since yesterday
+                              </p>
+                            </div>
+                          </div>
+                          <div class="px-3 text-right basis-1/3">
+                            <div class="inline-block w-12 h-12 text-center rounded-circle bg-gradient-to-tl from-blue-500 to-violet-500">
+                              <i class="fa fa-coins text-lg relative top-3.5 text-white"></i>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                 </div>
             </div>
 
+
+    <!--            card3-->
+
+
+
+    <!--            card4-->
         </div>
+
+<!--        primeira linha-->
+        <div class="flex md:flex-row flex-col gap-4 items-start justify-between">
+
+
+<!--            primeiro quadrado-->
+            <div class="flex flex-col space-y-4 w-full md:w-1/2 mt-5">
+                <!-- gráfico de linha -->
+                <div class="bg-white border border-gray-200 rounded-lg shadow-xl px-12 py-4">
+                    <div class="flex items-center justify-between pb-4 mb-4 border-b border-gray-200 dark:border-gray-700">
+                        <div>
+                            <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Tipo de Movimentacao</h3>
+                            <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">Administrativo</span>
+                        </div>
+                        <a href="#" class="inline-flex items-center p-2 text-xs font-medium uppercase rounded-lg text-primary-700 sm:text-sm hover:bg-gray-100 dark:text-primary-500 dark:hover:bg-gray-700">
+                            Dados Completos
+                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                        </a>
+                    </div>
+                    <div>
+                        <canvas id="chart-line" width="200" height="100"></canvas>
+                    </div>
+                </div>
+
+<!--                segundo grafico primeiro coluna-->
+
+                <div class="bg-white border border-gray-200 rounded-lg shadow-xl">
+                    <div class="flex items-start justify-between pb-4 mb-4 border-b border-gray-200 dark:border-gray-700">
+                        <div>
+                            <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Tipo de Movimentacao</h3>
+                            <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">Administrativo</span>
+                        </div>
+                        <a href="#" class="inline-flex items-center p-2 text-xs font-medium uppercase rounded-lg text-primary-700 sm:text-sm hover:bg-gray-100 dark:text-primary-500 dark:hover:bg-gray-700">
+                            Dados Completos
+                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                        </a>
+                    </div>
+                    <div>
+                        <canvas id="teste1" width="300" height="150"></canvas>
+                    </div>
+                </div>
+
+            </div>
+
+<!--            segundo quadrado-->
+            <div class="flex flex-col space-y-4 w-full md:w-1/2 mt-2">
+
+                <!-- gráfico de pizza -->
+                <div class="bg-white border border-gray-200 rounded-lg shadow-xl mt-10 px-12 py-4">
+                    <div class="flex items-center justify-between pb-4 mb-4 border-b border-gray-200">
+                        <div>
+                            <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Tipo de Movimentacao</h3>
+                            <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">Administrativo</span>
+                        </div>
+                        <a href="#" class="inline-flex items-center p-2 text-xs font-medium uppercase rounded-lg text-primary-700 sm:text-sm hover:bg-gray-100 dark:text-primary-500 dark:hover:bg-gray-700">
+                            Dados Completos
+                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                        </a>
+                    </div>
+                    <div>
+                        <canvas id="administrativo-pizza" width="500" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- quarto item -->
+        <div class="bg-white w-full border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 px-12 dark:bg-gray-800 mb-4">
+            <div class="flex items-start justify-between pb-4 mb-4 border-b border-gray-200 dark:border-gray-700 py-4">
+                <div>
+                    <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Tipo de Movimentacao</h3>
+                    <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">Administrativo</span>
+                </div>
+                <a href="#" class="inline-flex items-center p-2 text-xs font-medium uppercase rounded-lg text-primary-700 sm:text-sm hover:bg-gray-100 dark:text-primary-500 dark:hover:bg-gray-700">
+                    Dados Completos
+                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </a>
+            </div>
+            <div>
+                <div class="flex-auto px-0 pt-0 pb-2">
+                <div class="p-0 overflow-x-auto">
+                  <table class="items-center w-full mb-0 align-top border-gray-200 text-slate-500">
+                    <thead class="align-bottom">
+                      <tr>
+                        <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-lg border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Autor</th>
+                        <th class="hidden md:table-cell px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-lg border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Memorandos</th>
+                        <th class="hidden md:table-cell px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-lg border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Despachos</th>
+                        <th class="hidden md:table-cell px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-lg border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Oficios</th>
+                        <th class="hidden md:table-cell px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-lg border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">OS</th>
+                        <th class="hidden md:table-cell px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-lg border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Portarias</th>
+                        <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-lg border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Total</th>
+
+                      </tr>
+                    </thead>
+                    <tbody>
+                        {{ object_list.all }}
+                      <tr>
+                        {% for data in object_list %}
+                        <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                          <div class="flex px-2 py-1">
+                            <div>
+                              <img src="{{ data.usuario.foto_perfil.url }}" class="inline-flex items-center justify-center mr-4 text-white transition-all duration-200 ease-in-out text-sm h-9 w-9 rounded-xl" alt="user1" />
+                            </div>
+                            <div class="flex flex-col justify-center">
+                              <h6 class="mb-0 leading-normal text-sm">{{ data.usuario.first_name }} {{ data.usuario.last_name }}</h6>
+                              <p class="mb-0 leading-tight text-xs text-slate-400">{{ data.usuario.email }}</p>
+                            </div>
+                          </div>
+                        </td>
+
+                        <td class="hidden md:table-cell p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                          <span class="font-semibold leading-tight text-xs text-slate-400">{{ data.total_memorando }}</span>
+                        </td>
+                        <td class="hidden md:table-cell p-2 leading-normal text-center align-middle bg-transparent border-b text-sm whitespace-nowrap shadow-transparent">
+                          <span class="font-semibold leading-tight text-xs text-slate-400">{{ data.total_despacho }}</span>
+                        </td>
+                        <td class="hidden md:table-cell p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                          <span class="font-semibold leading-tight text-xs text-slate-400">{{ data.total_oficio }}</span>
+                        </td>
+                        <td class="hidden md:table-cell p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                          <span class="font-semibold leading-tight text-xs text-slate-400">{{ data.total_os }}</span>
+                        </td>
+                        <td class="hidden md:table-cell p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                          <span class="font-semibold leading-tight text-xs text-slate-400">{{ data.portarias }}</span>
+                        </td>
+                        <td class="md:table-cell p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                          <span class="font-semibold leading-tight text-xs text-slate-400">{{ data.total }}</span>
+                        </td>
+                      </tr>
+                      {% endfor %}
+
+
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+        </div>
+
     </header>
+
 
     <section class='flex flex-col md:flex-row items-center border-gray-900 border-b-8' style="min-height: 70vh;">
         <div class="md:w-1/2 flex flex-col justify-center text-center md:text-left p-5 md:p-10 ">
@@ -105,6 +290,118 @@ HomePage SeapPB
             <img src="{% static 'images/seap-pb.png' %}" class="w-8/12" alt="">
         </div>
     </section>
+
+
+<!--grafico de linha, depois transferir para arquivo individual-->
+
+<script>
+    var ctx = document.getElementById('chart-line').getContext('2d');
+    var labels = {{ labels_mensais|safe }};
+    var values = {{ values_mensais|safe }};
+
+    var myLineChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Total de Movimentações',
+                data: values,
+                backgroundColor: 'rgba(210, 0, 0, 0.2)',
+                borderColor: 'rgba(230, 0, 0, 1)',
+                borderWidth: 2,
+                fill: true,
+                pointRadius: 0, // Remove os pontos
+                borderCapStyle: 'round', // Arredonda as extremidades da linha
+                borderJoinStyle: 'round', // Arredonda as junções da linha
+                tension: 0.4 // Adiciona uma suavização à linha
+            }]
+        },
+        options: {
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+<!--grafico pizza depois criar js proprios-->
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var ctx = document.getElementById('administrativo-pizza').getContext('2d');
+        var myPieChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: {{ pie_labels|safe }},
+                datasets: [{
+                    label: 'Total por Categoria',
+                    data: {{ pie_values|safe }},
+                    backgroundColor: [
+                        'rgba(22, 189, 202, 1)',
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)'
+                    ],
+                    borderColor: [
+                        'rgba(22, 189, 202, 1)',
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)'
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return tooltipItem.label + ': ' + tooltipItem.raw;
+                            }
+                        }
+                    },
+                    datalabels: {
+                        display: true,
+                        color: '#ffffff',
+                        font: {
+                            weight: 'bold',
+                            size: 14
+                        },
+                        formatter: (value, ctx) => {
+                            let label = ctx.chart.data.labels[ctx.dataIndex];
+                            return `${label}: ${value}`;
+                        }
+                    }
+                },
+                cutout: '50%' // Ajusta a espessura do gráfico tipo donut
+            }
+        });
+    });
+</script>
 
 
 

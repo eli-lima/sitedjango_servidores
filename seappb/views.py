@@ -8,9 +8,14 @@ from .mixins import HideNavMixin
 from django.contrib.auth.views import LoginView
 from .forms import CriarContaForm
 from django.urls import reverse_lazy, reverse
+from django.db import models
 from PIL import Image
 from io import BytesIO
 from django.core.files.base import ContentFile
+from django.utils import timezone
+import calendar
+from django.db.models import Sum
+
 import os
 
 # Create your views here.
@@ -18,6 +23,61 @@ import os
 
 class Homepage(LoginRequiredMixin, TemplateView):
     template_name = "homepage.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Obtendo os dados para o gráfico
+        current_year = timezone.now().year
+        monthly_totals = []
+
+        for month in range(1, 13):
+            monthly_total = \
+            Gesipe_adm.objects.filter(data__year=current_year, data__month=month).aggregate(total=models.Sum('total'))[
+                'total'] or 0
+            monthly_totals.append(monthly_total)
+
+        # Labels dos meses
+        labels = [calendar.month_name[month] for month in range(1, 13)]
+
+        # Obtendo os dados para o gráfico de pizza
+        total_values = Gesipe_adm.objects.aggregate(
+            total_memorando=Sum('total_memorando'),
+            total_despacho=Sum('total_despacho'),
+            total_oficio=Sum('total_oficio'),
+            total_os=Sum('total_os'),
+            processos=Sum('processos'),
+            portarias=Sum('portarias')
+        )
+
+        pie_labels = [
+            'Memorandos',
+            'Despachos',
+            'Ofícios',
+            'OS',
+            'Processos',
+            'Portarias'
+        ]
+        pie_values = [
+            total_values['total_memorando'] or 0,
+            total_values['total_despacho'] or 0,
+            total_values['total_oficio'] or 0,
+            total_values['total_os'] or 0,
+            total_values['processos'] or 0,
+            total_values['portarias'] or 0,
+        ]
+
+        # Obtendo todos os registros de Gesipe_adm para a tabela
+        context['object_list'] = Gesipe_adm.objects.all()
+
+
+        # Passando os dados para o template
+        context['labels_mensais'] = labels
+        context['values_mensais'] = monthly_totals
+        context['pie_labels'] = pie_labels
+        context['pie_values'] = pie_values
+
+        return context
 
 
 
