@@ -12,124 +12,145 @@ HomePage SeapPB
 
 
 
-    <header class="showcase border-gray-600 border-b-8 flex flex-col gap-8 px-8 py-36">
+    <header class="showcase border-gray-600 flex flex-col gap-8 px-8 pt-24 pb-8">
 
-<!--        cards iniciais-->
-        <div class="flex flex-wrap gap-4">
-<!--        card1-->
-            <div class="w-full md:w-1/2 lg:w-1/4 p-2">
-                <div class="flex flex-row gap-4 items-center justify-between">
-                    <div class="md:h-1/4 h-1/2 flex flex-col min-w-0 break-words bg-white shadow-xl rounded-2xl bg-clip-border">
-                      <div class="flex-auto p-4">
-                        <div class="flex flex-row -mx-3">
-                          <div class="flex-none w-2/3 max-w-full px-3">
-                            <div>
-                              <p class="mb-0 font-sans font-semibold leading-normal uppercase text-sm">Today's Money</p>
-                              <h5 class="mb-2 font-bold dark:text-white">$53,000</h5>
-                              <p class="mb-0 dark:text-white dark:opacity-60">
-                                <span class="font-bold leading-normal text-sm text-emerald-500">+55%</span>
-                                since yesterday
-                              </p>
-                            </div>
-                          </div>
-                          <div class="px-3 text-right basis-1/3">
-                            <div class="inline-block w-12 h-12 text-center rounded-circle bg-gradient-to-tl from-blue-500 to-violet-500">
-                              <i class="fa fa-coins text-lg relative top-3.5 text-white"></i>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                </div>
-            </div>
-    <!--            card2-->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
 
-            <div class="w-full md:w-1/2 lg:w-1/4 p-2">
-                <div class="flex flex-row gap-4 items-center justify-between">
-                    <div class="md:h-1/4 h-1/2 flex flex-col min-w-0 break-words bg-white shadow-xl rounded-2xl bg-clip-border">
-                      <div class="flex-auto p-4">
+            <!-- Card 1 -->
+            <div class="p-2">
+                <div class="flex flex-col min-w-0 break-words bg-white shadow-xl rounded-2xl">
+                    <div class="flex-auto p-4">
                         <div class="flex flex-row -mx-3">
-                          <div class="flex-none w-2/3 max-w-full px-3">
-                            <div>
-                              <p class="mb-0 font-sans font-semibold leading-normal uppercase text-sm">Today's Money</p>
-                              <h5 class="mb-2 font-bold dark:text-white">$53,000</h5>
-                              <p class="mb-0 dark:text-white dark:opacity-60">
-                                <span class="font-bold leading-normal text-sm text-emerald-500">+55%</span>
-                                since yesterday
-                              </p>
+                            <div class="flex-none w-2/3 max-w-full px-3">
+                                <div>
+                                    <p class="mb-0 font-sans font-semibold leading-normal uppercase text-sm">Mov. do Dia</p>
+                                    <h5 class="mb-2 font-bold">12</h5>
+                                    <p class="mb-0 text-emerald-500">
+                                        <span class="font-bold leading-normal text-sm">+55%</span> menos que ontem
+                                    </p>
+                                </div>
                             </div>
-                          </div>
-                          <div class="px-3 text-right basis-1/3">
-                            <div class="inline-block w-12 h-12 text-center rounded-circle bg-gradient-to-tl from-blue-500 to-violet-500">
-                              <i class="fa fa-coins text-lg relative top-3.5 text-white"></i>
+                            <div class="px-3 text-right basis-1/3">
+                                <div class="inline-block w-12 h-12 text-center rounded-full bg-gradient-to-tl from-blue-500 to-violet-500">
+                                    <i class="fa fa-coins text-lg relative top-3.5 text-white"></i>
+                                </div>
                             </div>
-                          </div>
                         </div>
-                      </div>
                     </div>
                 </div>
             </div>
 
+          <!-- ... -->
+          <div>
+            <!-- Card 2 -->
+            <div class="p-2">
+                <div class="flex flex-col min-w-0 break-words bg-white shadow-xl rounded-2xl">
+                    <div class="flex-auto p-4">
+                        <div class="flex flex-row -mx-3">
+                            <div class="flex-none w-2/3 max-w-full px-3">
+                                <div>
+                                    <p class="mb-0 font-sans font-semibold leading-normal uppercase text-sm">Serv. Cadastrados</p>
+                                    <h5 class="mb-2 font-bold">4</h5>
+                                    <p class="mb-0 text-emerald-500">
+                                        <span class="font-bold leading-normal text-sm">+32%</span> mais que 2023
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="px-3 text-right basis-1/3">
+                                <div class="inline-block w-12 h-12 text-center rounded-full bg-gradient-to-tl from-blue-500 to-violet-500">
+                                    <i class="fa fa-coins text-lg relative top-3.5 text-white"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+          </div>
 
-    <!--            card3-->
+          <div>
+            <!-- Card 3 -->
+            <div class="p-2">
+                <div class="flex flex-col min-w-0 break-words bg-white shadow-xl rounded-2xl">
+                    <div class="flex-auto p-4">
+                        <div class="flex flex-row -mx-3">
+                            <div class="flex-none w-2/3 max-w-full px-3">
+                                <div>
+                                    <p class="mb-0 font-sans font-semibold leading-normal uppercase text-sm">Setores Ativos</p>
+                                    <h5 class="mb-2 font-bold">1</h5>
+                                    <p class="mb-0 text-emerald-500">
+                                        <span class="font-bold leading-normal text-sm">+0%</span> a mais que o mes anterior
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="px-3 text-right basis-1/3">
+                                <div class="inline-block w-12 h-12 text-center rounded-full bg-gradient-to-tl from-blue-500 to-violet-500">
+                                    <i class="fa fa-coins text-lg relative top-3.5 text-white"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+          </div>
 
-
-
-    <!--            card4-->
+          <div>
+            <!-- Card 4 -->
+            <div class="p-2">
+                <div class="flex flex-col min-w-0 break-words bg-white shadow-xl rounded-2xl">
+                    <div class="flex-auto p-4">
+                        <div class="flex flex-row -mx-3">
+                            <div class="flex-none w-2/3 max-w-full px-3">
+                                <div>
+                                    <p class="mb-0 font-sans font-semibold leading-normal uppercase text-sm">Acessos do Dia</p>
+                                    <h5 class="mb-2 font-bold">1</h5>
+                                    <p class="mb-0 text-emerald-500">
+                                        <span class="font-bold leading-normal text-sm">+12%</span> a mais que ontem
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="px-3 text-right basis-1/3">
+                                <div class="inline-block w-12 h-12 text-center rounded-full bg-gradient-to-tl from-blue-500 to-violet-500">
+                                    <i class="fa fa-coins text-lg relative top-3.5 text-white"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+          </div>
         </div>
 
-<!--        primeira linha-->
-        <div class="flex md:flex-row flex-col gap-4 items-start justify-between">
 
 
-<!--            primeiro quadrado-->
-            <div class="flex flex-col space-y-4 w-full md:w-1/2 mt-5">
-                <!-- gráfico de linha -->
-                <div class="bg-white border border-gray-200 rounded-lg shadow-xl px-12 py-4">
-                    <div class="flex items-center justify-between pb-4 mb-4 border-b border-gray-200 dark:border-gray-700">
-                        <div>
-                            <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Tipo de Movimentacao</h3>
-                            <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">Administrativo</span>
-                        </div>
-                        <a href="#" class="inline-flex items-center p-2 text-xs font-medium uppercase rounded-lg text-primary-700 sm:text-sm hover:bg-gray-100 dark:text-primary-500 dark:hover:bg-gray-700">
-                            Dados Completos
-                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                            </svg>
-                        </a>
-                    </div>
+
+    </header>
+
+
+    <section>
+        <div class="flex flex-col md:grid grid-cols-1 md:grid-cols-2 gap-4 mx-8 content-between">
+          <div>
+               <!-- Gráfico de barra -->
+            <div class="bg-white border border-gray-200 rounded-lg shadow-xl mt-3 py-4 px-4  md:min-h-[300px]">
+                <div class="flex items-center justify-between pb-4 mb-4 border-b border-gray-200">
                     <div>
-                        <canvas id="chart-line" width="200" height="100"></canvas>
+                        <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Tipo de Movimentacao</h3>
+                        <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">Administrativo</span>
                     </div>
+                    <a href="#" class="inline-flex items-center p-2 text-xs font-medium uppercase rounded-lg text-primary-700 sm:text-sm hover:bg-gray-100 dark:text-primary-500 dark:hover:bg-gray-700">
+                        Dados Completos
+                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </a>
                 </div>
-
-<!--                segundo grafico primeiro coluna-->
-
-                <div class="bg-white border border-gray-200 rounded-lg shadow-xl">
-                    <div class="flex items-start justify-between pb-4 mb-4 border-b border-gray-200 dark:border-gray-700">
-                        <div>
-                            <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Tipo de Movimentacao</h3>
-                            <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">Administrativo</span>
-                        </div>
-                        <a href="#" class="inline-flex items-center p-2 text-xs font-medium uppercase rounded-lg text-primary-700 sm:text-sm hover:bg-gray-100 dark:text-primary-500 dark:hover:bg-gray-700">
-                            Dados Completos
-                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                            </svg>
-                        </a>
-                    </div>
-                    <div>
-                        <canvas id="teste1" width="300" height="150"></canvas>
-                    </div>
+                <div>
+                    <canvas id="chart-bar" width="200" height="100"></canvas>
                 </div>
-
             </div>
-
-<!--            segundo quadrado-->
-            <div class="flex flex-col space-y-4 w-full md:w-1/2 mt-2">
-
-                <!-- gráfico de pizza -->
-                <div class="bg-white border border-gray-200 rounded-lg shadow-xl mt-10 px-12 py-4">
+          </div>
+          <div class="md:row-span-2">
+              <!-- gráfico de pizza -->
+                <div class="bg-white border border-gray-200 rounded-lg shadow-xl mt-3 px-4 py-4 mt-3 md:min-h-[922px]">
                     <div class="flex items-center justify-between pb-4 mb-4 border-b border-gray-200">
                         <div>
                             <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Tipo de Movimentacao</h3>
@@ -146,193 +167,171 @@ HomePage SeapPB
                         <canvas id="administrativo-pizza" width="500" height="300"></canvas>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- quarto item -->
-        <div class="bg-white w-full border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 px-12 dark:bg-gray-800 mb-4">
-            <div class="flex items-start justify-between pb-4 mb-4 border-b border-gray-200 dark:border-gray-700 py-4">
+          </div>
+          <div class="">
+<!--                grafico de linha-->
+               <div class="bg-white border border-gray-200 rounded-lg shadow-xl px-4 py-4">
+                    <div class="flex items-center justify-between pb-4 mb-4 border-b border-gray-200">
+                        <div>
+                            <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Tipo de Movimentacao</h3>
+                            <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">Administrativo</span>
+                        </div>
+                        <a href="#" class="inline-flex items-center p-2 text-xs font-medium uppercase rounded-lg text-primary-700 sm:text-sm hover:bg-gray-100 dark:text-primary-500 dark:hover:bg-gray-700">
+                            Dados Completos
+                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                        </a>
+                    </div>
+                    <div>
+                        <canvas id="myLineChart" width="200" height="100"></canvas>
+                    </div>
+                </div>
+          </div>
+
+
+
+
+
+          <div class="col-span-2">
+              <!-- quarto item TABELA -->
+            <div class="bg-white w-full border border-gray-200 rounded-lg shadow-sm mb-4">
+                <div class="flex items-start justify-between pb-4 mb-4 border-b border-gray-200 py-4 px-4">
+                    <div>
+                        <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Tipo de Movimentacao</h3>
+                        <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">Administrativo</span>
+                    </div>
+                    <a href="#" class="inline-flex items-center p-2 text-xs font-medium uppercase rounded-lg text-primary-700 sm:text-sm hover:bg-gray-100 dark:text-primary-500 dark:hover:bg-gray-700">
+                        Dados Completos
+                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </a>
+                </div>
                 <div>
-                    <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Tipo de Movimentacao</h3>
-                    <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">Administrativo</span>
+                    <div class="flex-auto px-0 pt-0 pb-2">
+                    <div class="p-0 overflow-x-auto">
+                      <table class="items-center w-full mb-0 align-top border-gray-200 text-slate-500">
+                        <thead class="align-bottom">
+                          <tr>
+                            <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-lg border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Autor</th>
+                            <th class="hidden md:table-cell px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-lg border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Memorandos</th>
+                            <th class="hidden md:table-cell px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-lg border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Despachos</th>
+                            <th class="hidden md:table-cell px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-lg border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Oficios</th>
+                            <th class="hidden md:table-cell px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-lg border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">OS</th>
+                            <th class="hidden md:table-cell px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-lg border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Portarias</th>
+                            <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-lg border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Total</th>
+
+                          </tr>
+                        </thead>
+                        <tbody>
+
+                          <tr>
+                            {% for data in object_list %}
+                            <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                              <div class="flex px-2 py-1">
+                                <div>
+                                  <img src="{{ data.usuario.foto_perfil.url }}" class="inline-flex items-center justify-center mr-4 text-white transition-all duration-200 ease-in-out text-sm h-9 w-9 rounded-xl" alt="user1" />
+                                </div>
+                                <div class="flex flex-col justify-center">
+                                  <h6 class="mb-0 leading-normal text-sm">{{ data.usuario.first_name }} {{ data.usuario.last_name }}</h6>
+                                  <p class="mb-0 leading-tight text-xs text-slate-400">{{ data.usuario.email }}</p>
+                                </div>
+                              </div>
+                            </td>
+
+                            <td class="hidden md:table-cell p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                              <span class="font-semibold leading-tight text-xs text-slate-400">{{ data.total_memorando }}</span>
+                            </td>
+                            <td class="hidden md:table-cell p-2 leading-normal text-center align-middle bg-transparent border-b text-sm whitespace-nowrap shadow-transparent">
+                              <span class="font-semibold leading-tight text-xs text-slate-400">{{ data.total_despacho }}</span>
+                            </td>
+                            <td class="hidden md:table-cell p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                              <span class="font-semibold leading-tight text-xs text-slate-400">{{ data.total_oficio }}</span>
+                            </td>
+                            <td class="hidden md:table-cell p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                              <span class="font-semibold leading-tight text-xs text-slate-400">{{ data.total_os }}</span>
+                            </td>
+                            <td class="hidden md:table-cell p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                              <span class="font-semibold leading-tight text-xs text-slate-400">{{ data.portarias }}</span>
+                            </td>
+                            <td class="md:table-cell p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                              <span class="font-semibold leading-tight text-xs text-slate-400">{{ data.total }}</span>
+                            </td>
+                          </tr>
+                          {% endfor %}
+
+
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
                 </div>
-                <a href="#" class="inline-flex items-center p-2 text-xs font-medium uppercase rounded-lg text-primary-700 sm:text-sm hover:bg-gray-100 dark:text-primary-500 dark:hover:bg-gray-700">
-                    Dados Completos
-                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                    </svg>
-                </a>
             </div>
-            <div>
-                <div class="flex-auto px-0 pt-0 pb-2">
-                <div class="p-0 overflow-x-auto">
-                  <table class="items-center w-full mb-0 align-top border-gray-200 text-slate-500">
-                    <thead class="align-bottom">
-                      <tr>
-                        <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-lg border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Autor</th>
-                        <th class="hidden md:table-cell px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-lg border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Memorandos</th>
-                        <th class="hidden md:table-cell px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-lg border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Despachos</th>
-                        <th class="hidden md:table-cell px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-lg border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Oficios</th>
-                        <th class="hidden md:table-cell px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-lg border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">OS</th>
-                        <th class="hidden md:table-cell px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-lg border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Portarias</th>
-                        <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-lg border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Total</th>
-
-                      </tr>
-                    </thead>
-                    <tbody>
-                        {{ object_list.all }}
-                      <tr>
-                        {% for data in object_list %}
-                        <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                          <div class="flex px-2 py-1">
-                            <div>
-                              <img src="{{ data.usuario.foto_perfil.url }}" class="inline-flex items-center justify-center mr-4 text-white transition-all duration-200 ease-in-out text-sm h-9 w-9 rounded-xl" alt="user1" />
-                            </div>
-                            <div class="flex flex-col justify-center">
-                              <h6 class="mb-0 leading-normal text-sm">{{ data.usuario.first_name }} {{ data.usuario.last_name }}</h6>
-                              <p class="mb-0 leading-tight text-xs text-slate-400">{{ data.usuario.email }}</p>
-                            </div>
-                          </div>
-                        </td>
-
-                        <td class="hidden md:table-cell p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                          <span class="font-semibold leading-tight text-xs text-slate-400">{{ data.total_memorando }}</span>
-                        </td>
-                        <td class="hidden md:table-cell p-2 leading-normal text-center align-middle bg-transparent border-b text-sm whitespace-nowrap shadow-transparent">
-                          <span class="font-semibold leading-tight text-xs text-slate-400">{{ data.total_despacho }}</span>
-                        </td>
-                        <td class="hidden md:table-cell p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                          <span class="font-semibold leading-tight text-xs text-slate-400">{{ data.total_oficio }}</span>
-                        </td>
-                        <td class="hidden md:table-cell p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                          <span class="font-semibold leading-tight text-xs text-slate-400">{{ data.total_os }}</span>
-                        </td>
-                        <td class="hidden md:table-cell p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                          <span class="font-semibold leading-tight text-xs text-slate-400">{{ data.portarias }}</span>
-                        </td>
-                        <td class="md:table-cell p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                          <span class="font-semibold leading-tight text-xs text-slate-400">{{ data.total }}</span>
-                        </td>
-                      </tr>
-                      {% endfor %}
 
 
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-        </div>
+          </div>
 
-    </header>
-
-
-    <section class='flex flex-col md:flex-row items-center border-gray-900 border-b-8' style="min-height: 70vh;">
-        <div class="md:w-1/2 flex flex-col justify-center text-center md:text-left p-5 md:p-10 ">
-            <h2 class="md:text-5xl text-4xl font-semibold mb-4">
-                Enjoy on your TV.
-            </h2>
-            <h5 class="md:text-xl text-lg">
-                Watch on Smart TVs, Playstation, Xbox, Chromecast, Apple TV, Blu-ray players, and more.
-            </h5>
-        </div>
-        <div class='md:w-1/2 flex justify-center items-center'>
-            <img src="" class="w-8/12" alt="">
-        </div>
-    </section>
-
-    <section class='flex flex-col md:flex-row items-center border-gray-900 border-b-8' style="min-height: 70vh;">
-        <div class='md:w-1/2 flex justify-center items-center '>
-            <img src="#" class="w-8/12" alt="">
-        </div>
-
-        <div class="md:w-1/2 flex flex-col justify-center text-center md:text-left p-5 md:p-10">
-            <h2 class="md:text-5xl text-4xl font-semibold mb-4">
-                Download your shows to watch offline.
-            </h2>
-            <h5 class="md:text-xl text-lg">
-                Save your favorites easily and always have something to watch.
-            </h5>
-        </div>
-
-    </section>
-
-    <section class='flex flex-col md:flex-row items-center border-gray-900 border-b-8' style="min-height: 70vh;">
-        <div class="md:w-1/2 flex flex-col justify-center text-center md:text-left p-5 md:p-10">
-            <h2 class="md:text-5xl text-4xl font-semibold mb-4">
-                Create profiles for kids.
-            </h2>
-            <h5 class="md:text-xl text-lg">
-                Send kids on adventures with their favorite characters in a space made just for them—free with your membership.
-            </h5>
-        </div>
-        <div class='md:w-1/2 flex justify-center items-center'>
-            <img src="{% static 'images/seap-pb.png' %}" class="w-8/12" alt="">
-        </div>
-    </section>
-
-     <section class='flex flex-col md:flex-row items-center border-gray-900 border-b-8' style="min-height: 70vh;">
-        <div class="md:w-1/2 flex flex-col justify-center text-center md:text-left p-5 md:p-10">
-            <h2 class="md:text-5xl text-4xl font-semibold mb-4">
-                {% for data in request.user.edicoes_adm.all %}
-                    <p>{{ data.data }}</p>
-                    <p>{{ data.id }}</p>
-                    <p>{{ data.total }}</p>
-
-
-                {% endfor %}
-            </h2>
-            <h5 class="md:text-xl text-lg">
-                Send kids on adventures with their favorite characters in a space made just for them—free with your membership.
-            </h5>
-        </div>
-        <div class='md:w-1/2 flex justify-center items-center'>
-            <img src="{% static 'images/seap-pb.png' %}" class="w-8/12" alt="">
         </div>
     </section>
 
 
-<!--grafico de linha, depois transferir para arquivo individual-->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--grafico de barra, depois transferir para arquivo individual-->
 
 <script>
-    var ctx = document.getElementById('chart-line').getContext('2d');
-    var labels = {{ labels_mensais|safe }};
-    var values = {{ values_mensais|safe }};
+    // Dados do gráfico de barra
+    var ctx = document.getElementById('chart-bar').getContext('2d');
+    var barLabels = {{ labels_mensais|safe }};
+    var barValues = {{ values_mensais|safe }};
 
-    var myLineChart = new Chart(ctx, {
-        type: 'line',
+    var myBarChart = new Chart(ctx, {
+        type: 'bar', // Tipo de gráfico: barra
         data: {
-            labels: labels,
+            labels: barLabels,
             datasets: [{
                 label: 'Total de Movimentações',
-                data: values,
-                backgroundColor: 'rgba(210, 0, 0, 0.2)',
-                borderColor: 'rgba(230, 0, 0, 1)',
-                borderWidth: 2,
-                fill: true,
-                pointRadius: 0, // Remove os pontos
-                borderCapStyle: 'round', // Arredonda as extremidades da linha
-                borderJoinStyle: 'round', // Arredonda as junções da linha
-                tension: 0.4 // Adiciona uma suavização à linha
+                data: barValues,
+                backgroundColor: 'rgba(210, 0, 0, 1)', // Cor de fundo das barras
+                borderColor: 'rgba(210, 0, 0, 1)', // Cor da borda das barras
+                borderWidth: 2, // Largura da borda das barras
+                borderRadius: 4 // Arredondamento das bordas das barras
             }]
         },
         options: {
             scales: {
                 x: {
                     grid: {
-                        display: false
+                        display: false // Oculta a grade no eixo X
                     }
                 },
                 y: {
-                    beginAtZero: true,
+                    beginAtZero: true, // Começa o eixo Y no zero
                     grid: {
-                        display: false
+                        display: false // Oculta a grade no eixo Y
                     }
                 }
             }
         }
     });
 </script>
+
+
 
 <!--grafico pizza depois criar js proprios-->
 
@@ -400,6 +399,50 @@ HomePage SeapPB
                 cutout: '50%' // Ajusta a espessura do gráfico tipo donut
             }
         });
+    });
+</script>
+
+
+
+<!-- Incluir os dados diretamente no script -->
+<script>
+    // Dados do gráfico de linhas
+    var ctx = document.getElementById('myLineChart').getContext('2d');
+    var lineLabels = {{ line_labels|safe }};
+    var lineValues = {{ line_values|safe }};
+
+    var myLineChart = new Chart(ctx, {
+        type: 'line', // Altere para 'line' se estiver usando um gráfico de linha
+        data: {
+            labels: lineLabels,
+            datasets: [{
+                label: 'Total Geral de Inserções',
+                data: lineValues,
+                backgroundColor: 'rgba(210, 0, 0, 0.55)', // Cor de fundo da área do gráfico
+                borderColor: 'rgba(210, 0, 0, 1)', // Cor da linha do gráfico
+                borderWidth: 2, // Largura da linha
+                fill: true, // Preenche a área sob a linha
+                pointRadius: 0, // Remove os pontos
+                borderCapStyle: 'round', // Arredonda as extremidades da linha
+                borderJoinStyle: 'round', // Arredonda as junções da linha
+                tension: 0.4 // Adiciona uma suavização à linha
+            }]
+        },
+        options: {
+            scales: {
+                x: {
+                    grid: {
+                        display: false // Oculta a grade no eixo X
+                    }
+                },
+                y: {
+                    beginAtZero: true, // Começa o eixo Y no zero
+                    grid: {
+                        display: false // Oculta a grade no eixo Y
+                    }
+                }
+            }
+        }
     });
 </script>
 

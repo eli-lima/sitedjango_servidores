@@ -15,6 +15,8 @@ from django.core.files.base import ContentFile
 from django.utils import timezone
 import calendar
 from django.db.models import Sum
+import json
+from django.utils.safestring import mark_safe
 
 import os
 
@@ -32,9 +34,7 @@ class Homepage(LoginRequiredMixin, TemplateView):
         monthly_totals = []
 
         for month in range(1, 13):
-            monthly_total = \
-            Gesipe_adm.objects.filter(data__year=current_year, data__month=month).aggregate(total=models.Sum('total'))[
-                'total'] or 0
+            monthly_total = Gesipe_adm.objects.filter(data__year=current_year, data__month=month).aggregate(total=models.Sum('total'))['total'] or 0
             monthly_totals.append(monthly_total)
 
         # Labels dos meses
@@ -70,15 +70,26 @@ class Homepage(LoginRequiredMixin, TemplateView):
         # Obtendo todos os registros de Gesipe_adm para a tabela
         context['object_list'] = Gesipe_adm.objects.all()
 
-
         # Passando os dados para o template
         context['labels_mensais'] = labels
         context['values_mensais'] = monthly_totals
         context['pie_labels'] = pie_labels
         context['pie_values'] = pie_values
 
-        return context
+        # Obtendo dados gerais para o gráfico de linha
+        daily_totals = Gesipe_adm.objects.values('data') \
+            .annotate(total=Sum('total')) \
+            .order_by('data')
 
+        # Separar labels e valores
+        line_labels = [entry['data'].strftime("%d/%m/%Y") for entry in daily_totals]
+        line_values = [entry['total'] for entry in daily_totals]
+
+        # Passar os dados para o contexto
+        context['line_labels'] = line_labels
+        context['line_values'] = line_values
+
+        return context
 
 
 class PesquisarSite(LoginRequiredMixin, ListView):

@@ -1,5 +1,8 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import Gesipe_adm
+from django.views.generic.edit import FormView
+from django.utils.timezone import now
+from .forms import GesipeAdmForm, BuscaDataForm
 from django.views.generic import ListView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
@@ -35,25 +38,65 @@ class Gesipe(LoginRequiredMixin, ListView):
         return context
 
 
+class GesipeAdmData(LoginRequiredMixin, FormView):
+    template_name = 'gesipe_adm_data.html'
+    form_class = BuscaDataForm
+    form_class_data = GesipeAdmForm
 
-class Gesipe_adm_data(LoginRequiredMixin, DetailView):
-    template_name = "gesipe_adm_data.html"
-    model = Gesipe_adm
-    #object -> item especifico do modelo
+    def get(self, request, *args, **kwargs):
+        form_busca = self.form_class()
+        form_data = self.form_class_data()
+        mostrar_formulario = False
 
+        if 'data' in request.GET:
+            data = request.GET['data']
+            dados_adm = Gesipe_adm.objects.filter(data=data).first()
+            mostrar_formulario = True
+            if dados_adm:
+                form_data = self.form_class_data(instance=dados_adm)
 
-    # vou usar para somar a quantidade de edicoes dos usuarios
-    # def get(self, request, *args, **kwargs):
-    #     #descobrir qual data esta editando ou adicionando
-    #     data = self.get.object()
-    #     data.visualizacoes += 1
-    #     data.save()
-    #
-    #     return super().get(request, *args, **kwargs) #redireciona o usuario para a url final
+        return self.render_to_response({
+            'form_busca': form_busca,
+            'form_data': form_data,
+            'mostrar_formulario': mostrar_formulario
+        })
 
-    def get_context_data(self, **kwargs):
-        context = super(Gesipe_adm_data, self).get_context_data(**kwargs)
-        #adicionar novos dados a pagina que nao faz referencial ao Detailview
-        #self.get_object()
-        return context
+    def post(self, request, *args, **kwargs):
+        form_busca = self.form_class(request.POST)
+        form_data = self.form_class_data(request.POST)
+        mostrar_formulario = False
+
+        if form_busca.is_valid() and 'botao_buscar' in request.POST:
+            data = form_busca.cleaned_data['data']
+            dados_adm = Gesipe_adm.objects.filter(data=data).first()
+            mostrar_formulario = True
+            if dados_adm:
+                form_data = self.form_class_data(instance=dados_adm)
+
+        if form_data.is_valid() and 'botao_submit' in request.POST:
+            dados_adm, created = Gesipe_adm.objects.get_or_create(
+                data=form_data.cleaned_data['data'],
+                defaults={'usuario': self.request.user}  # Adiciona o usuário ao criar
+            )
+
+            for field in form_data.fields:
+                setattr(dados_adm, field, form_data.cleaned_data[field])
+            dados_adm.total = (
+                    dados_adm.processos + dados_adm.memorandos_diarias +
+                    dados_adm.memorandos_documentos_capturados + dados_adm.despachos_gerencias +
+                    dados_adm.despachos_unidades + dados_adm.despachos_grupos +
+                    dados_adm.oficios_internos_unidades_prisionais + dados_adm.oficios_internos_setores_seap_pb +
+                    dados_adm.oficios_internos_circular + dados_adm.oficios_externos_seap_pb +
+                    dados_adm.oficios_externos_diversos + dados_adm.oficios_externos_judiciario +
+                    dados_adm.os_grupos + dados_adm.os_diversos + dados_adm.portarias
+            )
+            dados_adm.usuario = self.request.user  # Define o usuário antes de salvar
+            dados_adm.save()
+            return redirect('gesipe_adm_data')
+
+        return self.render_to_response({
+            'form_busca': form_busca,
+            'form_data': form_data,
+            'mostrar_formulario': mostrar_formulario
+        })
 
