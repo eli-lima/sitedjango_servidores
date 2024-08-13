@@ -7,6 +7,9 @@ from django.views.generic import ListView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
 from django.db.models import Q  # Para pesquisas com OR lógico
+from django.utils import timezone
+from django.contrib import messages
+
 
 # Create your views here.
 
@@ -38,7 +41,7 @@ class Gesipe(LoginRequiredMixin, ListView):
         return context
 
 
-class GesipeAdmData(LoginRequiredMixin, FormView):
+class GesipeAdmData(FormView):
     template_name = 'gesipe_adm_data.html'
     form_class = BuscaDataForm
     form_class_data = GesipeAdmForm
@@ -50,10 +53,35 @@ class GesipeAdmData(LoginRequiredMixin, FormView):
 
         if 'data' in request.GET:
             data = request.GET['data']
+            print(f"Data recebida na GET: {data}")
+
             dados_adm = Gesipe_adm.objects.filter(data=data).first()
+            print(f"Dados encontrados: {dados_adm}")
+
             mostrar_formulario = True
             if dados_adm:
                 form_data = self.form_class_data(instance=dados_adm)
+                print(f"Formulário preenchido com dados existentes: {form_data.initial}")
+            else:
+                form_data = self.form_class_data(initial={
+                    'data': data,
+                    'processos': 0,
+                    'memorandos_diarias': 0,
+                    'memorandos_documentos_capturados': 0,
+                    'despachos_gerencias': 0,
+                    'despachos_unidades': 0,
+                    'despachos_grupos': 0,
+                    'oficios_internos_unidades_prisionais': 0,
+                    'oficios_internos_setores_seap_pb': 0,
+                    'oficios_internos_circular': 0,
+                    'oficios_externos_seap_pb': 0,
+                    'oficios_externos_diversos': 0,
+                    'oficios_externos_judiciario': 0,
+                    'os_grupos': 0,
+                    'os_diversos': 0,
+                    'portarias': 0,
+                })
+                print(f"Formulário inicial com valores padrão: {form_data.initial}")
 
         return self.render_to_response({
             'form_busca': form_busca,
@@ -68,35 +96,62 @@ class GesipeAdmData(LoginRequiredMixin, FormView):
 
         if form_busca.is_valid() and 'botao_buscar' in request.POST:
             data = form_busca.cleaned_data['data']
+            print(f"Data recebida na POST (busca): {data}")
+
             dados_adm = Gesipe_adm.objects.filter(data=data).first()
+            print(f"Dados encontrados para busca: {dados_adm}")
+
             mostrar_formulario = True
             if dados_adm:
                 form_data = self.form_class_data(instance=dados_adm)
+                print(f"Formulário preenchido com dados existentes: {form_data.initial}")
+            else:
+                form_data = self.form_class_data(initial={
+                    'data': data,
+                    'processos': 0,
+                    'memorandos_diarias': 0,
+                    'memorandos_documentos_capturados': 0,
+                    'despachos_gerencias': 0,
+                    'despachos_unidades': 0,
+                    'despachos_grupos': 0,
+                    'oficios_internos_unidades_prisionais': 0,
+                    'oficios_internos_setores_seap_pb': 0,
+                    'oficios_internos_circular': 0,
+                    'oficios_externos_seap_pb': 0,
+                    'oficios_externos_diversos': 0,
+                    'oficios_externos_judiciario': 0,
+                    'os_grupos': 0,
+                    'os_diversos': 0,
+                    'portarias': 0,
+                })
+                print(f"Formulário inicial com valores padrão: {form_data.initial}")
 
-        if form_data.is_valid() and 'botao_submit' in request.POST:
-            dados_adm, created = Gesipe_adm.objects.get_or_create(
-                data=form_data.cleaned_data['data'],
-                defaults={'usuario': self.request.user}  # Adiciona o usuário ao criar
-            )
+        if form_data.is_valid():
+            data = form_data.cleaned_data['data']
+            print(f"Data para salvar/atualizar: {data}")
 
-            for field in form_data.fields:
-                setattr(dados_adm, field, form_data.cleaned_data[field])
-            dados_adm.total = (
-                    dados_adm.processos + dados_adm.memorandos_diarias +
-                    dados_adm.memorandos_documentos_capturados + dados_adm.despachos_gerencias +
-                    dados_adm.despachos_unidades + dados_adm.despachos_grupos +
-                    dados_adm.oficios_internos_unidades_prisionais + dados_adm.oficios_internos_setores_seap_pb +
-                    dados_adm.oficios_internos_circular + dados_adm.oficios_externos_seap_pb +
-                    dados_adm.oficios_externos_diversos + dados_adm.oficios_externos_judiciario +
-                    dados_adm.os_grupos + dados_adm.os_diversos + dados_adm.portarias
-            )
-            dados_adm.usuario = self.request.user  # Define o usuário antes de salvar
-            dados_adm.save()
-            return redirect('gesipe_adm_data')
+            dados_adm = Gesipe_adm.objects.filter(data=data).first()
+            print(f"Dados encontrados para atualizar: {dados_adm}")
+
+            if dados_adm:
+                form_data = self.form_class_data(request.POST, instance=dados_adm)
+                print(f"Formulário atualizado com dados existentes: {form_data.cleaned_data}")
+            else:
+                form_data = self.form_class_data(request.POST)
+
+            if form_data.is_valid():
+                print("Formulário é válido. Salvando dados...")
+                dados_adm = form_data.save(commit=False)
+                dados_adm.usuario = request.user  # Define o usuário atual
+                dados_adm.data_edicao = timezone.now()  # Atualiza a data de edição
+                dados_adm.save()
+                messages.success(self.request, 'Dados Adicionados/Atualizados com Sucesso')
+                return redirect('gesipe:gesipe_adm_data')
+            else:
+                print(f"Erros no formulário de dados: {form_data.errors}")
 
         return self.render_to_response({
             'form_busca': form_busca,
             'form_data': form_data,
             'mostrar_formulario': mostrar_formulario
         })
-
