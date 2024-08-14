@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-kz0k9m*i)oesg+5y$g6+zh&!o2q_9$w9fd#av2uqh_2hhd#cm#'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['127.0.0.1',
                  'seap-pb-c2d6216cfb4e.herokuapp.com']
@@ -90,12 +90,14 @@ DATABASES = {
     }
 }
 
-#import dj_database_url
+# desativar ative ele e o debug para continuar a producao
 
-#DATABASES['default'] = dj_database_url.config(
-#    conn_max_age=600,
-#    conn_health_checks=True,
-#)
+import dj_database_url
+
+DATABASES['default'] = dj_database_url.config(
+   conn_max_age=600,
+   conn_health_checks=True,
+)
 
 
 # Password validation

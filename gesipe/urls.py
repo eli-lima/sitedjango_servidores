@@ -1,14 +1,17 @@
 #urls - view - template
 
 from django.urls import path, include
-from .views import Gesipe, GesipeAdmData
+from .views import Gesipe, GesipeAdm, GesipeAdmEdit
 
 
 app_name = 'gesipe'
 
 urlpatterns = [
     path('', Gesipe.as_view(), name='gesipe'),
-    path('gesipe_adm/data/', GesipeAdmData.as_view(), name='gesipe_adm_data'),
+    path('gesipe_adm', GesipeAdm.as_view(), name='gesipe_adm'),
+    path('gesipe_adm/edit/<int:pk>', GesipeAdmEdit.as_view(), name='gesipe_adm_edit'),
+
+
 
 
 ]

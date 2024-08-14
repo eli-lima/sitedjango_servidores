@@ -3,28 +3,36 @@
 {% load static %}
 
 {% block titulo %}
-Gesipe Data
+Gesipe Administrativo
 {% endblock %}
 
 
 
 {% block content %}
-    <div class="flex flex-col justify-center pt-32">
+    <div class="container pt-32">
 
 
         <div class="container">
             <h1 class="text-center p-3">Preencha as Informações</h1>
         </div>
 
-        <form class="form-group border border-2 border-secondary" action="" method="POST">
+        <form class="form-group container border border-2 border-secondary" action="" method="POST">
             {% csrf_token %}
 
 
-            <div class="justify-center p-3">
-                <label for="data_pesquisa" class="form-label">Digita a Data para inclusao ou edicao </label>
-                <input type="date" class="form-control" id="data_pesquisa" aria-describedby="emailHelp">
-
+            <div class="row d-flex justify-content-center p-3">
+                {% for field in form_data %}
+                    <div class="col-md-2 col-6">
+                        {{ field.label_tag }}
+                        {{ field }}
+                    </div>
+                {% endfor %}
             </div>
+             <div class="col-md-12 col-12 p-4 d-flex justify-content-center">
+                <button type="submit" name="botao_submit" class="btn btn-success">Salvar informaçoes</button>
+            </div>
+            <hr>
+            <!-- Adicione mais seções conforme necessário -->
         </form>
     </div>
 

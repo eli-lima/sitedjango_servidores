@@ -1,14 +1,17 @@
 from django.shortcuts import render, redirect
 from .models import Gesipe_adm
-from django.views.generic.edit import FormView
+from django.views.generic.edit import FormView, UpdateView
 from django.utils.timezone import now
-from .forms import GesipeAdmForm, BuscaDataForm
+from .forms import GesipeAdmForm
 from django.views.generic import ListView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
 from django.db.models import Q  # Para pesquisas com OR lógico
 from django.utils import timezone
 from django.contrib import messages
+from django.urls import reverse, reverse_lazy
+from django.http import JsonResponse
+from datetime import datetime, date
 
 
 # Create your views here.
@@ -19,8 +22,8 @@ from django.contrib import messages
 class Gesipe(LoginRequiredMixin, ListView):
     template_name = "gesipe.html"
     model = Gesipe_adm
-    paginate_by = 5  # Itens por página
-    ordering = ['data']  # Ordena pelo campo 'data'
+    paginate_by = 5
+    ordering = ['data']
 
     def get_queryset(self):
         query = self.request.GET.get('query', '')
@@ -28,12 +31,30 @@ class Gesipe(LoginRequiredMixin, ListView):
 
         if query:
             queryset = queryset.filter(
-                Q(usuario__username__icontains=query) |  # Filtra pelo nome de usuário
-                Q(data__icontains=query) |  # Filtra pela data
-                Q(total__icontains=query)  # Filtra pelo total de inserções
+                Q(usuario__username__icontains=query) |
+                Q(data__icontains=query) |
+                Q(total__icontains=query)
             )
 
         return queryset
+
+    def post(self, request, *args, **kwargs):
+        data_pesquisa = request.POST.get('data_pesquisa')
+        if data_pesquisa:
+            try:
+                data_pesquisa = datetime.strptime(data_pesquisa, "%Y-%m-%d").date()
+            except ValueError:
+                return JsonResponse({'error': 'Data inválida'}, status=400)
+
+            if Gesipe_adm.objects.filter(data=data_pesquisa).exists():
+                existing_record = Gesipe_adm.objects.get(data=data_pesquisa)
+                edit_url = reverse('gesipe:gesipe_adm_edit', kwargs={'pk': existing_record.pk})
+                return JsonResponse({'exists': True, 'url': edit_url})
+            else:
+                create_url = reverse('gesipe:gesipe_adm')
+                return JsonResponse({'exists': False, 'url': create_url})
+
+        return JsonResponse({'error': 'Data não fornecida'}, status=400)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -41,117 +62,54 @@ class Gesipe(LoginRequiredMixin, ListView):
         return context
 
 
-class GesipeAdmData(FormView):
-    template_name = 'gesipe_adm_data.html'
-    form_class = BuscaDataForm
-    form_class_data = GesipeAdmForm
+class GesipeAdm(LoginRequiredMixin, FormView):
+    template_name = 'gesipe_adm.html'
+    form_class = GesipeAdmForm
+    success_url = reverse_lazy('gesipe:gesipe_adm')  # Redirecionar para a mesma página ou para uma página de sucesso
 
-    def get(self, request, *args, **kwargs):
-        form_busca = self.form_class()
-        form_data = self.form_class_data()
-        mostrar_formulario = False
+    def form_valid(self, form):
+        # Salva os dados do formulário e atribui o usuário atual e a data de edição
+        dados_adm = form.save(commit=False)
+        dados_adm.usuario = self.request.user
+        dados_adm.data_edicao = timezone.now()
+        dados_adm.save()
 
-        if 'data' in request.GET:
-            data = request.GET['data']
-            print(f"Data recebida na GET: {data}")
+        messages.success(self.request, 'Dados adicionados com sucesso!')
+        return super().form_valid(form)
 
-            dados_adm = Gesipe_adm.objects.filter(data=data).first()
-            print(f"Dados encontrados: {dados_adm}")
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form_data'] = self.form_class()  # Certifique-se de passar o formulário com o nome correto
+        return context
 
-            mostrar_formulario = True
-            if dados_adm:
-                form_data = self.form_class_data(instance=dados_adm)
-                print(f"Formulário preenchido com dados existentes: {form_data.initial}")
-            else:
-                form_data = self.form_class_data(initial={
-                    'data': data,
-                    'processos': 0,
-                    'memorandos_diarias': 0,
-                    'memorandos_documentos_capturados': 0,
-                    'despachos_gerencias': 0,
-                    'despachos_unidades': 0,
-                    'despachos_grupos': 0,
-                    'oficios_internos_unidades_prisionais': 0,
-                    'oficios_internos_setores_seap_pb': 0,
-                    'oficios_internos_circular': 0,
-                    'oficios_externos_seap_pb': 0,
-                    'oficios_externos_diversos': 0,
-                    'oficios_externos_judiciario': 0,
-                    'os_grupos': 0,
-                    'os_diversos': 0,
-                    'portarias': 0,
-                })
-                print(f"Formulário inicial com valores padrão: {form_data.initial}")
 
-        return self.render_to_response({
-            'form_busca': form_busca,
-            'form_data': form_data,
-            'mostrar_formulario': mostrar_formulario
-        })
+class GesipeAdmEdit(LoginRequiredMixin, UpdateView):
+    model = Gesipe_adm
+    form_class = GesipeAdmForm
+    template_name = 'gesipe_adm_edit.html'
+    success_url = reverse_lazy('gesipe:gesipe_adm')  # Redirecionar para a página de sucesso
 
-    def post(self, request, *args, **kwargs):
-        form_busca = self.form_class(request.POST)
-        form_data = self.form_class_data(request.POST)
-        mostrar_formulario = False
+    def get_form_kwargs(self):
+        """Passa o formato correto da data para o formulário."""
+        kwargs = super().get_form_kwargs()
+        if self.object:
+            # Ajusta o valor da data para o formato 'yyyy-mm-dd'
+            kwargs['initial'] = {
+                'data': self.object.data.strftime('%Y-%m-%d'),
+            }
+        return kwargs
 
-        if form_busca.is_valid() and 'botao_buscar' in request.POST:
-            data = form_busca.cleaned_data['data']
-            print(f"Data recebida na POST (busca): {data}")
+    def form_valid(self, form):
+        dados_adm = form.save(commit=False)
+        dados_adm.data_edicao = timezone.now()  # Atualiza a data de edição
+        dados_adm.save()
 
-            dados_adm = Gesipe_adm.objects.filter(data=data).first()
-            print(f"Dados encontrados para busca: {dados_adm}")
+        messages.success(self.request, 'Dados atualizados com sucesso!')
+        return super().form_valid(form)
 
-            mostrar_formulario = True
-            if dados_adm:
-                form_data = self.form_class_data(instance=dados_adm)
-                print(f"Formulário preenchido com dados existentes: {form_data.initial}")
-            else:
-                form_data = self.form_class_data(initial={
-                    'data': data,
-                    'processos': 0,
-                    'memorandos_diarias': 0,
-                    'memorandos_documentos_capturados': 0,
-                    'despachos_gerencias': 0,
-                    'despachos_unidades': 0,
-                    'despachos_grupos': 0,
-                    'oficios_internos_unidades_prisionais': 0,
-                    'oficios_internos_setores_seap_pb': 0,
-                    'oficios_internos_circular': 0,
-                    'oficios_externos_seap_pb': 0,
-                    'oficios_externos_diversos': 0,
-                    'oficios_externos_judiciario': 0,
-                    'os_grupos': 0,
-                    'os_diversos': 0,
-                    'portarias': 0,
-                })
-                print(f"Formulário inicial com valores padrão: {form_data.initial}")
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['formatted_date'] = self.object.data.strftime('%d/%m/%Y')
+        return context
 
-        if form_data.is_valid():
-            data = form_data.cleaned_data['data']
-            print(f"Data para salvar/atualizar: {data}")
 
-            dados_adm = Gesipe_adm.objects.filter(data=data).first()
-            print(f"Dados encontrados para atualizar: {dados_adm}")
-
-            if dados_adm:
-                form_data = self.form_class_data(request.POST, instance=dados_adm)
-                print(f"Formulário atualizado com dados existentes: {form_data.cleaned_data}")
-            else:
-                form_data = self.form_class_data(request.POST)
-
-            if form_data.is_valid():
-                print("Formulário é válido. Salvando dados...")
-                dados_adm = form_data.save(commit=False)
-                dados_adm.usuario = request.user  # Define o usuário atual
-                dados_adm.data_edicao = timezone.now()  # Atualiza a data de edição
-                dados_adm.save()
-                messages.success(self.request, 'Dados Adicionados/Atualizados com Sucesso')
-                return redirect('gesipe:gesipe_adm_data')
-            else:
-                print(f"Erros no formulário de dados: {form_data.errors}")
-
-        return self.render_to_response({
-            'form_busca': form_busca,
-            'form_data': form_data,
-            'mostrar_formulario': mostrar_formulario
-        })

@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block titulo %}
+Gesipe Administrativo Editar
+{% endblock %}
+
+
+
+{% block content %}
+    <div class="container pt-32 pb-32">
+        <div class="container p-3">
+            <h1 class="text-center p-3 fs-5 text">Edite as Informações do dia: <strong class="fs-4 text">{{ formatted_date }}</strong></h1>
+        </div>
+
+        <form class="form-group container border border-2 border-secondary" action="" method="POST">
+            {% csrf_token %}
+            <div class="grid grid-cols-4 p-3">
+                {% for field in form %}
+                    <div class="p-2">
+                        {{ field.label_tag }}
+                        {% if field.name == 'data' %}
+                            <!-- Adiciona readonly ao campo de data -->
+                            <input type="date" name="{{ field.name }}" value="{{ field.value }}" class="form-control bg-dark-subtle fw-bold" readonly>
+                        {% else %}
+                            {{ field }}
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="col-md-12 col-12 p-4 d-flex justify-content-center">
+                <button type="submit"  class="btn btn-success">Adicionar informações</button>
+            </div>
+            <hr>
+            <!-- Adicione mais seções conforme necessário -->
+        </form>
+    </div>
+
+
+
+
+{% endblock %}

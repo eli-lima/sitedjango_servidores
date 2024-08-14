@@ -67,8 +67,8 @@ class Homepage(LoginRequiredMixin, TemplateView):
             total_values['portarias'] or 0,
         ]
 
-        # Obtendo todos os registros de Gesipe_adm para a tabela
-        context['object_list'] = Gesipe_adm.objects.all()
+        # Obtendo os últimos 12 registros de Gesipe_adm, ordenados por data de edição (decrescente)
+        context['object_list'] = Gesipe_adm.objects.order_by('-data_edicao')[:12]
 
         # Passando os dados para o template
         context['labels_mensais'] = labels
@@ -88,6 +88,8 @@ class Homepage(LoginRequiredMixin, TemplateView):
         # Passar os dados para o contexto
         context['line_labels'] = line_labels
         context['line_values'] = line_values
+
+
 
         return context
 

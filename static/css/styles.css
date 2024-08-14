@@ -1,0 +1,11 @@
+/* Estilo para linhas clicáveis */
+.clickable-row {
+    cursor: pointer; /* Muda o cursor para uma mão ao passar o mouse */
+    transition: background-color 0.3s, box-shadow 0.3s; /* Transição suave para a cor de fundo e sombra */
+}
+
+/* Efeito ao passar o mouse */
+.clickable-row:hover {
+    background-color: #f0f0f0; /* Cor de fundo ao passar o mouse */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra ao passar o mouse */
+}
