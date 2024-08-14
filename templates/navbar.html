@@ -89,9 +89,10 @@
   <div class="sm:hidden hidden" id="mobile-menu">
     <div class="space-y-1 px-2 pb-3 pt-2">
       <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
-      <a href="/" class="rounded-md px-3 py-2 text-lg font-medium {% if request.path == '/' %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}" aria-current="page">Inicio</a>
 
-      <a href="#" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Gesipe</a>
+
+      <a href="/" class="block rounded-md bg-gray-900 px-3 py-2 text-base font-medium {% if request.path == '/' %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}" aria-current="page">Inicio</a>
+      <a href="{{ gesipe_url }}" class="block rounded-md px-3 py-2 text-base font-medium {% if request.path == gesipe_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">Gesipe</a>
       <a href="#" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Ajuda De Custo</a>
       <a href="#" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Recursos Humanos</a>
       <div class="flex md:items-center md:justify-center">-->
