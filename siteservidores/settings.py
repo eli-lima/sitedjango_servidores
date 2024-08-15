@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,13 +24,40 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-kz0k9m*i)oesg+5y$g6+zh&!o2q_9$w9fd#av2uqh_2hhd#cm#'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+
+
+
+# Determine o ambiente
+
+DEBUG = os.environ.get('DEBUG', '') == 'True'
+
+if DEBUG:
+    # Configurações específicas de desenvolvimento
+    # Configurações específicas de desenvolvimento
+    SECURE_SSL_REDIRECT = False
+    SECURE_HSTS_SECONDS = 0
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+    SECURE_HSTS_PRELOAD = False
+    # Configurações adicionais para evitar problemas com HTTPS
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
+    SECURE_BROWSER_XSS_FILTER = False
+    SECURE_CONTENT_TYPE_NOSNIFF = False
+
+else:
+    # Configurações específicas de produção
+    # HTTPS Settings
+    SECURE_HSTS_SECONDS = 31536000  # Enforce HTTPS for 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_SSL_REDIRECT = True  # Redirect all HTTP requests to HTTPS
+
 
 ALLOWED_HOSTS = [
     '127.0.0.1',
     'seap-pb-c2d6216cfb4e.herokuapp.com',
-    'seappb.com.br',
-    'www.seappb.com.br'
+    # 'seappb.com.br',
+    # 'www.seappb.com.br'
 ]
 
 
@@ -62,11 +90,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# HTTPS Settings
-SECURE_HSTS_SECONDS = 31536000  # Enforce HTTPS for 1 year
-SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-SECURE_HSTS_PRELOAD = True
-SECURE_SSL_REDIRECT = True  # Redirect all HTTP requests to HTTPS
 
 
 ROOT_URLCONF = 'siteservidores.urls'
@@ -101,14 +124,15 @@ DATABASES = {
     }
 }
 
-# desativar ative ele e o debug para continuar a producao
+# desativar ative ele e o debug para continuar a producao e
+#e as configuracoes de https
 
-import dj_database_url
-
-DATABASES['default'] = dj_database_url.config(
-   conn_max_age=600,
-   conn_health_checks=True,
-)
+# import dj_database_url
+#
+# DATABASES['default'] = dj_database_url.config(
+#    conn_max_age=600,
+#    conn_health_checks=True,
+# )
 
 
 # Password validation
