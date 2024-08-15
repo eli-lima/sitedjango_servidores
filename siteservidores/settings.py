@@ -32,7 +32,7 @@ SECRET_KEY = 'django-insecure-kz0k9m*i)oesg+5y$g6+zh&!o2q_9$w9fd#av2uqh_2hhd#cm#
 DEBUG = os.environ.get('DEBUG', '') == 'True'
 
 if DEBUG:
-    # Configurações específicas de desenvolvimento
+
     # Configurações específicas de desenvolvimento
     SECURE_SSL_REDIRECT = False
     SECURE_HSTS_SECONDS = 0
