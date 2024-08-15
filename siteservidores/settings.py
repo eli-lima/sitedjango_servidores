@@ -25,8 +25,12 @@ SECRET_KEY = 'django-insecure-kz0k9m*i)oesg+5y$g6+zh&!o2q_9$w9fd#av2uqh_2hhd#cm#
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1',
-                 'seap-pb-c2d6216cfb4e.herokuapp.com']
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'seap-pb-c2d6216cfb4e.herokuapp.com',
+    'seappb.com.br',
+    'www.seappb.com.br'
+]
 
 
 # Application definition
@@ -57,6 +61,13 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+# HTTPS Settings
+SECURE_HSTS_SECONDS = 31536000  # Enforce HTTPS for 1 year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+SECURE_SSL_REDIRECT = True  # Redirect all HTTP requests to HTTPS
+
 
 ROOT_URLCONF = 'siteservidores.urls'
 
