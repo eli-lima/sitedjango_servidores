@@ -30,7 +30,7 @@ SECRET_KEY = 'django-insecure-kz0k9m*i)oesg+5y$g6+zh&!o2q_9$w9fd#av2uqh_2hhd#cm#
 # Determine o ambiente
 
 
-DEBUG = os.environ.get('DEBUG', '') == 'True'
+DEBUG = os.environ.get('DEBUG', '') == 'False'
 
 if DEBUG:
 
@@ -129,12 +129,12 @@ DATABASES = {
 # desativar ative ele e o debug para continuar a producao e
 # e as configuracoes de https
 
-# import dj_database_url
-#
-# DATABASES['default'] = dj_database_url.config(
-#    conn_max_age=600,
-#    conn_health_checks=True,
-# )
+import dj_database_url
+
+DATABASES['default'] = dj_database_url.config(
+   conn_max_age=600,
+   conn_health_checks=True,
+)
 
 
 # Password validation
