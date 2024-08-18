@@ -14,7 +14,7 @@ HomePage SeapPB
 
     <header class="showcase border-gray-600 flex flex-col gap-8 px-8 pt-24 pb-8">
 
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
 
             <!-- Card 1 -->
             <div class="p-2">
@@ -127,10 +127,10 @@ HomePage SeapPB
 
 
     <section>
-        <div class="flex flex-col md:grid grid-cols-1 md:grid-cols-2 gap-4 mx-8 content-between">
+        <div class="flex flex-col lg:grid grid-cols-1 lg:grid-cols-2 gap-4 mx-8 content-between">
           <div>
                <!-- Gráfico de barra -->
-            <div class="bg-white border border-gray-200 rounded-lg shadow-xl mt-3 py-4 px-4  md:min-h-[300px] transform hover:scale-105 transition duration-300">
+            <div class="bg-white border border-gray-200 rounded-lg shadow-xl mt-3 py-4 px-4  lg:min-h-[300px] transform hover:scale-105 transition duration-300">
                 <div class="flex items-center justify-between pb-4 mb-4 border-b border-gray-200">
                     <div>
                         <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Tipo de Movimentacao</h3>
@@ -148,7 +148,7 @@ HomePage SeapPB
                 </div>
             </div>
           </div>
-          <div class="md:row-span-2">
+          <div class="lg:row-span-2">
               <!-- gráfico de pizza -->
                 <div class="bg-white border border-gray-200 rounded-lg shadow-xl mt-3 px-4 py-4 mt-3 md:min-h-[922px] transform hover:scale-105 transition duration-300">
                     <div class="flex items-center justify-between pb-4 mb-4 border-b border-gray-200">
@@ -216,11 +216,11 @@ HomePage SeapPB
                         <thead class="align-bottom">
                           <tr>
                             <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-lg border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Autor</th>
-                            <th class="hidden md:table-cell px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-lg border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Memorandos</th>
-                            <th class="hidden md:table-cell px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-lg border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Despachos</th>
-                            <th class="hidden md:table-cell px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-lg border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Oficios</th>
-                            <th class="hidden md:table-cell px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-lg border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">OS</th>
-                            <th class="hidden md:table-cell px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-lg border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Portarias</th>
+                            <th class="hidden lg:table-cell px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-lg border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Memorandos</th>
+                            <th class="hidden lg:table-cell px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-lg border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Despachos</th>
+                            <th class="hidden lg:table-cell px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-lg border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Oficios</th>
+                            <th class="hidden lg:table-cell px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-lg border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">OS</th>
+                            <th class="hidden lg:table-cell px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-lg border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Portarias</th>
                             <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-lg border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Total</th>
 
                           </tr>
@@ -241,22 +241,22 @@ HomePage SeapPB
                               </div>
                             </td>
 
-                            <td class="hidden md:table-cell p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                            <td class="hidden lg:table-cell p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
                               <span class="font-semibold leading-tight text-xs text-slate-400">{{ data.total_memorando }}</span>
                             </td>
-                            <td class="hidden md:table-cell p-2 leading-normal text-center align-middle bg-transparent border-b text-sm whitespace-nowrap shadow-transparent">
+                            <td class="hidden lg:table-cell p-2 leading-normal text-center align-middle bg-transparent border-b text-sm whitespace-nowrap shadow-transparent">
                               <span class="font-semibold leading-tight text-xs text-slate-400">{{ data.total_despacho }}</span>
                             </td>
-                            <td class="hidden md:table-cell p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                            <td class="hidden lg:table-cell p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
                               <span class="font-semibold leading-tight text-xs text-slate-400">{{ data.total_oficio }}</span>
                             </td>
-                            <td class="hidden md:table-cell p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                            <td class="hidden lg:table-cell p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
                               <span class="font-semibold leading-tight text-xs text-slate-400">{{ data.total_os }}</span>
                             </td>
-                            <td class="hidden md:table-cell p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                            <td class="hidden lg:table-cell p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
                               <span class="font-semibold leading-tight text-xs text-slate-400">{{ data.portarias }}</span>
                             </td>
-                            <td class="md:table-cell p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                            <td class=" lg:table-cell p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
                               <span class="font-semibold leading-tight text-xs text-slate-400">{{ data.total }}</span>
                             </td>
                           </tr>
