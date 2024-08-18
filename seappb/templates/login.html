@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load crispy_forms_tags %}
+
+{% load custom_filters %}
 {% block titulo %}
 Fazer Login
 {% endblock %}
@@ -8,28 +9,52 @@ Fazer Login
 
 {% block content %}
 
+<!-- Navbar -->
+    <nav class="lg:hidden bg-black text-white p-4 fixed w-full top-0 left-0 z-10">
+        <div class="container mx-auto flex justify-center items-center">
+            <!-- Logo/Brand -->
+            <div class="text-2xl font-bold">
+                <a href="/"><img class="h-20 w-auto" src="{% static 'images/GOVPBBranco.png' %}" alt="Governo da Paraiba"></a>
+            </div>
+        </div>
+    </nav>
 
-<header class="showcase bg-gray-100 border-gray-600 border-b-8 flex justify-center items-center bg-no-repeat">
-    <div class="flex flex-col lg:h-3/5 lg:flex-row mb-28 md:mb-8 mt-4 bg-white rounded-3xl w-3/4 shadow-lg lg:w-1/2 md:py-24 py-12 z-10 text-center items-center" id="form-container">
+<header class="mt-36 lg:mt-2 lg:mx-40 h-[1200px] lg:h-1/2 lg:w-4/5 border-gray-600 flex justify-center items-center bg-no-repeat">
+    <div class="flex flex-col lg:w-3/5 py-12 lg:py-2 min-w-full min-h-full h-1/2 lg:flex-row mb-12 mt-4 bg-white rounded-3xl shadow-lg z-10 text-center items-center">
         <!-- Formulário -->
-        <div class="md:w-1/2 w-full px-12 h-full">
+        <div class="lg:w-1/2 w-5/6 px-20 lg:px-36 py-2 h-full mb-26">
             <form method="post">
                 {% csrf_token %}
-                <fieldset class="form-group">
-                    <legend class="border-bottom mb-4 font-bold text-3xl md:text-3xl">Fazer Login</legend>
-                    {{ form|crispy }}
+                <fieldset class="mb-12 mt-20">
+                    <legend class="border-bottom mb-4 font-bold text-5xl lg:text-4xl mb-5">Fazer Login</legend>
+
+                    <!-- Renderizar o campo username com classes personalizadas -->
+                    <div class="mb-12">
+                        <label class="text-4xl lg:text-lg pb-2 form-label font-semibold mb-1">Nome de Usuário</label>
+                        {{ form.username|add_class:"form-control border-2 border-gray-800 form-control-lg text-4xl lg:text-lg" }}
+                    </div>
+
+                    <!-- Renderizar o campo password1 com classes personalizadas -->
+                    <div class="mb-12">
+                        <label class="text-4xl lg:text-lg form-label pb-2 text-4xl lg:text-lg font-semibold mb-1">Senha</label>
+                        {{ form.password|add_class:"form-control border-2 border-gray-800 form-control-lg text-4xl lg:text-lg" }}
+                    </div>
+
+
+
                 </fieldset>
-                <button class="bg-gray-900 py-1 my-2 px-3 w-full text-white md:text-lg rounded-md" type="submit">Fazer Login</button>
+                <button class="bg-gray-900 py-3 mb-2 lg:py-2 w-full text-white text-3xl lg:text-lg rounded-md" type="submit">Fazer Login</button>
             </form>
-            <small>
+            <small class="text-3xl lg:text-base">
                 Não tem uma conta ainda? <p><a href="{% url 'seappb:criarconta' %}">Clique aqui para criar uma conta</a></p>
             </small>
         </div>
         <!-- Imagem -->
-        <div class="md:w-1/2 w-full lg:-order-1 flex justify-center items-center p-8">
+        <div class="lg:w-1/2 w-2/5 lg:-order-1 flex justify-center items-center px-24 py-28">
             <img class="" src="{% static 'images/pp.svg' %}" alt="">
         </div>
     </div>
 </header>
+
 
 {% endblock %}
