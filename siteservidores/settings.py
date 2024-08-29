@@ -129,12 +129,12 @@ DATABASES = {
 # desativar ative ele e o debug para continuar a producao e
 #e as configuracoes de https
 
-# import dj_database_url
-#
-# DATABASES['default'] = dj_database_url.config(
-#    conn_max_age=600,
-#    conn_health_checks=True,
-# )
+import dj_database_url
+
+DATABASES['default'] = dj_database_url.config(
+   conn_max_age=600,
+   conn_health_checks=True,
+)
 
 
 # Password validation
@@ -198,14 +198,14 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap5'
 
-# CLOUDINARY_STORAGE = {
-#     'CLOUD_NAME': 'hlhi4j5jp',
-#     'API_KEY': '294488267377748',
-#     'API_SECRET': 'suIa821EBlCR7UcLkehMPRbn-Gk'
-# }
-#
-#
-# DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'hlhi4j5jp',
+    'API_KEY': '294488267377748',
+    'API_SECRET': 'suIa821EBlCR7UcLkehMPRbn-Gk'
+}
+
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 
 CSRF_TRUSTED_ORIGINS = [
