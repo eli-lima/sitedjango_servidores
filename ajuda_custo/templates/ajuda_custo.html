@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block titulo %}
+Ajuda de Custo
+{% endblock %}
+
+
+{% block content %}
+
+<div class="max-w-7xl pt-28 mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-4xl font-extrabold">
+            Ajuda de Custo
+          </h2>
+          <p class="mt-4 text-xl text-gray-700">
+            Consulte ou adicione informacoes.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 gap-8 sm:grid-cols-3 lg:grid-cols-4">
+
+            <!-- adicionar ajuda de Custo -->
+            <div class=" rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+            <div class="mb-8">
+              <h3 class="text-2xl font-semibold ">Ajuda De Custo</h3>
+              <p class="mt-4 text-gray-600"></p>
+            </div>
+            <div class="mb-8">
+              <span class="text-xl font-medium text-gray-600">Datas Disponiveis</span>
+              <span class="text-3xl font-extrabold "> 8</span>
+
+            </div>
+
+            <a href="{% url 'ajuda_custo:adicionar' %}" class="block w-full py-3 px-6 text-center text-white text-base rounded-md  font-medium bg-gray-400">
+              Adicionar Datas:
+            </a>
+            </div>
+
+            <!-- SMP -->
+            <div class=" rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+            <div class="mb-8">
+              <h3 class="text-2xl font-semibold ">SMP</h3>
+              <p class="mt-4 text-gray-600">Total de acoes realizadas pelo Setor de Movimentacao Prisional da Gesipe.</p>
+            </div>
+            <div class="mb-8">
+              <span class="text-xl font-medium text-gray-600">Total de Movimentaçoes:</span>
+              <span class="text-3xl font-extrabold "> 108</span>
+
+            </div>
+
+            <a href="#" class="block py-3 px-6 text-center text-white text-base rounded-md  font-medium bg-gray-400">
+              Adicionar Informaçoes:
+            </a>
+            </div>
+
+            <!-- SMP -->
+            <div class=" rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+            <div class="mb-8">
+              <h3 class="text-2xl font-semibold ">SMP</h3>
+              <p class="mt-4 text-gray-600">Total de acoes realizadas pelo Setor de Movimentacao Prisional da Gesipe.</p>
+            </div>
+            <div class="mb-8">
+              <span class="text-xl font-medium text-gray-600">Total de Movimentaçoes:</span>
+              <span class="text-3xl font-extrabold "> 108</span>
+
+            </div>
+
+            <a href="#" class="block py-3 px-6 text-center text-white text-base rounded-md  font-medium bg-gray-400">
+              Adicionar Informaçoes:
+            </a>
+            </div>
+
+            <!-- SMP -->
+            <div class=" rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+            <div class="mb-8">
+              <h3 class="text-2xl font-semibold ">SMP</h3>
+              <p class="mt-4 text-gray-600">Total de acoes realizadas pelo Setor de Movimentacao Prisional da Gesipe.</p>
+            </div>
+            <div class="mb-8">
+              <span class="text-xl font-medium text-gray-600">Total de Movimentaçoes:</span>
+              <span class="text-3xl font-extrabold "> 108</span>
+
+            </div>
+
+                <a href="#" class="block py-3 px-6 text-center text-white text-base rounded-md  font-medium bg-gray-400">
+                  Adicionar Informaçoes:
+                </a>
+            </div>
+
+
+        </div>
+
+</div>
+
+
+<!--tabela com os servidores-->
+
+<div class="mb-12 pt-24 flex px-36 justify-start w-full">
+    <div class="bg-white shadow-lg rounded-lg w-full">
+        <div class="p-6 rounded-t-lg">
+            <h1 class="text-3xl font-bold text-center">Servidores Cadastrados</h1>
+                <form method="GET">
+                    <div class="mt-4 px-0 flex flex-row justify-between w-full">
+                        <div class="flex space-x-4 items-center">
+                            <a href="#"><button class="btn btn-success">Exportar para Excel</button></a>
+                            <a href="{% url 'servidor:export_to_pdf' %}?query={{ query }}" class="btn btn-warning">Exportar para PDF</a>
+                        </div>
+                        <div>
+                            <input type="text" name="query" id="searchInput" class="form-input w-full sm:w-auto sm:ml-4 p-1.5 rounded-md border-2 border-gray-600" placeholder="Pesquisar..." value="{{ query }}">
+                            <button type="submit" class="hidden"></button>
+                        </div>
+                    </div>
+                </form>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white divide-y divide-gray-200">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Matrcula</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unidade</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Carga Horaria</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for data in datas %}
+                    <tr class="clickable-row" data-href="{% url 'ajuda_custo:ajuda_custo' %}">
+                        <td class="px-6 py-4 whitespace-nowrap">{{ data.matricula }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ data.nome }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ data.cargo }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ data.unidade }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ data.carga_horaria }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="px-6 py-4 text-center text-gray-500">Nenhum servidor encontrado</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Paginação -->
+        <div class="p-6 bg-gray-100 rounded-b-lg">
+            <nav aria-label="Page navigation">
+                <ul class="inline-flex items-center -space-x-px">
+                    {% if page_obj.has_previous %}
+                    <li>
+                        <a href="?page=1&query={{ query }}" class="px-3 py-2 ml-0 text-sm font-medium text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100">Primeira</a>
+                    </li>
+                    <li>
+                        <a href="?page={{ page_obj.previous_page_number }}&query={{ query }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">Anterior</a>
+                    </li>
+                    {% endif %}
+
+                    {% for p in page_obj.paginator.page_range %}
+                    {% if p == page_obj.number %}
+                    <li>
+                        <span class="px-3 py-2 text-sm font-medium text-white bg-blue-500 border border-gray-300">{{ p }}</span>
+                    </li>
+                    {% else %}
+                    <li>
+                        <a href="?page={{ p }}&query={{ query }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">{{ p }}</a>
+                    </li>
+                    {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li>
+                        <a href="?page={{ page_obj.next_page_number }}&query={{ query }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">Próxima</a>
+                    </li>
+                    <li>
+                        <a href="?page={{ page_obj.paginator.num_pages }}&query={{ query }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100">Última</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

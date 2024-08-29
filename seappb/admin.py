@@ -1,16 +1,24 @@
 from django.contrib import admin
-from .models import Usuario
 from django.contrib.auth.admin import UserAdmin
+from .models import Usuario, Setor, Unidade
 
-# só existe porque a gente quer que no admin apareça o campo personalizado filmes_vistos
-campos = list(UserAdmin.fieldsets)
-campos.append(
-    ("Informações Funcionais", {'fields': ('matricula', 'setor', 'foto_perfil')})
-)
-UserAdmin.fieldsets = tuple(campos)
+# Registrar Setor com customizações
+class SetorAdmin(admin.ModelAdmin):
+    list_display = ('id', 'nome')
 
-# Register your models here.
+admin.site.register(Setor, SetorAdmin)
+admin.site.register(Unidade)
 
-admin.site.register(Usuario, UserAdmin)
+# Registrar Usuario com customizações
+class UsuarioAdmin(UserAdmin):
+    # Customizar os campos exibidos no formulário de admin
+    fieldsets = (
+        (None, {'fields': ('username', 'password', 'nome_completo', 'email', 'foto_perfil', 'matricula', 'setor')}),
+        ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
+        ('Important dates', {'fields': ('last_login', 'date_joined')}),
+    )
 
+    # Listagem personalizada no admin
+    list_display = ('username', 'nome_completo', 'email', 'setor', 'is_staff')
 
+admin.site.register(Usuario, UsuarioAdmin)

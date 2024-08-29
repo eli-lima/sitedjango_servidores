@@ -9,3 +9,12 @@
     background-color: #f0f0f0; /* Cor de fundo ao passar o mouse */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra ao passar o mouse */
 }
+
+
+.carousel-control-prev-icon {
+    background-color: black; /* Define a cor do ícone para preto */
+}
+
+.carousel-control-next-icon {
+    background-color: black; /* Define a cor do ícone para preto */
+}

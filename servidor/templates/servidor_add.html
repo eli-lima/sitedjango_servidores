@@ -1,0 +1,213 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block titulo %}
+Cadastrar Servidor
+{% endblock %}
+
+{% block content %}
+
+
+
+
+<!--formulario teste-->
+<div class="pt-28 grid grid-cols-4 gap-4">
+    <div class="bg-white rounded-3xl shadow-lg ml-10 mb-4 pl-3">
+<!--        cartao profile-->
+        <div class="pl-10 border-t border-gray-100 dark:border-gray-700">
+            <h3 class="py-4 text-lg font-semibold">Informações Servidor</h3>
+<!--            imagem servidor-->
+            <div class="">
+                {% if user.foto_perfil %}
+                    <img class="py-4 w-36 h-48 object-cover rounded-lg" src="{{ user.foto_perfil.url }}" alt="Foto de Perfil">
+                {% else %}
+                    <img class="py-4 w-36 h-48 object-cover rounded-lg" src="{% static 'profile_pics/default.jpg' %}" alt="Foto de Perfil">
+                {% endif %}
+            </div>
+
+
+            <ul class="list-none sidebar-nav mb-0 mt-3" id="navmenu-nav">
+                <li class="navbar-item account-menu active">
+                  <a href="user-profile.html" class="navbar-link text-slate-400 flex items-center py-2 rounded">
+                    <span class="mr-2 text-[18px] mb-0"><i class="uil uil-dashboard"></i></span>
+                    <h6 class="mb-0 font-semibold">Profile</h6>
+                  </a>
+                </li>
+
+                <li class="navbar-item account-menu">
+                  <a href="" class="navbar-link text-slate-400 flex items-center py-2 rounded">
+                    <span class="mr-2 text-[18px] mb-0"><i class="uil uil-diary-alt"></i></span>
+                    <h6 class="mb-0 font-semibold">Billing Info</h6>
+                  </a>
+                </li>
+
+                <li class="navbar-item account-menu">
+                  <a href="user-payment.html" class="navbar-link text-slate-400 flex items-center py-2 rounded">
+                    <span class="mr-2 text-[18px] mb-0"><i class="uil uil-credit-card"></i></span>
+                    <h6 class="mb-0 font-semibold">Payment</h6>
+                  </a>
+                </li>
+
+                <li class="navbar-item account-menu">
+                  <a href="user-invoice.html" class="navbar-link text-slate-400 flex items-center py-2 rounded">
+                    <span class="mr-2 text-[18px] mb-0"><i class="uil uil-receipt"></i></span>
+                    <h6 class="mb-0 font-semibold">Invoice</h6>
+                  </a>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+    <div class="col-span-3 mr-10">
+<!--       Formulario-->
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+<!--            Dados Pessoais-->
+            <div class="w-full pt-12 mb-4 bg-white rounded-3xl shadow-lg text-center items-center pb-5">
+                <div class="w-full flex flex-wrap text-start">
+                    <legend class="w-full text-center pb-2 border-bottom mb-4 font-bold text-5xl lg:text-4xl mb-5">Cadastrar Servidor</legend>
+                    <h3 class="w-full px-3 pb-2 border-bottom mb-4 font-semibold text-5xl lg:text-2xl mb-5">Informações Pessoais</h3>
+
+                    <div class="w-1/4 px-3 mb-6 md:mb-0 space-y-2">
+                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                        {{ form.matricula.label }}
+                        </label>
+                        {{ form.matricula }}
+                        <p class="text-red-500 text-xs italic">{{ form.data_nascimento.errors }}</p>
+                    </div>
+
+                    <div class="w-1/4 px-3 mb-6 md:mb-0 space-y-2">
+                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                        {{ form.nome.label }}
+                        </label>
+                        {{ form.nome }}
+                        <p class="text-red-500 text-xs italic">{{ form.nome.errors }}</p>
+                    </div>
+                    <div class="w-1/4 px-3 mb-6 md:mb-0 space-y-2">
+                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                        {{ form.data_nascimento.label }}
+                        </label>
+                        {{ form.data_nascimento }}
+                        <p class="text-red-500 text-xs italic">{{ form.data_nascimento.errors }}</p>
+                    </div>
+                    <div class="w-1/4 px-3 mb-6 md:mb-0 space-y-2">
+                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                        {{ form.genero.label }}
+                        </label>
+                        {{ form.genero }}
+                        <p class="text-red-500 text-xs italic">{{ form.genero.errors }}</p>
+                    </div>
+                    <div class="w-2/4 px-3 mb-6 md:mb-0 space-y-2">
+                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                        {{ form.telefone.label }}
+                        </label>
+                        {{ form.telefone }}
+                        <p class="text-red-500 text-xs italic">{{ form.telefone.errors }}</p>
+                    </div>
+                    <div class="w-2/4 px-3 mb-6 md:mb-0 space-y-2">
+                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                        {{ form.email.label }}
+                        </label>
+                        {{ form.email }}
+                        <p class="text-red-500 text-xs italic">{{ form.email.errors }}</p>
+                    </div>
+
+                </div>
+            </div>
+            <!--            Dados Funcionais-->
+            <div class="w-full pt-8 mb-4 bg-white rounded-3xl py-5 shadow-lg text-center items-center">
+                <div class="w-full flex flex-wrap text-start">
+
+                    <h3 class="w-full px-3 pb-2 border-bottom mb-4 font-semibold text-5xl lg:text-2xl mb-5">Informações Funcionais</h3>
+
+
+                    <div class="w-2/6 px-3 mb-6 md:mb-0 space-y-2">
+                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                        {{ form.cargo.label }}
+                        </label>
+                        {{ form.cargo }}
+                        <p class="text-red-500 text-xs italic">{{ form.cargo.errors }}</p>
+                    </div>
+                    <div class="w-1/6 px-3 mb-6 md:mb-0 space-y-2">
+                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                        {{ form.cargo_comissionado.label }}
+                        </label>
+                        {{ form.cargo_comissionado }}
+                        <p class="text-red-500 text-xs italic">{{ form.cargo_comissionado.errors }}</p>
+                    </div>
+                    <div class="w-1/6 px-3 mb-6 md:mb-0 space-y-2">
+                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                        {{ form.regime.label }}
+                        </label>
+                        {{ form.regime }}
+                        <p class="text-red-500 text-xs italic">{{ form.regime.errors }}</p>
+                    </div>
+                    <div class="w-1/6 px-3 mb-6 md:mb-0">
+                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                        {{ form.status.label }}
+                        </label>
+                        {{ form.status }}
+                        <p class="text-red-500 text-xs italic">{{ form.status.errors }}</p>
+                    </div>
+                    <div class="w-1/6 px-3 mb-6 md:mb-0 space-y-2">
+                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                        {{ form.data_admissao.label }}
+                        </label>
+                        {{ form.data_admissao }}
+                        <p class="text-red-500 text-xs italic">{{ form.data_admissao.errors }}</p>
+                    </div>
+                    <div class="w-3/6 px-3 mb-6 md:mb-0 space-y-2">
+                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                        {{ form.lotacao.label }}
+                        </label>
+                        {{ form.lotacao }}
+                        <p class="text-red-500 text-xs italic">{{ form.lotacao.errors }}</p>
+                    </div>
+                    <div class="w-3/6 px-3 mb-6 md:mb-0 space-y-2">
+                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                        {{ form.local_trabalho.label }}
+                        </label>
+                        {{ form.local_trabalho }}
+                        <p class="text-red-500 text-xs italic">{{ form.local_trabalho.errors }}</p>
+                    </div>
+                    <div class="w-3/6 px-3 mb-6 md:mb-0 space-y-2">
+                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                        {{ form.foto_servidor.label }}
+                        </label>
+                        {{ form.foto_servidor }}
+                        <p class="text-red-500 text-xs italic">{{ form.foto_servidor.errors }}</p>
+                    </div>
+
+                    <div class="w-full px-3 flex justify-center pt-8">
+                        <button type="submit" name="botao_submit" class="btn btn-success">Adicionar Servidor</button>
+                    </div>
+
+                </div>
+            </div>
+
+
+
+
+
+        </form>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% endblock %}

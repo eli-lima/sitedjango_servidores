@@ -14,5 +14,5 @@ urlpatterns = [
     path('editarperfil/<int:pk>', Paginaperfil.as_view(), name='editarperfil'),
     path('criarconta/', Criarconta.as_view(), name='criarconta'),
     path('mudarsenha/', auth_view.PasswordChangeView.as_view(template_name='editarperfil.html',
-                                                     success_url=reverse_lazy('seappb:homepage')), name='mudarsenha'),
+                                                            success_url=reverse_lazy('seappb:homepage')), name='mudarsenha'),
 ]

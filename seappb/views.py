@@ -15,8 +15,7 @@ from django.core.files.base import ContentFile
 from django.utils import timezone
 import calendar
 from django.db.models import Sum
-import json
-from django.utils.safestring import mark_safe
+from django.contrib import messages
 
 import os
 
@@ -179,6 +178,15 @@ class Criarconta(HideNavMixin, FormView):
 
 class CustomLoginView(HideNavMixin, LoginView):
     template_name = 'login.html'
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Login realizado com sucesso!')
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, 'Erro no login. Verifique suas credenciais e tente novamente.')
+        return super().form_invalid(form)
+
 #adicionar novas listas ao menu de pesquisar
 
     # def get_context_data(self, **kwargs):

@@ -12,7 +12,9 @@ HomePage SeapPB
 
 
 
-    <header class="showcase border-gray-600 flex flex-col gap-8 px-8 pt-32 lg:pt-24 pb-8">
+
+
+    <header class="showcaseborder-gray-600 flex flex-col gap-8 px-8 pt-32 lg:pt-24 pb-8">
 
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
 
@@ -78,7 +80,7 @@ HomePage SeapPB
                                     <p class="mb-0 font-sans font-semibold leading-normal uppercase text-sm">Setores Ativos</p>
                                     <h5 class="mb-2 font-bold">1</h5>
                                     <p class="mb-0 text-emerald-500">
-                                        <span class="font-bold leading-normal text-sm">+0%</span> a mais que ontem
+                                        <span class="font-bold leading-normal text-sm">+0%</span> a mais que o 2023
                                     </p>
                                 </div>
                             </div>
@@ -120,7 +122,30 @@ HomePage SeapPB
           </div>
         </div>
 
+<!--        carrosel testes-->
 
+
+    <div id="carouselExampleControlsNoTouching" class="carousel slide" data-bs-touch="false">
+      <div class="carousel-inner">
+        <div class="carousel-item active">
+            <a href="{% url 'servidor:recursos_humanos' %}"><img src="{% static 'images/rh.png' %}" class="d-block w-full h-96 " alt="..."></a>
+        </div>
+        <div class="carousel-item">
+            <a href="{% url 'ajuda_custo:ajuda_custo' %}"><img src="{% static 'images/ajudacusto.png' %}" class="d-block w-full h-96 rounded-lg" alt="..."></a>
+        </div>
+        <div class="carousel-item">
+            <a href="{% url 'gesipe:gesipe' %}"><img src="{% static 'images/gesipe.png' %}" class="d-block w-full h-96 rounded-lg" alt="..."></a>
+        </div>
+      </div>
+      <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControlsNoTouching" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControlsNoTouching" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+      </button>
+    </div>
 
 
     </header>
@@ -130,7 +155,7 @@ HomePage SeapPB
         <div class="flex flex-col lg:grid grid-cols-1 lg:grid-cols-2 gap-4 mx-8 content-between">
           <div>
                <!-- Gráfico de barra -->
-            <div class="bg-white border border-gray-200 rounded-lg shadow-xl mt-3 py-4 px-4  lg:min-h-[300px] transform hover:scale-105 transition duration-300">
+            <div class="bg-white border border-gray-200 rounded-lg shadow-xl mt-3 py-4 px-4  lg:h-[500px]">
                 <div class="flex items-center justify-between pb-4 mb-4 border-b border-gray-200">
                     <div>
                         <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Tipo de Movimentacao</h3>
@@ -144,13 +169,15 @@ HomePage SeapPB
                     </a>
                 </div>
                 <div>
-                    <canvas id="chart-bar" width="200" height="100"></canvas>
+                    <canvas id="chart-bar" width="100" height="50"></canvas>
                 </div>
             </div>
           </div>
           <div class="lg:row-span-2">
+
+
               <!-- gráfico de pizza -->
-                <div class="bg-white border border-gray-200 rounded-lg shadow-xl mt-3 px-4 py-4 mt-3 md:min-h-[922px] transform hover:scale-105 transition duration-300">
+                <div class="bg-white border border-gray-200 rounded-lg shadow-xl mt-3 px-4 py-4 mt-3 lg:h-[1023px]">
                     <div class="flex items-center justify-between pb-4 mb-4 border-b border-gray-200">
                         <div>
                             <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Tipo de Movimentacao</h3>
@@ -171,7 +198,7 @@ HomePage SeapPB
           </div>
           <div class="">
 <!--                grafico de linha-->
-               <div class="bg-white border border-gray-200 rounded-lg shadow-xl px-4 py-4 transform hover:scale-105 transition duration-300">
+               <div class="bg-white border border-gray-200 rounded-lg shadow-xl px-4 py-4 lg:h-[500px]">
                     <div class="flex items-center justify-between pb-4 mb-4 border-b border-gray-200">
                         <div>
                             <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Tipo de Movimentacao</h3>
@@ -446,7 +473,62 @@ HomePage SeapPB
     });
 </script>
 
+<script>
+<!--   scripts da barra lateral e menu -->
+    //codigo barra lateral
 
+document.addEventListener('DOMContentLoaded', () => {
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const iconOpen = document.getElementById('icon-open');
+    const iconClose = document.getElementById('icon-close');
+
+    mobileMenuButton.addEventListener('click', () => {
+        const isExpanded = mobileMenuButton.getAttribute('aria-expanded') === 'true';
+        mobileMenuButton.setAttribute('aria-expanded', !isExpanded);
+        mobileMenu.classList.toggle('-translate-x-full');
+        iconClose.classList.toggle('hidden');
+    });
+//    botao fechar
+
+    iconClose.addEventListener('click', () => {
+        mobileMenu.classList.toggle('-translate-x-full');
+        mobileMenuButton.setAttribute('aria-expanded', 'false');
+        iconOpen.classList.remove('hidden');
+        iconClose.classList.add('hidden');
+    });
+
+
+});
+
+
+// user menu  perfil
+
+document.addEventListener('DOMContentLoaded', () => {
+    const userMenuButton = document.getElementById('user-menu-button');
+    const userMenu = document.getElementById('user-menu');
+
+    userMenuButton.addEventListener('click', () => {
+        // Alternar a classe 'hidden' para exibir/ocultar o menu
+        userMenu.classList.toggle('hidden');
+
+        // Alternar o estado de aria-expanded
+        const isExpanded = userMenuButton.getAttribute('aria-expanded') === 'true';
+        userMenuButton.setAttribute('aria-expanded', !isExpanded);
+    });
+
+    // Fechar o menu ao clicar fora dele
+    document.addEventListener('click', (event) => {
+        if (!userMenuButton.contains(event.target) && !userMenu.contains(event.target)) {
+            userMenu.classList.add('hidden');
+            userMenuButton.setAttribute('aria-expanded', 'false');
+        }
+    });
+});
+
+
+
+</script>
 
 
 
