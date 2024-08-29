@@ -7,6 +7,9 @@ from django.contrib.auth.models import AbstractUser
 class Unidade(models.Model):
     nome = models.CharField(max_length=100)
 
+    class Meta:
+        db_table = 'seappb_unidade'
+
     def __str__(self):
         return self.nome
 
