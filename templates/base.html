@@ -51,13 +51,17 @@
     {% endif %}
 
     {% if messages %}
-        <div class="container pt-20">
-            {% for message in messages %}
+    <div class="container pt-20">
+        {% for message in messages %}
+            {% if message.tags == 'error' %}
+                <div class="font-semibold alert alert-danger">
+            {% else %}
                 <div class="font-semibold alert alert-{{ message.tags }}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        </div>
+            {% endif %}
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
     {% endif %}
 
     {% block content %}
