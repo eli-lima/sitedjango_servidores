@@ -19,14 +19,13 @@ Fazer Login
         </div>
     </nav>
 
-<header class="mt-36 lg:mt-2 lg:mx-40 h-[1200px] lg:h-1/2 lg:w-4/5 border-gray-600 flex justify-center items-center bg-no-repeat">
-    <div class="flex flex-col lg:w-3/5 py-12 lg:py-2 min-w-full min-h-full h-1/2 lg:flex-row mb-12 mt-4 bg-white rounded-3xl shadow-lg z-10 text-center items-center">
-        <!-- Formulário -->
-        <div class="lg:w-1/2 w-5/6 px-20 lg:px-36 py-2 h-full mb-26">
-            <form method="post">
+<div class="flex justify-center mx-16 h-screen mt-28 lg:mt-0">
+  <div class="flex flex-col lg:flex-row gap-4 lg:mx-40 lg:mt-12 bg-white rounded-3xl shadow-lg my-5">
+      <div class="lg:w-3/5 w-full flex flex-col justify-center px-8 pb-12 border border-2 rounded-2xl my-3 ml-3 ">
+        <form class="px-32" method="post">
                 {% csrf_token %}
-                <fieldset class="mb-12 mt-20">
-                    <legend class="border-bottom mb-4 font-bold text-5xl lg:text-4xl mb-5">Fazer Login</legend>
+                <fieldset class="mb-8 mt-16">
+                    <legend class="border-bottom text-center mb-4 font-bold text-5xl lg:text-4xl mb-5">Fazer Login</legend>
 
                     <!-- Renderizar o campo username com classes personalizadas -->
                     <div class="mb-12">
@@ -45,16 +44,16 @@ Fazer Login
                 </fieldset>
                 <button class="bg-gray-900 py-3 mb-2 lg:py-2 w-full text-white text-3xl lg:text-lg rounded-md" type="submit">Fazer Login</button>
             </form>
-            <small class="text-3xl lg:text-base">
-                Não tem uma conta ainda? <p><a href="{% url 'seappb:criarconta' %}">Clique aqui para criar uma conta</a></p>
+            <small class="mx-20 text-3xl text-center lg:text-base">
+                <p>Não tem uma conta ainda? </p>
+                <a href="{% url 'seappb:criarconta' %}"><p>Clique aqui para criar uma conta</p></a>
             </small>
-        </div>
-        <!-- Imagem -->
-        <div class="lg:w-1/2 w-2/5 lg:-order-1 flex justify-center items-center px-24 py-28">
-            <img class="" src="{% static 'images/pp.svg' %}" alt="">
-        </div>
-    </div>
-</header>
+      </div>
+      <div class="flex justify-center items-center w-full lg:w-2/5">
+          <img class="w-3/5" src="{% static 'images/pp.svg' %}" alt="">
+      </div>
+  </div>
+</div>
 
 
 {% endblock %}
