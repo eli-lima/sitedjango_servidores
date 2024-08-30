@@ -104,3 +104,62 @@
 
     </nav>
 </div>
+
+
+
+<script>
+<!--   scripts da barra lateral e menu -->
+    //codigo barra lateral
+
+document.addEventListener('DOMContentLoaded', () => {
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const iconOpen = document.getElementById('icon-open');
+    const iconClose = document.getElementById('icon-close');
+
+    mobileMenuButton.addEventListener('click', () => {
+        const isExpanded = mobileMenuButton.getAttribute('aria-expanded') === 'true';
+        mobileMenuButton.setAttribute('aria-expanded', !isExpanded);
+        mobileMenu.classList.toggle('-translate-x-full');
+        iconClose.classList.toggle('hidden');
+    });
+//    botao fechar
+
+    iconClose.addEventListener('click', () => {
+        mobileMenu.classList.toggle('-translate-x-full');
+        mobileMenuButton.setAttribute('aria-expanded', 'false');
+        iconOpen.classList.remove('hidden');
+        iconClose.classList.add('hidden');
+    });
+
+
+});
+
+
+// user menu  perfil
+
+document.addEventListener('DOMContentLoaded', () => {
+    const userMenuButton = document.getElementById('user-menu-button');
+    const userMenu = document.getElementById('user-menu');
+
+    userMenuButton.addEventListener('click', () => {
+        // Alternar a classe 'hidden' para exibir/ocultar o menu
+        userMenu.classList.toggle('hidden');
+
+        // Alternar o estado de aria-expanded
+        const isExpanded = userMenuButton.getAttribute('aria-expanded') === 'true';
+        userMenuButton.setAttribute('aria-expanded', !isExpanded);
+    });
+
+    // Fechar o menu ao clicar fora dele
+    document.addEventListener('click', (event) => {
+        if (!userMenuButton.contains(event.target) && !userMenu.contains(event.target)) {
+            userMenu.classList.add('hidden');
+            userMenuButton.setAttribute('aria-expanded', 'false');
+        }
+    });
+});
+
+
+
+</script>
