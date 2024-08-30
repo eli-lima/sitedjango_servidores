@@ -20,10 +20,9 @@ const nav = document.querySelector('nav')
 //script editar pelas tabela do site
 
 
-<script>
-    document.querySelectorAll('.clickable-row').forEach(row => {
-        row.addEventListener('click', () => {
-            window.location.href = row.getAttribute('data-href');
-        });
+
+document.querySelectorAll('.clickable-row').forEach(row => {
+    row.addEventListener('click', () => {
+        window.location.href = row.getAttribute('data-href');
     });
-</script>
+});
