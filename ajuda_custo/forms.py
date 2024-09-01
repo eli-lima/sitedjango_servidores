@@ -28,7 +28,7 @@ DIAS = [(str(day), str(day)) for day in range(1, 32)]
 
 class AjudaCustoForm(forms.ModelForm):
     unidade = forms.ChoiceField(
-        choices=[('', '--- Selecione uma unidade ---')] + [(u.nome, u.nome) for u in Unidade.objects.all()])
+        choices=[('', '--- Selecione uma unidade ---')])
     dia = forms.ChoiceField(choices=DIAS, required=True)
     mes = forms.ChoiceField(choices=MESES, required=True)
     ano = forms.ChoiceField(choices=ANOS, required=True)
