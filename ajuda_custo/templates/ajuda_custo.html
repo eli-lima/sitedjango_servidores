@@ -93,20 +93,35 @@ Ajuda de Custo
 </div>
 
 
-<!--tabela com os servidores-->
+<!--tabela com ajuda de custo-->
 
 <div class="mb-12 pt-24 flex px-36 justify-start w-full">
     <div class="bg-white shadow-lg rounded-lg w-full">
         <div class="p-6 rounded-t-lg">
-            <h1 class="text-3xl font-bold text-center">Servidores Cadastrados</h1>
+            <div>
+               <div class="flex items-center justify-between pb-4 mb-4 border-b border-gray-200">
+                    <div>
+                        <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Relatório</h3>
+                        <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">Ajuda de Custo</span>
+                    </div>
+                    <a href="{% url 'ajuda_custo:relatorio_ajuda_custo' %}" class="inline-flex items-center p-2 text-xs font-medium uppercase rounded-lg text-primary-700 sm:text-sm hover:bg-gray-100 dark:text-primary-500 dark:hover:bg-gray-700">
+                        Dados Completos
+                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </a>
+               </div>
+            </div>
+
                 <form method="GET">
                     <div class="mt-4 px-0 flex flex-row justify-between w-full">
                         <div class="flex space-x-4 items-center">
-                            <a href="#"><button class="btn btn-success">Exportar para Excel</button></a>
-                            <a href="{% url 'servidor:export_to_pdf' %}?query={{ query }}" class="btn btn-warning">Exportar para PDF</a>
+
                         </div>
-                        <div>
-                            <input type="text" name="query" id="searchInput" class="form-input w-full sm:w-auto sm:ml-4 p-1.5 rounded-md border-2 border-gray-600" placeholder="Pesquisar..." value="{{ query }}">
+                        <div class="flex flex-row">
+                            <input class="form-input w-full sm:w-auto sm:ml-4 p-1.5 rounded-md border-1 border-gray-600" type="date" name="dataInicial" id="dataInicial" value="">
+                            <input class="form-input w-full sm:w-auto sm:ml-4 p-1.5 rounded-md border-1 border-gray-600"  type="date" name="dataFinal" id="datafinal" value="">
+                            <input type="text" name="query" id="searchInput" class="form-input w-full sm:w-auto sm:ml-4 p-1.5 rounded-md border-1 border-gray-600" placeholder="Pesquisar..." value="{{ query }}">
                             <button type="submit" class="hidden"></button>
                         </div>
                     </div>
@@ -128,7 +143,7 @@ Ajuda de Custo
                     <tr class="clickable-row" data-href="{% url 'ajuda_custo:ajuda_custo' %}">
                         <td class="px-6 py-4 whitespace-nowrap">{{ data.matricula }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">{{ data.nome }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ data.cargo }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ data.data|date:"d/m/Y"}}</td>
                         <td class="px-6 py-4 whitespace-nowrap">{{ data.unidade }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">{{ data.carga_horaria }}</td>
                     </tr>
