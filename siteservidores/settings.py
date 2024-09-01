@@ -128,7 +128,7 @@ DATABASES = {
 
 # desativar ative ele e o debug para continuar a producao e
 #e as configuracoes de https
-
+#
 import dj_database_url
 
 DATABASES['default'] = dj_database_url.config(
