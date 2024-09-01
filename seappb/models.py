@@ -4,18 +4,22 @@ from django.contrib.auth.models import AbstractUser
 # Create your models here.
 
 
-class Unidade(models.Model):
-    nome = models.CharField(max_length=100)
 
-    class Meta:
-        db_table = 'seappb_unidade'
+
+
+
+
+class Setor(models.Model):
+    nome = models.CharField(max_length=100)
 
     def __str__(self):
         return self.nome
 
 
-class Setor(models.Model):
+class Unidade(models.Model):
     nome = models.CharField(max_length=100)
+
+
 
     def __str__(self):
         return self.nome
