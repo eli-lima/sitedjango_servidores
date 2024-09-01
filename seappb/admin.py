@@ -1,13 +1,13 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import Usuario, Setor
+from .models import Usuario, Setor, Unidade
 
 # Registrar Setor com customizações
 class SetorAdmin(admin.ModelAdmin):
     list_display = ('id', 'nome')
 
 admin.site.register(Setor, SetorAdmin)
-# admin.site.register(Unidade)
+admin.site.register(Unidade)
 
 # Registrar Usuario com customizações
 class UsuarioAdmin(UserAdmin):
