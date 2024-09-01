@@ -78,7 +78,7 @@ class CriarServidorView(LoginRequiredMixin, CreateView):
     model = Servidor
     form_class = ServidorForm
     template_name = 'servidor_add.html'
-    success_url = reverse_lazy('servidor:servidor')  # Substitua 'servidor_list' pelo nome da URL de destino
+    success_url = reverse_lazy('servidor:recursos_humanos')  # Substitua 'servidor_list' pelo nome da URL de destino
 
     def form_valid(self, form):
         if self.request.FILES:
