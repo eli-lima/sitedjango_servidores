@@ -127,7 +127,7 @@ class PesquisarSite(LoginRequiredMixin, ListView):
 class Paginaperfil(LoginRequiredMixin, UpdateView):
     model = Usuario
     template_name = 'editarperfil.html'
-    fields = ['first_name', 'last_name', 'email', 'username', 'matricula', 'foto_perfil', 'setor']
+    fields = ['nome_completo', 'email', 'username', 'matricula', 'foto_perfil', 'setor']
 
     def form_valid(self, form):
         if self.request.FILES:
