@@ -155,6 +155,93 @@ def exportar_excel(request):
 
 
 
+def excel_detalhado(request):
+
+    query = request.GET.get('query', '')
+    data_inicial = request.GET.get('dataInicial')
+    data_final = request.GET.get('dataFinal')
+
+    print(query, data_final, data_inicial)
+    # Converte as datas em objetos datetime, se fornecidas
+    data_inicial = parse_date(data_inicial) if data_inicial else None
+    data_final = parse_date(data_final) if data_final else None
+
+    # Filtrar os dados com base nos parâmetros
+    queryset = Ajuda_Custo.objects.all()
+    if query:
+        queryset = queryset.filter(Q(nome__icontains=query) | Q(matricula__icontains=query))
+
+    if data_inicial and data_final:
+        queryset = queryset.filter(data__range=[data_inicial, data_final])
+    elif data_inicial:
+        queryset = queryset.filter(data__gte=data_inicial)
+    elif data_final:
+        queryset = queryset.filter(data__lte=data_final)
+
+    # Processar os resultados em um dicionário
+    dados = []
+    for item in queryset:
+        matricula = item.matricula
+        unidade = item.unidade
+        nome = item.nome
+        cpf = ''  # Deixe a coluna de CPF em branco se não disponível
+        data = item.data.strftime('%d/%m/%Y')
+
+        if item.carga_horaria == '12_horas':
+            carga_horaria = '12 horas'
+        else:
+            carga_horaria = '24 horas'
+
+        dados.append([
+            matricula,
+            unidade,
+            cpf,
+            nome,
+            data,
+            carga_horaria
+        ])
+
+    # Criar uma nova planilha Excel
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Relatório Completo Ajuda Custo"
+
+    # Adicionar o período de datas no topo da planilha
+    ws.merge_cells('A1:F1')
+    ws[
+        'A1'] = f"Período: {data_inicial.strftime('%d/%m/%Y')} a {data_final.strftime('%d/%m/%Y')}" if data_inicial and data_final else 'Período: Todos os Dados'
+
+    # Adicionar os cabeçalhos das colunas
+    cabecalhos = ['Matrícula', 'Unidade', 'CPF', 'Nome', 'Data', 'Carga Horária']
+    ws.append(cabecalhos)
+
+    # Adicionar os dados na planilha
+    for linha in dados:
+        ws.append(linha)
+
+    # Ajustar a largura das colunas
+    for col in ws.iter_cols(min_row=2, max_col=ws.max_column):
+        max_length = 0
+        column_letter = col[0].column_letter  # Obtém a letra da coluna (A, B, C, etc.)
+        for cell in col:
+            if cell.value:
+                max_length = max(max_length, len(str(cell.value)))
+        adjusted_width = (max_length + 2)
+        ws.column_dimensions[column_letter].width = adjusted_width
+
+    # Ajustar o alinhamento central para todas as células
+    for row in ws.iter_rows(min_row=2):
+        for cell in row:
+            cell.alignment = Alignment(horizontal='left', vertical='center')
+
+    # Salvar a planilha no response
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=relatorio_ajuda_custo.xlsx'
+    wb.save(response)
+
+    return response
+
+
 class AjudaCusto(LoginRequiredMixin, ListView):
     model = Ajuda_Custo
     template_name = "ajuda_custo.html"
@@ -241,8 +328,11 @@ class RelatorioAjudaCusto(LoginRequiredMixin, ListView):
         return context
 
     def get(self, request, *args, **kwargs):
-        if request.GET.get('action') == 'export_excel':
+        action = request.GET.get('action')
+        if action == 'export_excel':
             return exportar_excel(request)
+        elif action == 'excel_detalhado':
+            return excel_detalhado(request)
         return super().get(request, *args, **kwargs)
 
 
