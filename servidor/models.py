@@ -36,11 +36,7 @@ GENEROS = [
         ('O', 'Outro'),
     ]
 
-COMISSIONADO = [
-        (False, 'Não'),
-        (True, 'Sim'),
 
-    ]
 
 
 class Servidor(models.Model):
@@ -48,7 +44,7 @@ class Servidor(models.Model):
     nome = models.CharField(max_length=100, blank=False)  # Nome completo do servidor
     data_nascimento = models.DateField()  # Data de nascimento
     cargo = models.CharField(max_length=100)  # Cargo ou função
-    cargo_comissionado = models.BooleanField(max_length=3, choices=COMISSIONADO, default=False)
+    cargo_comissionado = models.CharField(max_length=100, blank=True, null=True)
     simb_cargo_comissionado = models.CharField(max_length=30, blank=True, null=True) #Exemplo csp-1 csp-2
     local_trabalho = models.CharField(max_length=100, blank=True, null=True)
     genero = models.CharField( max_length=1, choices=GENEROS,)

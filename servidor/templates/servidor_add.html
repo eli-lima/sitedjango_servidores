@@ -19,41 +19,39 @@ Cadastrar Servidor
             <h3 class="py-4 text-lg font-semibold">Informações Servidor</h3>
 <!--            imagem servidor-->
             <div class="">
-                {% if user.foto_perfil %}
-                    <img class="py-4 w-36 h-48 object-cover rounded-lg" src="{{ user.foto_perfil.url }}" alt="Foto de Perfil">
-                {% else %}
-                    <img class="py-4 w-36 h-48 object-cover rounded-lg" src="{% static 'profile_pics/default.jpg' %}" alt="Foto de Perfil">
-                {% endif %}
+
+                    <img class="py-4 w-36 h-48 object-cover rounded-lg" src="{% static 'images/default.jpg' %}" alt="Foto de Perfil">
+
             </div>
 
 
             <ul class="list-none sidebar-nav mb-0 mt-3" id="navmenu-nav">
-                <li class="navbar-item account-menu active">
-                  <a href="user-profile.html" class="navbar-link text-slate-400 flex items-center py-2 rounded">
-                    <span class="mr-2 text-[18px] mb-0"><i class="uil uil-dashboard"></i></span>
-                    <h6 class="mb-0 font-semibold">Profile</h6>
-                  </a>
+                <li class="navbar-item account-menu">
+                  <div class="text-slate-400 flex items-center py-2 rounded">
+
+                    <input class="font-semibold" type="text" value='Nome' readonly>
+                  </div>
                 </li>
 
                 <li class="navbar-item account-menu">
-                  <a href="" class="navbar-link text-slate-400 flex items-center py-2 rounded">
-                    <span class="mr-2 text-[18px] mb-0"><i class="uil uil-diary-alt"></i></span>
-                    <h6 class="mb-0 font-semibold">Billing Info</h6>
-                  </a>
+                  <div class="text-slate-400 flex items-center py-2 rounded">
+
+                    <input class="font-semibold" type="text" value='Matrícula' readonly>
+                  </div>
                 </li>
 
                 <li class="navbar-item account-menu">
-                  <a href="user-payment.html" class="navbar-link text-slate-400 flex items-center py-2 rounded">
-                    <span class="mr-2 text-[18px] mb-0"><i class="uil uil-credit-card"></i></span>
-                    <h6 class="mb-0 font-semibold">Payment</h6>
-                  </a>
+                  <div class="text-slate-400 flex items-center py-2 rounded">
+
+                    <input class="font-semibold" type="text" value='Cargo' readonly>
+                  </div>
                 </li>
 
                 <li class="navbar-item account-menu">
-                  <a href="user-invoice.html" class="navbar-link text-slate-400 flex items-center py-2 rounded">
-                    <span class="mr-2 text-[18px] mb-0"><i class="uil uil-receipt"></i></span>
-                    <h6 class="mb-0 font-semibold">Invoice</h6>
-                  </a>
+                  <div class="text-slate-400 flex items-center py-2 rounded">
+
+                    <input class="font-semibold" type="text" value='Lotação' readonly>
+                  </div>
                 </li>
             </ul>
         </div>

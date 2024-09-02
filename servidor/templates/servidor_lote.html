@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block titulo %}
+Cadastrar Servidor
+{% endblock %}
+
+{% block content %}
+
+
+
+
+<div class="pt-28 grid grid-cols-4 gap-4">
+
+    <!--download arquivo-->
+    <div class="w-full pt-12 mb-4 bg-white rounded-3xl shadow-lg text-center items-center pb-5">
+
+        <a href="{% static 'files/servidor_lote.xlsx' %}" class="btn btn-success" download>Download do modelo Excel</a>
+
+    </div>
+
+
+
+<!-- Formulário para upload do arquivo Excel -->
+    <div class="w-full pt-12 mb-4 bg-white rounded-3xl shadow-lg text-center items-center pb-5">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Enviar Arquivo</button>
+        </form>
+    </div>
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% endblock %}

@@ -57,3 +57,7 @@ class ServidorForm(forms.ModelForm):
         # Adicionar classes aos widgets
         self.fields['matricula'].widget.attrs.update(
             {'class': 'form-control'})
+
+
+class UploadFileForm(forms.Form):
+    arquivo_excel = forms.FileField()

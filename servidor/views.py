@@ -1,7 +1,7 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import TemplateView, CreateView, ListView, UpdateView
-from .forms import ServidorForm
+from django.views.generic import TemplateView, CreateView, ListView, UpdateView, View
+from .forms import ServidorForm, UploadFileForm
 from django.urls import reverse_lazy
 from django.contrib import messages
 from PIL import Image
@@ -118,3 +118,52 @@ class ServidorEdit(LoginRequiredMixin, UpdateView):
     form_class = ServidorForm
     template_name = 'servidor_edit.html'
     success_url = reverse_lazy('servidor:recursos_humanos')  # Redirecionar para a página de sucesso
+
+
+class ServidorLote(LoginRequiredMixin, View):
+    form_class = UploadFileForm
+    template_name = 'servidor_lote.html'
+
+    def get(self, request, *args, **kwargs):
+        form = self.form_class()
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST, request.FILES)
+
+        if form.is_valid():
+            arquivo_excel = request.FILES['arquivo_excel']
+
+            # Processar o arquivo Excel
+            wb = openpyxl.load_workbook(arquivo_excel)
+            sheet = wb.active
+
+            try:
+                for row in sheet.iter_rows(min_row=2, values_only=True):
+                    status = False if row[12] == 'INATIVO' else True  # Definindo o status baseado na condição
+
+
+                    # Começa na linha 2 para pular o cabeçalho
+                    Servidor.objects.create(
+                        matricula=str(row[1]),  # Apenas convertendo para string, sem .upper()
+                        nome=str(row[2]).upper() if row[2] else None,  # Verificação para evitar erro com None
+                        cargo=str(row[3]).upper() if row[3] else None,  # Verificação para evitar erro com None
+                        local_trabalho=str(row[4]).upper() if row[4] else None,  # Verificação para evitar erro com None
+                        cargo_comissionado=row[5].upper() if row[5] else None,  # Verificação para evitar erro com None
+                        lotacao=str(row[7]).upper() if row[7] else None,  # Verificação para evitar erro com None
+                        genero=str(row[8]).upper() if row[8] else None,  # Verificação para evitar erro com None
+                        regime=str(row[9]).upper() if row[9] else None,  # Verificação para evitar erro com None
+                        data_admissao=row[10],  # Data, sem .upper()
+                        status=status,  # Atribui o valor calculado
+                        data_nascimento=row[13],  # Data, sem .upper()
+                        telefone=str(row[14]).upper() if row[14] else None,  # Verificação para evitar erro com None
+                        email=str(row[15]).upper() if row[15] else None,  # Verificação para evitar erro com None
+                    )
+
+                messages.success(request, 'Servidores importados com sucesso!')
+            except Exception as e:
+                messages.error(request, f'Ocorreu um erro ao processar o arquivo: {e}')
+
+            return redirect('servidor:recursos_humanos')
+
+        return render(request, self.template_name, {'form': form})
