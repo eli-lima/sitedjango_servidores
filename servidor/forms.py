@@ -23,7 +23,7 @@ class ServidorForm(forms.ModelForm):
             'matricula': forms.NumberInput(attrs={'class': 'form-control'}),
             'nome': forms.TextInput(attrs={'class': 'form-control'}),
             'cargo': forms.TextInput(attrs={'class': 'form-control'}),
-            'cargo_comissionado': forms.Select(attrs={'class': 'form-control'}),
+            'cargo_comissionado': forms.TextInput(attrs={'class': 'form-control'}),
             'simb_cargo_comissionado': forms.TextInput(attrs={'class': 'form-control'}),
             'local_trabalho': forms.TextInput(attrs={'class': 'form-control'}),
             'lotacao': forms.TextInput(attrs={'class': 'form-control'}),
