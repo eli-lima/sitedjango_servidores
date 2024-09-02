@@ -28,33 +28,34 @@ Editar Servidor
 
 
             <ul class="list-none sidebar-nav mb-0 mt-3" id="navmenu-nav">
-                <li class="navbar-item account-menu active">
-                  <a href="user-profile.html" class="navbar-link text-slate-400 flex items-center py-2 rounded">
-                    <span class="mr-2 text-[18px] mb-0"><i class="uil uil-dashboard"></i></span>
-                    <h6 class="mb-0 font-semibold">{{ form.nome }}</h6>
-                  </a>
+                <li class="navbar-item account-menu">
+                  <div class="text-slate-400 flex items-center py-2 rounded">
+
+                    <input class="font-semibold" type="text" value="{{ form.nome.value }}" readonly>
+                  </div>
                 </li>
 
                 <li class="navbar-item account-menu">
-                  <a href="" class="navbar-link text-slate-400 flex items-center py-2 rounded">
-                    <span class="mr-2 text-[18px] mb-0"><i class="uil uil-diary-alt"></i></span>
-                    <h6 class="mb-0 font-semibold">Billing Info</h6>
-                  </a>
+                  <div class="text-slate-400 flex items-center py-2 rounded">
+
+                    <input class="font-semibold" type="text" value="{{ form.matricula.value }}" readonly>
+                  </div>
                 </li>
 
                 <li class="navbar-item account-menu">
-                  <a href="user-payment.html" class="navbar-link text-slate-400 flex items-center py-2 rounded">
-                    <span class="mr-2 text-[18px] mb-0"><i class="uil uil-credit-card"></i></span>
-                    <h6 class="mb-0 font-semibold">Payment</h6>
-                  </a>
+                  <div class="text-slate-400 flex items-center py-2 rounded">
+
+                    <input class="font-semibold" type="text" value="{{ form.cargo.value }}" readonly>
+                  </div>
                 </li>
 
                 <li class="navbar-item account-menu">
-                  <a href="user-invoice.html" class="navbar-link text-slate-400 flex items-center py-2 rounded">
-                    <span class="mr-2 text-[18px] mb-0"><i class="uil uil-receipt"></i></span>
-                    <h6 class="mb-0 font-semibold">Invoice</h6>
-                  </a>
+                  <div class="text-slate-400 flex items-center py-2 rounded">
+
+                    <input class="font-semibold" type="text" value="{{ form.lotacao.value }}" readonly>
+                  </div>
                 </li>
+
             </ul>
         </div>
 
