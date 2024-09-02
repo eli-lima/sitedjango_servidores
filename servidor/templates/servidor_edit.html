@@ -19,10 +19,10 @@ Editar Servidor
             <h3 class="py-4 text-lg font-semibold">Informações Servidor</h3>
 <!--            imagem servidor-->
             <div class="">
-                {% if servidor.foto_servidor %}
-                    <img class="py-4 w-36 h-48 object-cover rounded-lg" src="{{ servidor.foto_servidor.url }}" alt="Foto de Servidor">
+                {% if form.instance.foto_servidor %}
+                    <img class="py-4 w-36 h-48 object-cover rounded-lg" src="{{ form.instance.foto_servidor.url }}" alt="Foto de Servidor">
                 {% else %}
-                    <img class="py-4 w-36 h-48 object-cover rounded-lg" src="{% static 'images/default.jpg' %}" alt="Foto de Perfil">
+                    <img class="py-4 w-36 h-48 object-cover rounded-lg" src="{% static 'profile_pics/default.jpg' %}" alt="Foto de Perfil">
                 {% endif %}
             </div>
 
@@ -31,7 +31,7 @@ Editar Servidor
                 <li class="navbar-item account-menu active">
                   <a href="user-profile.html" class="navbar-link text-slate-400 flex items-center py-2 rounded">
                     <span class="mr-2 text-[18px] mb-0"><i class="uil uil-dashboard"></i></span>
-                    <h6 class="mb-0 font-semibold">Profile</h6>
+                    <h6 class="mb-0 font-semibold">{{ form.nome }}</h6>
                   </a>
                 </li>
 
