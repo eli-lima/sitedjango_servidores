@@ -13,6 +13,7 @@ from django.http import HttpResponse
 from reportlab.pdfgen import canvas
 from django.template.loader import get_template
 from xhtml2pdf import pisa
+import openpyxl
 
 
 
@@ -146,10 +147,11 @@ class ServidorLote(LoginRequiredMixin, View):
                     # Começa na linha 2 para pular o cabeçalho
                     Servidor.objects.create(
                         matricula=str(row[1]),  # Apenas convertendo para string, sem .upper()
-                        nome=str(row[2]).upper() if row[2] else None,  # Verificação para evitar erro com None
+                        nome=str(row[2]).upper(),  # Verificação para evitar erro com None
                         cargo=str(row[3]).upper() if row[3] else None,  # Verificação para evitar erro com None
                         local_trabalho=str(row[4]).upper() if row[4] else None,  # Verificação para evitar erro com None
                         cargo_comissionado=row[5].upper() if row[5] else None,  # Verificação para evitar erro com None
+                        simb_cargo_comissionado=row[6] if row[6] else None,
                         lotacao=str(row[7]).upper() if row[7] else None,  # Verificação para evitar erro com None
                         genero=str(row[8]).upper() if row[8] else None,  # Verificação para evitar erro com None
                         regime=str(row[9]).upper() if row[9] else None,  # Verificação para evitar erro com None

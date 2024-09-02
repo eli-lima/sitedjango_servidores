@@ -42,7 +42,7 @@ GENEROS = [
 class Servidor(models.Model):
     matricula = models.CharField(max_length=20, unique=True, blank=False)  # Usando CharField para número de matrícula
     nome = models.CharField(max_length=100, blank=False)  # Nome completo do servidor
-    data_nascimento = models.DateField()  # Data de nascimento
+    data_nascimento = models.DateField(blank=True, null=True)  # Data de nascimento
     cargo = models.CharField(max_length=100)  # Cargo ou função
     cargo_comissionado = models.CharField(max_length=100, blank=True, null=True)
     simb_cargo_comissionado = models.CharField(max_length=30, blank=True, null=True) #Exemplo csp-1 csp-2
