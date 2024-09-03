@@ -14,7 +14,7 @@ from reportlab.pdfgen import canvas
 from django.template.loader import get_template
 from xhtml2pdf import pisa
 import openpyxl
-
+from django.db import IntegrityError
 
 
 
@@ -137,29 +137,38 @@ class ServidorLote(LoginRequiredMixin, View):
 
             # Processar o arquivo Excel
             wb = openpyxl.load_workbook(arquivo_excel)
-            sheet = wb.active
+            sheet = wb['servidor']
 
             try:
                 for row in sheet.iter_rows(min_row=2, values_only=True):
-                    status = False if row[12] == 'INATIVO' else True  # Definindo o status baseado na condição
+                    # Verifica se a linha está em branco, ignorando-a se estiver
+                    if not any(row):  # Se todos os valores da linha forem None ou vazios, pula a linha
+                        continue
 
+                    # Verifica se a matrícula ou o nome está presente, ignorando a linha se ambos estiverem ausentes
+                    if not row[1] or not row[2]:
+                        continue
+                    # Definindo o status baseado na condição
+                    status = False if row[12] == 'INATIVO' else True
 
-                    # Começa na linha 2 para pular o cabeçalho
-                    Servidor.objects.create(
-                        matricula=str(row[1]),  # Apenas convertendo para string, sem .upper()
-                        nome=str(row[2]).upper(),  # Verificação para evitar erro com None
-                        cargo=str(row[3]).upper() if row[3] else None,  # Verificação para evitar erro com None
-                        local_trabalho=str(row[4]).upper() if row[4] else None,  # Verificação para evitar erro com None
-                        cargo_comissionado=row[5].upper() if row[5] else None,  # Verificação para evitar erro com None
-                        simb_cargo_comissionado=row[6] if row[6] else None,
-                        lotacao=str(row[7]).upper() if row[7] else None,  # Verificação para evitar erro com None
-                        genero=str(row[8]).upper() if row[8] else None,  # Verificação para evitar erro com None
-                        regime=str(row[9]).upper() if row[9] else None,  # Verificação para evitar erro com None
-                        data_admissao=row[10],  # Data, sem .upper()
-                        status=status,  # Atribui o valor calculado
-                        data_nascimento=row[13],  # Data, sem .upper()
-                        telefone=str(row[14]).upper() if row[14] else None,  # Verificação para evitar erro com None
-                        email=str(row[15]).upper() if row[15] else None,  # Verificação para evitar erro com None
+                    # Atualiza ou cria um novo registro com base na matrícula
+                    Servidor.objects.update_or_create(
+                        matricula=str(row[1]),  # Usando matrícula como critério de identificação
+                        defaults={
+                            'nome': str(row[2]).upper() if row[2] else 'NAO INFORMADO',
+                            'cargo': str(row[3]).upper() if row[3] else 'NAO INFORMADO',
+                            'local_trabalho': str(row[4]).upper() if row[4] else None,
+                            'cargo_comissionado': row[5].upper() if row[5] else None,
+                            'simb_cargo_comissionado': row[6] if row[6] else None,
+                            'lotacao': str(row[7]).upper() if row[7] else None,
+                            'genero': str(row[8]).upper() if row[8] else 'O',
+                            'regime': str(row[9]).upper() if row[9] else 'NAO INFORMADO',
+                            'data_admissao': row[10],
+                            'status': status,
+                            'data_nascimento': row[13],
+                            'telefone': str(row[14]).upper() if row[14] else None,
+                            'email': str(row[15]).upper() if row[15] else None,
+                        }
                     )
 
                 messages.success(request, 'Servidores importados com sucesso!')
@@ -169,3 +178,5 @@ class ServidorLote(LoginRequiredMixin, View):
             return redirect('servidor:recursos_humanos')
 
         return render(request, self.template_name, {'form': form})
+
+
