@@ -64,6 +64,10 @@ class AjudaCustoForm(forms.ModelForm):
 
 
 class AdminDatasForm(forms.Form):
+    matricula = forms.CharField(
+        widget=forms.TextInput(attrs={'placeholder': 'Somente Números...', 'id': 'matricula'}),
+        required=True
+    )
     mes = get_mes_field()
     ano = get_ano_field()
     unidade = get_unidade_field()

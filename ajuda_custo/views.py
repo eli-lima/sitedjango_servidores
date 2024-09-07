@@ -14,6 +14,8 @@ from openpyxl import Workbook
 import pandas as pd
 from django.http import JsonResponse
 from servidor.models import Servidor
+from datetime import timedelta
+
 
 
 # Create your views here.
@@ -354,6 +356,8 @@ class RelatorioAjudaCusto(LoginRequiredMixin, ListView):
         return super().get(request, *args, **kwargs)
 
 
+
+
 class AjudaCustoAdicionar(LoginRequiredMixin, FormView):
     model = Ajuda_Custo
     form_class = AjudaCustoForm
@@ -366,7 +370,6 @@ class AjudaCustoAdicionar(LoginRequiredMixin, FormView):
         if form.is_valid():
             mes = request.POST.get('mes')
             ano = request.POST.get('ano')
-
             dias = request.POST.getlist('dia')
             unidades = request.POST.getlist('unidade')
             cargas_horarias = request.POST.getlist('carga_horaria')
@@ -376,6 +379,29 @@ class AjudaCustoAdicionar(LoginRequiredMixin, FormView):
 
                 # Verifica se a data existe no modelo DataMajorada
                 majorado = DataMajorada.objects.filter(data=data_completa).exists()
+
+                # Calcula o total de horas já registradas para o mês
+                inicio_do_mes = data_completa.replace(day=1)
+                fim_do_mes = (inicio_do_mes + timedelta(days=31)).replace(day=1) - timedelta(days=1)
+                registros_mes = Ajuda_Custo.objects.filter(
+                    matricula=self.request.user.matricula,
+                    data__range=[inicio_do_mes, fim_do_mes]
+                )
+
+                # Converte as cargas horárias em horas e faz a soma
+                total_horas_mes = 0
+                for registro in registros_mes:
+                    if registro.carga_horaria == '12 horas':
+                        total_horas_mes += 12
+                    elif registro.carga_horaria == '24 horas':
+                        total_horas_mes += 24
+
+                # Converte a carga horária atual para horas
+                horas_a_adicionar = 12 if carga_horaria == '12 horas' else 24
+
+                if total_horas_mes + horas_a_adicionar > 192:
+                    messages.error(self.request, f'Limite de 192 horas mensais excedido em {unidade} para {dia}/{mes}/{ano}.')
+                    return self.form_invalid(form)
 
                 # Cria o objeto Ajuda_Custo e salva no banco de dados
                 ajuda_custo = Ajuda_Custo(
@@ -395,6 +421,7 @@ class AjudaCustoAdicionar(LoginRequiredMixin, FormView):
             return self.form_invalid(form)
 
 
+
 class AdminCadastrar(LoginRequiredMixin, FormView):
     model = Ajuda_Custo
     form_class = AdminDatasForm
@@ -402,31 +429,54 @@ class AdminCadastrar(LoginRequiredMixin, FormView):
     success_url = reverse_lazy('ajuda_custo:admin_cadastrar')
 
     def form_valid(self, form):
-        # Captura os dados do formulário
         mes = form.cleaned_data['mes']
         ano = form.cleaned_data['ano']
         unidade = form.cleaned_data['unidade']
         dias_12h = form.cleaned_data['dias_12h']
         dias_24h = form.cleaned_data['dias_24h']
 
-        # Converte os dias em listas, removendo espaços extras
         dias_12h_list = [dia.strip() for dia in dias_12h.split(',') if dia.strip()]
         dias_24h_list = [dia.strip() for dia in dias_24h.split(',') if dia.strip()]
 
-        # Obtém o servidor associado ao usuário autenticado
+        # Pegando a matrícula do campo do formulário (presumindo que o campo seja 'matricula')
+        matricula = self.request.POST.get('matricula')
+
+        # Obtém o servidor com base na matrícula fornecida no formulário
         try:
-            servidor = Servidor.objects.get(matricula=self.request.user.matricula)
+            servidor = Servidor.objects.get(matricula=matricula)
         except Servidor.DoesNotExist:
             messages.error(self.request, 'Erro: Servidor não encontrado.')
             return redirect(self.success_url)
 
-        # Processa as datas 12 horas
-        for dia in dias_12h_list:
+        mes_int = int(mes)
+        ano_int = int(ano)
 
+        # Verifica o total de horas mensais antes de adicionar cada registro
+        for dia in dias_12h_list + dias_24h_list:
             try:
                 data_completa = datetime.strptime(f"{dia}/{mes}/{ano}", "%d/%m/%Y").date()
 
-                # Verifica se a data existe no modelo DataMajorada
+                inicio_do_mes = data_completa.replace(day=1)
+                fim_do_mes = (inicio_do_mes + timedelta(days=31)).replace(day=1) - timedelta(days=1)
+
+                registros_mes = Ajuda_Custo.objects.filter(
+                    matricula=servidor.matricula,
+                    data__range=[inicio_do_mes, fim_do_mes]
+                )
+
+                total_horas_mes = 0
+                for registro in registros_mes:
+                    if registro.carga_horaria == '12 horas':
+                        total_horas_mes += 12
+                    elif registro.carga_horaria == '24 horas':
+                        total_horas_mes += 24
+
+                horas_a_adicionar = 12 if dia in dias_12h_list else 24
+
+                if total_horas_mes + horas_a_adicionar > 192:
+                    messages.error(self.request, f'Limite de 192 horas mensais excedido para {dia}/{mes}/{ano}.')
+                    return redirect(self.success_url)
+
                 majorado = DataMajorada.objects.filter(data=data_completa).exists()
 
                 ajuda_custo = Ajuda_Custo(
@@ -434,31 +484,11 @@ class AdminCadastrar(LoginRequiredMixin, FormView):
                     nome=servidor.nome,
                     data=data_completa,
                     unidade=unidade,
-                    carga_horaria='12 horas',
-                    majorado=majorado  # Ajuste conforme necessário
+                    carga_horaria='12 horas' if dia in dias_12h_list else '24 horas',
+                    majorado=majorado
                 )
                 ajuda_custo.save()
-            except ValueError:
-                messages.error(self.request, f'Erro: Data inválida - {dia}/{mes}/{ano}')
-                return redirect(self.success_url)
 
-        # Processa as datas 24 horas
-        for dia in dias_24h_list:
-            try:
-                data_completa = datetime.strptime(f"{dia}/{mes}/{ano}", "%d/%m/%Y").date()
-
-                # Verifica se a data existe no modelo DataMajorada
-                majorado = DataMajorada.objects.filter(data=data_completa).exists()
-
-                ajuda_custo = Ajuda_Custo(
-                    matricula=servidor.matricula,
-                    nome=servidor.nome,
-                    data=data_completa,
-                    unidade=unidade,
-                    carga_horaria='24 horas',
-                    majorado=majorado  # Ajuste conforme necessário
-                )
-                ajuda_custo.save()
             except ValueError:
                 messages.error(self.request, f'Erro: Data inválida - {dia}/{mes}/{ano}')
                 return redirect(self.success_url)

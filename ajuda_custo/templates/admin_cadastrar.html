@@ -21,8 +21,7 @@ Gesipe Administrativo
                 <div class="grid grid-cols-4 space-x-4 gap-x-8">
                     <!-- menu matrícula -->
                     <div class="pb-5">
-                        <label class="Form-label pb-1">Matrícula:</label>
-                        <input id="matricula" type="text" class="form-control form-control-lg" placeholder="Somente Números...">
+                        {{ form.matricula|as_crispy_field }}
                     </div>
                     <!-- menu nome -->
                     <div class="pb-5 col-span-2">
