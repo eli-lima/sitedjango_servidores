@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block titulo %}
+Gesipe Administrativo
+{% endblock %}
+
+{% block content %}
+<div class="pt-28 mx-10 flex justify-center" >
+    <div class="flex flex-col bg-white w-full rounded-3xl shadow-lg mb-4 mx-10 px-8">
+        <h1 class="text-center py-8 font-bold text-4xl">Preencha o Mês e Ano</h1>
+        <form class="flex flex-col justify-center" method="POST">
+            {% csrf_token %}
+            <div class="flex flex-row justify-center p-3 gap-x-8">
+                <!-- Menu Mês -->
+                <div class="">
+                    {{ form.mes|as_crispy_field }}
+                    {% if form.mes.errors %}
+                        <ul class="text-danger">
+                            {% for error in form.mes.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                <!-- Menu Ano -->
+                <div class="">
+                    {{ form.ano|as_crispy_field }}
+                    {% if form.ano.errors %}
+                        <ul class="text-danger">
+                            {% for error in form.ano.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Formulário com as datas -->
+            <div class="flex flex-col border border-2 border-secondary mb-4">
+                <h1 class="text-center pb-3 pt-4 font-bold text-3xl">Adicionar Datas</h1>
+                <div id="formContainer">
+                    <div class="flex flex-row justify-evenly border-b-2 items-end gap-x-8 form-row" id="formRow_1">
+                        <!-- menu Dia -->
+                        <div class="">
+                            {{ form.dia|as_crispy_field }}
+                            {% if form.dia.errors %}
+                                <ul class="text-danger">
+                                    {% for error in form.dia.errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                        </div>
+                        <!-- menu Unidade -->
+                        <div class="">
+                            {{ form.unidade|as_crispy_field }}
+                            {% if form.unidade.errors %}
+                                <ul class="text-danger">
+                                    {% for error in form.unidade.errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                        </div>
+                        <!-- menu Carga Horária -->
+                        <div class="">
+                            {{ form.carga_horaria|as_crispy_field }}
+                            {% if form.carga_horaria.errors %}
+                                <ul class="text-danger">
+                                    {% for error in form.carga_horaria.errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                        </div>
+                        <div class="pb-3">
+                            <button type="button" class="btn btn-success me-2 add-date-btn w-14 h-12"><ion-icon name="add-circle-outline"></ion-icon></button>
+                            <button type="button" class="btn btn-danger remove-date-btn w-14 h-12" disabled><ion-icon name="trash"></ion-icon></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-12 col-12 text-center mt-4 mb-4">
+                    <button type="submit" class="btn btn-primary">Confirmar Datas</button>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+    let formCounter = 1;
+    const maxForms = 16;
+
+    // Usando event delegation para capturar os cliques nos botões "Adicionar" e "Remover"
+    document.getElementById('formContainer').addEventListener('click', function (e) {
+        if (e.target && e.target.closest('.add-date-btn')) {
+            if (formCounter >= maxForms) {
+                return;
+            }
+            formCounter++;
+
+            const firstRow = document.querySelector('.form-row');
+            const newFormRow = firstRow.cloneNode(true);
+
+            // Atualiza os campos clonados com novos IDs e names
+            newFormRow.id = `formRow_${formCounter}`;
+            newFormRow.querySelectorAll('input').forEach(function (input, index) {
+                const name = input.name.split('_')[0]; // Extrai o nome base (ex: 'dia', 'unidade')
+                input.name = `${name}_${formCounter}`;
+                input.id = `${name}_${formCounter}`;
+                input.value = ''; // Limpa o valor dos novos campos clonados
+            });
+
+            document.getElementById('formContainer').appendChild(newFormRow);
+
+            if (formCounter >= maxForms) {
+                document.querySelector('.add-date-btn').setAttribute('disabled', 'disabled');
+            }
+
+            // Ativa os botões de remoção para todos os novos conjuntos de campos
+            document.querySelectorAll('.remove-date-btn').forEach(btn => btn.removeAttribute('disabled'));
+        }
+
+        // Evento para remover a linha do formulário
+        if (e.target && e.target.closest('.remove-date-btn')) {
+            e.target.closest('.form-row').remove();
+            formCounter--;
+
+            if (formCounter < maxForms) {
+                document.querySelector('.add-date-btn').removeAttribute('disabled');
+            }
+
+            // Desativa o botão de remoção se restar apenas um conjunto de campos
+            if (formCounter === 1) {
+                document.querySelector('.remove-date-btn').setAttribute('disabled', 'disabled');
+            }
+        }
+    });
+});
+
+
+</script>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5 fw-bold" id="exampleModalLabel">Excluir Registro</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body fw-bolder">
+                Você quer Realmente Excluir Esses Registros? (Essa ação não pode ser desfeita.)
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form method="POST" action="#">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Sim</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
