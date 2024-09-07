@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView, CreateView, FormView, ListView, View
-from .models import Ajuda_Custo, DataMajorada
+from .models import Ajuda_Custo, DataMajorada, LimiteAjudaCusto
 from .forms import AjudaCustoForm, AdminDatasForm
 from django.urls import reverse_lazy
 from datetime import datetime
@@ -374,52 +374,76 @@ class AjudaCustoAdicionar(LoginRequiredMixin, FormView):
             unidades = request.POST.getlist('unidade')
             cargas_horarias = request.POST.getlist('carga_horaria')
 
+            # Obter o servidor com base no usuário logado
+            try:
+                servidor = Servidor.objects.get(matricula=self.request.user.matricula)
+            except Servidor.DoesNotExist:
+                messages.error(self.request, 'Erro: Servidor não encontrado.')
+                return redirect(self.success_url)
+
+            # Busca o limite de horas mensal para o servidor
+            try:
+                limite = LimiteAjudaCusto.objects.get(servidor=servidor)
+                limite_horas = limite.limite_horas
+            except LimiteAjudaCusto.DoesNotExist:
+                messages.error(self.request, 'Limite de horas não definido. Contate o administrador.')
+                return redirect(self.success_url)
+
+            mes_int = int(mes)
+            ano_int = int(ano)
+
             for dia, unidade, carga_horaria in zip(dias, unidades, cargas_horarias):
-                data_completa = datetime.strptime(f"{dia}/{mes}/{ano}", "%d/%m/%Y").date()
+                try:
+                    data_completa = datetime.strptime(f"{dia}/{mes}/{ano}", "%d/%m/%Y").date()
 
-                # Verifica se a data existe no modelo DataMajorada
-                majorado = DataMajorada.objects.filter(data=data_completa).exists()
+                    # Definindo o início e o fim do mês para a consulta
+                    inicio_do_mes = data_completa.replace(day=1)
+                    fim_do_mes = (inicio_do_mes + timedelta(days=31)).replace(day=1) - timedelta(days=1)
 
-                # Calcula o total de horas já registradas para o mês
-                inicio_do_mes = data_completa.replace(day=1)
-                fim_do_mes = (inicio_do_mes + timedelta(days=31)).replace(day=1) - timedelta(days=1)
-                registros_mes = Ajuda_Custo.objects.filter(
-                    matricula=self.request.user.matricula,
-                    data__range=[inicio_do_mes, fim_do_mes]
-                )
+                    # Calcula o total de horas já registradas para o mês
+                    registros_mes = Ajuda_Custo.objects.filter(
+                        matricula=servidor.matricula,
+                        data__range=[inicio_do_mes, fim_do_mes]
+                    )
 
-                # Converte as cargas horárias em horas e faz a soma
-                total_horas_mes = 0
-                for registro in registros_mes:
-                    if registro.carga_horaria == '12 horas':
-                        total_horas_mes += 12
-                    elif registro.carga_horaria == '24 horas':
-                        total_horas_mes += 24
+                    total_horas_mes = 0
+                    for registro in registros_mes:
+                        if registro.carga_horaria == '12 horas':
+                            total_horas_mes += 12
+                        elif registro.carga_horaria == '24 horas':
+                            total_horas_mes += 24
 
-                # Converte a carga horária atual para horas
-                horas_a_adicionar = 12 if carga_horaria == '12 horas' else 24
+                    # Converte a carga horária atual para horas
+                    horas_a_adicionar = 12 if carga_horaria == '12 horas' else 24
 
-                if total_horas_mes + horas_a_adicionar > 192:
-                    messages.error(self.request, f'Limite de 192 horas mensais excedido em {unidade} para {dia}/{mes}/{ano}.')
+                    # Verifica se o total de horas no mês ultrapassa o limite permitido
+                    if total_horas_mes + horas_a_adicionar > limite_horas:
+                        messages.error(self.request, f'Limite de {limite_horas} horas/mês excedido para {dia}/{mes}/{ano}.')
+                        return self.form_invalid(form)
+
+                    # Verifica se a data existe no modelo DataMajorada
+                    majorado = DataMajorada.objects.filter(data=data_completa).exists()
+
+                    # Cria o objeto Ajuda_Custo e salva no banco de dados
+                    ajuda_custo = Ajuda_Custo(
+                        matricula=self.request.user.matricula,
+                        nome=self.request.user.nome_completo,
+                        data=data_completa,
+                        unidade=unidade,
+                        carga_horaria=carga_horaria,
+                        majorado=majorado  # Define como True se a data estiver em DataMajorada
+                    )
+                    ajuda_custo.save()
+
+                except ValueError:
+                    messages.error(self.request, f'Erro: Data inválida - {dia}/{mes}/{ano}')
                     return self.form_invalid(form)
-
-                # Cria o objeto Ajuda_Custo e salva no banco de dados
-                ajuda_custo = Ajuda_Custo(
-                    matricula=self.request.user.matricula,
-                    nome=self.request.user.nome_completo,
-                    data=data_completa,
-                    unidade=unidade,
-                    carga_horaria=carga_horaria,
-                    majorado=majorado  # Define como True se a data estiver em DataMajorada
-                )
-                ajuda_custo.save()
 
             messages.success(self.request, 'Datas adicionadas com sucesso!')
             return redirect(self.success_url)
         else:
             messages.error(self.request, 'Erro no Cadastro, Confira os Dados e Tente Novamente.')
             return self.form_invalid(form)
-
 
 
 class AdminCadastrar(LoginRequiredMixin, FormView):

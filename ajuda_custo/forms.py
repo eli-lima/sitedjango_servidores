@@ -1,6 +1,6 @@
 # forms.py
 from django import forms
-from .models import Ajuda_Custo
+from .models import Ajuda_Custo, LimiteAjudaCusto
 import datetime
 from seappb.models import Unidade
 from django.core.exceptions import ValidationError
@@ -87,3 +87,8 @@ class AdminDatasForm(forms.Form):
         self.fields['ano'].widget.attrs.update({'id': 'ano'})
         self.fields['unidade'].widget.attrs.update({'id': 'unidade'})
 
+
+class LimiteAjudaCustoForm(forms.ModelForm):
+    class Meta:
+        model = LimiteAjudaCusto
+        fields = ['servidor', 'limite_horas']

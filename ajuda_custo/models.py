@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
+
 # Create your models here.
 
 class DataMajorada(models.Model):
@@ -50,3 +51,12 @@ def atualizar_majorado_ao_adicionar(sender, instance, **kwargs):
 def atualizar_majorado_ao_remover(sender, instance, **kwargs):
     # Atualiza todos os registros de Ajuda_Custo com a data removida, definindo `majorado` como False
     Ajuda_Custo.objects.filter(data=instance.data).update(majorado=False)
+
+
+class LimiteAjudaCusto(models.Model):
+    servidor = models.ForeignKey('servidor.Servidor', on_delete=models.CASCADE)
+    limite_horas = models.IntegerField()  # Limite de horas mensais para o servidor
+
+    def __str__(self):
+        return f"{self.servidor.nome} - {self.limite_horas} horas/mês"
+
