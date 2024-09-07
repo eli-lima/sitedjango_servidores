@@ -51,16 +51,17 @@
     {% endif %}
 
     {% if messages %}
-    <div class="container pt-20">
+    <div class="fixed top-20 left-8 right-8 z-50 opacity-75 w-1/2">
         {% for message in messages %}
             {% if message.tags == 'error' %}
-                <div class="font-semibold alert alert-danger">
+                <div class="font-semibold alert alert-danger alert-overlay">
             {% else %}
-                <div class="font-semibold alert alert-{{ message.tags }}">
+                <div class="font-semibold alert alert-{{ message.tags }} alert-overlay">
             {% endif %}
                 {{ message }}
             </div>
         {% endfor %}
+        </div>
     </div>
     {% endif %}
 
@@ -87,6 +88,6 @@
 <!--javascript proprio-->
 
     <script type="text/javascript" src="{% static 'js/myscript.js' %}"></script>
-    </div>
+
 </body>
 </html>

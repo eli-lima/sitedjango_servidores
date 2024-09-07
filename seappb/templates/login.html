@@ -19,9 +19,9 @@ Fazer Login
         </div>
     </nav>
 
-<div class="flex justify-center mx-16 h-screen lg:mt-28 mt-52 lg:mt-0">
-  <div class="flex flex-col lg:flex-row gap-4 lg:mx-40 lg:mt-12 bg-white rounded-3xl shadow-lg my-5">
-      <div class="lg:w-3/5 w-full flex flex-col justify-center px-8 pb-12 border border-2 rounded-2xl my-3 ml-3 ">
+<div class="flex justify-center mx-16 mt-36 lg:mt-0 h-screen">
+  <div class="flex flex-col lg:flex-row gap-4 lg:mx-40 lg:mt-12 lg:mb-6 bg-white rounded-3xl shadow-lg p-2">
+      <div class="lg:w-3/5 w-full flex flex-col justify-center px-8 lg:border lg:border-2 rounded-2xl py-4">
         <form class="px-32" method="post">
                 {% csrf_token %}
                 <fieldset class="mb-8 mt-16">
@@ -42,9 +42,11 @@ Fazer Login
 
 
                 </fieldset>
-                <button class="bg-gray-900 py-3 mb-2 lg:py-2 w-full text-white text-3xl lg:text-lg rounded-md" type="submit">Fazer Login</button>
+                <div class="">
+                    <button class="py-4 bg-gray-900 h-full mb-2 text-white text-5xl w-full lg:text-lg rounded-md" type="submit">Fazer Login</button>
+                </div>
             </form>
-            <small class="mx-20 text-3xl text-center lg:text-base">
+            <small class="mx-20 text-3xl text-center lg:text-base lg:pb-4">
                 <p>Não tem uma conta ainda? </p>
                 <a href="{% url 'seappb:criarconta' %}"><p>Clique aqui para criar uma conta</p></a>
             </small>
