@@ -18,21 +18,47 @@ from django.db import IntegrityError
 
 
 
+
 # Create your views here.
 
 #Relatorios PDF
 
 def export_to_pdf(request):
-    # Recupera o valor da busca
-    query = request.GET.get('query')
+    # Inicializa o queryset de Servidor
+    servidores = Servidor.objects.all().order_by('nome')
 
-    # Filtra os servidores com base na busca
+    # Verifique se os parâmetros estão sendo recebidos
+    query = request.GET.get('query')
+    print("Query:", query)  # Adicione este print para verificar
     if query:
-        servidores = Servidor.objects.filter(
+        servidores = servidores.filter(
             Q(nome__icontains=query) | Q(matricula__icontains=query)
-        ).order_by('nome')
-    else:
-        servidores = Servidor.objects.all().order_by('nome')
+        )
+
+    cargo = request.GET.get('cargo')
+    print("Cargo:", cargo)  # Adicione este print para verificar
+    if cargo:
+        servidores = servidores.filter(cargo=cargo)
+
+    lotacao = request.GET.get('lotacao')
+    print("Lotação:", lotacao)  # Adicione este print para verificar
+    if lotacao:
+        servidores = servidores.filter(lotacao=lotacao)
+
+    cargo_comissionado = request.GET.get('cargo_comissionado')
+    print("Cargo Comissionado:", cargo_comissionado)  # Adicione este print para verificar
+    if cargo_comissionado:
+        servidores = servidores.filter(cargo_comissionado=cargo_comissionado)
+
+    status = request.GET.get('status')
+    print("Status:", status)  # Adicione este print para verificar
+    if status:
+        servidores = servidores.filter(status=status)
+
+    genero = request.GET.get('genero')
+    print("Gênero:", genero)  # Adicione este print para verificar
+    if genero:
+        servidores = servidores.filter(genero=genero)
 
     # Gera o PDF
     template_path = 'servidor_pdf.html'
@@ -58,7 +84,6 @@ def export_to_pdf(request):
 
 
 
-
 class RecursosHumanosPage(LoginRequiredMixin, ListView):
     model = Servidor
     template_name = "servidor.html"
@@ -73,6 +98,28 @@ class RecursosHumanosPage(LoginRequiredMixin, ListView):
             ).order_by('nome')  # Ordena por nome
         return Servidor.objects.all().order_by('nome')  # Ordena por nome
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['total_servidores'] = Servidor.objects.count()
+
+        # Contar os servidores com o cargo 'POLICIAL PENAL'
+        context['total_policial_penal'] = Servidor.objects.filter(cargo='POLICIAL PENAL').count()
+
+        # Contar o número de servidores por gênero
+        context['genero_masculino'] = Servidor.objects.filter(genero='M').count()
+        context['genero_feminino'] = Servidor.objects.filter(genero='F').count()
+        context['genero_outros'] = Servidor.objects.filter(genero='O').count()
+
+        # Labels e valores para o gráfico de pizza
+        context['pie_labels'] = ['Masculino', 'Feminino', 'Outros']
+        context['pie_values'] = [
+            context['genero_masculino'],
+            context['genero_feminino'],
+            context['genero_outros']
+        ]
+
+        print(context)  # Adicione esta linha para depurar
+        return context
 
 
 class CriarServidorView(LoginRequiredMixin, CreateView):
@@ -180,3 +227,47 @@ class ServidorLote(LoginRequiredMixin, View):
         return render(request, self.template_name, {'form': form})
 
 
+
+class RelatorioRh(LoginRequiredMixin, ListView):
+    model = Servidor
+    template_name = "relatorio_rh.html"
+    context_object_name = 'servidores'
+    paginate_by = 10
+
+    def get_queryset(self):
+        queryset = Servidor.objects.all()
+        query = self.request.GET.get('query')
+        if query:
+            queryset = queryset.filter(
+                Q(nome__icontains=query) | Q(matricula__icontains=query)
+            )
+
+        cargo = self.request.GET.get('cargo')
+        if cargo:
+            queryset = queryset.filter(cargo=cargo)
+
+        lotacao = self.request.GET.get('lotacao')
+        if lotacao:
+            queryset = queryset.filter(lotacao=lotacao)
+
+        cargo_comissionado = self.request.GET.get('cargo_comissionado')
+        if cargo_comissionado:
+            queryset = queryset.filter(cargo_comissionado=cargo_comissionado)
+
+        status = self.request.GET.get('status')
+        if status:
+            queryset = queryset.filter(status=status)
+
+        genero = self.request.GET.get('genero')
+        if genero:
+            queryset = queryset.filter(genero=genero)
+
+        return queryset.order_by('nome')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['lotacoes'] = Servidor.objects.values_list('lotacao', flat=True).distinct()
+        context['generos'] = Servidor.objects.values_list('genero', flat=True).distinct()
+        context['cargos'] = Servidor.objects.values_list('cargo', flat=True).distinct()
+        context['cargos_comissionado'] = Servidor.objects.values_list('cargo_comissionado', flat=True).distinct()
+        return context

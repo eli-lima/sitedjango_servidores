@@ -358,7 +358,6 @@ class RelatorioAjudaCusto(LoginRequiredMixin, ListView):
 
 
 
-
 class AjudaCustoAdicionar(LoginRequiredMixin, FormView):
     model = Ajuda_Custo
     form_class = AjudaCustoForm
@@ -396,6 +395,11 @@ class AjudaCustoAdicionar(LoginRequiredMixin, FormView):
             for dia, unidade, carga_horaria in zip(dias, unidades, cargas_horarias):
                 try:
                     data_completa = datetime.strptime(f"{dia}/{mes}/{ano}", "%d/%m/%Y").date()
+
+                    # Verifique se o servidor já marcou essa data, independentemente da carga horária
+                    if Ajuda_Custo.objects.filter(matricula=servidor.matricula, data=data_completa).exists():
+                        messages.error(self.request, f'O servidor já possui uma entrada para {dia}/{mes}/{ano}.')
+                        return self.form_invalid(form)
 
                     # Definindo o início e o fim do mês para a consulta
                     inicio_do_mes = data_completa.replace(day=1)
@@ -447,6 +451,7 @@ class AjudaCustoAdicionar(LoginRequiredMixin, FormView):
             return self.form_invalid(form)
 
 
+
 class AdminCadastrar(LoginRequiredMixin, FormView):
     model = Ajuda_Custo
     form_class = AdminDatasForm
@@ -480,6 +485,11 @@ class AdminCadastrar(LoginRequiredMixin, FormView):
         for dia in dias_12h_list + dias_24h_list:
             try:
                 data_completa = datetime.strptime(f"{dia}/{mes}/{ano}", "%d/%m/%Y").date()
+
+                # Verifique se o servidor já marcou essa data, independentemente da carga horária
+                if Ajuda_Custo.objects.filter(matricula=servidor.matricula, data=data_completa).exists():
+                    messages.error(self.request, f'O servidor já possui uma entrada para {dia}/{mes}/{ano}.')
+                    return redirect(self.success_url)
 
                 inicio_do_mes = data_completa.replace(day=1)
                 fim_do_mes = (inicio_do_mes + timedelta(days=31)).replace(day=1) - timedelta(days=1)
@@ -524,7 +534,6 @@ class AdminCadastrar(LoginRequiredMixin, FormView):
     def form_invalid(self, form):
         messages.error(self.request, 'Erro no Cadastro, Confira os Dados e Tente Novamente.')
         return super().form_invalid(form)
-
 
 class HorasLimite(LoginRequiredMixin, FormView):
     model = LimiteAjudaCusto

@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from .models import Usuario
 from django.views.generic import TemplateView, ListView, FormView, UpdateView
 from gesipe.models import Gesipe_adm
+from servidor.models import Servidor
 from datetime import datetime
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .mixins import HideNavMixin
@@ -27,6 +28,9 @@ class Homepage(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        # Contar os servidores com o cargo 'POLICIAL PENAL'
+        context['total_policial_penal'] = Servidor.objects.filter(cargo='POLICIAL PENAL').count()
 
         # Obtendo os dados para o gráfico
         current_year = timezone.now().year

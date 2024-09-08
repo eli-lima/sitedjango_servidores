@@ -7,6 +7,12 @@ Servidores
 
 {% block content %}
 
+
+
+
+
+
+
 <!--Cards de editar ou adicionar-->
 
 <div class="max-w-7xl pt-28 mx-auto px-4 sm:px-6 lg:px-8">
@@ -19,74 +25,184 @@ Servidores
           </p>
         </div>
 
+    <!--cards com informacoes importantes-->
+
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 pb-8">
+
+            <!-- Card 1 -->
+            <div class="p-2">
+                <div class="flex flex-col w-72 h-32 break-words bg-white shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
+                    <div class="flex-auto p-4">
+                        <div class="flex flex-row -mx-3">
+                            <div class="flex-none w-2/3 max-w-full px-3">
+                                <div>
+                                    <p class="mb-0 font-sans font-semibold leading-normal uppercase text-sm">Servidores Cadastrados</p>
+                                    <h5 class="pt-2 mb-2 font-bold">{{ total_servidores }}</h5>
+                                    <p class="mb-0 text-emerald-500">
+                                        <span class="font-bold leading-normal text-sm"></span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="px-3 text-right basis-1/3">
+                                <div class="inline-block w-20 h-20 text-white text-center rounded-full bg-gradient-to-tl from-blue-500 to-violet-500">
+                                    <i class="fs-1 bi bi-people-fill"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+          <!-- ... -->
+          <div>
+            <!-- Card 2 -->
+            <div class="p-2">
+                <div class="flex flex-col min-w-0 break-words bg-white shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
+                    <div class="flex-auto p-4">
+                        <div class="flex flex-row -mx-3">
+                            <div class="flex-none w-2/3 max-w-full px-3">
+                                <div>
+                                    <p class="mb-0 font-sans font-semibold leading-normal uppercase text-sm">Policiais Penais</p>
+                                    <h5 class="mb-2 pt-7 font-bold">{{ total_policial_penal }}</h5>
+                                    <p class="mb-0 text-emerald-500">
+                                        <span class="font-bold leading-normal text-sm"></span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="px-3 text-right basis-1/3">
+                                <div class="inline-block w-20 h-20 text-white relative rounded-full bg-gradient-to-tl from-blue-500 to-violet-500">
+                                    <img src="{% static 'icons/guard-prison.png' %}" alt="add-grupo" class="absolute bottom-5 left-5 h-12">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+          </div>
+
+          <div>
+            <!-- Card 3 -->
+            <div class="p-2">
+                <div class="flex flex-col min-w-0 break-words bg-white shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
+                    <div class="flex-auto p-4">
+                        <div class="flex flex-row -mx-3">
+                            <div class="flex-none w-2/3 max-w-full px-3">
+                                <div>
+                                    <p class="mb-0 font-sans font-semibold leading-normal uppercase text-sm">Setores Ativos</p>
+                                    <h5 class="mb-2 font-bold">1</h5>
+                                    <p class="mb-0 text-emerald-500">
+                                        <span class="font-bold leading-normal text-sm">+0%</span> a mais que o 2023
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="px-3 text-right basis-1/3">
+                                <div class="inline-block w-12 h-12 text-center rounded-full bg-gradient-to-tl from-blue-500 to-violet-500">
+                                    <i class="fa fa-coins text-lg relative top-3.5 text-white"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+          </div>
+
+          <div>
+            <!-- Card 4 -->
+            <div class="p-2">
+                <div class="flex flex-col min-w-0 break-words bg-white shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
+                    <div class="flex-auto p-4">
+                        <div class="flex flex-row -mx-3">
+                            <div class="flex-none w-2/3 max-w-full px-3">
+                                <div>
+                                    <p class="mb-0 font-sans font-semibold leading-normal uppercase text-sm">Acessos do Dia</p>
+                                    <h5 class="mb-2 font-bold">1</h5>
+                                    <p class="mb-0 text-emerald-500">
+                                        <span class="font-bold leading-normal text-sm">+12%</span> a mais que ontem
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="px-3 text-right basis-1/3">
+                                <div class="inline-block w-12 h-12 text-center rounded-full bg-gradient-to-tl from-blue-500 to-violet-500">
+                                    <i class="fa fa-coins text-lg relative top-3.5 text-white"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+          </div>
+    </div>
+
+
         <div class="grid grid-cols-1 gap-8 sm:grid-cols-3 lg:grid-cols-4">
 
             <!-- adicionar ajuda de Custo -->
-            <div class=" rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
-            <div class="mb-8">
-              <h3 class="text-2xl font-semibold ">Recursos Humanos</h3>
-              <p class="mt-4 text-gray-600"></p>
-            </div>
-            <div class="mb-8">
-              <span class="text-xl font-base text-gray-600">Servidores Cadastrados:</span>
-              <span class="text-3xl font-extrabold ">3</span>
-
-            </div>
-
-            <a href="{% url 'servidor:criar_servidor' %}" class="block w-full py-3 px-6 text-center text-white text-base rounded-md  font-medium bg-gray-400">
-              Adicionar Servidor:
-            </a>
-            </div>
-
-           <!-- ADICAO EDICAO EM LOTE -->
-            <div class=" rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+            <div class="flex flex-col items-stretch rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
                 <div class="mb-8">
-                  <h3 class="text-2xl font-semibold ">Adicionar ou Editar Servidores em Lote</h3>
-                  <p class="mt-4 text-gray-600">Adicione ou Edite servidores baixando modelo em Excel.</p>
+                  <h3 class="text-2xl flex justify-center font-semibold "><img src="{% static 'icons/adicionar-usuario.png' %}" alt="add-servidor" class="h-12  text-center"></h3>
+                  <p class="mt-4 text-center text-gray-600">Inclua Novos Servidores e suas informações aqui.</p>
+                </div>
+                <div class="mb-8">
+                  <span class="text-xl font-base text-gray-600"></span>
+                  <span class="text-3xl font-extrabold "></span>
+
+                </div>
+                <div class="mt-5 pt-2">
+                    <a href="{% url 'servidor:criar_servidor' %}" class="block w-full py-3 px-6 text-center text-white text-base rounded-md  font-medium bg-gray-400">
+                      Adicionar Servidor:
+                    </a>
+                </div>
+            </div>
+
+            <!-- ADICAO EDICAO EM LOTE -->
+            <div class="flex flex-col items-stretch rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+            <div class="mb-8">
+              <h3 class="text-2xl flex justify-center font-semibold "><img src="{% static 'icons/adicionar-grupo.png' %}" alt="add-grupo" class="h-12  text-center"></h3>
+              <p class="mt-4 text-center text-gray-600">Adicione ou Edite servidores baixando o modelo em Excel.</p>
+            </div>
+            <div class="mb-8">
+              <span class="text-xl font-medium text-gray-600"></span>
+              <span class="text-3xl font-extrabold "></span>
+
+            </div>
+
+            <div class="mt-5 pt-2">
+                <a href="{% url 'servidor:servidor_lote' %}" class="block py-3 px-6 text-center text-white text-base rounded-md  font-medium bg-gray-400">
+                  Baixe e Envie Aqui:
+                </a>
+            </div>
+            </div>
+
+            <!-- breve -->
+            <div class="flex flex-col items-stretch rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+                <div class="mb-8">
+                  <h3 class="text-2xl font-semibold ">Em Breve</h3>
+                  <p class="mt-4 text-gray-600">Em Breve Novas Funcionalidades, nessa aba.</p>
                 </div>
                 <div class="mb-8">
                   <span class="text-xl font-medium text-gray-600"></span>
                   <span class="text-3xl font-extrabold "></span>
 
                 </div>
-
-                <a href="{% url 'servidor:servidor_lote' %}" class="block py-3 px-6 text-center text-white text-base rounded-md  font-medium bg-gray-400">
-                  Baixe Aqui:
-                </a>
+                <div class="mt-5 pt-3">
+                    <a href="#" class="block py-3 px-6 text-center text-white text-base rounded-md  font-medium bg-gray-400">
+                      Adicionar Informaçoes:
+                    </a>
+                </div>
             </div>
 
-            <!-- SMP -->
-            <div class=" rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
-            <div class="mb-8">
-              <h3 class="text-2xl font-semibold ">SMP</h3>
-              <p class="mt-4 text-gray-600">Total de acoes realizadas pelo Setor de Movimentacao Prisional da Gesipe.</p>
-            </div>
-            <div class="mb-8">
-              <span class="text-xl font-medium text-gray-600">Total de Movimentaçoes:</span>
-              <span class="text-3xl font-extrabold "> 108</span>
-
+            <!-- genero -->
+            <div class="flex flex-col items-stretch rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+            <div class="mb-2">
+              <h3 class="text-2xl font-semibold ">Efetivo Por Gênero</h3>
+              <p class="mt-4 text-gray-600"></p>
             </div>
 
-            <a href="#" class="block py-3 px-6 text-center text-white text-base rounded-md  font-medium bg-gray-400">
-              Adicionar Informaçoes:
-            </a>
+
+            <div>
+                <canvas id="genero-pizza" width="200" height="100"></canvas>
             </div>
 
-            <!-- SMP -->
-            <div class=" rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
-            <div class="mb-8">
-              <h3 class="text-2xl font-semibold ">SMP</h3>
-              <p class="mt-4 text-gray-600">Total de acoes realizadas pelo Setor de Movimentacao Prisional da Gesipe.</p>
-            </div>
-            <div class="mb-8">
-              <span class="text-xl font-medium text-gray-600">Total de Movimentaçoes:</span>
-              <span class="text-3xl font-extrabold "> 108</span>
-
-            </div>
-
-                <a href="#" class="block py-3 px-6 text-center text-white text-base rounded-md  font-medium bg-gray-400">
-                  Adicionar Informaçoes:
-                </a>
             </div>
 
 
@@ -99,15 +215,26 @@ Servidores
 
 <!--tabela com os servidores-->
 
-<div class="w-full mb-12 pt-24 flex px-36 justify-start">
+<div class="w-full mb-12 pt-12 flex px-36 justify-start">
     <div class="bg-white shadow-lg rounded-lg w-full">
         <div class="p-6 rounded-t-lg">
-            <h1 class="text-3xl font-bold text-center">Servidores Cadastrados</h1>
+            <div class="flex flex-row justify-between pb-8">
+                <div>
+                    <h1 class="text-3xl font-bold text-center">Servidores Cadastrados</h1>
+                </div>
+                <div>
+                    <a href="{% url 'servidor:relatorio_rh' %}" class="inline-flex items-center p-2 text-xs font-medium uppercase rounded-lg text-primary-700 sm:text-sm hover:bg-gray-100 dark:text-primary-500 dark:hover:bg-gray-700">
+                        Dados Completos
+                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </a>
+                </div>
+            </div>
                 <form method="GET">
                     <div class="mt-4 px-0 flex flex-row justify-between w-full">
                         <div class="flex space-x-4 items-center">
-                            <a href="#"><button class="btn btn-success">Exportar para Excel</button></a>
-                            <a href="{% url 'servidor:export_to_pdf' %}?query={{ query }}" class="btn btn-warning">Exportar para PDF</a>
+
                         </div>
                         <div>
                             <input type="text" name="query" id="searchInput" class="form-input w-full sm:w-auto sm:ml-4 p-1.5 rounded-md border-2 border-gray-600" placeholder="Pesquisar..." value="{{ query }}">
@@ -123,7 +250,7 @@ Servidores
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Matrícula</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cargo</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Setor</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lotação</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
@@ -182,6 +309,12 @@ Servidores
     </div>
 </div>
 
+
+            <div>
+
+            </div>
+
+
 <script>
     document.querySelectorAll('.clickable-row').forEach(row => {
     row.addEventListener('click', () => {
@@ -190,6 +323,70 @@ Servidores
 });
 
 </script>
+
+
+<!--grafico pizza depois criar js proprios-->
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var ctx = document.getElementById('genero-pizza').getContext('2d');
+        var myPieChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: {{ pie_labels|safe }},  // Ex.: ['Masculino', 'Feminino', 'Outros']
+                datasets: [{
+                    label: 'Distribuição por Gênero',
+                    data: {{ pie_values|safe }},  // Ex.: [50, 30, 20]
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 1)',  // Azul para Masculino
+                        'rgba(255, 99, 132, 1)',  // Vermelho para Feminino
+                        'rgba(201, 203, 207, 1)'  // Cinza para Outros
+                    ],
+                    borderColor: [
+                        'rgba(54, 162, 235, 1)',  // Azul
+                        'rgba(255, 99, 132, 1)',  // Vermelho
+                        'rgba(201, 203, 207, 1)'  // Cinza
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return tooltipItem.label + ': ' + tooltipItem.raw;
+                            }
+                        }
+                    },
+                    datalabels: {
+                        display: true,
+                        color: '#ffffff',
+                        font: {
+                            weight: 'bold',
+                            size: 14
+                        },
+                        formatter: (value) => {
+                            return `${value}`;  // Exibe o valor numérico de cada segmento
+                        }
+                    }
+                },
+                cutout: '50%'  // Ajusta a espessura do gráfico tipo donut, caso esteja usando um gráfico de donut
+            }
+        });
+    });
+</script>
+
 
 
 
