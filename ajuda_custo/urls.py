@@ -1,7 +1,9 @@
 #urls - view - template
 
 from django.urls import path, include
-from .views import AjudaCusto, AjudaCustoAdicionar, RelatorioAjudaCusto, exportar_excel, excel_detalhado, AdminCadastrar, buscar_nome_servidor
+from .views import AjudaCusto, AjudaCustoAdicionar, RelatorioAjudaCusto, exportar_excel, \
+    excel_detalhado, AdminCadastrar, buscar_nome_servidor, \
+    HorasLimite, excluir_limite
 
 
 
@@ -15,6 +17,8 @@ urlpatterns = [
     path('excel_detalhado/', excel_detalhado, name='excel_detalhado'),
     path('admin_cadastrar/', AdminCadastrar.as_view(), name='admin_cadastrar'),
     path('buscar-nome-servidor/', buscar_nome_servidor, name='buscar_nome_servidor'),
+    path('horas_limite/', HorasLimite.as_view(), name='horas_limite'),
+    path('excluir-limite/<int:pk>/', excluir_limite, name='excluir_limite'),
 
 
 

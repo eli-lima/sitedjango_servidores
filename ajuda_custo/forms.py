@@ -92,3 +92,9 @@ class LimiteAjudaCustoForm(forms.ModelForm):
     class Meta:
         model = LimiteAjudaCusto
         fields = ['servidor', 'limite_horas']
+
+        # Defina os widgets para adicionar o placeholder
+        widgets = {
+            'limite_horas': forms.NumberInput(attrs={'placeholder': 'Digite o limite em horas'}),
+            'servidor': forms.Select(attrs={'placeholder': 'Selecione o servidor'}),
+        }

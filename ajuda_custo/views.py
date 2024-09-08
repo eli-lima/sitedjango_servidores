@@ -1,8 +1,8 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView, CreateView, FormView, ListView, View
 from .models import Ajuda_Custo, DataMajorada, LimiteAjudaCusto
-from .forms import AjudaCustoForm, AdminDatasForm
+from .forms import AjudaCustoForm, AdminDatasForm, LimiteAjudaCustoForm
 from django.urls import reverse_lazy
 from datetime import datetime
 from django.contrib import messages
@@ -15,6 +15,7 @@ import pandas as pd
 from django.http import JsonResponse
 from servidor.models import Servidor
 from datetime import timedelta
+from django.core.paginator import Paginator
 
 
 
@@ -523,3 +524,58 @@ class AdminCadastrar(LoginRequiredMixin, FormView):
     def form_invalid(self, form):
         messages.error(self.request, 'Erro no Cadastro, Confira os Dados e Tente Novamente.')
         return super().form_invalid(form)
+
+
+class HorasLimite(LoginRequiredMixin, FormView):
+    model = LimiteAjudaCusto
+    form_class = LimiteAjudaCustoForm
+    template_name = 'horas_limite.html'
+    success_url = reverse_lazy('ajuda_custo:horas_limite')
+
+    def form_valid(self, form):
+        servidor = form.cleaned_data['servidor']
+        limite_horas = form.cleaned_data['limite_horas']
+
+        # Verifica se o servidor já possui um limite definido
+        limite_existente, created = LimiteAjudaCusto.objects.update_or_create(
+            servidor=servidor,
+            defaults={'limite_horas': limite_horas}
+        )
+
+        if created:
+            messages.success(self.request, 'Limite de horas adicionado com sucesso!')
+        else:
+            messages.success(self.request, 'Limite de horas atualizado com sucesso!')
+
+        return redirect(self.success_url)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Obtenha o valor da consulta de pesquisa, se houver
+        query = self.request.GET.get('query', '')
+
+        # Filtra por nome ou matrícula, se houver uma consulta
+        if query:
+            cargas = LimiteAjudaCusto.objects.filter(
+                Q(servidor__nome__icontains=query) | Q(servidor__matricula__icontains=query)
+            )
+        else:
+            cargas = LimiteAjudaCusto.objects.all()
+
+        # Adiciona a paginação
+        paginator = Paginator(cargas, 10)  # Mostra 10 registros por página
+        page_number = self.request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+
+        # Adiciona os dados ao contexto
+        context['carga_horaria'] = page_obj
+        context['page_obj'] = page_obj
+        context['query'] = query
+        return context
+
+def excluir_limite(request, pk):
+    limite = get_object_or_404(LimiteAjudaCusto, pk=pk)
+    limite.delete()
+    messages.success(request, 'Limite de horas excluído com sucesso!')
+    return redirect('ajuda_custo:horas_limite')
