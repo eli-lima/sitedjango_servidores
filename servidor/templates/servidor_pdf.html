@@ -83,14 +83,18 @@
 </head>
 {% load static %}
 <body>
+<div>
+    <img src="https://i.imgur.com/4t5U2gL.png" alt="Logo-seap" class="logo">
     <h1>Relatório de Servidores</h1>
+</div>
+
     <table>
         <thead>
             <tr>
                 <th>Matrícula</th>
                 <th>Nome</th>
                 <th>Cargo</th>
-                <th>Lotacao</th>
+                <th>Local de Trabalho</th>
             </tr>
         </thead>
         <tbody>
@@ -99,7 +103,7 @@
                 <td>{{ servidor.matricula }}</td>
                 <td>{{ servidor.nome }}</td>
                 <td>{{ servidor.cargo }}</td>
-                <td>{{ servidor.lotacao }}</td>
+                <td>{{ servidor.local_trabalho }}</td>
             </tr>
             {% empty %}
             <tr>

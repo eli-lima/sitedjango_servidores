@@ -15,15 +15,8 @@ Servidores
 
 <!--Cards de editar ou adicionar-->
 
-<div class="max-w-7xl pt-28 mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-12">
-          <h2 class="text-4xl font-extrabold">
-            Recursos Humanos
-          </h2>
-          <p class="mt-4 text-xl text-gray-700">
-            Consulte ou adicione informacoes.
-          </p>
-        </div>
+<div class="max-w-7xl pt-20 mx-auto px-4 sm:px-6 lg:px-8">
+
 
     <!--cards com informacoes importantes-->
 
@@ -218,7 +211,7 @@ Servidores
 <div class="w-full mb-12 pt-12 flex px-36 justify-start">
     <div class="bg-white shadow-lg rounded-lg w-full">
         <div class="p-6 rounded-t-lg">
-            <div class="flex flex-row justify-between pb-8">
+            <div class="flex flex-row justify-between">
                 <div>
                     <h1 class="text-3xl font-bold text-center">Servidores Cadastrados</h1>
                 </div>
@@ -276,31 +269,31 @@ Servidores
                 <ul class="inline-flex items-center -space-x-px">
                     {% if page_obj.has_previous %}
                     <li>
-                        <a href="?page=1&query={{ query }}" class="px-3 py-2 ml-0 text-sm font-medium text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100">Primeira</a>
+                        <a href="?page=1&query={{ request.GET.query }}" class="px-3 py-2 ml-0 text-sm font-medium text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100">Primeira</a>
                     </li>
                     <li>
-                        <a href="?page={{ page_obj.previous_page_number }}&query={{ query }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">Anterior</a>
+                        <a href="?page={{ page_obj.previous_page_number }}&query={{ request.GET.query }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">Anterior</a>
                     </li>
                     {% endif %}
 
-                    {% for p in page_obj.paginator.page_range %}
+                    {% for p in page_range %}
                     {% if p == page_obj.number %}
                     <li>
                         <span class="px-3 py-2 text-sm font-medium text-white bg-blue-500 border border-gray-300">{{ p }}</span>
                     </li>
                     {% else %}
                     <li>
-                        <a href="?page={{ p }}&query={{ query }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">{{ p }}</a>
+                        <a href="?page={{ p }}&query={{ request.GET.query }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">{{ p }}</a>
                     </li>
                     {% endif %}
                     {% endfor %}
 
                     {% if page_obj.has_next %}
                     <li>
-                        <a href="?page={{ page_obj.next_page_number }}&query={{ query }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">Próxima</a>
+                        <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">Próxima</a>
                     </li>
                     <li>
-                        <a href="?page={{ page_obj.paginator.num_pages }}&query={{ query }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100">Última</a>
+                        <a href="?page={{ page_obj.paginator.num_pages }}&query={{ request.GET.query }}&cargo={{ request.GET.cargo }}&local_trabalho={{ request.GET.local_trabalho }}&cargo_comissionado={{ request.GET.cargo_comissionado }}&status={{ request.GET.status }}&genero={{ request.GET.genero }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100">Última</a>
                     </li>
                     {% endif %}
                 </ul>

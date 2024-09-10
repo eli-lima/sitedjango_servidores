@@ -29,34 +29,34 @@ def export_to_pdf(request):
 
     # Verifique se os parâmetros estão sendo recebidos
     query = request.GET.get('query')
-    print("Query:", query)  # Adicione este print para verificar
+    print("Query:", query)
     if query:
         servidores = servidores.filter(
             Q(nome__icontains=query) | Q(matricula__icontains=query)
         )
 
     cargo = request.GET.get('cargo')
-    print("Cargo:", cargo)  # Adicione este print para verificar
+    print("Cargo:", cargo)
     if cargo:
         servidores = servidores.filter(cargo=cargo)
 
-    lotacao = request.GET.get('lotacao')
-    print("Lotação:", lotacao)  # Adicione este print para verificar
-    if lotacao:
-        servidores = servidores.filter(lotacao=lotacao)
+    local_trabalho = request.GET.get('local_trabalho')  # Alterado de 'lotacao' para 'local_trabalho'
+    print("Local de Trabalho:", local_trabalho)
+    if local_trabalho:
+        servidores = servidores.filter(local_trabalho__icontains=local_trabalho)
 
     cargo_comissionado = request.GET.get('cargo_comissionado')
-    print("Cargo Comissionado:", cargo_comissionado)  # Adicione este print para verificar
+    print("Cargo Comissionado:", cargo_comissionado)
     if cargo_comissionado:
         servidores = servidores.filter(cargo_comissionado=cargo_comissionado)
 
     status = request.GET.get('status')
-    print("Status:", status)  # Adicione este print para verificar
+    print("Status:", status)
     if status:
         servidores = servidores.filter(status=status)
 
     genero = request.GET.get('genero')
-    print("Gênero:", genero)  # Adicione este print para verificar
+    print("Gênero:", genero)
     if genero:
         servidores = servidores.filter(genero=genero)
 
@@ -79,7 +79,6 @@ def export_to_pdf(request):
     if pisa_status.err:
         return HttpResponse('Erro ao gerar PDF', status=500)
     return response
-
 
 
 
@@ -118,7 +117,24 @@ class RecursosHumanosPage(LoginRequiredMixin, ListView):
             context['genero_outros']
         ]
 
-        print(context)  # Adicione esta linha para depurar
+        context = super().get_context_data(**kwargs)
+        page_obj = context['page_obj']
+        paginator = page_obj.paginator
+        page_range = paginator.page_range
+
+        # Lógica para limitar a exibição das páginas
+        if page_obj.number > 3:
+            start = page_obj.number - 2
+        else:
+            start = 1
+
+        if page_obj.number < paginator.num_pages - 2:
+            end = page_obj.number + 2
+        else:
+            end = paginator.num_pages
+
+        context['page_range'] = range(start, end + 1)
+
         return context
 
 
@@ -246,9 +262,9 @@ class RelatorioRh(LoginRequiredMixin, ListView):
         if cargo:
             queryset = queryset.filter(cargo=cargo)
 
-        lotacao = self.request.GET.get('lotacao')
-        if lotacao:
-            queryset = queryset.filter(lotacao=lotacao)
+        local_trabalho = self.request.GET.get('local_trabalho')
+        if local_trabalho:
+            queryset = queryset.filter(local_trabalho__icontains=local_trabalho)
 
         cargo_comissionado = self.request.GET.get('cargo_comissionado')
         if cargo_comissionado:
@@ -266,7 +282,22 @@ class RelatorioRh(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['lotacoes'] = Servidor.objects.values_list('lotacao', flat=True).distinct()
+        page_obj = context['page_obj']
+        paginator = page_obj.paginator
+        page_range = paginator.page_range
+
+        # Lógica para limitar a exibição das páginas
+        if page_obj.number > 3:
+            start = page_obj.number - 2
+        else:
+            start = 1
+
+        if page_obj.number < paginator.num_pages - 2:
+            end = page_obj.number + 2
+        else:
+            end = paginator.num_pages
+
+        context['page_range'] = range(start, end + 1)
         context['generos'] = Servidor.objects.values_list('genero', flat=True).distinct()
         context['cargos'] = Servidor.objects.values_list('cargo', flat=True).distinct()
         context['cargos_comissionado'] = Servidor.objects.values_list('cargo_comissionado', flat=True).distinct()
