@@ -29,34 +29,34 @@ def export_to_pdf(request):
 
     # Verifique se os parâmetros estão sendo recebidos
     query = request.GET.get('query')
-    print("Query:", query)
+
     if query:
         servidores = servidores.filter(
             Q(nome__icontains=query) | Q(matricula__icontains=query)
         )
 
     cargo = request.GET.get('cargo')
-    print("Cargo:", cargo)
+
     if cargo:
         servidores = servidores.filter(cargo=cargo)
 
     local_trabalho = request.GET.get('local_trabalho')  # Alterado de 'lotacao' para 'local_trabalho'
-    print("Local de Trabalho:", local_trabalho)
+
     if local_trabalho:
         servidores = servidores.filter(local_trabalho__icontains=local_trabalho)
 
     cargo_comissionado = request.GET.get('cargo_comissionado')
-    print("Cargo Comissionado:", cargo_comissionado)
+
     if cargo_comissionado:
         servidores = servidores.filter(cargo_comissionado=cargo_comissionado)
 
     status = request.GET.get('status')
-    print("Status:", status)
+
     if status:
         servidores = servidores.filter(status=status)
 
     genero = request.GET.get('genero')
-    print("Gênero:", genero)
+
     if genero:
         servidores = servidores.filter(genero=genero)
 
@@ -117,7 +117,6 @@ class RecursosHumanosPage(LoginRequiredMixin, ListView):
             context['genero_outros']
         ]
 
-        context = super().get_context_data(**kwargs)
         page_obj = context['page_obj']
         paginator = page_obj.paginator
         page_range = paginator.page_range
