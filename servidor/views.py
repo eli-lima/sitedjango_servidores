@@ -29,14 +29,12 @@ def export_to_pdf(request):
 
     # Verifique se os parâmetros estão sendo recebidos
     query = request.GET.get('query')
-
     if query:
         servidores = servidores.filter(
             Q(nome__icontains=query) | Q(matricula__icontains=query)
         )
 
     cargo = request.GET.get('cargo')
-
     if cargo:
         servidores = servidores.filter(cargo=cargo)
 
@@ -134,6 +132,8 @@ class RecursosHumanosPage(LoginRequiredMixin, ListView):
 
         context['page_range'] = range(start, end + 1)
 
+
+
         return context
 
 
@@ -197,8 +197,8 @@ class ServidorLote(LoginRequiredMixin, View):
         if form.is_valid():
             arquivo_excel = request.FILES['arquivo_excel']
 
-            # Processar o arquivo Excel
-            wb = openpyxl.load_workbook(arquivo_excel)
+            # Carregar a planilha com valores calculados em vez de fórmulas
+            wb = openpyxl.load_workbook(arquivo_excel, data_only=True)
             sheet = wb['servidor']
 
             try:
@@ -210,6 +210,7 @@ class ServidorLote(LoginRequiredMixin, View):
                     # Verifica se a matrícula ou o nome está presente, ignorando a linha se ambos estiverem ausentes
                     if not row[1] or not row[2]:
                         continue
+
                     # Definindo o status baseado na condição
                     status = False if row[12] == 'INATIVO' else True
 
@@ -223,7 +224,7 @@ class ServidorLote(LoginRequiredMixin, View):
                             'cargo_comissionado': row[5].upper() if row[5] else None,
                             'simb_cargo_comissionado': row[6] if row[6] else None,
                             'lotacao': str(row[7]).upper() if row[7] else None,
-                            'genero': str(row[8]).upper() if row[8] else 'O',
+                            'genero': str(row[8]).upper() if row[8] else 'Outro',
                             'regime': str(row[9]).upper() if row[9] else 'NAO INFORMADO',
                             'data_admissao': row[10],
                             'status': status,
@@ -238,8 +239,6 @@ class ServidorLote(LoginRequiredMixin, View):
                 messages.error(request, f'Ocorreu um erro ao processar o arquivo: {e}')
 
             return redirect('servidor:recursos_humanos')
-
-        return render(request, self.template_name, {'form': form})
 
 
 
