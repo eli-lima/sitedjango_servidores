@@ -15,6 +15,7 @@ from django.template.loader import get_template
 from xhtml2pdf import pisa
 import openpyxl
 from django.db import IntegrityError
+from django.contrib.auth.decorators import login_required
 
 
 
@@ -22,7 +23,7 @@ from django.db import IntegrityError
 # Create your views here.
 
 #Relatorios PDF
-
+@login_required()
 def export_to_pdf(request):
     # Inicializa o queryset de Servidor
     servidores = Servidor.objects.all().order_by('nome')

@@ -16,6 +16,7 @@ from django.http import JsonResponse
 from servidor.models import Servidor
 from datetime import timedelta
 from django.core.paginator import Paginator
+from django.contrib.auth.decorators import login_required
 
 
 
@@ -39,7 +40,7 @@ def buscar_nome_servidor(request):
 
 #DEF Download Relatorios
 
-
+@login_required()
 def exportar_excel(request):
     # Captura os parâmetros de pesquisa
     query = request.GET.get('query', '')
@@ -175,7 +176,7 @@ def exportar_excel(request):
     return response
 
 
-
+@login_required()
 def excel_detalhado(request):
 
     query = request.GET.get('query', '')
