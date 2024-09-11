@@ -103,9 +103,9 @@ class RecursosHumanosPage(LoginRequiredMixin, ListView):
         context['total_policial_penal'] = Servidor.objects.filter(cargo='POLICIAL PENAL').count()
 
         # Contar o número de servidores por gênero
-        context['genero_masculino'] = Servidor.objects.filter(genero='M').count()
-        context['genero_feminino'] = Servidor.objects.filter(genero='F').count()
-        context['genero_outros'] = Servidor.objects.filter(genero='O').count()
+        context['genero_masculino'] = Servidor.objects.filter(genero='M', cargo='POLICIAL PENAL').count()
+        context['genero_feminino'] = Servidor.objects.filter(genero='F', cargo='POLICIAL PENAL').count()
+        context['genero_outros'] = Servidor.objects.filter(genero='O', cargo='POLICIAL PENAL').count()
 
         # Labels e valores para o gráfico de pizza
         context['pie_labels'] = ['Masculino', 'Feminino', 'Outros']
