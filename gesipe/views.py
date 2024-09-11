@@ -91,7 +91,6 @@ class GesipeAdm(LoginRequiredMixin, CreateView):
         return self.render_to_response(self.get_context_data(form=form))
 
 
-
 class GesipeAdmEdit(LoginRequiredMixin, UpdateView):
     model = Gesipe_adm
     form_class = GesipeAdmForm
@@ -109,6 +108,13 @@ class GesipeAdmEdit(LoginRequiredMixin, UpdateView):
         return kwargs
 
     def form_valid(self, form):
+        if self.request.POST.get('action') == 'delete':
+            # Lida com a exclusão do registro
+            self.object.delete()
+            messages.success(self.request, 'Registro excluído com sucesso!')
+            return redirect(self.success_url)
+
+        # Atualiza os dados do registro
         dados_adm = form.save(commit=False)
         dados_adm.data_edicao = timezone.now()  # Atualiza a data de edição
         dados_adm.save()
