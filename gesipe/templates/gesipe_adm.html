@@ -17,7 +17,7 @@ Gesipe Administrativo
             <h1 class="text-center text-bold text-3xl pb-5 font-mono">Preencha as Informações:</h1>
         </div>
 
-        <form class="form-group container border border-2 border-secondary" action="" method="POST">
+        <form class="form-group container border border-2 border-secondary" action="{% url 'gesipe:gesipe_adm' %}" method="POST">
             {% csrf_token %}
 
 
@@ -38,31 +38,7 @@ Gesipe Administrativo
     </div>
 
 
-    <!-- Modal -->
-    <div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="myModalLabel">Data Já Existente</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Informacoes para data ja existentes, deseja editar?</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                    <button type="button" class="btn btn-danger">Editar</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var myModal = new bootstrap.Modal(document.getElementById('myModal'));
-            document.getElementById('botao_buscar').addEventListener('click', function() {
-                myModal.show();
-            });
-        });
-    </script>
+
+
 {% endblock %}

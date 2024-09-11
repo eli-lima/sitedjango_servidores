@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from .models import Gesipe_adm
-from django.views.generic.edit import FormView, UpdateView
+from django.views.generic.edit import FormView, UpdateView, CreateView
 from django.utils.timezone import now
 from .forms import GesipeAdmForm
 from django.views.generic import ListView, DetailView
@@ -62,25 +62,34 @@ class Gesipe(LoginRequiredMixin, ListView):
         return context
 
 
-class GesipeAdm(LoginRequiredMixin, FormView):
-    template_name = 'gesipe_adm.html'
+class GesipeAdm(LoginRequiredMixin, CreateView):
+    model = Gesipe_adm
     form_class = GesipeAdmForm
-    success_url = reverse_lazy('gesipe:gesipe_adm')  # Redirecionar para a mesma página ou para uma página de sucesso
+    template_name = 'gesipe_adm.html'
+    success_url = reverse_lazy('gesipe:gesipe_adm')
 
     def form_valid(self, form):
-        # Salva os dados do formulário e atribui o usuário atual e a data de edição
+        # Se o formulário passar pela validação, salva o novo registro
+        print("Formulário válido, salvando dados...")
         dados_adm = form.save(commit=False)
-        dados_adm.usuario = self.request.user
-        dados_adm.data_edicao = timezone.now()
+        dados_adm.usuario = self.request.user  # Atribui o usuário atual
+        dados_adm.data_edicao = timezone.now()  # Define a data de edição
         dados_adm.save()
-
         messages.success(self.request, 'Dados adicionados com sucesso!')
-        return super().form_valid(form)
+        return redirect(self.success_url)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['form_data'] = self.form_class()  # Certifique-se de passar o formulário com o nome correto
-        return context
+    def form_invalid(self, form):
+
+        if 'data' in form.errors:
+            # Exibe uma mensagem de erro personalizada
+
+            messages.error(self.request, 'Registro para a data já existe. Utilize a opção de edição para alterar os dados.')
+        else:
+            pass
+
+        # Retorna o formulário inválido para o template com a mensagem de erro
+        return self.render_to_response(self.get_context_data(form=form))
+
 
 
 class GesipeAdmEdit(LoginRequiredMixin, UpdateView):

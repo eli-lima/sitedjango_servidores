@@ -31,10 +31,16 @@ Gesipe
               <span class="text-3xl font-extrabold "> 108</span>
 
             </div>
-
-            <a href="{% url 'gesipe:gesipe_adm' %}" data-bs-toggle="modal" data-bs-target="#Pesquisar_Data" class="block w-full py-3 px-6 text-center text-white text-base rounded-md  font-medium bg-gray-400">
-              Adicionar Informaçoes:
-            </a>
+            <div class="pb-4">
+                <a href="{% url 'gesipe:gesipe_adm' %}" class="block w-full py-3 px-6 text-center text-white text-base rounded-md  font-medium bg-blue-500">
+                  Adicionar Registro:
+                </a>
+            </div>
+            <div>
+                <a href="{% url 'gesipe:gesipe_adm' %}" data-bs-toggle="modal" data-bs-target="#Pesquisar_Data" class="block w-full py-3 px-6 text-center text-white text-base rounded-md  font-medium bg-red-500">
+                  Editar Registro:
+                </a>
+            </div>
             </div>
 
             <!-- SMP -->
@@ -263,77 +269,14 @@ Gesipe
 
 
 
-		<!-- Formularios primeira linha -->
-
-
-
-    <div class="max-w-sm rounded overflow-hidden shadow-lg bg-white">
-        <img class="w-full" src="https://via.placeholder.com/400x200" alt="Imagem do Card">
-        <div class="px-6 py-4">
-            <div class="font-bold text-xl mb-2">Título do Card</div>
-            <p class="text-gray-700 text-base">
-                Este é um exemplo de descrição de card. Você pode adicionar mais conteúdo aqui para descrever os detalhes do card.
-            </p>
-        </div>
-        <div class="px-6 pt-4 pb-2">
-            <span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">Tag1</span>
-            <span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">Tag2</span>
-            <span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">Tag3</span>
-        </div>
-    </div>
-
-    <div class="container mx-auto mt-4">
-  <div class="flex flex-wrap">
-    <div class="w-full sm:w-1/2 md:w-1/4 p-2">
-      <div class="bg-gray-100 rounded-lg shadow p-4 flex items-center">
-        <div class="bg-green-500 rounded-full p-3 mr-4">
-          <i class="bi bi-stickies-fill text-white text-2xl"></i>
-        </div>
-        <div>
-          <h6 class="text-gray-800 font-bold">Movimentações Totais</h6>
-          <span class="text-gray-600">Total de Movimentacoes</span>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
 
 
 
 
 
 
-    <header class="min-h-screen showcase border-gray-600 border-b-8 flex justify-center items-center bg-no-repeat">
-        <div class="z-10 h-full py-32 md:py-0 text-center flex items-center flex-col">
 
-            <h1 class="font-semibold text-4xl md:text-5xl w-10/12 md:w-3/4 text-center">
-                Adicionar ou editar Informações do Administrativo da Gesipe.
-            </h1>
-            <div class="py-5">
-                {% for data in object_list %}
-                <a href="{% url 'gesipe:gesipe_adm' %}"><p>{{ data }}</p></a>
-                    <hr>
-                    <p> {{ data.processos }} </p>
-                    <hr>
-                    <hr>
-                    <p> identificar .id {{ data.id }} </p>
-                    <hr>
-                    <p> {{ data.memorandos_diarias }} </p>
-                     <hr>
-                    <p> {{ data.total }} </p>
-
-                {% endfor %}
-            </div>
-
-             <div>
-                 <p>{{ lista_edicoes_recentes }}</p>
-            </div>
-        </div>
-
-    </header>
-
-
- <!-- Modal pesquisar data -->
+ <!-- Modal para pesquisar data -->
 <div class="modal fade" id="Pesquisar_Data" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -341,7 +284,7 @@ Gesipe
                 <h5 class="modal-title" id="myModalLabel">Digitar Data</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="dataForm" class="form-group border border-2 border-secondary" method="POST" action="{% url 'gesipe:gesipe' %}">
+            <form id="dataForm" class="form-group border border-2 border-secondary" method="POST">
                 {% csrf_token %}
                 <div class="justify-center p-3">
                     <label for="data_pesquisa" class="form-label">Digite a Data para inclusão ou edição:</label>
@@ -356,29 +299,9 @@ Gesipe
     </div>
 </div>
 
-<!-- Modal confirmação de edição -->
-<div class="modal fade" id="Confirmar_Edicao" tabindex="-1" aria-labelledby="myModalLabel2" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header text-center">
-                <h5 class="modal-title" id="myModalLabel2">Data Já Existente</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Informações para a data já existem. Deseja editar?</p>
-            </div>
-            <div class="modal-footer">
-                <a id="edit-link" class="btn btn-danger">Editar</a>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-            </div>
-        </div>
-    </div>
-</div>
 
 
 
-{{ object_list.all }}
-{{ object_list.id }}
 
  <script>
     document.querySelectorAll('.clickable-row').forEach(row => {
@@ -392,47 +315,45 @@ Gesipe
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        var pesquisarModal = new bootstrap.Modal(document.getElementById('Pesquisar_Data'));
-        var confirmarModal = new bootstrap.Modal(document.getElementById('Confirmar_Edicao'));
         var dataForm = document.getElementById('dataForm');
 
-        dataForm.addEventListener('submit', function(event) {
-            event.preventDefault();  // Previne o envio normal do formulário
+        if (dataForm) {
+            dataForm.addEventListener('submit', function(event) {
+                event.preventDefault();  // Previne o envio normal do formulário
 
-            var data = document.getElementById('data_pesquisa').value;
-            if (!data) {
-                alert('Por favor, digite uma data.');
-                return;
-            }
-
-            var formData = new FormData();
-            formData.append('data_pesquisa', data);
-            formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
-
-            fetch('{% url "gesipe:gesipe" %}', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                var data = document.getElementById('data_pesquisa').value;
+                if (!data) {
+                    alert('Por favor, digite uma data.');
+                    return;
                 }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.exists) {
-                    // Se a data existe, mostra o modal de confirmação de edição
-                    document.getElementById('edit-link').href = data.url;
-                    confirmarModal.show();
-                } else {
-                    // Se a data não existe, redireciona para a página de criação
-                    window.location.href = data.url;
-                }
-            })
-            .catch(error => console.error('Error:', error));
-        });
+
+                var formData = new FormData();
+                formData.append('data_pesquisa', data);
+                formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+                fetch('{% url "gesipe:gesipe" %}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.exists) {
+                        // Se a data existe, redireciona para a página de edição
+                        window.location.href = data.url;
+                    } else {
+                        // Se a data não existe, redireciona para a página de criação
+                        window.location.href = data.url;
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            });
+        }
     });
 </script>
-
 
 
 {% endblock %}
