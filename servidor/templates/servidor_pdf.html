@@ -9,6 +9,7 @@
          body {
             font-family: Arial, sans-serif;
             margin: 20px;
+            font-size: 8px;
         }
 
         table {
@@ -18,8 +19,9 @@
         }
 
         th, td {
-            padding: 8px;
             border: 1px solid black;
+            padding-block: 8px;
+            padding-top: 2px;
         }
 
         h1 {
@@ -41,12 +43,7 @@
             color: #ffffff;
             background: #2f4961;
         }
-        table td,
-        table th {
-            text-align: center;
-            padding: 10px;
-            width: 33%; /* 100% dividido pelo número de colunas */
-        }
+
         table td {
             border-right: 1px solid #f1f1f1;
         }
@@ -77,6 +74,37 @@
 
         }
 
+        .col1 {
+            width: 10%; /* Largura para a primeira coluna */
+    }
+
+        .col2 {
+            width: 30%; /* Largura para a primeira coluna */
+    }
+        .col3 {
+            width: 20%; /* Largura para a primeira coluna */
+    }
+        .col4 {
+            width: 25%; /* Largura para a primeira coluna */
+    }
+        .col5 {
+            width: 15%; /* Largura para a primeira coluna */
+    }
+        .col6 {
+            width: 50%; /* Largura para a primeira coluna */
+    }
+        .col7 {
+            width: 50%; /* Largura para a primeira coluna */
+    }
+        .col8 {
+            width: 50%; /* Largura para a primeira coluna */
+    }
+
+
+
+
+
+
 
 
     </style>
@@ -89,21 +117,24 @@
 </div>
 
     <table>
+
         <thead>
             <tr>
-                <th>Matrícula</th>
-                <th>Nome</th>
-                <th>Cargo</th>
-                <th>Local de Trabalho</th>
+                <th class="col1">Matrícula</th>
+                <th class="col2">Nome</th>
+                <th class="col3">Cargo</th>
+                <th class="col4">Local de Trabalho</th>
+                <th class="col5">Cargo Comissionado</th>
             </tr>
         </thead>
         <tbody>
             {% for servidor in servidores %}
             <tr>
-                <td>{{ servidor.matricula }}</td>
-                <td>{{ servidor.nome }}</td>
-                <td>{{ servidor.cargo }}</td>
-                <td>{{ servidor.local_trabalho }}</td>
+                <td class="col1">{{ servidor.matricula }}</td>
+                <td class="col2">{{ servidor.nome }}</td>
+                <td class="col3">{{ servidor.cargo }}</td>
+                <td class="col4">{{ servidor.local_trabalho }}</td>
+                <td class="col5">{% if servidor.cargo_comissionado %}{{ servidor.cargo_comissionado }}{% else %}{% endif %}</td>
             </tr>
             {% empty %}
             <tr>
