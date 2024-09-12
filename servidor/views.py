@@ -23,7 +23,7 @@ from django.contrib.auth.decorators import login_required
 # Create your views here.
 
 #Relatorios PDF
-@login_required()
+@login_required
 def export_to_pdf(request):
     # Inicializa o queryset de Servidor
     servidores = Servidor.objects.all().order_by('nome')
@@ -267,7 +267,7 @@ class RelatorioRh(LoginRequiredMixin, ListView):
 
         cargo_comissionado = self.request.GET.get('cargo_comissionado')
         if cargo_comissionado:
-            queryset = queryset.filter(cargo_comissionado=cargo_comissionado)
+            queryset = queryset.filter(cargo_comissionado__icontains=cargo_comissionado)
 
         status = self.request.GET.get('status')
         if status:
@@ -275,7 +275,7 @@ class RelatorioRh(LoginRequiredMixin, ListView):
 
         genero = self.request.GET.get('genero')
         if genero:
-            queryset = queryset.filter(genero=genero)
+            queryset = queryset.filter(genero__icontains=genero)
 
         return queryset.order_by('nome')
 

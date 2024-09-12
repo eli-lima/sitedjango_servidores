@@ -111,7 +111,7 @@ class GesipeAdmEdit(LoginRequiredMixin, UpdateView):
         if self.request.POST.get('action') == 'delete':
             # Lida com a exclusão do registro
             self.object.delete()
-            messages.success(self.request, 'Registro excluído com sucesso!')
+            messages.error(self.request, 'Registro excluído com sucesso!')
             return redirect(self.success_url)
 
         # Atualiza os dados do registro
