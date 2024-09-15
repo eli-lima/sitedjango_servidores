@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block titulo %}
+Ajuda de Custo
+{% endblock %}
+
+
+{% block content %}
+
+<div class="max-w-7xl pt-28 mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-4xl font-extrabold">
+            Ajuda de Custo
+          </h2>
+          <p class="mt-4 text-xl text-gray-700">
+            Consulte ou adicione informacoes.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 gap-8 sm:grid-cols-3 lg:grid-cols-4">
+
+            <!-- adicionar ajuda de Custo -->
+            <div class=" rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+            <div class="mb-8">
+              <h3 class="text-2xl font-semibold ">Ajuda De Custo Operacional</h3>
+              <p class="mt-4 text-gray-600">Marque suas datas individuais aqui. </p>
+            </div>
+            <div class="mb-8">
+              <span class="text-xl font-medium text-gray-600"></span>
+              <span class="text-3xl font-extrabold "></span>
+
+            </div>
+
+            <a href="{% url 'ajuda_custo:adicionar' %}" class="block w-full py-3 px-6 text-center text-white text-base rounded-md  font-medium bg-gray-400">
+              Adicionar Datas:
+            </a>
+            </div>
+
+            <!-- Administrador Cadastrar -->
+            <div class=" rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+            <div class="mb-8">
+              <h3 class="text-2xl font-semibold ">Cadastro Administrativo</h3>
+              <p class="mt-4 text-gray-600">Cadastro de Ajuda de Custo de Servidores.</p>
+            </div>
+            <div class="mb-8">
+              <span class="text-xl font-medium text-gray-600"></span>
+              <span class="text-3xl font-extrabold "></span>
+
+            </div>
+
+            <a href="{% url 'ajuda_custo:admin_cadastrar' %}" class="block py-3 px-6 text-center text-white text-base rounded-md  font-medium bg-gray-400">
+              Adicionar:
+            </a>
+            </div>
+
+            <!-- Limite de horas -->
+            <div class=" rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+            <div class="mb-8">
+              <h3 class="text-2xl font-semibold ">Limites Horas Servidor</h3>
+              <p class="mt-4 text-gray-600">Estipular a Carga Horaria Mensal de Servidor</p>
+            </div>
+
+
+            <a href="{% url 'ajuda_custo:horas_limite' %}" class="block py-3 px-6 text-center text-white text-base rounded-md  font-medium bg-gray-400">
+              Adicionar Informaçoes:
+            </a>
+            </div>
+
+            <!-- Em Breve -->
+            <div class=" rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+            <div class="mb-8">
+              <h3 class="text-2xl font-semibold ">Novas Funções Em Breve</h3>
+              <p class="mt-4 text-gray-600">Novas Funções em breve, nesta Aba</p>
+            </div>
+            <div class="mb-8">
+              <span class="text-xl font-medium text-gray-600"></span>
+              <span class="text-3xl font-extrabold "></span>
+
+            </div>
+
+                <a href="#" class="block py-3 px-6 text-center text-white text-base rounded-md  font-medium bg-gray-400">
+                  Adicionar Informaçoes:
+                </a>
+            </div>
+
+
+        </div>
+
+</div>
+
+
+<!--tabela com ajuda de custo-->
+
+<div class="mb-12 pt-24 flex px-36 justify-start w-full">
+    <div class="bg-white shadow-lg rounded-lg w-full">
+        <div class="p-6 rounded-t-lg">
+            <div>
+               <div class="flex items-center justify-between pb-4 mb-4 border-b border-gray-200">
+                    <div>
+                        <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Relatório</h3>
+                        <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">Ajuda de Custo</span>
+                    </div>
+                    <a href="{% url 'ajuda_custo:relatorio_ajuda_custo' %}" class="inline-flex items-center p-2 text-xs font-medium uppercase rounded-lg text-primary-700 sm:text-sm hover:bg-gray-100 dark:text-primary-500 dark:hover:bg-gray-700">
+                        Dados Completos
+                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </a>
+               </div>
+            </div>
+
+                <form method="GET">
+                    <div class="mt-4 px-0 flex flex-row justify-between w-full">
+                        <div class="flex space-x-4 items-center">
+
+                        </div>
+                        <div class="flex flex-row">
+                            <input class="form-input w-full sm:w-auto sm:ml-4 p-1.5 rounded-md border-1 border-gray-600" type="date" name="dataInicial" id="dataInicial" value="">
+                            <input class="form-input w-full sm:w-auto sm:ml-4 p-1.5 rounded-md border-1 border-gray-600"  type="date" name="dataFinal" id="datafinal" value="">
+                            <input type="text" name="query" id="searchInput" class="form-input w-full sm:w-auto sm:ml-4 p-1.5 rounded-md border-1 border-gray-600" placeholder="Pesquisar..." value="{{ query }}">
+                            <button type="submit" class="hidden"></button>
+                        </div>
+                    </div>
+                </form>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white divide-y divide-gray-200">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Matrcula</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unidade</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Carga Horaria</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for data in datas %}
+                    <tr class="clickable-row" data-href="{% url 'ajuda_custo:ajuda_custo' %}">
+                        <td class="px-6 py-4 whitespace-nowrap">{{ data.matricula }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ data.nome }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ data.data|date:"d/m/Y"}}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ data.unidade }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ data.carga_horaria }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="px-6 py-4 text-center text-gray-500">Nenhum servidor encontrado</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Paginação -->
+        <div class="p-6 bg-gray-100 rounded-b-lg">
+            <nav aria-label="Page navigation">
+                <ul class="inline-flex items-center -space-x-px">
+                    {% if page_obj.has_previous %}
+                    <li>
+                        <a href="?page=1&query={{ query }}" class="px-3 py-2 ml-0 text-sm font-medium text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100">Primeira</a>
+                    </li>
+                    <li>
+                        <a href="?page={{ page_obj.previous_page_number }}&query={{ query }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">Anterior</a>
+                    </li>
+                    {% endif %}
+
+                    {% for p in page_obj.paginator.page_range %}
+                    {% if p == page_obj.number %}
+                    <li>
+                        <span class="px-3 py-2 text-sm font-medium text-white bg-blue-500 border border-gray-300">{{ p }}</span>
+                    </li>
+                    {% else %}
+                    <li>
+                        <a href="?page={{ p }}&query={{ query }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">{{ p }}</a>
+                    </li>
+                    {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li>
+                        <a href="?page={{ page_obj.next_page_number }}&query={{ query }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">Próxima</a>
+                    </li>
+                    <li>
+                        <a href="?page={{ page_obj.paginator.num_pages }}&query={{ query }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100">Última</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
