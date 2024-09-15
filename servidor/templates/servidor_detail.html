@@ -22,7 +22,7 @@ Detalhes Servidor
                 {% if servidor.foto_servidor %}
                     <img class="rounded-md" src="{{ servidor.foto_servidor.url }}" alt="Foto do Servidor">
                 {% else %}
-                    <img src="{% static 'images/default.png' %}" alt="Foto do Servidor">
+                    <img class="rounded-md" src="{% static 'images/default.jpg' %}" alt="Foto do Servidor">
                 {% endif %}
 
             </div>
@@ -69,7 +69,7 @@ Detalhes Servidor
                                     Data de Nasc.
                                 </div>
                                 <div class="text-base text-gray-900">
-                                   {{ servidor.data_nascimento }}
+                                   {{ servidor.data_nascimento|default_if_none:"" }}
                                 </div>
                             </div>
                             <div class="pl-3 py-2 border w-2/12">

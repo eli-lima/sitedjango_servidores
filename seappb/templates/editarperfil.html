@@ -36,7 +36,7 @@ Editar Perfil
                     {% if user.foto_perfil %}
                         <img class="py-4 w-36 h-48 object-cover rounded-full" src="{{ user.foto_perfil.url }}" alt="Foto de Perfil">
                     {% else %}
-                        <img class="py-4 w-36 h-48 object-cover rounded-full" src="{% static 'profile_pics/default.jpg' %}" alt="Foto de Perfil">
+                        <img class="py-4 w-36 h-48 object-cover rounded-full" src="{% static 'images/default.jpg' %}" alt="Foto de Perfil">
                     {% endif %}
                 </div>
                 <h2 class="p-2">Setor: {{ user.setor }}</h2>
