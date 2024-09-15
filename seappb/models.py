@@ -22,7 +22,7 @@ class Setor(models.Model):
 
 class Usuario(AbstractUser):
     nome_completo = models.CharField(max_length=200, blank=False)
-    foto_perfil = models.ImageField(upload_to='profile_pics')
+    foto_perfil = models.ImageField(upload_to='profile_pics', blank=True, null=True)
     matricula = models.IntegerField(null=True, blank=True)
     setor = models.ForeignKey('Setor', on_delete=models.CASCADE, null=True, blank=True)
 
