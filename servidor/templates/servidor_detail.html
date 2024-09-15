@@ -262,29 +262,29 @@ Detalhes Servidor
 </div>
 
 <script>
-function generatePDF() {
-    // Selecionar o elemento que queremos converter para PDF
-    var element = document.getElementById('ficha-servidor'); // Isso irá pegar o conteúdo inteiro da página. Modifique se quiser um elemento específico.
+    function generatePDF() {
+        // Selecionar o elemento que queremos converter para PDF
+        var element = document.getElementById('ficha-servidor'); // Isso irá pegar o conteúdo inteiro da página. Modifique se quiser um elemento específico.
 
 
-    element.style.padding = "10px";   // Adicionar padding
+        element.style.padding = "10px";   // Adicionar padding
 
-    // Especificar opções de configuração do PDF, como o formato, margens, etc.
-    var opt = {
-        margin:       0.5,
-        filename:     'pagina_impressa {{ servidor.nome }}.pdf', // Nome do arquivo gerado
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2 },  // Aumenta a resolução do canvas para garantir qualidade
-        jsPDF:        { unit: 'pt', format: 'letter', orientation: 'portrait' } // Formato da página (A4, etc)
-    };
+        // Especificar opções de configuração do PDF, como o formato, margens, etc.
+        var opt = {
+            margin:       0.5,
+            filename:     'pagina_impressa {{ servidor.nome }}.pdf', // Nome do arquivo gerado
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2 },  // Aumenta a resolução do canvas para garantir qualidade
+            jsPDF:        { unit: 'pt', format: 'letter', orientation: 'portrait' } // Formato da página (A4, etc)
+        };
 
 
 
-    // Usar html2pdf para gerar o PDF
-    html2pdf().set(opt).from(element).save().then(function() {
+        // Usar html2pdf para gerar o PDF
+        html2pdf().set(opt).from(element).save().then(function() {
 
-    });
-}
+        });
+    }
 </script>
 
 
