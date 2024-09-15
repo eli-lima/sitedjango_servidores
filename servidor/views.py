@@ -297,7 +297,7 @@ class ServidorLote(LoginRequiredMixin, View):
                             'data_nascimento': row[13],
                             'telefone': str(row[14]).upper() if row[14] else None,
                             'email': str(row[15]).upper() if row[15] else None,
-                            'foto_perfil': None
+                            'foto_servidor': None
                         }
                     )
 
