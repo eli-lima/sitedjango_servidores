@@ -55,7 +55,7 @@ class Servidor(models.Model):
     telefone = models.CharField(max_length=15, blank=True, null=True)  # Número de telefone (opcional)
     email = models.EmailField(max_length=254, blank=True, null=True)  # Email (opcional)
     endereco = models.TextField(blank=True, null=True)  # Endereço (opcional)
-    foto_servidor = models.ImageField(upload_to=upload_to, default='profile_pics/default.jpg')
+    foto_servidor = models.ImageField(upload_to=upload_to, default='static/images/default.jpg')
     regime = models.CharField(
         max_length=50, choices=REGIMES, default='estatutario')   #prestador estatutario
     status = models.BooleanField(max_length=50, choices=STATUS, default='ativo')   #ativa ou afastado por algum motivo
