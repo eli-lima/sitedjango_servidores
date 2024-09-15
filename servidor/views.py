@@ -1,13 +1,13 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import TemplateView, CreateView, ListView, UpdateView, View
+from django.views.generic import TemplateView, CreateView, ListView, UpdateView, View, DetailView
 from .forms import ServidorForm, UploadFileForm
 from django.urls import reverse_lazy
 from django.contrib import messages
 from PIL import Image
 from io import BytesIO
 from django.core.files.base import ContentFile
-from .models import Servidor
+from .models import Servidor, ServidorHistory
 from django.db.models import Q
 from django.http import HttpResponse
 from reportlab.pdfgen import canvas
@@ -16,6 +16,7 @@ from xhtml2pdf import pisa
 import openpyxl
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
+from django.utils import timezone
 
 
 
@@ -142,46 +143,110 @@ class CriarServidorView(LoginRequiredMixin, CreateView):
     model = Servidor
     form_class = ServidorForm
     template_name = 'servidor_add.html'
-    success_url = reverse_lazy('servidor:recursos_humanos')  # Substitua 'servidor_list' pelo nome da URL de destino
+    success_url = reverse_lazy('servidor:recursos_humanos')
 
     def form_valid(self, form):
+        # Convertendo campos de texto para maiúsculas
+        servidor = form.save(commit=False)
+        servidor.nome = servidor.nome.upper()
+        servidor.cargo = servidor.cargo.upper()
+        servidor.cargo_comissionado = servidor.cargo_comissionado.upper() if servidor.cargo_comissionado else None
+        servidor.local_trabalho = servidor.local_trabalho.upper() if servidor.local_trabalho else None
+        servidor.lotacao = servidor.lotacao.upper() if servidor.lotacao else None
+        servidor.genero = servidor.genero.upper()
+        servidor.regime = servidor.regime.upper()
+        servidor.telefone = servidor.telefone if servidor.telefone else None
+        servidor.email = servidor.email if servidor.email else None
+
+        # Processamento da imagem
         if self.request.FILES:
             foto_servidor = self.request.FILES['foto_servidor']
-
-            # Abrir a imagem usando Pillow
             image = Image.open(foto_servidor)
-
-            # Converter a imagem para RGB, se necessário
-            if image.mode in ("RGBA", "P"):  # RGBA inclui transparência, P é para paletas
+            if image.mode in ("RGBA", "P"):
                 image = image.convert("RGB")
-
-            # Reduzir a resolução da imagem (ajustar conforme necessário)
-            max_size = (300, 300)  # Define o tamanho máximo da imagem
+            max_size = (300, 300)
             image.thumbnail(max_size, Image.LANCZOS)
-
-            # Salvar a imagem em um buffer
             buffer = BytesIO()
             image.save(buffer, format='JPEG')
-
-            # Criar um novo arquivo de imagem a partir do buffer
             file_buffer = ContentFile(buffer.getvalue())
-            form.instance.foto_servidor.save(foto_servidor.name, file_buffer)
+            servidor.foto_servidor.save(foto_servidor.name, file_buffer)
 
-        # Se precisar adicionar lógica extra antes de salvar o formulário, pode ser feito aqui
         messages.success(self.request, 'Servidor adicionado com sucesso!')
         return super().form_valid(form)
 
     def form_invalid(self, form):
-        # Isso garante que você possa ver o conteúdo do formulário mesmo se inválido
         messages.error(self.request, 'Erro no Cadastro, Confira os Dados e Tente Novamente.')
         return self.render_to_response(self.get_context_data(form=form))
+
 
 
 class ServidorEdit(LoginRequiredMixin, UpdateView):
     model = Servidor
     form_class = ServidorForm
     template_name = 'servidor_edit.html'
-    success_url = reverse_lazy('servidor:recursos_humanos')  # Redirecionar para a página de sucesso
+
+    # Define o success_url dinâmico
+    def get_success_url(self):
+        # Redireciona para a própria página de edição após o salvamento, usando o ID do servidor
+        return reverse_lazy('servidor:servidor_detail', kwargs={'pk': self.object.pk})
+
+    def form_valid(self, form):
+        servidor = form.save(commit=False)
+        # Convertendo os campos para maiúsculas (como antes)
+        servidor.nome = servidor.nome.upper()
+        servidor.cargo = servidor.cargo.upper()
+        servidor.cargo_comissionado = servidor.cargo_comissionado.upper() if servidor.cargo_comissionado else None
+        servidor.local_trabalho = servidor.local_trabalho.upper() if servidor.local_trabalho else None
+        servidor.lotacao = servidor.lotacao.upper() if servidor.lotacao else None
+        servidor.genero = servidor.genero.upper()
+        servidor.regime = servidor.regime.upper()
+        servidor.telefone = servidor.telefone if servidor.telefone else None
+        servidor.email = servidor.email if servidor.email else None
+
+
+
+        if self.request.FILES:
+            foto_servidor = self.request.FILES['foto_servidor']
+            image = Image.open(foto_servidor)
+            if image.mode in ("RGBA", "P"):
+                image = image.convert("RGB")
+            max_size = (300, 300)
+            image.thumbnail(max_size, Image.LANCZOS)
+            buffer = BytesIO()
+            image.save(buffer, format='JPEG')
+            file_buffer = ContentFile(buffer.getvalue())
+            servidor.foto_servidor.save(foto_servidor.name, file_buffer)
+
+        # Passando o usuário responsável para o signal
+        servidor.usuario_responsavel = self.request.user
+
+        try:
+            servidor.save()  # Salva o servidor após processar as alterações
+            messages.success(self.request, 'Servidor editado com sucesso!')
+        except Exception as e:
+            messages.error(self.request, f'Ocorreu um erro ao editar o servidor: {e}')
+
+        return super().form_valid(form)
+
+        # Processamento da imagem
+
+    def form_invalid(self, form):
+        messages.error(self.request, 'Erro ao editar o servidor. Verifique os dados e tente novamente.')
+        return super().form_invalid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['historico'] = ServidorHistory.objects.filter(servidor=self.object).order_by('-data_alteracao')
+        return context
+
+
+
+
+
+
+
+
+
 
 
 class ServidorLote(LoginRequiredMixin, View):
@@ -301,3 +366,16 @@ class RelatorioRh(LoginRequiredMixin, ListView):
         context['cargos'] = Servidor.objects.values_list('cargo', flat=True).distinct()
         context['cargos_comissionado'] = Servidor.objects.values_list('cargo_comissionado', flat=True).distinct()
         return context
+
+
+class ServidorDetail(LoginRequiredMixin, DetailView):
+    model = Servidor
+    template_name = "servidor_detail.html"
+    context_object_name = 'servidor'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Adiciona o histórico do servidor ao contexto
+        context['historico'] = ServidorHistory.objects.filter(servidor=self.object).order_by('-data_alteracao')
+        return context
+

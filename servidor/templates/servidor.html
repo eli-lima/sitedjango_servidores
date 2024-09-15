@@ -248,7 +248,7 @@ Servidores
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     {% for servidor in servidores %}
-                    <tr class="clickable-row" data-href="{% url 'servidor:servidor_edit' servidor.id %}">
+                    <tr class="clickable-row" data-href="{% url 'servidor:servidor_detail' servidor.id %}">
                         <td class="px-6 py-4 whitespace-nowrap">{{ servidor.nome }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">{{ servidor.matricula }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">{{ servidor.cargo }}</td>

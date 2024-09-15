@@ -15,8 +15,8 @@ class ServidorForm(forms.ModelForm):
         ]
 
         widgets = {
-            'data_nascimento': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'data_admissao': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'data_nascimento': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}, format='%Y-%m-%d'),
+            'data_admissao': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}, format='%Y-%m-%d'),
             'regime': forms.Select(attrs={'class': 'form-control'}),
             'status': forms.Select(attrs={'class': 'form-control'}),
             'genero': forms.Select(attrs={'class': 'form-control'}),
@@ -57,7 +57,8 @@ class ServidorForm(forms.ModelForm):
         # Adicionar classes aos widgets
         self.fields['matricula'].widget.attrs.update(
             {'class': 'form-control'})
-
+        self.fields['data_nascimento'].input_formats = ['%Y-%m-%d']
+        self.fields['data_admissao'].input_formats = ['%Y-%m-%d']
 
 class UploadFileForm(forms.Form):
     arquivo_excel = forms.FileField()

@@ -66,7 +66,7 @@ Editar Servidor
 <!--            Dados Pessoais-->
             <div class="w-full pt-12 mb-4 bg-white rounded-3xl shadow-lg text-center items-center pb-5">
                 <div class="w-full flex flex-wrap text-start">
-                    <legend class="w-full text-center pb-4 border-bottom mb-4 font-bold text-5xl lg:text-4xl mb-5">Editar Informações Servidor</legend>
+                    <legend class="w-full text-center pb-2 border-bottom mb-4 font-bold text-5xl lg:text-4xl mb-5">Cadastrar Servidor</legend>
                     <h3 class="w-full px-3 pb-2 border-bottom mb-4 font-semibold text-5xl lg:text-2xl mb-5">Informações Pessoais</h3>
 
                     <div class="w-1/4 px-3 mb-6 md:mb-0 space-y-2">
@@ -196,40 +196,9 @@ Editar Servidor
 
 
 
-<!--historico-->
-<div class="mx-5 pt-8 mb-4 bg-white rounded-3xl shadow-lg text-center items-center">
-    <div class="w-full flex flex-wrap">
 
-        <h3 class="text-3xl font-bold text-center pt-2 pb-3 pl-3">Histórico de Alterações</h3>
-        <table class="min-w-full bg-white divide-y divide-gray-200">
-            <thead class="bg-gray-100">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Campo Alterado</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">De:</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Para:</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data da Alteração</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuário Responsável</th>
-                </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-                {% for item in historico %}
-                <tr>
-                    <td class="px-4 py-3 whitespace-nowrap">{{ item.campo_alterado }}</td>
-                    <td class="px-4 py-3 whitespace-nowrap">{{ item.valor_antigo }}</td>
-                    <td class="px-4 py-3 whitespace-nowrap">{{ item.valor_novo }}</td>
-                    <td class="px-4 py-3 whitespace-nowrap">{{ item.data_alteracao }}</td>
-                    <td class="px-4 py-3 whitespace-nowrap">{{ item.usuario_responsavel.username|default:"N/A" }}</td>
 
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="5">Nenhum histórico de alterações encontrado.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
+
 
 
 

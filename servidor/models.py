@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils.deconstruct import deconstructible
 import os
+from django.utils import timezone
+from django.conf import settings  # Importa as configurações do Django
 # Create your models here.
 #classe para salvar a foto individualmente
 
@@ -59,3 +61,14 @@ class Servidor(models.Model):
     status = models.BooleanField(max_length=50, choices=STATUS, default='ativo')   #ativa ou afastado por algum motivo
     def __str__(self):
         return self.nome
+
+
+class ServidorHistory(models.Model):
+    servidor = models.ForeignKey(Servidor, on_delete=models.CASCADE)
+    campo_alterado = models.CharField(max_length=100)
+    valor_antigo = models.TextField(null=True, blank=True)
+    valor_novo = models.TextField(null=True, blank=True)
+    data_alteracao = models.DateTimeField(auto_now_add=True)
+
+    # Use settings.AUTH_USER_MODEL para referenciar o modelo de usuário
+    usuario_responsavel = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)

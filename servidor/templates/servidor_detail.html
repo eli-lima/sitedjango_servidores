@@ -1,0 +1,291 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block titulo %}
+Detalhes Servidor
+{% endblock %}
+
+{% block content %}
+
+
+
+
+
+<div  class="pt-20 mx-4">
+
+    <div id="ficha-servidor" class="shadow-lg shadow-gray-700 rounded-lg">
+
+        <!-- top content -->
+        <div class="flex {% if servidor.status %}bg-green-700{% else %}bg-red-700{% endif %} rounded-t-lg w-full">
+            <div class="h-40 w-40 overflow-hidden sm:relative sm:p-0 top-10 left-5 p-3">
+                {% if servidor.foto_servidor %}
+                    <img class="rounded-md" src="{{ servidor.foto_servidor.url }}" alt="Foto do Servidor">
+                {% else %}
+                    <img src="{% static 'images/default.png' %}" alt="Foto do Servidor">
+                {% endif %}
+
+            </div>
+            <div class="w-2/3 sm:text-center pl-5 mt-10 text-start">
+                <p class=" pb-2 font-poppins font-bold text-white text-2xl">
+                    {{ servidor.nome }}
+                </p>
+                <p class="text-white">{{ servidor.cargo }}</p>
+            </div>
+
+        </div>
+
+        <!-- main content -->
+        <div class="p-5 shadow-lg border">
+
+
+            <!-- Dados Pessoais -->
+            <div class="py-3">
+                <div>
+                    <h2 class="text-lg font-poppins font-bold text-slate-500">Dados Pessoais</h2>
+                    <div class="border-2 w-20 my-3"></div>
+                </div>
+                 <div class="w-full border-gray-200 sm:p-0">
+                    <div class="rounded-lg">
+                        <dl class="flex flex-wrap">
+                            <div class="pl-3 py-2 border w-2/12">
+                                <div class="pb-1 text-lg font-bold text-gray-500">
+                                    Matricula
+                                </div>
+                                <div class="text-base text-gray-900">
+                                   {{ servidor.matricula }}
+                                </div>
+                            </div>
+                            <div class="pl-3 py-2 border w-5/12">
+                                <div class="pb-1 text-lg font-bold text-gray-500">
+                                    Nome
+                                </div>
+                                <div class="text-base text-gray-900">
+                                   {{ servidor.nome }}
+                                </div>
+                            </div>
+                            <div class="pl-3 py-2 border w-3/12">
+                                <div class="pb-1 text-lg font-bold text-gray-500">
+                                    Data de Nasc.
+                                </div>
+                                <div class="text-base text-gray-900">
+                                   {{ servidor.data_nascimento }}
+                                </div>
+                            </div>
+                            <div class="pl-3 py-2 border w-2/12">
+                                <div class="pb-1 text-lg font-bold text-gray-500">
+                                    Gênero
+                                </div>
+                                <div class="text-base text-gray-900">
+                                   {{ servidor.genero }}
+                                </div>
+                            </div>
+                            <div class="pl-3 py-2 border w-2/12">
+                                <div class="pb-1 text-lg font-bold text-gray-500">
+                                    Telefone
+                                </div>
+                                <div class="text-base text-gray-900">
+                                   {{ servidor.telefone|default_if_none:"" }}
+                                </div>
+                            </div>
+                            <div class="pl-3 py-2 border w-5/12">
+                                <div class="pb-1 text-lg font-bold text-gray-500">
+                                    Email
+                                </div>
+                                <div class="text-base text-gray-900">
+                                   {{ servidor.email|default_if_none:"" }}
+                                </div>
+                            </div>
+
+
+
+                        </dl>
+                    </div>
+                </div>
+            </div>
+            <!-- Dados Funcionais -->
+            <div class="pt-8 pb-3">
+                <div>
+                    <h2 class="text-lg font-poppins font-bold text-slate-500">Dados Funcionais</h2>
+                    <div class="border-2 w-20 border-top-color my-3"></div>
+                </div>
+                 <div class="w-full border-gray-200 sm:p-0">
+                    <div class="rounded-lg border">
+                        <dl class="flex flex-wrap">
+                            <div class="pl-3 py-2 border w-3/12">
+                                <div class="pb-1 text-lg font-bold text-gray-500">
+                                    Cargo
+                                </div>
+                                <div class="text-base text-gray-900">
+                                   {{ servidor.cargo|default_if_none:"" }}
+                                </div>
+                            </div>
+                            <div class="pl-3 py-2 border w-5/12">
+                                <div class="pb-1 text-lg font-bold text-gray-500">
+                                    Local de Trabalho
+                                </div>
+                                <div class="text-base text-gray-900">
+                                   {{ servidor.local_trabalho|default_if_none:"" }}
+                                </div>
+                            </div>
+                            <div class="pl-3 py-2 border w-2/12">
+                                <div class="pb-1 text-lg font-bold text-gray-500">
+                                    Lotação
+                                </div>
+                                <div class="text-base text-gray-900">
+                                   {{ servidor.lotacao|default_if_none:"" }}
+                                </div>
+                            </div>
+                            <div class="pl-3 py-2 border w-2/12">
+                                <div class="pb-1 text-lg font-bold text-gray-500">
+                                    Regime de Trabalho
+                                </div>
+                                <div class="text-base text-gray-900">
+                                   {{ servidor.regime|default_if_none:"" }}
+                                </div>
+                            </div>
+                            <div class="pl-3 py-2 border w-4/12">
+                                <div class="pb-1 text-lg font-bold text-gray-500">
+                                    Cargo Comissionado
+                                </div>
+                                <div class="text-base text-gray-900">
+                                   {{ servidor.cargo_comissionado|default_if_none:"" }}
+                                </div>
+                            </div>
+                            <div class="pl-3 py-2 border w-2/12">
+                                <div class="pb-1 text-lg font-bold text-gray-500">
+                                    Simbolo
+                                </div>
+                                <div class="text-base text-gray-900">
+                                   {{ servidor.simb_cargo_comissionado|default_if_none:"" }}
+                                </div>
+                            </div>
+
+                            <div class="pl-3 py-2 border w-2/12 {% if servidor.status %}bg-green-700{% else %}bg-red-700{% endif %}">
+                                <div class="pb-1 text-lg text-white font-bold text-gray-500">
+                                    Status
+                                </div>
+                                <div class="text-base text-white">
+                                   {% if servidor.status %}
+                                        Ativo
+                                    {% else %}
+                                        Inativo
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="pl-3 py-2 border w-4/12">
+                                <div class="pb-1 text-lg font-bold text-gray-500">
+                                    Data de Admissão
+                                </div>
+                                <div class="text-base text-gray-900">
+                                   {{ servidor.data_admissao|default_if_none:"" }}
+                                </div>
+                            </div>
+
+
+                        </dl>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Historico -->
+            <div class="pt-8 pb-3">
+                <div>
+                    <h2 class="text-lg font-poppins font-bold text-slate-500">Histórico</h2>
+                    <div class="border-2 w-20 my-3"></div>
+                </div>
+                 <div class="w-full border-gray-200 sm:p-0">
+                    <div class="rounded-lg">
+                        <div class="flex flex-wrap">
+                            {% for item in historico %}
+                            <div class="pl-2 border w-2/12">
+                                <div class="pb-1 text-base font-bold text-gray-500">
+                                    Alteração
+                                </div>
+                                <div class="text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                   {{ item.campo_alterado }}
+                                </div>
+                            </div>
+                            <div class="pl-2 border w-3/12 ">
+                                <div class="pb-1 text-base font-bold text-gray-500">
+                                    De
+                                </div>
+                                <div class="text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                    {{item.valor_antigo}}
+                                </div>
+                            </div>
+                            <div class="pl-2 border w-3/12">
+                                <div class="pb-1 text-base font-bold text-gray-500">
+                                    Para
+                                </div>
+                                <div class="text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                    {{item.valor_novo}}
+                                </div>
+                            </div>
+                            <div class="pl-2 border w-2/12">
+                                <div class="pb-1 text-base font-bold text-gray-500">
+                                    Data da Alteração
+                                </div>
+                                <div class="text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                    {{item.data_alteracao}}
+                                </div>
+                            </div>
+                            <div id="teste" class="pl-2 border w-2/12 ">
+                                <div class="pb-1 text-base font-bold text-gray-500">
+                                    Usuário Responsável
+                                </div>
+                                <div class=" text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                    {{ item.usuario_responsavel.username }}
+                                </div>
+                            </div>
+
+                            {% endfor %}
+
+                        </div>
+
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Botão para Editar Servidor -->
+    <div class="w-full gap-x-4 px-3 flex justify-center pt-8">
+        {% if user.is_authenticated %}
+            <a href="{% url 'servidor:servidor_edit' pk=servidor.pk %}" class="btn btn-success">Editar Servidor</a>
+        {% endif %}
+        <button id="download-pdf-button" class="btn btn-primary" onclick="generatePDF()">Baixar PDF</button>
+
+    </div>
+
+</div>
+
+<script>
+function generatePDF() {
+    // Selecionar o elemento que queremos converter para PDF
+    var element = document.getElementById('ficha-servidor'); // Isso irá pegar o conteúdo inteiro da página. Modifique se quiser um elemento específico.
+
+
+    element.style.padding = "10px";   // Adicionar padding
+
+    // Especificar opções de configuração do PDF, como o formato, margens, etc.
+    var opt = {
+        margin:       0.5,
+        filename:     'pagina_impressa {{ servidor.nome }}.pdf', // Nome do arquivo gerado
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },  // Aumenta a resolução do canvas para garantir qualidade
+        jsPDF:        { unit: 'pt', format: 'letter', orientation: 'portrait' } // Formato da página (A4, etc)
+    };
+
+
+
+    // Usar html2pdf para gerar o PDF
+    html2pdf().set(opt).from(element).save().then(function() {
+
+    });
+}
+</script>
+
+
+{% endblock %}
