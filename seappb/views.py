@@ -17,10 +17,20 @@ from django.utils import timezone
 import calendar
 from django.db.models import Sum
 from django.contrib import messages
+from django.contrib.auth.models import Group
 
 import os
 
 # Create your views here.
+
+
+def custom_403(request, exception):
+    # Adicionar 'hide_nav' ao contexto, como no HideNavMixin
+    context = {
+        'hide_nav': True
+    }
+    return render(request, '403.html', context, status=403)
+
 
 
 class Homepage(LoginRequiredMixin, TemplateView):
@@ -164,7 +174,6 @@ class Paginaperfil(LoginRequiredMixin, UpdateView):
         return reverse('seappb:homepage')
 
 
-
 class Criarconta(HideNavMixin, FormView):
     template_name = 'criarconta.html'
     form_class = CriarContaForm
@@ -175,6 +184,11 @@ class Criarconta(HideNavMixin, FormView):
         if self.request.FILES:
             usuario.foto_perfil = self.request.FILES['foto_perfil']
         usuario.save()
+
+        # Adiciona o usuário ao grupo "Comum" após salvar
+        padrao_group = Group.objects.get(name="Padrao")
+        usuario.groups.add(padrao_group)
+
         return super().form_valid(form)
 
 

@@ -16,6 +16,7 @@ from django.http import JsonResponse
 from servidor.models import Servidor
 from datetime import timedelta
 from django.core.paginator import Paginator
+from django.contrib.auth.mixins import PermissionRequiredMixin
 
 
 
@@ -271,6 +272,8 @@ class AjudaCusto(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         # Captura os parâmetros de pesquisa
+        # Obtém o usuário logado
+        user = self.request.user
         query = self.request.GET.get('query', '')
         data_inicial = self.request.GET.get('dataInicial')
         data_final = self.request.GET.get('dataFinal')
@@ -280,8 +283,11 @@ class AjudaCusto(LoginRequiredMixin, ListView):
         data_final = parse_date(data_final) if data_final else None
 
         # Cria o filtro básico com base na query de pesquisa
-        queryset = Ajuda_Custo.objects.all()
-
+        if user.groups.filter(name='Administrador').exists():
+            queryset = Ajuda_Custo.objects.all()
+        else:
+            # Se o usuário for do grupo padrão, filtra para exibir apenas os registros do próprio usuário
+            queryset = Ajuda_Custo.objects.filter(matricula=user.matricula)
         if query:
             queryset = queryset.filter(
                 Q(nome__icontains=query) | Q(matricula__icontains=query)
@@ -535,11 +541,18 @@ class AdminCadastrar(LoginRequiredMixin, FormView):
         messages.error(self.request, 'Erro no Cadastro, Confira os Dados e Tente Novamente.')
         return super().form_invalid(form)
 
-class HorasLimite(LoginRequiredMixin, FormView):
+
+class HorasLimite(LoginRequiredMixin, PermissionRequiredMixin, FormView ):
     model = LimiteAjudaCusto
     form_class = LimiteAjudaCustoForm
     template_name = 'horas_limite.html'
     success_url = reverse_lazy('ajuda_custo:horas_limite')
+
+    # Permissão necessária para acessar esta view
+    permission_required = 'ajuda_custo.add_ajuda_custo'
+
+    # Levanta exceção em caso de falta de permissão
+    raise_exception = True
 
     def form_valid(self, form):
         servidor = form.cleaned_data['servidor']
