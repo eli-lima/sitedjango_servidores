@@ -108,6 +108,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'gesipe.novos_contexts.lista_edicoes_recentes',
+                'seappb.context_processors.user_group',  # Adicionando seu novo context processor
             ],
         },
     },
