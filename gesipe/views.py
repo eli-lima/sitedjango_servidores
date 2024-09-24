@@ -174,7 +174,7 @@ class GesipeAdmLote(LoginRequiredMixin, View):
 
                     # Extrair o valor da data
                     data = row[0]  # Supondo que a data está na primeira coluna
-                    print(data)
+
 
                     # Converter a data para o formato 'YYYY-MM-DD' se necessário
                     if isinstance(data, str):  # Se a data estiver como string
