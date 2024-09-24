@@ -21,26 +21,32 @@ Gesipe
         <div class="grid grid-cols-1 gap-8 sm:grid-cols-3 lg:grid-cols-4">
 
             <!-- Administrativo -->
-            <div class=" rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
-            <div class="mb-8">
-              <h3 class="text-2xl font-semibold ">Administrativo</h3>
-              <p class="mt-4 text-gray-600">Total de Movimentacoes realizadas pelo adminstrativo da gesipe.</p>
-            </div>
-            <div class="mb-8">
-              <span class="text-xl font-medium text-gray-600">Total de Movimentaçoes:</span>
-              <span class="text-3xl font-extrabold "> 108</span>
+            <div class="rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+                <div class="mb-8">
+                  <h3 class="text-2xl font-semibold ">Administrativo</h3>
+                  <p class="mt-4 text-gray-600">Total de Movimentacoes realizadas pelo adminstrativo da gesipe.</p>
+                </div>
+                <div class="mb-8">
+                  <span class="text-xl font-medium text-gray-600">Total de Movimentaçoes:</span>
+                  <span class="text-3xl font-extrabold "> 108</span>
 
-            </div>
-            <div class="pb-4">
-                <a href="{% url 'gesipe:gesipe_adm' %}" class="block w-full py-3 px-6 text-center text-white text-base rounded-md  font-medium bg-green-500">
-                  Adicionar Registro:
-                </a>
-            </div>
-            <div>
-                <a href="{% url 'gesipe:gesipe_adm' %}" data-bs-toggle="modal" data-bs-target="#Pesquisar_Data" class="block w-full py-3 px-6 text-center text-white text-base rounded-md  font-medium bg-red-500">
-                  Editar Registro:
-                </a>
-            </div>
+                </div>
+                <div class="pb-4">
+                    <a href="{% url 'gesipe:gesipe_adm' %}" class="block w-full py-3 px-6 text-center text-white text-base rounded-md  font-medium bg-green-500">
+                      Adicionar Registro:
+                    </a>
+                </div>
+                <div class="pb-4">
+                    <a href="{% url 'gesipe:gesipe_adm' %}" data-bs-toggle="modal" data-bs-target="#Pesquisar_Data" class="block w-full py-3 px-6 text-center text-white text-base rounded-md  font-medium bg-red-500">
+                      Editar Registro:
+                    </a>
+                </div>
+                <div class="pb-4">
+                    <a href="{% url 'gesipe:gesipe_adm_lote' %}" class="block w-full py-3 px-6 text-center text-white text-base rounded-md  font-medium bg-blue-500">
+                      Edição Em Lote:
+                    </a>
+                </div>
+
             </div>
 
             <!-- SMP -->
@@ -196,31 +202,7 @@ Gesipe
 
 
 
-        <div class="overflow-x-auto">
 
-          <table class="w-full max-w-[700px] bg-white divide-y divide-gray-200">
-            <thead class="bg-gray-100">
-              <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Geral de Inserções</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuário</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-                  {% for row in data %}
-                  <tr>
-                    <td class="px-6 py-4 whitespace-nowrap">{{ row.data|date:"d/m/Y" }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">{{ row.total }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">{{ row.usuario.username }}</td>
-                  </tr>
-                  {% empty %}
-                  <tr>
-                    <td colspan="3" class="px-6 py-4 text-center text-gray-500">Nenhum dado encontrado</td>
-                  </tr>
-                  {% endfor %}
-            </tbody>
-          </table>
-        </div>
 
 
 
@@ -228,16 +210,6 @@ Gesipe
       </div>
     </div>
 </section>
-
-
-
-
-
-
-
-
-
-
 
 
 

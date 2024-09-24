@@ -3,13 +3,8 @@ from .models import Gesipe_adm
 from django.forms.widgets import DateInput
 
 
-# class BuscaDataForm(forms.Form):
-#     data = forms.DateField(
-#         widget=DateInput(format='%d/%m/%Y', attrs={'class': 'form-control lg:text-base text-xl', 'placeholder': 'dd/mm/yyyy'}),
-#         input_formats=['%d/%m/%Y']
-#     )
-#
-
+class UploadFileForm(forms.Form):
+    arquivo_excel = forms.FileField(label='Selecione o arquivo Excel')
 
 
 
