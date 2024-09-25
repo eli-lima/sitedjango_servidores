@@ -99,6 +99,8 @@ class Gesipe(LoginRequiredMixin, ListView):
             except ValueError:
                 continue
         return None
+
+
 class GesipeAdm(LoginRequiredMixin, CreateView):
     model = Gesipe_adm
     form_class = GesipeAdmForm
