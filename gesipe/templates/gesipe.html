@@ -156,7 +156,7 @@ Gesipe
 
 <!--paginacao-->
 
-                <div class="p-6 bg-gray-100 rounded-b-lg">
+                <div id="paginacao" class="p-6 bg-gray-100 rounded-b-lg">
                       <nav aria-label="Page navigation">
                         <ul class="inline-flex items-center -space-x-px">
                           {% if page_obj.has_previous %}
@@ -292,6 +292,17 @@ Gesipe
     });
 </script>
 
+
+<script>
+    window.onload = function() {
+        // Verifica se a URL contém o parâmetro 'page'
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('page')) {
+            // Rola até a div com id 'paginacao'
+            document.getElementById('paginacao').scrollIntoView({ behavior: 'smooth' });
+        }
+    };
+</script>
 
 
 {% endblock %}
