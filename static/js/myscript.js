@@ -26,3 +26,15 @@ document.querySelectorAll('.clickable-row').forEach(row => {
         window.location.href = row.getAttribute('data-href');
     });
 });
+
+
+//script rolar a pagina ao mudar os pages
+
+window.onload = function() {
+        // Verifica se a URL contém o parâmetro 'page'
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('page')) {
+            // Rola até a div com id 'paginacao'
+            document.getElementById('paginacao').scrollIntoView({ behavior: 'smooth' });
+        }
+    };
