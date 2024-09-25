@@ -23,7 +23,7 @@ import openpyxl
 class Gesipe(LoginRequiredMixin, ListView):
     template_name = "gesipe.html"
     model = Gesipe_adm
-    paginate_by = 5
+    paginate_by = 10
     ordering = ['data']
 
     def get_queryset(self):
@@ -31,7 +31,7 @@ class Gesipe(LoginRequiredMixin, ListView):
         queryset = super().get_queryset()
 
         if query:
-            # Tentar interpretar 'query' como data nos formatos DD/MM/YYYY ou DD-MM-YYYY ou YYYY-MM-DD
+            # Tentar interpretar 'query' como data nos formatos DD/MM/YYYY, DD-MM-YYYY ou YYYY-MM-DD
             data_pesquisa = self.parse_data(query)
             if data_pesquisa:
                 queryset = queryset.filter(data=data_pesquisa)
@@ -66,6 +66,24 @@ class Gesipe(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['query'] = self.request.GET.get('query', '')
+
+        page_obj = context['page_obj']
+        paginator = page_obj.paginator
+        page_range = paginator.page_range
+
+        # Lógica para limitar a exibição das páginas
+        if page_obj.number > 3:
+            start = page_obj.number - 2
+        else:
+            start = 1
+
+        if page_obj.number < paginator.num_pages - 2:
+            end = page_obj.number + 2
+        else:
+            end = paginator.num_pages
+
+        context['page_range'] = range(start, end + 1)
+
         return context
 
     def parse_data(self, date_str):
@@ -81,7 +99,6 @@ class Gesipe(LoginRequiredMixin, ListView):
             except ValueError:
                 continue
         return None
-
 class GesipeAdm(LoginRequiredMixin, CreateView):
     model = Gesipe_adm
     form_class = GesipeAdmForm
@@ -174,7 +191,7 @@ class GesipeAdmLote(LoginRequiredMixin, View):
 
                     # Extrair o valor da data
                     data = row[0]  # Supondo que a data está na primeira coluna
-
+                    print(data)
 
                     # Converter a data para o formato 'YYYY-MM-DD' se necessário
                     if isinstance(data, str):  # Se a data estiver como string
