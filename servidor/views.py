@@ -332,6 +332,11 @@ class RelatorioRh(LoginRequiredMixin, ListView):
             queryset = queryset.filter(local_trabalho__icontains=local_trabalho)
 
         cargo_comissionado = self.request.GET.get('cargo_comissionado')
+
+        # Adicione esta linha para evitar que "None" seja usado
+        if cargo_comissionado == "None":
+            cargo_comissionado = ""
+
         if cargo_comissionado:
             queryset = queryset.filter(cargo_comissionado__icontains=cargo_comissionado)
 
@@ -365,7 +370,7 @@ class RelatorioRh(LoginRequiredMixin, ListView):
         context['page_range'] = range(start, end + 1)
         context['generos'] = Servidor.objects.values_list('genero', flat=True).distinct()
         context['cargos'] = Servidor.objects.values_list('cargo', flat=True).distinct()
-        context['cargos_comissionado'] = Servidor.objects.values_list('cargo_comissionado', flat=True).distinct()
+        context['cargos_comissionado'] = [cargo for cargo in Servidor.objects.values_list('cargo_comissionado', flat=True).distinct()]
         return context
 
 

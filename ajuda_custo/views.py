@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404, reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView, CreateView, FormView, ListView, View
 from .models import Ajuda_Custo, DataMajorada, LimiteAjudaCusto
@@ -16,7 +16,7 @@ from django.http import JsonResponse
 from servidor.models import Servidor
 from datetime import timedelta
 from django.core.paginator import Paginator
-from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.auth.mixins import UserPassesTestMixin
 
 
 
@@ -283,7 +283,7 @@ class AjudaCusto(LoginRequiredMixin, ListView):
         data_final = parse_date(data_final) if data_final else None
 
         # Cria o filtro básico com base na query de pesquisa
-        if user.groups.filter(name='Administrador').exists():
+        if user.groups.filter(name__in=['Administrador', 'GerGesipe']).exists():
             queryset = Ajuda_Custo.objects.all()
         else:
             # Se o usuário for do grupo padrão, filtra para exibir apenas os registros do próprio usuário
@@ -458,11 +458,24 @@ class AjudaCustoAdicionar(LoginRequiredMixin, FormView):
 
 
 
-class AdminCadastrar(LoginRequiredMixin, FormView):
+class AdminCadastrar(LoginRequiredMixin, UserPassesTestMixin, FormView):
     model = Ajuda_Custo
     form_class = AdminDatasForm
     template_name = 'admin_cadastrar.html'
     success_url = reverse_lazy('ajuda_custo:admin_cadastrar')
+
+    def test_func(self):
+        user = self.request.user
+        # Define os grupos permitidos
+        grupos_permitidos = ['Administrador', 'GerGesipe']
+        # Retorna True se o usuário pertence a pelo menos um dos grupos
+        return user.groups.filter(name__in=grupos_permitidos).exists()
+
+        # Levanta exceção em caso de falta de permissão
+
+    def handle_no_permission(self):
+        messages.error(self.request, "Você não tem permissão para acessar esta página.")
+        return render(self.request, '403.html', status=403)  # Substitua '404.html' pelo nome do seu template
 
     def form_valid(self, form):
         mes = form.cleaned_data['mes']
@@ -542,17 +555,25 @@ class AdminCadastrar(LoginRequiredMixin, FormView):
         return super().form_invalid(form)
 
 
-class HorasLimite(LoginRequiredMixin, PermissionRequiredMixin, FormView ):
+class HorasLimite(LoginRequiredMixin, UserPassesTestMixin, FormView ):
     model = LimiteAjudaCusto
     form_class = LimiteAjudaCustoForm
     template_name = 'horas_limite.html'
     success_url = reverse_lazy('ajuda_custo:horas_limite')
 
-    # Permissão necessária para acessar esta view
-    permission_required = 'ajuda_custo.add_ajuda_custo'
+    # Verifica se o usuário pertence a determinados grupos
+    def test_func(self):
+        user = self.request.user
+        # Define os grupos permitidos
+        grupos_permitidos = ['Administrador', 'GerGesipe']
+        # Retorna True se o usuário pertence a pelo menos um dos grupos
+        return user.groups.filter(name__in=grupos_permitidos).exists()
 
-    # Levanta exceção em caso de falta de permissão
-    raise_exception = True
+        # Levanta exceção em caso de falta de permissão
+
+    def handle_no_permission(self):
+        messages.error(self.request, "Você não tem permissão para acessar esta página.")
+        return render(self.request, '403.html', status=403)  # Substitua '404.html' pelo nome do seu template
 
     def form_valid(self, form):
         servidor = form.cleaned_data['servidor']

@@ -35,6 +35,11 @@ class Ajuda_Custo(models.Model):
     data_edicao = models.DateTimeField(default=timezone.now)
     majorado = models.BooleanField(default=False)
 
+    class Meta:
+        permissions = [
+            ("view_all_datas", "Pode ver todas as datas agendadas"),
+        ]
+
     def __str__(self):
         return f"{self.nome} - {self.data.strftime('%d/%m/%Y')}"
 

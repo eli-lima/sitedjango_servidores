@@ -35,7 +35,7 @@ def get_ano_field():
 
 def get_unidade_field():
     return forms.ChoiceField(
-        choices=[('', '--- Selecione uma unidade ---')] + [('unidade', 'unidade')]
+        choices=[('', '--- Selecione uma unidade ---')] + [(u.nome, u.nome) for u in Unidade.objects.all()]
     )
 
 class AjudaCustoForm(forms.ModelForm):
