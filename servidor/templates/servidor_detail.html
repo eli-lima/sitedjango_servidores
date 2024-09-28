@@ -80,6 +80,7 @@ Detalhes Servidor
                                    {{ servidor.genero }}
                                 </div>
                             </div>
+                        {% if 'Administrador' in user_groups or 'GerRh' in user_groups %}
                             <div class="pl-3 py-2 border w-2/12">
                                 <div class="pb-1 text-lg font-bold text-gray-500">
                                     Telefone
@@ -96,7 +97,7 @@ Detalhes Servidor
                                    {{ servidor.email|default_if_none:"" }}
                                 </div>
                             </div>
-
+                        {% endif %}
 
 
                         </dl>
@@ -250,11 +251,14 @@ Detalhes Servidor
             </div>
         </div>
     </div>
+
     <!-- Botão para Editar Servidor -->
     <div class="w-full gap-x-4 px-3 flex justify-center pt-8">
+    {% if 'Administrador' in user_groups or 'GerRh' in user_groups %}
         {% if user.is_authenticated %}
             <a href="{% url 'servidor:servidor_edit' pk=servidor.pk %}" class="btn btn-success">Editar Servidor</a>
         {% endif %}
+    {% endif %}
         <button id="download-pdf-button" class="btn btn-primary" onclick="generatePDF()">Baixar PDF</button>
 
     </div>

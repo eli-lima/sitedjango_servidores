@@ -8,7 +8,7 @@ from PIL import Image
 from io import BytesIO
 from django.core.files.base import ContentFile
 from .models import Servidor, ServidorHistory
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.http import HttpResponse
 from reportlab.pdfgen import canvas
 from django.template.loader import get_template
@@ -17,6 +17,7 @@ import openpyxl
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
+from django.contrib.auth.mixins import UserPassesTestMixin
 
 
 
@@ -93,16 +94,24 @@ class RecursosHumanosPage(LoginRequiredMixin, ListView):
         query = self.request.GET.get('query')
         if query:
             return Servidor.objects.filter(
-                Q(nome__icontains=query) | Q(matricula__icontains=query)
+                Q(nome__icontains=query) | Q(matricula__icontains=query),
+                cargo='POLICIAL PENAL'  # Filtrar apenas servidores com cargo 'POLICIAL PENAL'
             ).order_by('nome')  # Ordena por nome
-        return Servidor.objects.all().order_by('nome')  # Ordena por nome
+        return Servidor.objects.filter(cargo='POLICIAL PENAL').order_by('nome')  # Filtrar e ordenar por nome
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['total_servidores'] = Servidor.objects.count()
-
         # Contar os servidores com o cargo 'POLICIAL PENAL'
-        context['total_policial_penal'] = Servidor.objects.filter(cargo='POLICIAL PENAL').count()
+        context['total_policiais_penal'] = Servidor.objects.filter(cargo='POLICIAL PENAL').count()
+
+        # Contar os servidores com status "ativo" e cargo "Policial Penal"
+        context['total_servidores_ativos_policial_penal'] = Servidor.objects.filter(
+            status=True, cargo='POLICIAL PENAL').count()
+
+        # Contar os servidores com status "inativo" e cargo "Policial Penal"
+        context['total_servidores_inativos_policial_penal'] = Servidor.objects.filter(
+            status=False, cargo='POLICIAL PENAL').count()
 
         # Contar o número de servidores por gênero
         context['genero_masculino'] = Servidor.objects.filter(genero='M', cargo='POLICIAL PENAL').count()
@@ -117,6 +126,14 @@ class RecursosHumanosPage(LoginRequiredMixin, ListView):
             context['genero_outros']
         ]
 
+        # Adicionar o gráfico de barras horizontal com efetivo por unidade
+        efetivo_por_unidade = Servidor.objects.filter(cargo='POLICIAL PENAL').values('local_trabalho').annotate(
+            total=Count('id')).order_by('-total')
+
+        context['bar_labels'] = [item['local_trabalho'] for item in efetivo_por_unidade]
+        context['bar_values'] = [item['total'] for item in efetivo_por_unidade]
+
+        # Paginação personalizada
         page_obj = context['page_obj']
         paginator = page_obj.paginator
         page_range = paginator.page_range
@@ -134,16 +151,28 @@ class RecursosHumanosPage(LoginRequiredMixin, ListView):
 
         context['page_range'] = range(start, end + 1)
 
-
-
         return context
 
 
-class CriarServidorView(LoginRequiredMixin, CreateView):
+class CriarServidorView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Servidor
     form_class = ServidorForm
     template_name = 'servidor_add.html'
     success_url = reverse_lazy('servidor:recursos_humanos')
+
+    def test_func(self):
+        user = self.request.user
+        # Define os grupos permitidos
+        grupos_permitidos = ['Administrador', 'GerHr']
+        # Retorna True se o usuário pertence a pelo menos um dos grupos
+        return user.groups.filter(name__in=grupos_permitidos).exists()
+
+        # Levanta exceção em caso de falta de permissão
+
+    def handle_no_permission(self):
+        messages.error(self.request, "Você não tem permissão para acessar esta página.")
+        return render(self.request, '403.html', status=403)  # Substitua '404.html' pelo nome do seu template
+
 
     def form_valid(self, form):
         # Convertendo campos de texto para maiúsculas
@@ -180,10 +209,24 @@ class CriarServidorView(LoginRequiredMixin, CreateView):
 
 
 
-class ServidorEdit(LoginRequiredMixin, UpdateView):
+class ServidorEdit(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Servidor
     form_class = ServidorForm
     template_name = 'servidor_edit.html'
+
+    def test_func(self):
+        user = self.request.user
+        # Define os grupos permitidos
+        grupos_permitidos = ['Administrador', 'GerHr']
+        # Retorna True se o usuário pertence a pelo menos um dos grupos
+        return user.groups.filter(name__in=grupos_permitidos).exists()
+
+        # Levanta exceção em caso de falta de permissão
+
+    def handle_no_permission(self):
+        messages.error(self.request, "Você não tem permissão para acessar esta página.")
+        return render(self.request, '403.html', status=403)  # Substitua '404.html' pelo nome do seu template
+
 
     # Define o success_url dinâmico
     def get_success_url(self):
@@ -241,17 +284,24 @@ class ServidorEdit(LoginRequiredMixin, UpdateView):
 
 
 
-
-
-
-
-
-
-
-
-class ServidorLote(LoginRequiredMixin, View):
+class ServidorLote(LoginRequiredMixin, UserPassesTestMixin, View):
     form_class = UploadFileForm
     template_name = 'servidor_lote.html'
+
+
+    def test_func(self):
+        user = self.request.user
+        # Define os grupos permitidos
+        grupos_permitidos = ['Administrador', 'GerRh']
+        # Retorna True se o usuário pertence a pelo menos um dos grupos
+        return user.groups.filter(name__in=grupos_permitidos).exists()
+
+        # Levanta exceção em caso de falta de permissão
+
+    def handle_no_permission(self):
+        messages.error(self.request, "Você não tem permissão para acessar esta página.")
+        return render(self.request, '403.html', status=403)  # Substitua '404.html' pelo nome do seu template
+
 
     def get(self, request, *args, **kwargs):
         form = self.form_class()

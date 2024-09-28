@@ -312,11 +312,25 @@ class AjudaCusto(LoginRequiredMixin, ListView):
         return context
 
 
-class RelatorioAjudaCusto(LoginRequiredMixin, ListView):
+class RelatorioAjudaCusto(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = Ajuda_Custo
     template_name = "relatorio_ajuda_custo.html"
     context_object_name = 'datas'
     paginate_by = 50  # Quantidade de registros por página
+
+    def test_func(self):
+        user = self.request.user
+        # Define os grupos permitidos
+        grupos_permitidos = ['Administrador', 'GerGesipe']
+        # Retorna True se o usuário pertence a pelo menos um dos grupos
+        return user.groups.filter(name__in=grupos_permitidos).exists()
+
+        # Levanta exceção em caso de falta de permissão
+
+    def handle_no_permission(self):
+        messages.error(self.request, "Você não tem permissão para acessar esta página.")
+        return render(self.request, '403.html', status=403)  # Substitua '404.html' pelo nome do seu template
+
 
     def get_queryset(self):
         # Captura os parâmetros de pesquisa
