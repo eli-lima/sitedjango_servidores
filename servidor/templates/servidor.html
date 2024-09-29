@@ -106,13 +106,13 @@ Servidores
         {% if 'Administrador' in user_groups or 'GerRh' in user_groups %}
 
 <!--    cartoes de cadastro-->
-    <div class="mb-8 grid grid-cols-1 gap-8 sm:grid-cols-3 xl:grid-cols-4 px-4">
+    <div class="mb-8 grid grid-cols-2 gap-8 xl:grid-cols-4 px-4">
 
             <!-- adicionar servidor -->
             <div class="flex flex-col items-stretch rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
                 <div class="mb-8">
                   <h3 class="text-2xl flex justify-center font-semibold "><img src="{% static 'icons/adicionar-usuario.png' %}" alt="add-servidor" class="h-12  text-center"></h3>
-                  <p class="mt-4 text-center text-gray-600">Inclua Novos Servidores e suas informações aqui.</p>
+                  <p class="mt-4 text-center text-gray-600">Inclua Novos Servidores e suas informações aqui, nesse link.</p>
                 </div>
                 <div class="mb-8">
                   <span class="text-xl font-base text-gray-600"></span>
@@ -186,19 +186,7 @@ Servidores
         {% if 'GerGesipe' in user_groups or 'GerRh' in user_groups or 'Administrador' in user_groups %}
 
     <div class="grid grid-cols-1 gap-8 sm:grid-cols-3 xl:grid-cols-4 px-4">
-            <!-- genero -->
-            <div class="flex flex-col items-stretch rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
-                <div class="mb-2">
-                  <h3 class="text-2xl font-semibold ">Efetivo Por Gênero</h3>
-                  <p class="mt-4 text-gray-600"></p>
-                </div>
 
-
-                <div>
-                    <canvas id="genero-pizza" width="200" height="100"></canvas>
-                </div>
-
-            </div>
 
             <!-- efetivo por unidade -->
             <div class="col-span-3 flex flex-col items-stretch rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
@@ -214,6 +202,19 @@ Servidores
 
             </div>
 
+            <!-- genero -->
+            <div class="flex flex-col items-stretch rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+                <div class="mb-2">
+                  <h3 class="text-2xl font-semibold ">Efetivo Por Gênero</h3>
+                  <p class="mt-4 text-gray-600"></p>
+                </div>
+
+
+                <div>
+                    <canvas id="genero-pizza" width="200" height="100"></canvas>
+                </div>
+
+            </div>
 
 
     </div>
