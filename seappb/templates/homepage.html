@@ -19,107 +19,79 @@ HomePage SeapPB
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
 
             <!-- Card 1 -->
-            <div class="p-2">
-                <div class="flex flex-col min-w-0 break-words bg-white shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
-                    <div class="flex-auto p-4">
-                        <div class="flex flex-row -mx-3">
-                            <div class="flex-none w-2/3 max-w-full px-3">
-                                <div>
-                                    <p class="mb-0 font-sans font-semibold leading-normal uppercase text-sm">Policiais Penais</p>
-                                    <h5 class="mb-2 pt-7 font-bold">{{ total_policial_penal }}</h5>
-                                    <p class="mb-0 text-emerald-500">
-                                        <span class="font-bold leading-normal text-sm"></span>
-                                    </p>
-                                </div>
+
+                <div class="shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
+                    <div class="flex flex-row justify-between items-center h-full px-4">
+                        <div class="flex flex-col justify-between h-full py-10">
+                            <div class="pb-4">
+                                <h3 class="font-bold text-size uppercase xl:text-base text-lg">Servidores Cadastrados</h3>
                             </div>
-                            <div class="px-3 text-right basis-1/3">
-                                <div class="inline-block w-20 h-20 text-white relative rounded-full bg-gradient-to-tl from-blue-500 to-violet-500">
-                                    <img src="{% static 'icons/guard-prison.png' %}" alt="add-grupo" class="absolute bottom-5 left-5 h-12">
-                                </div>
+                            <div>
+                                <p class="px-2 bg-black rounded text-white font-semibold xl:text-base text-lg">{{ total_servidores }}</p>
                             </div>
                         </div>
+                        <div class="bg-black rounded-full h-20 min-w-20 flex items-center justify-center">
+                            <i class="fs-1 bi bi-people-fill text-white"></i>
+                        </div>
+
                     </div>
                 </div>
-            </div>
+<!--            card 2-->
 
-          <!-- ... -->
-          <div>
-            <!-- Card 2 -->
-            <div class="p-2">
-                <div class="flex flex-col min-w-0 break-words bg-white shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
-                    <div class="flex-auto p-4">
-                        <div class="flex flex-row -mx-3">
-                            <div class="flex-none w-2/3 max-w-full px-3">
-                                <div>
-                                    <p class="mb-0 font-sans font-semibold leading-normal uppercase text-sm">Policiais Penais</p>
-                                    <h5 class="mb-2 pt-7 font-bold">{{ total_policial_penal }}</h5>
-                                    <p class="mb-0 text-emerald-500">
-                                        <span class="font-bold leading-normal text-sm"></span>
-                                    </p>
-                                </div>
+               <div class="shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
+                    <div class="flex flex-row justify-between items-center h-full px-4">
+                        <div class="flex flex-col justify-between h-full py-10">
+                            <div class="pb-4">
+                                <h3 class="font-bold text-size uppercase xl:text-base text-lg">Policiais Penais Total</h3>
+
                             </div>
-                            <div class="px-3 text-right basis-1/3">
-                                <div class="inline-block w-20 h-20 text-white relative rounded-full bg-gradient-to-tl from-blue-500 to-violet-500">
-                                    <img src="{% static 'icons/guard-prison.png' %}" alt="add-grupo" class="absolute bottom-5 left-5 h-12">
-                                </div>
+                            <div>
+                                <p class="px-2 bg-blue-600 rounded text-white font-semibold xl:text-base text-lg">{{ total_policiais_penal }}</p>
                             </div>
                         </div>
+                        <div class="bg-blue-600 rounded-full h-20 min-w-20 flex items-center justify-center">
+                            <img src="{% static 'icons/guard-prison.png' %}" alt="add-grupo" class=" h-10 w-10">
+                        </div>
+
                     </div>
                 </div>
-            </div>
-          </div>
 
-          <div>
+
+
             <!-- Card 3 -->
-            <div class="p-2">
-                <div class="flex flex-col min-w-0 break-words bg-white shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
-                    <div class="flex-auto p-4">
-                        <div class="flex flex-row -mx-3">
-                            <div class="flex-none w-2/3 max-w-full px-3">
-                                <div>
-                                    <p class="mb-0 font-sans font-semibold leading-normal uppercase text-sm">Setores Ativos</p>
-                                    <h5 class="mb-2 font-bold">1</h5>
-                                    <p class="mb-0 text-emerald-500">
-                                        <span class="font-bold leading-normal text-sm">+0%</span> a mais que o 2023
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="px-3 text-right basis-1/3">
-                                <div class="inline-block w-12 h-12 text-center rounded-full bg-gradient-to-tl from-blue-500 to-violet-500">
-                                    <i class="fa fa-coins text-lg relative top-3.5 text-white"></i>
-                                </div>
-                            </div>
+            <div class="shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
+                <div class="flex flex-row justify-between items-center h-full px-4">
+                    <div class="flex flex-col justify-between h-full py-10">
+                        <div class="pb-4">
+                            <h3 class="font-bold text-size uppercase xl:text-base text-lg">Policiais Penais em Atividade</h3>
                         </div>
+                        <div>
+                            <p class="px-2 bg-green-600 rounded text-white font-semibold xl:text-base text-lg">{{ total_servidores_ativos_policial_penal }}</p>
+                        </div>
+                    </div>
+                    <div class="bg-green-600 rounded-full h-20 min-w-20 flex items-center justify-center">
+                        <img src="{% static 'icons/guard-prison.png' %}" alt="add-grupo" class=" h-10 w-10">
                     </div>
                 </div>
             </div>
-          </div>
 
-          <div>
-            <!-- Card 4 -->
-            <div class="p-2">
-                <div class="flex flex-col min-w-0 break-words bg-white shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
-                    <div class="flex-auto p-4">
-                        <div class="flex flex-row -mx-3">
-                            <div class="flex-none w-2/3 max-w-full px-3">
-                                <div>
-                                    <p class="mb-0 font-sans font-semibold leading-normal uppercase text-sm">Acessos do Dia</p>
-                                    <h5 class="mb-2 font-bold">1</h5>
-                                    <p class="mb-0 text-emerald-500">
-                                        <span class="font-bold leading-normal text-sm">+12%</span> a mais que ontem
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="px-3 text-right basis-1/3">
-                                <div class="inline-block w-12 h-12 text-center rounded-full bg-gradient-to-tl from-blue-500 to-violet-500">
-                                    <i class="fa fa-coins text-lg relative top-3.5 text-white"></i>
-                                </div>
-                            </div>
+<!--        card 4-->
+
+            <div class="shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
+                <div class="flex flex-row justify-between items-center h-full px-4">
+                    <div class="flex flex-col justify-between h-full py-10">
+                        <div class="pb-4">
+                            <h3 class="font-bold text-size uppercase xl:text-base text-lg">Policiais Penais Fora De Serviço</h3>
                         </div>
+                        <div>
+                            <p class="px-2 bg-red-600 rounded text-white font-semibold xl:text-base text-lg">{{ total_servidores_inativos_policial_penal }}</p>
+                        </div>
+                    </div>
+                    <div class="bg-red-600 rounded-full h-20 min-w-20 flex items-center justify-center">
+                        <img src="{% static 'icons/guard-prison.png' %}" alt="add-grupo" class=" h-10 w-10">
                     </div>
                 </div>
             </div>
-          </div>
         </div>
 
 <!--        carrosel testes-->
@@ -152,78 +124,77 @@ HomePage SeapPB
 
 
     <section>
-        <div class="flex flex-col lg:grid grid-cols-1 lg:grid-cols-2 gap-4 mx-8 content-between">
-          <div>
-               <!-- Gráfico de barra -->
-            <div class="bg-white border border-gray-200 rounded-lg shadow-xl mt-3 py-4 px-4  lg:h-[500px]">
+        <div class="flex flex-col xl:grid xl:grid-cols-4  gap-4 mx-8 content-between">
+
+            <!-- efetivo por unidade -->
+
+            <div class="col-span-4 flex flex-col items-stretch rounded-lg shadow-lg p-6 h-[715px]">
+                <div class="mb-2">
+                  <h3 class="text-2xl font-semibold ">Efetivo Por Unidade</h3>
+                  <p class="mt-4 text-gray-600"></p>
+                </div>
+
+
+                <div>
+                    <canvas id="bar-lotacao" width="200" height="100"></canvas>
+                </div>
+
+            </div>
+
+            <!-- genero pizza-->
+
+            <div class="flex flex-col items-stretch rounded-lg shadow-lg p-6">
+                <div class="border-b border-gray-200 pb-4 mb-4">
+                    <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Efetivo por Gênero:</h3>
+                    <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">Policiais Penais</span>
+                </div>
+
+
+                <div class="h-[300px]">
+                    <canvas id="genero-pizza" width="200" height="100"></canvas>
+                </div>
+
+            </div>
+
+            <!-- gráfico de pizza administrativo -->
+
+                <div class="bg-white shadow-xl px-4 py-4 ">
+                    <div class="flex items-center justify-between pb-4 mb-4 border-b border-gray-200">
+                        <div>
+                            <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Tipo de Movimentacao</h3>
+                            <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">Administrativo</span>
+                        </div>
+
+                    </div>
+                    <div class="h-[300px]">
+                        <canvas id="administrativo-pizza" width="300" height="100"></canvas>
+                    </div>
+                </div>
+
+                  <!-- Gráfico de barra administrativo-->
+            <div class="col-span-2 bg-white border border-gray-200 rounded-lg shadow-xl px-4 py-4">
                 <div class="flex items-center justify-between pb-4 mb-4 border-b border-gray-200">
                     <div>
                         <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Tipo de Movimentacao</h3>
                         <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">Administrativo</span>
                     </div>
-                    <a href="#" class="inline-flex items-center p-2 text-xs font-medium uppercase rounded-lg text-primary-700 sm:text-sm hover:bg-gray-100 dark:text-primary-500 dark:hover:bg-gray-700">
-                        Dados Completos
-                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                        </svg>
-                    </a>
+
                 </div>
-                <div>
-                    <canvas id="chart-bar" width="100" height="50"></canvas>
+                <div class="h-[300px]">
+                    <canvas id="chart-bar" width="300" height="100"></canvas>
                 </div>
             </div>
-          </div>
-          <div class="lg:row-span-2">
 
 
-              <!-- gráfico de pizza -->
-                <div class="bg-white border border-gray-200 rounded-lg shadow-xl mt-3 px-4 py-4 mt-3 lg:h-[1023px]">
-                    <div class="flex items-center justify-between pb-4 mb-4 border-b border-gray-200">
-                        <div>
-                            <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Tipo de Movimentacao</h3>
-                            <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">Administrativo</span>
-                        </div>
-                        <a href="#" class="inline-flex items-center p-2 text-xs font-medium uppercase rounded-lg text-primary-700 sm:text-sm hover:bg-gray-100 dark:text-primary-500 dark:hover:bg-gray-700">
-                            Dados Completos
-                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                            </svg>
-                        </a>
-                    </div>
-                    <div>
-                        <canvas id="administrativo-pizza" width="500" height="300"></canvas>
-                    </div>
-                </div>
+        </div>
 
-          </div>
-          <div class="">
-<!--                grafico de linha-->
-               <div class="bg-white border border-gray-200 rounded-lg shadow-xl px-4 py-4 lg:h-[500px]">
-                    <div class="flex items-center justify-between pb-4 mb-4 border-b border-gray-200">
-                        <div>
-                            <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Tipo de Movimentacao</h3>
-                            <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">Administrativo</span>
-                        </div>
-                        <a href="#" class="inline-flex items-center p-2 text-xs font-medium uppercase rounded-lg text-primary-700 sm:text-sm hover:bg-gray-100 dark:text-primary-500 dark:hover:bg-gray-700">
-                            Dados Completos
-                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                            </svg>
-                        </a>
-                    </div>
-                    <div>
-                        <canvas id="myLineChart" width="200" height="100"></canvas>
-                    </div>
-                </div>
-          </div>
+        <div class="flex flex-col xl:grid xl:grid-cols-4  gap-4 mx-8 content-between">
 
 
 
+<!--            tabela administrativo-->
 
-
-          <div class="col-span-2">
-              <!-- quarto item TABELA -->
-            <div class="bg-white w-full border border-gray-200 rounded-lg shadow-sm mb-4">
+                <div class="col-span-4 bg-white w-full border border-gray-200 rounded-lg shadow-sm mb-4">
                 <div class="flex items-start justify-between pb-4 mb-4 border-b border-gray-200 py-4 px-4">
                     <div>
                         <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Tipo de Movimentacao</h3>
@@ -302,28 +273,119 @@ HomePage SeapPB
             </div>
 
 
-          </div>
-
         </div>
+
     </section>
 
 
 
 
+<!--grafico pizza genero-->
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var ctx = document.getElementById('genero-pizza').getContext('2d');
+        var myPieChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: {{ pie_labels|safe }},  // Ex.: ['Masculino', 'Feminino', 'Outros']
+                datasets: [{
+                    label: 'Distribuição por Gênero',
+                    data: {{ pie_values|safe }},  // Ex.: [50, 30, 20]
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 1)',  // Azul para Masculino
+                        'rgba(255, 99, 132, 1)',  // Vermelho para Feminino
+                        'rgba(201, 203, 207, 1)'  // Cinza para Outros
+                    ],
+                    borderColor: [
+                        'rgba(54, 162, 235, 1)',  // Azul
+                        'rgba(255, 99, 132, 1)',  // Vermelho
+                        'rgba(201, 203, 207, 1)'  // Cinza
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return tooltipItem.label + ': ' + tooltipItem.raw;
+                            }
+                        }
+                    },
+                    datalabels: {
+                        display: true,
+                        color: '#ffffff',
+                        font: {
+                            weight: 'bold',
+                            size: 14
+                        },
+                        formatter: (value) => {
+                            return `${value}`;  // Exibe o valor numérico de cada segmento
+                        }
+                    }
+                },
+                cutout: '50%'  // Ajusta a espessura do gráfico tipo donut, caso esteja usando um gráfico de donut
+            }
+        });
+    });
+</script>
+
+
+<!--grafico barra por unidade-->
+
+<script>
+    // Dados do gráfico de barra
+    var ctx = document.getElementById('bar-lotacao').getContext('2d');
+    var barLabels = {{ bar_labels|safe }};  // Usando as labels do contexto
+    var barValues = {{ bar_values|safe }};  // Usando os valores do contexto
+
+    var myBarChart = new Chart(ctx, {
+        type: 'bar', // Tipo de gráfico: barra
+        data: {
+            labels: barLabels,
+            datasets: [{
+                label: 'Total de Servidores',
+                data: barValues,
+                backgroundColor: 'rgba(210, 0, 0, 1)', // Cor de fundo das barras
+                borderColor: 'rgba(210, 0, 0, 1)', // Cor da borda das barras
+                borderWidth: 2, // Largura da borda das barras
+                borderRadius: 4 // Arredondamento das bordas das barras
+            }]
+        },
+        options: {
+            scales: {
+                x: {
+                    grid: {
+                        display: false // Oculta a grade no eixo X
+                    }
+                },
+                y: {
+                    beginAtZero: true, // Começa o eixo Y no zero
+                    grid: {
+                        display: false // Oculta a grade no eixo Y
+                    }
+                }
+            }
+        }
+    });
+</script>
 
 
 
 
-
-
-
-
-
-
-
-
-
-<!--grafico de barra, depois transferir para arquivo individual-->
+<!--grafico de barra, movimentacao mensal adm-->
 
 <script>
     // Dados do gráfico de barra
@@ -364,7 +426,7 @@ HomePage SeapPB
 
 
 
-<!--grafico pizza depois criar js proprios-->
+<!--grafico pizza administrativo gesipe-->
 
 
 <script>
@@ -373,10 +435,10 @@ HomePage SeapPB
         var myPieChart = new Chart(ctx, {
             type: 'pie',
             data: {
-                labels: {{ pie_labels|safe }},
+                labels: {{ pie_labels_adm|safe }},
                 datasets: [{
                     label: 'Total por Categoria',
-                    data: {{ pie_values|safe }},
+                    data: {{ pie_values_adm|safe }},
                     backgroundColor: [
                         'rgba(22, 189, 202, 1)',
                         'rgba(255, 99, 132, 1)',
@@ -436,46 +498,7 @@ HomePage SeapPB
 
 
 <!-- Incluir os dados diretamente no script -->
-<script>
-    // Dados do gráfico de linhas
-    var ctx = document.getElementById('myLineChart').getContext('2d');
-    var lineLabels = {{ line_labels|safe }};
-    var lineValues = {{ line_values|safe }};
 
-    var myLineChart = new Chart(ctx, {
-        type: 'line', // Altere para 'line' se estiver usando um gráfico de linha
-        data: {
-            labels: lineLabels,
-            datasets: [{
-                label: 'Total Geral de Inserções',
-                data: lineValues,
-                backgroundColor: 'rgba(210, 0, 0, 0.55)', // Cor de fundo da área do gráfico
-                borderColor: 'rgba(210, 0, 0, 1)', // Cor da linha do gráfico
-                borderWidth: 2, // Largura da linha
-                fill: true, // Preenche a área sob a linha
-                pointRadius: 0, // Remove os pontos
-                borderCapStyle: 'round', // Arredonda as extremidades da linha
-                borderJoinStyle: 'round', // Arredonda as junções da linha
-                tension: 0.4 // Adiciona uma suavização à linha
-            }]
-        },
-        options: {
-            scales: {
-                x: {
-                    grid: {
-                        display: false // Oculta a grade no eixo X
-                    }
-                },
-                y: {
-                    beginAtZero: true, // Começa o eixo Y no zero
-                    grid: {
-                        display: false // Oculta a grade no eixo Y
-                    }
-                }
-            }
-        }
-    });
-</script>
 
 
 

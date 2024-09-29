@@ -18,6 +18,7 @@ import calendar
 from django.db.models import Sum
 from django.contrib import messages
 from django.contrib.auth.models import Group
+from django.db.models import Count
 
 import os
 
@@ -39,8 +40,42 @@ class Homepage(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        context['total_servidores'] = Servidor.objects.count()
         # Contar os servidores com o cargo 'POLICIAL PENAL'
-        context['total_policial_penal'] = Servidor.objects.filter(cargo='POLICIAL PENAL').count()
+        context['total_policiais_penal'] = Servidor.objects.filter(cargo='POLICIAL PENAL').count()
+
+        # Contar os servidores com status "ativo" e cargo "Policial Penal"
+        context['total_servidores_ativos_policial_penal'] = Servidor.objects.filter(
+            status=True, cargo='POLICIAL PENAL').count()
+
+        # Contar os servidores com status "inativo" e cargo "Policial Penal"
+        context['total_servidores_inativos_policial_penal'] = Servidor.objects.filter(
+            status=False, cargo='POLICIAL PENAL').count()
+
+
+        # graficos do recursos humanos
+
+        # Contar o número de servidores por gênero
+        context['genero_masculino'] = Servidor.objects.filter(genero='M', cargo='POLICIAL PENAL').count()
+        context['genero_feminino'] = Servidor.objects.filter(genero='F', cargo='POLICIAL PENAL').count()
+        context['genero_outros'] = Servidor.objects.filter(genero='O', cargo='POLICIAL PENAL').count()
+
+        # Labels e valores para o gráfico de pizza
+        context['pie_labels'] = ['Masculino', 'Feminino', 'Outros']
+        context['pie_values'] = [
+            context['genero_masculino'],
+            context['genero_feminino'],
+            context['genero_outros']
+        ]
+
+        # Adicionar o gráfico de barras horizontal com efetivo por unidade
+        efetivo_por_unidade = Servidor.objects.filter(cargo='POLICIAL PENAL').values('local_trabalho').annotate(
+            total=Count('id')).order_by('-total')
+
+        context['bar_labels'] = [item['local_trabalho'] for item in efetivo_por_unidade]
+        context['bar_values'] = [item['total'] for item in efetivo_por_unidade]
+
+
 
         # Obtendo os dados para o gráfico
         current_year = timezone.now().year
@@ -63,7 +98,7 @@ class Homepage(LoginRequiredMixin, TemplateView):
             portarias=Sum('portarias')
         )
 
-        pie_labels = [
+        pie_labels_adm = [
             'Memorandos',
             'Despachos',
             'Ofícios',
@@ -71,7 +106,7 @@ class Homepage(LoginRequiredMixin, TemplateView):
             'Processos',
             'Portarias'
         ]
-        pie_values = [
+        pie_values_adm = [
             total_values['total_memorando'] or 0,
             total_values['total_despacho'] or 0,
             total_values['total_oficio'] or 0,
@@ -86,21 +121,10 @@ class Homepage(LoginRequiredMixin, TemplateView):
         # Passando os dados para o template
         context['labels_mensais'] = labels
         context['values_mensais'] = monthly_totals
-        context['pie_labels'] = pie_labels
-        context['pie_values'] = pie_values
+        context['pie_labels_adm'] = pie_labels_adm
+        context['pie_values_adm'] = pie_values_adm
 
-        # Obtendo dados gerais para o gráfico de linha
-        daily_totals = Gesipe_adm.objects.values('data') \
-            .annotate(total=Sum('total')) \
-            .order_by('data')
 
-        # Separar labels e valores
-        line_labels = [entry['data'].strftime("%d/%m/%Y") for entry in daily_totals]
-        line_values = [entry['total'] for entry in daily_totals]
-
-        # Passar os dados para o contexto
-        context['line_labels'] = line_labels
-        context['line_values'] = line_values
 
 
 

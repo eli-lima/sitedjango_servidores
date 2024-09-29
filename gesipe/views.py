@@ -6,13 +6,14 @@ from .forms import GesipeAdmForm, UploadFileForm
 from django.views.generic import ListView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
-from django.db.models import Q  # Para pesquisas com OR lógico
+from django.db.models import Q, Sum  # Para pesquisas com OR lógico
 from django.utils import timezone
 from django.contrib import messages
 from django.urls import reverse, reverse_lazy
 from django.http import JsonResponse
 from datetime import datetime, date
 import openpyxl
+
 
 
 # Create your views here.
@@ -66,6 +67,22 @@ class Gesipe(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['query'] = self.request.GET.get('query', '')
+
+        # total de movimentacoes gesipe admin
+        context['total_mov_adm'] = Gesipe_adm.objects.count()
+
+        # Obtendo dados gerais para o gráfico de linha
+        daily_totals = Gesipe_adm.objects.values('data') \
+            .annotate(total=Sum('total')) \
+            .order_by('data')
+
+        # Separar labels e valores
+        line_labels = [entry['data'].strftime("%d/%m/%Y") for entry in daily_totals]
+        line_values = [entry['total'] for entry in daily_totals]
+
+        # Passar os dados para o contexto
+        context['line_labels'] = line_labels
+        context['line_values'] = line_values
 
         page_obj = context['page_obj']
         paginator = page_obj.paginator
