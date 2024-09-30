@@ -133,6 +133,7 @@ class RecursosHumanosPage(LoginRequiredMixin, ListView):
         context['bar_labels'] = [item['local_trabalho'] for item in efetivo_por_unidade]
         context['bar_values'] = [item['total'] for item in efetivo_por_unidade]
 
+
         # Paginação personalizada
         page_obj = context['page_obj']
         paginator = page_obj.paginator

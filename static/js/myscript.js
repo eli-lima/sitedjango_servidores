@@ -23,7 +23,11 @@ const nav = document.querySelector('nav')
 
 document.querySelectorAll('.clickable-row').forEach(row => {
     row.addEventListener('click', () => {
-        window.location.href = row.getAttribute('data-href');
+        // Verifica se o atributo data-href existe e se tem um valor
+        const href = row.getAttribute('data-href');
+        if (href) {
+            window.location.href = href;
+        }
     });
 });
 

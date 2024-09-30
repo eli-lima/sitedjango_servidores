@@ -48,7 +48,7 @@ class Servidor(models.Model):
     cargo = models.CharField(max_length=100)  # Cargo ou função
     cargo_comissionado = models.CharField(max_length=100, blank=True, null=True)
     simb_cargo_comissionado = models.CharField(max_length=30, blank=True, null=True) #Exemplo csp-1 csp-2
-    local_trabalho = models.CharField(max_length=100, blank=True, null=True)
+    local_trabalho = models.CharField(max_length=100, blank=False)
     genero = models.CharField( max_length=1, choices=GENEROS,)
     lotacao = models.CharField(max_length=50, blank=True, null=True)  # Setor onde o servidor trabalha
     data_admissao = models.DateField(blank=True, null=True)  # Data de admissão
