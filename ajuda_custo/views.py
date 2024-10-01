@@ -23,6 +23,7 @@ import os
 from django.conf import settings
 import logging
 import cloudinary.uploader
+import requests
 
 
 
@@ -33,60 +34,32 @@ import cloudinary.uploader
 # def baixar zip arquivos assinados
 
 def criar_arquivo_zip(request, queryset):
-    # Cria um buffer de memória para o arquivo zip
-    buffer = BytesIO()
-    arquivos_adicionados = 0  # Contador para arquivos adicionados
-
     try:
-        # Cria o arquivo zip em memória
-        with zipfile.ZipFile(buffer, 'w') as zip_file:
-            for registro in queryset:
-                if registro.folha_assinada:
-                    try:
-                        # Obtém a URL do arquivo armazenado no Cloudinary
-                        arquivo_url = registro.folha_assinada.url
-                        logging.info(f"Tentando adicionar arquivo: {arquivo_url}")
+        for registro in queryset:
+            if registro.folha_assinada:
+                # Obtém a URL do arquivo armazenado no Cloudinary
+                arquivo_url = registro.folha_assinada.url
+                logging.info(f"Tentando baixar arquivo: {arquivo_url}")
 
-                        # Baixa o arquivo do Cloudinary
-                        arquivo_resposta = requests.get(arquivo_url)
-                        if arquivo_resposta.status_code == 200:
-                            # Obtém a extensão do arquivo
-                            extensao = os.path.splitext(arquivo_url)[1]
-                            if not extensao:
-                                extensao = '.pdf'  # Define uma extensão padrão se não houver
+                # Baixa o arquivo do Cloudinary
+                arquivo_resposta = requests.get(arquivo_url)
+                if arquivo_resposta.status_code == 200:
+                    # Configura o nome do arquivo de download
+                    nome_arquivo = f"{registro.matricula}_{registro.data.strftime('%Y-%m')}_{os.path.basename(arquivo_url)}"
 
-                            # Nome do arquivo no ZIP (com base na matrícula e no mês)
-                            nome_arquivo_zip = f"{registro.matricula}_{registro.data.strftime('%Y-%m')}_{os.path.basename(arquivo_url)}{extensao}"
+                    # Cria uma resposta HTTP com o conteúdo do arquivo
+                    response = HttpResponse(arquivo_resposta.content, content_type='application/octet-stream')
+                    response['Content-Disposition'] = f'attachment; filename={nome_arquivo}'
 
-                            # Escreve o conteúdo do arquivo na memória
-                            zip_file.writestr(nome_arquivo_zip, arquivo_resposta.content)
-                            arquivos_adicionados += 1  # Incrementa o contador
-                        else:
-                            logging.error(f"Erro ao acessar o arquivo {registro.folha_assinada.name} no Cloudinary.")
-                            messages.warning(request, f'Arquivo {registro.folha_assinada.name} não pôde ser acessado.')
-
-                    except Exception as e:
-                        logging.error(f"Erro ao adicionar arquivo {registro.folha_assinada.name} ao ZIP: {str(e)}")
-                        messages.warning(request, f'Arquivo {registro.folha_assinada.name} não pôde ser adicionado ao ZIP.')
-
-        # Log de quantos arquivos foram adicionados
-        logging.info(f"Total de arquivos adicionados ao ZIP: {arquivos_adicionados}")
-
-        # Configura o ponteiro do buffer para o início do arquivo
-        buffer.seek(0)
-
-        # Configura o nome do arquivo de download
-        filename = "arquivos_assinados.zip"
-
-        # Cria uma resposta HTTP com o tipo de conteúdo para download de arquivos ZIP
-        response = HttpResponse(buffer, content_type='application/zip')
-        response['Content-Disposition'] = f'attachment; filename={filename}'
-
-        return response
+                    return response
+                else:
+                    logging.error(f"Erro ao acessar o arquivo {registro.folha_assinada.name} no Cloudinary.")
+                    messages.warning(request, f'Arquivo {registro.folha_assinada.name} não pôde ser acessado.')
+                    return HttpResponse(status=404)  # Retorna um status de não encontrado
 
     except Exception as e:
-        logging.error(f"Erro ao criar o arquivo ZIP: {str(e)}")
-        messages.error(request, 'Erro ao criar o arquivo ZIP. Tente novamente mais tarde.')
+        logging.error(f"Erro ao baixar o arquivo {registro.folha_assinada.name}: {str(e)}")
+        messages.error(request, 'Erro ao baixar o arquivo. Tente novamente mais tarde.')
         return HttpResponse(status=500)  # Retorna um status de erro
 #DEF BUSCAR NOME DE SERVIDOR
 
