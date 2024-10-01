@@ -35,29 +35,41 @@ def criar_arquivo_zip(request, queryset):
     # Cria um buffer de memória para o arquivo zip
     buffer = BytesIO()
 
-    # Cria o arquivo zip em memória
-    with zipfile.ZipFile(buffer, 'w') as zip_file:
-        for registro in queryset:
-            if registro.folha_assinada:
-                # Caminho completo do arquivo no sistema de arquivos
-                arquivo_path = registro.folha_assinada.path
-                # Nome do arquivo no ZIP (com base na matrícula e no mês)
-                nome_arquivo_zip = f"{registro.matricula}_{registro.data.strftime('%Y-%m')}_{os.path.basename(arquivo_path)}"
-                # Adiciona o arquivo ao zip
-                zip_file.write(arquivo_path, nome_arquivo_zip)
+    try:
+        # Cria o arquivo zip em memória
+        with zipfile.ZipFile(buffer, 'w') as zip_file:
+            for registro in queryset:
+                if registro.folha_assinada:
+                    try:
+                        # Caminho completo do arquivo no sistema de arquivos
+                        arquivo_path = registro.folha_assinada.path
 
-    # Configura o ponteiro do buffer para o início do arquivo
-    buffer.seek(0)
+                        # Nome do arquivo no ZIP (com base na matrícula e no mês)
+                        nome_arquivo_zip = f"{registro.matricula}_{registro.data.strftime('%Y-%m')}_{os.path.basename(arquivo_path)}"
 
-    # Configura o nome do arquivo de download
-    filename = "arquivos_assinados.zip"
+                        # Adiciona o arquivo ao zip
+                        zip_file.write(arquivo_path, nome_arquivo_zip)
 
-    # Cria uma resposta HTTP com o tipo de conteúdo para download de arquivos ZIP
-    response = HttpResponse(buffer, content_type='application/zip')
-    response['Content-Disposition'] = f'attachment; filename={filename}'
+                    except Exception as e:
+                        logging.error(f"Erro ao adicionar arquivo {registro.folha_assinada.name} ao ZIP: {str(e)}")
+                        messages.warning(request, f'Arquivo {registro.folha_assinada.name} não pôde ser adicionado ao ZIP.')
 
-    return response
+        # Configura o ponteiro do buffer para o início do arquivo
+        buffer.seek(0)
 
+        # Configura o nome do arquivo de download
+        filename = "arquivos_assinados.zip"
+
+        # Cria uma resposta HTTP com o tipo de conteúdo para download de arquivos ZIP
+        response = HttpResponse(buffer, content_type='application/zip')
+        response['Content-Disposition'] = f'attachment; filename={filename}'
+
+        return response
+
+    except Exception as e:
+        logging.error(f"Erro ao criar o arquivo ZIP: {str(e)}")
+        messages.error(request, 'Erro ao criar o arquivo ZIP. Tente novamente mais tarde.')
+        return HttpResponse(status=500)  # Retorna um status de erro
 
 
 
