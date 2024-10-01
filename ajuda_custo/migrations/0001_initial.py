@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
                 ('carga_horaria', models.CharField(choices=[('12 horas', '12 Horas'), ('24 horas', '24 Horas')], max_length=30)),
                 ('data_edicao', models.DateTimeField(default=django.utils.timezone.now)),
                 ('majorado', models.BooleanField(default=False)),
-                ('folha_assinada', models.FileField(blank=True, null=True, upload_to=ajuda_custo.models.upload_to_ajuda_custo)),
+
             ],
         ),
         migrations.CreateModel(
