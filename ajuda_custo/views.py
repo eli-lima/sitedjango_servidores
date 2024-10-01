@@ -41,14 +41,21 @@ def criar_arquivo_zip(request, queryset):
             for registro in queryset:
                 if registro.folha_assinada:
                     try:
-                        # Caminho completo do arquivo no sistema de arquivos
-                        arquivo_path = registro.folha_assinada.path
+                        # Obtém a URL do arquivo armazenado no Cloudinary
+                        arquivo_url = registro.folha_assinada.url
 
-                        # Nome do arquivo no ZIP (com base na matrícula e no mês)
-                        nome_arquivo_zip = f"{registro.matricula}_{registro.data.strftime('%Y-%m')}_{os.path.basename(arquivo_path)}"
+                        # Adiciona o arquivo a partir da URL
+                        arquivo_resposta = requests.get(arquivo_url)
 
-                        # Adiciona o arquivo ao zip
-                        zip_file.write(arquivo_path, nome_arquivo_zip)
+                        if arquivo_resposta.status_code == 200:
+                            # Nome do arquivo no ZIP (com base na matrícula e no mês)
+                            nome_arquivo_zip = f"{registro.matricula}_{registro.data.strftime('%Y-%m')}_{os.path.basename(arquivo_url)}"
+
+                            # Escreve o conteúdo do arquivo na memória
+                            zip_file.writestr(nome_arquivo_zip, arquivo_resposta.content)
+                        else:
+                            logging.error(f"Erro ao acessar o arquivo {registro.folha_assinada.name} no Cloudinary.")
+                            messages.warning(request, f'Arquivo {registro.folha_assinada.name} não pôde ser acessado.')
 
                     except Exception as e:
                         logging.error(f"Erro ao adicionar arquivo {registro.folha_assinada.name} ao ZIP: {str(e)}")
@@ -70,7 +77,6 @@ def criar_arquivo_zip(request, queryset):
         logging.error(f"Erro ao criar o arquivo ZIP: {str(e)}")
         messages.error(request, 'Erro ao criar o arquivo ZIP. Tente novamente mais tarde.')
         return HttpResponse(status=500)  # Retorna um status de erro
-
 
 
 #DEF BUSCAR NOME DE SERVIDOR
