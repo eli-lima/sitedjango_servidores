@@ -22,6 +22,8 @@ from io import BytesIO
 import os
 from django.conf import settings
 import logging
+from cloudinary import CloudinaryImage  # Certifique-se de ter essa importação
+import requests
 
 
 
@@ -77,7 +79,6 @@ def criar_arquivo_zip(request, queryset):
         logging.error(f"Erro ao criar o arquivo ZIP: {str(e)}")
         messages.error(request, 'Erro ao criar o arquivo ZIP. Tente novamente mais tarde.')
         return HttpResponse(status=500)  # Retorna um status de erro
-
 
 #DEF BUSCAR NOME DE SERVIDOR
 
