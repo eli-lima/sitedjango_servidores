@@ -125,11 +125,13 @@ HomePage SeapPB
 
 
     <section>
-        <div class="flex flex-col xl:grid xl:grid-cols-4 pb-4 gap-4 mx-8 content-between">
+        <div class="grid grid-cols-2 xl:grid xl:grid-cols-4 pb-4 gap-4 mx-8 content-between">
 
             <!-- efetivo por unidade -->
 
-            <div class="col-span-4 flex flex-col items-stretch rounded-lg shadow-lg p-6 h-[715px]">
+            {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups or 'GerRh' in user_groups %}
+
+            <div class="col-span-2 xl:col-span-4 flex flex-col items-stretch rounded-lg shadow-lg p-6">
                 <div class="mb-2">
                   <h3 class="text-2xl font-semibold ">Efetivo Por Unidade</h3>
                   <p class="mt-4 text-gray-600"></p>
@@ -141,6 +143,8 @@ HomePage SeapPB
                 </div>
 
             </div>
+
+            {% endif %}
 
             <!-- genero pizza-->
 
@@ -156,6 +160,8 @@ HomePage SeapPB
                 </div>
 
             </div>
+
+
 
             <!-- gráfico de pizza administrativo -->
 
@@ -272,6 +278,7 @@ HomePage SeapPB
                   </div>
                 </div>
             </div>
+
 
 
         </div>
