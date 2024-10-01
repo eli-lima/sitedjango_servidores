@@ -56,7 +56,7 @@ class AjudaCustoForm(forms.ModelForm):
         if folha_assinada:
             if folha_assinada.size > 10 * 1024 * 1024:
                 raise forms.ValidationError("O arquivo deve ter no máximo 10MB.")
-            if not folha_assinada.content_type in ['application/pdf', 'image/jpeg']:
+            if not folha_assinada.content_type in ['application/pdf', 'image/jpeg', 'image/jpg']:
                 raise forms.ValidationError("Apenas arquivos PDF ou JPG são permitidos.")
         return folha_assinada
 
