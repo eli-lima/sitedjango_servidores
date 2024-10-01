@@ -48,8 +48,8 @@ def criar_arquivo_zip(request, queryset):
                         logging.info(f"Tentando adicionar arquivo: {arquivo_url}")
 
                         # Baixa o arquivo do Cloudinary
-                        response = cloudinary.uploader.download(arquivo_url)
-                        if response:
+                        response = requests.get(arquivo_url)
+                        if response.status_code == 200:
                             # Nome do arquivo no ZIP (com base na matrícula e no mês)
                             nome_arquivo_zip = f"{registro.matricula}_{registro.data.strftime('%Y-%m')}_{os.path.basename(arquivo_url)}"
 
@@ -83,7 +83,6 @@ def criar_arquivo_zip(request, queryset):
         logging.error(f"Erro ao criar o arquivo ZIP: {str(e)}")
         messages.error(request, 'Erro ao criar o arquivo ZIP. Tente novamente mais tarde.')
         return HttpResponse(status=500)  # Retorna um status de erro
-
 
 #DEF BUSCAR NOME DE SERVIDOR
 
