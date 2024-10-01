@@ -10,7 +10,7 @@ Gesipe Administrativo
 <div class="pt-28 mx-10 flex justify-center" >
     <div class="flex flex-col bg-white w-full rounded-3xl shadow-lg mb-4 mx-10 px-8">
         <h1 class="text-center py-8 font-bold text-4xl">Preencha o Mês e Ano</h1>
-        <form class="flex flex-col justify-center" method="POST">
+        <form class="flex flex-col justify-center" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="flex flex-row justify-center p-3 gap-x-8">
                 <!-- Menu Mês -->
@@ -80,6 +80,18 @@ Gesipe Administrativo
                             <button type="button" class="btn btn-danger remove-date-btn w-14 h-12" disabled><ion-icon name="trash"></ion-icon></button>
                         </div>
                     </div>
+                </div>
+
+                <!-- Adicionando o campo de upload de arquivo -->
+                <div class="mt-8 flex flex col justify-center">
+                    {{ form.folha_assinada|as_crispy_field }}
+                    {% if form.folha_assinada.errors %}
+                        <ul class="text-danger">
+                            {% for error in form.folha_assinada.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
                 </div>
 
                 <div class="col-md-12 col-12 text-center mt-4 mb-4">

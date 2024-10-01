@@ -17,10 +17,47 @@ from servidor.models import Servidor
 from datetime import timedelta
 from django.core.paginator import Paginator
 from django.contrib.auth.mixins import UserPassesTestMixin
+import zipfile
+from io import BytesIO
+import os
+from django.conf import settings
 
 
 
 # Create your views here.
+
+
+
+# def baixar zip arquivos assinados
+
+def criar_arquivo_zip(request, queryset):
+    # Cria um buffer de memória para o arquivo zip
+    buffer = BytesIO()
+
+    # Cria o arquivo zip em memória
+    with zipfile.ZipFile(buffer, 'w') as zip_file:
+        for registro in queryset:
+            if registro.folha_assinada:
+                # Caminho completo do arquivo no sistema de arquivos
+                arquivo_path = registro.folha_assinada.path
+                # Nome do arquivo no ZIP (com base na matrícula e no mês)
+                nome_arquivo_zip = f"{registro.matricula}_{registro.data.strftime('%Y-%m')}_{os.path.basename(arquivo_path)}"
+                # Adiciona o arquivo ao zip
+                zip_file.write(arquivo_path, nome_arquivo_zip)
+
+    # Configura o ponteiro do buffer para o início do arquivo
+    buffer.seek(0)
+
+    # Configura o nome do arquivo de download
+    filename = "arquivos_assinados.zip"
+
+    # Cria uma resposta HTTP com o tipo de conteúdo para download de arquivos ZIP
+    response = HttpResponse(buffer, content_type='application/zip')
+    response['Content-Disposition'] = f'attachment; filename={filename}'
+
+    return response
+
+
 
 
 #DEF BUSCAR NOME DE SERVIDOR
@@ -320,29 +357,21 @@ class RelatorioAjudaCusto(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
     def test_func(self):
         user = self.request.user
-        # Define os grupos permitidos
         grupos_permitidos = ['Administrador', 'GerGesipe']
-        # Retorna True se o usuário pertence a pelo menos um dos grupos
         return user.groups.filter(name__in=grupos_permitidos).exists()
-
-        # Levanta exceção em caso de falta de permissão
 
     def handle_no_permission(self):
         messages.error(self.request, "Você não tem permissão para acessar esta página.")
-        return render(self.request, '403.html', status=403)  # Substitua '404.html' pelo nome do seu template
-
+        return render(self.request, '403.html', status=403)
 
     def get_queryset(self):
-        # Captura os parâmetros de pesquisa
         query = self.request.GET.get('query', '')
         data_inicial = self.request.GET.get('dataInicial')
         data_final = self.request.GET.get('dataFinal')
 
-        # Converte as datas em objetos datetime, se fornecidas
         data_inicial = parse_date(data_inicial) if data_inicial else None
         data_final = parse_date(data_final) if data_final else None
 
-        # Cria o filtro básico com base na query de pesquisa
         queryset = Ajuda_Custo.objects.all()
 
         if query:
@@ -350,7 +379,6 @@ class RelatorioAjudaCusto(LoginRequiredMixin, UserPassesTestMixin, ListView):
                 Q(nome__icontains=query) | Q(matricula__icontains=query)
             )
 
-        # Aplica os filtros de data se fornecidos
         if data_inicial and data_final:
             queryset = queryset.filter(data__range=[data_inicial, data_final])
         elif data_inicial:
@@ -358,7 +386,6 @@ class RelatorioAjudaCusto(LoginRequiredMixin, UserPassesTestMixin, ListView):
         elif data_final:
             queryset = queryset.filter(data__lte=data_final)
 
-        # Ordena por nome
         return queryset.order_by('nome')
 
     def get_context_data(self, **kwargs):
@@ -374,6 +401,11 @@ class RelatorioAjudaCusto(LoginRequiredMixin, UserPassesTestMixin, ListView):
             return exportar_excel(request)
         elif action == 'excel_detalhado':
             return excel_detalhado(request)
+        elif action == 'arquivos_assinados':
+            # Filtra os dados conforme os critérios
+            queryset = self.get_queryset()
+            # Chama a função para criar o arquivo ZIP
+            return criar_arquivo_zip(request, queryset)
         return super().get(request, *args, **kwargs)
 
 
@@ -401,7 +433,6 @@ class AjudaCustoAdicionar(LoginRequiredMixin, FormView):
                 messages.error(self.request, 'Erro: Servidor não encontrado.')
                 return redirect(self.success_url)
 
-            # Busca o limite de horas mensal para o servidor
             try:
                 limite = LimiteAjudaCusto.objects.get(servidor=servidor)
                 limite_horas = limite.limite_horas
@@ -412,57 +443,54 @@ class AjudaCustoAdicionar(LoginRequiredMixin, FormView):
             mes_int = int(mes)
             ano_int = int(ano)
 
+            # Formatar o mês/ano para usar na verificação e no caminho do arquivo
+            mes_ano_str = f"{ano_int}-{mes_int:02d}"
+
+            folha_assinada = form.cleaned_data.get('folha_assinada')  # Obter o arquivo de folha assinada
+            ajuda_custo_existente = None  # Para rastrear se já há registros no mês
+
             for dia, unidade, carga_horaria in zip(dias, unidades, cargas_horarias):
                 try:
                     data_completa = datetime.strptime(f"{dia}/{mes}/{ano}", "%d/%m/%Y").date()
 
-                    # Verifique se o servidor já marcou essa data, independentemente da carga horária
+                    # Verificar se o servidor já marcou essa data, independentemente da carga horária
                     if Ajuda_Custo.objects.filter(matricula=servidor.matricula, data=data_completa).exists():
                         messages.error(self.request, f'O servidor já possui uma entrada para {dia}/{mes}/{ano}.')
                         return self.form_invalid(form)
 
-                    # Definindo o início e o fim do mês para a consulta
-                    inicio_do_mes = data_completa.replace(day=1)
-                    fim_do_mes = (inicio_do_mes + timedelta(days=31)).replace(day=1) - timedelta(days=1)
+                    # Verificar se já existe um registro para este mês (por matrícula)
+                    if not ajuda_custo_existente:
+                        ajuda_custo_existente = Ajuda_Custo.objects.filter(
+                            matricula=servidor.matricula,
+                            data__year=ano_int,
+                            data__month=mes_int
+                        ).first()
 
-                    # Calcula o total de horas já registradas para o mês
-                    registros_mes = Ajuda_Custo.objects.filter(
-                        matricula=servidor.matricula,
-                        data__range=[inicio_do_mes, fim_do_mes]
-                    )
-
-                    total_horas_mes = 0
-                    for registro in registros_mes:
-                        if registro.carga_horaria == '12 horas':
-                            total_horas_mes += 12
-                        elif registro.carga_horaria == '24 horas':
-                            total_horas_mes += 24
-
-                    # Converte a carga horária atual para horas
-                    horas_a_adicionar = 12 if carga_horaria == '12 horas' else 24
-
-                    # Verifica se o total de horas no mês ultrapassa o limite permitido
-                    if total_horas_mes + horas_a_adicionar > limite_horas:
-                        messages.error(self.request, f'Limite de {limite_horas} horas/mês excedido para {dia}/{mes}/{ano}.')
-                        return self.form_invalid(form)
-
-                    # Verifica se a data existe no modelo DataMajorada
-                    majorado = DataMajorada.objects.filter(data=data_completa).exists()
-
-                    # Cria o objeto Ajuda_Custo e salva no banco de dados
+                    # Cria o objeto Ajuda_Custo e salva no banco de dados, sem o arquivo de folha ainda
                     ajuda_custo = Ajuda_Custo(
                         matricula=self.request.user.matricula,
                         nome=self.request.user.nome_completo,
                         data=data_completa,
                         unidade=unidade,
                         carga_horaria=carga_horaria,
-                        majorado=majorado  # Define como True se a data estiver em DataMajorada
+                        majorado=DataMajorada.objects.filter(data=data_completa).exists(),
                     )
                     ajuda_custo.save()
 
                 except ValueError:
                     messages.error(self.request, f'Erro: Data inválida - {dia}/{mes}/{ano}')
                     return self.form_invalid(form)
+
+            # Fora do loop, salvamos o arquivo apenas uma vez para o mês
+            if folha_assinada:
+                if ajuda_custo_existente:
+                    # Se já havia um registro anterior, substituímos o arquivo
+                    ajuda_custo_existente.folha_assinada = folha_assinada
+                    ajuda_custo_existente.save()
+                else:
+                    # Atribuímos o arquivo ao último registro salvo (ou poderia ser o primeiro)
+                    ajuda_custo.folha_assinada = folha_assinada
+                    ajuda_custo.save()
 
             messages.success(self.request, 'Datas adicionadas com sucesso!')
             return redirect(self.success_url)

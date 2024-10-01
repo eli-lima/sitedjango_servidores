@@ -43,9 +43,22 @@ class AjudaCustoForm(forms.ModelForm):
     dia = forms.ChoiceField(choices=DIAS, required=True)
     mes = get_mes_field()
     ano = get_ano_field()
+    folha_assinada = forms.FileField(required=True)  # Campo de upload para a folha assinada
+
     class Meta:
         model = Ajuda_Custo
-        fields = ['unidade', 'carga_horaria']
+        fields = ['unidade', 'carga_horaria', 'folha_assinada']
+
+    def clean_folha_assinada(self):
+        folha_assinada = self.cleaned_data.get('folha_assinada')
+
+        # Se o arquivo for enviado, faça as verificações
+        if folha_assinada:
+            if folha_assinada.size > 10 * 1024 * 1024:
+                raise forms.ValidationError("O arquivo deve ter no máximo 10MB.")
+            if not folha_assinada.content_type in ['application/pdf', 'image/jpeg']:
+                raise forms.ValidationError("Apenas arquivos PDF ou JPG são permitidos.")
+        return folha_assinada
 
     def clean(self):
         cleaned_data = super().clean()

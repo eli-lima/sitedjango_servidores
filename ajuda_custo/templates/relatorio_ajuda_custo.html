@@ -15,7 +15,7 @@ Ajuda de Custo
 
 <!--tabela com ajuda de custo-->
 
-<div class="mb-12 pt-20 flex px-20 justify-start w-full">
+<div class="mb-12 pt-20 flex px-4 justify-start w-full">
     <div class="bg-white shadow-lg rounded-lg w-full">
         <div class="p-6 rounded-t-lg">
             <div>
@@ -33,16 +33,18 @@ Ajuda de Custo
                         <div class="flex space-x-4 items-center">
                             <button type="submit" name="action" value="export_excel" class="btn btn-success">Excel Resumido</button>
                             <button type="submit" name="action" value="excel_detalhado" class="btn btn-danger">Excel Detalhado</button>
-                            <a href="#" class="btn btn-warning">Exportar para PDF</a>
+                            <button type="submit" name="action" value="arquivos_assinados" class="btn btn-warning">Arquivos Assinados</button>
                         </div>
+
                         <div class="flex flex-row">
                             <input class="form-input w-full sm:w-auto sm:ml-4 p-1.5 rounded-md border-1 border-gray-600" type="date" name="dataInicial" id="dataInicial" value="{{ dataInicial }}">
-                            <input class="form-input w-full sm:w-auto sm:ml-4 p-1.5 rounded-md border-1 border-gray-600" type="date" name="dataFinal" id="datafinal" value="{{ dataFinal }}">
+                            <input class="form-input w-full sm:w-auto sm:ml-4 p-1.5 rounded-md border-1 border-gray-600" type="date" name="dataFinal" id="dataFinal" value="{{ dataFinal }}">
                             <input type="text" name="query" id="searchInput" class="form-input w-full sm:w-auto sm:ml-4 p-1.5 rounded-md border-1 border-gray-600" placeholder="Pesquisar..." value="{{ query }}">
                             <button type="submit" name="action" value="search" class="btn btn-primary">Pesquisar</button>
                         </div>
                     </div>
                 </form>
+
 
         </div>
         <div class="overflow-x-auto">
@@ -58,7 +60,7 @@ Ajuda de Custo
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     {% for data in datas %}
-                    <tr class="clickable-row" data-href="{% url 'ajuda_custo:ajuda_custo' %}">
+                    <tr class="clickable-row">
                         <td class="px-6 py-4 whitespace-nowrap">{{ data.matricula }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">{{ data.nome }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">{{ data.data|date:"d/m/Y"}}</td>
