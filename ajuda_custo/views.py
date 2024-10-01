@@ -44,8 +44,13 @@ def criar_arquivo_zip(request, queryset):
                 # Baixa o arquivo do Cloudinary
                 arquivo_resposta = requests.get(arquivo_url)
                 if arquivo_resposta.status_code == 200:
+                    # Obtém a extensão do arquivo
+                    extensao = os.path.splitext(arquivo_url)[1]
+                    if not extensao:
+                        extensao = '.pdf'  # Define uma extensão padrão se não houver
+
                     # Configura o nome do arquivo de download
-                    nome_arquivo = f"{registro.matricula}_{registro.data.strftime('%Y-%m')}_{os.path.basename(arquivo_url)}"
+                    nome_arquivo = f"{registro.matricula}_{registro.data.strftime('%Y-%m')}_{os.path.basename(arquivo_url)}{extensao}"
 
                     # Cria uma resposta HTTP com o conteúdo do arquivo
                     response = HttpResponse(arquivo_resposta.content, content_type='application/octet-stream')
@@ -61,6 +66,9 @@ def criar_arquivo_zip(request, queryset):
         logging.error(f"Erro ao baixar o arquivo {registro.folha_assinada.name}: {str(e)}")
         messages.error(request, 'Erro ao baixar o arquivo. Tente novamente mais tarde.')
         return HttpResponse(status=500)  # Retorna um status de erro
+
+
+
 #DEF BUSCAR NOME DE SERVIDOR
 
 
