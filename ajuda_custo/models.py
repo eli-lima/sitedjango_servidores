@@ -1,11 +1,24 @@
 from django.db import models
 from django.utils import timezone
-
+import os
+from datetime import datetime
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
 
 # Create your models here.
+
+
+def upload_to_ajuda_custo(instance, filename):
+    # Cria a pasta no formato "ajuda_custo/ano-mes/matricula/arquivo"
+    data_formatada = instance.data.strftime('%Y-%m')  # Formato "ano-mes"
+    pasta_matricula = f'{instance.matricula}/'
+
+    # Adiciona a pasta raiz 'ajuda_custo' antes do resto do caminho
+    caminho_completo = os.path.join('ajuda_custo', data_formatada, pasta_matricula, filename)
+
+    return caminho_completo
+
 
 class DataMajorada(models.Model):
     data = models.DateField(unique=True)
@@ -34,11 +47,10 @@ class Ajuda_Custo(models.Model):
     carga_horaria = models.CharField(max_length=30, choices=CARGA_HORARIA)  # 12 OU 21
     data_edicao = models.DateTimeField(default=timezone.now)
     majorado = models.BooleanField(default=False)
+    folha_assinada = models.FileField(upload_to=upload_to_ajuda_custo, blank=True,
+                                      null=True)  # Campo de upload com pasta dinâmica
 
-    class Meta:
-        permissions = [
-            ("view_all_datas", "Pode ver todas as datas agendadas"),
-        ]
+
 
     def __str__(self):
         return f"{self.nome} - {self.data.strftime('%d/%m/%Y')}"
