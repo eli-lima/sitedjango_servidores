@@ -50,8 +50,7 @@ class Ajuda_Custo(models.Model):
     carga_horaria = models.CharField(max_length=30, choices=CARGA_HORARIA)  # 12 OU 21
     data_edicao = models.DateTimeField(default=timezone.now)
     majorado = models.BooleanField(default=False)
-    folha_assinada = models.FileField(upload_to=upload_to_ajuda_custo, blank=True,
-                                      null=True)  # Campo de upload com pasta dinâmica
+
 
 
 
