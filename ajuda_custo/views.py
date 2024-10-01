@@ -53,7 +53,7 @@ def criar_arquivo_zip(request, queryset):
                     elif content_type == 'image/jpg':
                         extensao = '.jpg'
                     else:
-                        extensao = ''  # Define uma extensão padrão se não houver
+                        extensao = '.pdf'  # Define PDF como padrão se não houver Content-Type
 
                     # Configura o nome do arquivo de download
                     nome_arquivo = f"{registro.matricula}_{registro.data.strftime('%Y-%m')}_{registro.folha_assinada.name}{extensao}"
