@@ -22,8 +22,7 @@ from io import BytesIO
 import os
 from django.conf import settings
 import logging
-from cloudinary import CloudinaryImage  # Certifique-se de ter essa importação
-import requests
+import cloudinary.uploader
 
 
 
@@ -44,21 +43,22 @@ def criar_arquivo_zip(request, queryset):
             for registro in queryset:
                 if registro.folha_assinada:
                     try:
-                        # Tente obter o caminho do arquivo
-                        arquivo_path = registro.folha_assinada.path
-                        logging.info(f"Tentando adicionar arquivo: {arquivo_path}")
+                        # Tente obter o URL do arquivo no Cloudinary
+                        arquivo_url = registro.folha_assinada.url
+                        logging.info(f"Tentando adicionar arquivo: {arquivo_url}")
 
-                        # Verifica se o arquivo existe
-                        if os.path.exists(arquivo_path):
+                        # Baixa o arquivo do Cloudinary
+                        response = cloudinary.uploader.download(arquivo_url)
+                        if response:
                             # Nome do arquivo no ZIP (com base na matrícula e no mês)
-                            nome_arquivo_zip = f"{registro.matricula}_{registro.data.strftime('%Y-%m')}_{os.path.basename(arquivo_path)}"
+                            nome_arquivo_zip = f"{registro.matricula}_{registro.data.strftime('%Y-%m')}_{os.path.basename(arquivo_url)}"
 
                             # Adiciona o arquivo ao zip
-                            zip_file.write(arquivo_path, nome_arquivo_zip)
+                            zip_file.writestr(nome_arquivo_zip, response.content)
                             arquivos_adicionados += 1  # Incrementa o contador
                         else:
-                            logging.error(f"O arquivo não existe: {arquivo_path}")
-                            messages.warning(request, f'O arquivo {arquivo_path} não pôde ser encontrado.')
+                            logging.error(f"Erro ao baixar o arquivo: {arquivo_url}")
+                            messages.warning(request, f'O arquivo {arquivo_url} não pôde ser baixado.')
 
                     except Exception as e:
                         logging.error(f"Erro ao adicionar arquivo {registro.folha_assinada.name} ao ZIP: {str(e)}")
@@ -83,7 +83,6 @@ def criar_arquivo_zip(request, queryset):
         logging.error(f"Erro ao criar o arquivo ZIP: {str(e)}")
         messages.error(request, 'Erro ao criar o arquivo ZIP. Tente novamente mais tarde.')
         return HttpResponse(status=500)  # Retorna um status de erro
-
 
 
 #DEF BUSCAR NOME DE SERVIDOR
