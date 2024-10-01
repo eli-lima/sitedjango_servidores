@@ -15,7 +15,10 @@ def upload_to_ajuda_custo(instance, filename):
     pasta_matricula = f'{instance.matricula}/'
 
     # Adiciona a pasta raiz 'ajuda_custo' antes do resto do caminho
-    caminho_completo = os.path.join('ajuda_custo', data_formatada, pasta_matricula, filename)
+    caminho_completo = f'ajuda_custo/{data_formatada}/{pasta_matricula}{filename}'
+
+    # Adiciona um print para verificar o caminho gerado
+    print(f"Path gerado para upload: {caminho_completo}")
 
     return caminho_completo
 

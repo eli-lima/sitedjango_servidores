@@ -483,6 +483,11 @@ class AjudaCustoAdicionar(LoginRequiredMixin, FormView):
 
             # Fora do loop, salvamos o arquivo apenas uma vez para o mês
             if folha_assinada:
+
+                if folha_assinada:
+                    print(f"Arquivo recebido: {folha_assinada.name}")  # Verifica o nome do arquivo recebido
+                else:
+                    print("Nenhum arquivo foi enviado.")
                 if ajuda_custo_existente:
                     # Se já havia um registro anterior, substituímos o arquivo
                     ajuda_custo_existente.folha_assinada = folha_assinada
