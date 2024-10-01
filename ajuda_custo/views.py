@@ -44,13 +44,14 @@ def criar_arquivo_zip(request, queryset):
                 # Baixa o arquivo do Cloudinary
                 arquivo_resposta = requests.get(arquivo_url)
                 if arquivo_resposta.status_code == 200:
-                    # Obtém a extensão do arquivo
-                    extensao = os.path.splitext(arquivo_url)[1]
+                    # Obtém a extensão do arquivo a partir da URL
+                    nome_arquivo_original = os.path.basename(arquivo_url)
+                    extensao = os.path.splitext(nome_arquivo_original)[1]
                     if not extensao:
                         extensao = '.pdf'  # Define uma extensão padrão se não houver
 
                     # Configura o nome do arquivo de download
-                    nome_arquivo = f"{registro.matricula}_{registro.data.strftime('%Y-%m')}_{os.path.basename(arquivo_url)}{extensao}"
+                    nome_arquivo = f"{registro.matricula}_{registro.data.strftime('%Y-%m')}_{nome_arquivo_original}"
 
                     # Cria uma resposta HTTP com o conteúdo do arquivo
                     response = HttpResponse(arquivo_resposta.content, content_type='application/octet-stream')
