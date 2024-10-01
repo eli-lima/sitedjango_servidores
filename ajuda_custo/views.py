@@ -305,7 +305,7 @@ class AjudaCusto(LoginRequiredMixin, ListView):
     model = Ajuda_Custo
     template_name = "ajuda_custo.html"
     context_object_name = 'datas'
-    paginate_by = 10  # Quantidade de registros por página
+    paginate_by = 20  # Quantidade de registros por página
 
     def get_queryset(self):
         # Captura os parâmetros de pesquisa
@@ -649,7 +649,7 @@ class HorasLimite(LoginRequiredMixin, UserPassesTestMixin, FormView ):
             cargas = LimiteAjudaCusto.objects.all()
 
         # Adiciona a paginação
-        paginator = Paginator(cargas, 10)  # Mostra 10 registros por página
+        paginator = Paginator(cargas, 20)  # Mostra 10 registros por página
         page_number = self.request.GET.get('page')
         page_obj = paginator.get_page(page_number)
 
