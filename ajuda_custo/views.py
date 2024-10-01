@@ -34,35 +34,50 @@ import requests
 # def baixar zip arquivos assinados
 
 def criar_arquivo_zip(request, queryset):
+    # Cria um buffer de memória para o arquivo zip
+    buffer = BytesIO()
+
     try:
-        for registro in queryset:
-            if registro.folha_assinada:
-                # Obtém a URL do arquivo armazenado no Cloudinary
-                arquivo_url = registro.folha_assinada.url
-                logging.info(f"Tentando baixar arquivo: {arquivo_url}")
+        # Cria o arquivo zip em memória
+        with zipfile.ZipFile(buffer, 'w') as zip_file:
+            for registro in queryset:
+                if registro.folha_assinada:
+                    try:
+                        # Obtém a URL do arquivo armazenado no Cloudinary
+                        arquivo_url = registro.folha_assinada.url
 
-                # Baixa o arquivo do Cloudinary
-                arquivo_resposta = requests.get(arquivo_url)
-                if arquivo_resposta.status_code == 200:
-                    # Assume que todos os arquivos são PDFs
-                    extensao = '.pdf'
+                        # Adiciona o arquivo a partir da URL
+                        arquivo_resposta = requests.get(arquivo_url)
 
-                    # Configura o nome do arquivo de download
-                    nome_arquivo = f"{registro.matricula}_{registro.data.strftime('%Y-%m')}_{registro.folha_assinada.name}{extensao}"
+                        if arquivo_resposta.status_code == 200:
+                            # Nome do arquivo no ZIP (com base na matrícula e no mês)
+                            nome_arquivo_zip = f"{registro.matricula}_{registro.data.strftime('%Y-%m')}_{os.path.basename(arquivo_url)}"
 
-                    # Cria uma resposta HTTP com o conteúdo do arquivo
-                    response = HttpResponse(arquivo_resposta.content, content_type='application/pdf')
-                    response['Content-Disposition'] = f'attachment; filename={nome_arquivo}'
+                            # Escreve o conteúdo do arquivo na memória
+                            zip_file.writestr(nome_arquivo_zip, arquivo_resposta.content)
+                        else:
+                            logging.error(f"Erro ao acessar o arquivo {registro.folha_assinada.name} no Cloudinary.")
+                            messages.warning(request, f'Arquivo {registro.folha_assinada.name} não pôde ser acessado.')
 
-                    return response
-                else:
-                    logging.error(f"Erro ao acessar o arquivo {registro.folha_assinada.name} no Cloudinary.")
-                    messages.warning(request, f'Arquivo {registro.folha_assinada.name} não pôde ser acessado.')
-                    return HttpResponse(status=404)  # Retorna um status de não encontrado
+                    except Exception as e:
+                        logging.error(f"Erro ao adicionar arquivo {registro.folha_assinada.name} ao ZIP: {str(e)}")
+                        messages.warning(request, f'Arquivo {registro.folha_assinada.name} não pôde ser adicionado ao ZIP.')
+
+        # Configura o ponteiro do buffer para o início do arquivo
+        buffer.seek(0)
+
+        # Configura o nome do arquivo de download
+        filename = "arquivos_assinados.zip"
+
+        # Cria uma resposta HTTP com o tipo de conteúdo para download de arquivos ZIP
+        response = HttpResponse(buffer, content_type='application/zip')
+        response['Content-Disposition'] = f'attachment; filename={filename}'
+
+        return response
 
     except Exception as e:
-        logging.error(f"Erro ao baixar o arquivo {registro.folha_assinada.name}: {str(e)}")
-        messages.error(request, 'Erro ao baixar o arquivo. Tente novamente mais tarde.')
+        logging.error(f"Erro ao criar o arquivo ZIP: {str(e)}")
+        messages.error(request, 'Erro ao criar o arquivo ZIP. Tente novamente mais tarde.')
         return HttpResponse(status=500)  # Retorna um status de erro
 
 
