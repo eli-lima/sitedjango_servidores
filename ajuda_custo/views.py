@@ -21,6 +21,7 @@ import zipfile
 from io import BytesIO
 import os
 from django.conf import settings
+import logging
 
 
 
@@ -513,95 +514,84 @@ class AdminCadastrar(LoginRequiredMixin, UserPassesTestMixin, FormView):
 
     def test_func(self):
         user = self.request.user
-        # Define os grupos permitidos
         grupos_permitidos = ['Administrador', 'GerGesipe']
-        # Retorna True se o usuário pertence a pelo menos um dos grupos
         return user.groups.filter(name__in=grupos_permitidos).exists()
-
-        # Levanta exceção em caso de falta de permissão
 
     def handle_no_permission(self):
         messages.error(self.request, "Você não tem permissão para acessar esta página.")
-        return render(self.request, '403.html', status=403)  # Substitua '404.html' pelo nome do seu template
+        return render(self.request, '403.html', status=403)
 
     def form_valid(self, form):
-        mes = form.cleaned_data['mes']
-        ano = form.cleaned_data['ano']
-        unidade = form.cleaned_data['unidade']
-        dias_12h = form.cleaned_data['dias_12h']
-        dias_24h = form.cleaned_data['dias_24h']
-
-        dias_12h_list = [dia.strip() for dia in dias_12h.split(',') if dia.strip()]
-        dias_24h_list = [dia.strip() for dia in dias_24h.split(',') if dia.strip()]
-
-        # Pegando a matrícula do campo do formulário (presumindo que o campo seja 'matricula')
-        matricula = self.request.POST.get('matricula')
-
-        # Obtém o servidor com base na matrícula fornecida no formulário
         try:
+            mes = form.cleaned_data['mes']
+            ano = form.cleaned_data['ano']
+            unidade = form.cleaned_data['unidade']
+            dias_12h = form.cleaned_data['dias_12h']
+            dias_24h = form.cleaned_data['dias_24h']
+
+            dias_12h_list = [dia.strip() for dia in dias_12h.split(',') if dia.strip()]
+            dias_24h_list = [dia.strip() for dia in dias_24h.split(',') if dia.strip()]
+
+            matricula = self.request.POST.get('matricula')
             servidor = Servidor.objects.get(matricula=matricula)
+
+            mes_int = int(mes)
+            ano_int = int(ano)
+
+            for dia in dias_12h_list + dias_24h_list:
+                try:
+                    data_completa = datetime.strptime(f"{dia}/{mes}/{ano}", "%d/%m/%Y").date()
+
+                    if Ajuda_Custo.objects.filter(matricula=servidor.matricula, data=data_completa).exists():
+                        messages.error(self.request, f'O servidor já possui uma entrada para {dia}/{mes}/{ano}.')
+                        return redirect(self.success_url)
+
+                    inicio_do_mes = data_completa.replace(day=1)
+                    fim_do_mes = (inicio_do_mes + timedelta(days=31)).replace(day=1) - timedelta(days=1)
+
+                    registros_mes = Ajuda_Custo.objects.filter(
+                        matricula=servidor.matricula,
+                        data__range=[inicio_do_mes, fim_do_mes]
+                    )
+
+                    total_horas_mes = sum(12 if reg.carga_horaria == '12 horas' else 24 for reg in registros_mes)
+                    horas_a_adicionar = 12 if dia in dias_12h_list else 24
+
+                    if total_horas_mes + horas_a_adicionar > 192:
+                        messages.error(self.request, f'Limite de 192 horas mensais excedido para {dia}/{mes}/{ano}.')
+                        return redirect(self.success_url)
+
+                    majorado = DataMajorada.objects.filter(data=data_completa).exists()
+
+                    ajuda_custo = Ajuda_Custo(
+                        matricula=servidor.matricula,
+                        nome=servidor.nome,
+                        data=data_completa,
+                        unidade=unidade,
+                        carga_horaria='12 horas' if dia in dias_12h_list else '24 horas',
+                        majorado=majorado
+                    )
+                    ajuda_custo.save()
+
+                except ValueError:
+                    messages.error(self.request, f'Erro: Data inválida - {dia}/{mes}/{ano}')
+                    return redirect(self.success_url)
+
+            messages.success(self.request, 'Datas adicionadas com sucesso!')
+            return super().form_valid(form)
+
         except Servidor.DoesNotExist:
             messages.error(self.request, 'Erro: Servidor não encontrado.')
             return redirect(self.success_url)
 
-        mes_int = int(mes)
-        ano_int = int(ano)
-
-        # Verifica o total de horas mensais antes de adicionar cada registro
-        for dia in dias_12h_list + dias_24h_list:
-            try:
-                data_completa = datetime.strptime(f"{dia}/{mes}/{ano}", "%d/%m/%Y").date()
-
-                # Verifique se o servidor já marcou essa data, independentemente da carga horária
-                if Ajuda_Custo.objects.filter(matricula=servidor.matricula, data=data_completa).exists():
-                    messages.error(self.request, f'O servidor já possui uma entrada para {dia}/{mes}/{ano}.')
-                    return redirect(self.success_url)
-
-                inicio_do_mes = data_completa.replace(day=1)
-                fim_do_mes = (inicio_do_mes + timedelta(days=31)).replace(day=1) - timedelta(days=1)
-
-                registros_mes = Ajuda_Custo.objects.filter(
-                    matricula=servidor.matricula,
-                    data__range=[inicio_do_mes, fim_do_mes]
-                )
-
-                total_horas_mes = 0
-                for registro in registros_mes:
-                    if registro.carga_horaria == '12 horas':
-                        total_horas_mes += 12
-                    elif registro.carga_horaria == '24 horas':
-                        total_horas_mes += 24
-
-                horas_a_adicionar = 12 if dia in dias_12h_list else 24
-
-                if total_horas_mes + horas_a_adicionar > 192:
-                    messages.error(self.request, f'Limite de 192 horas mensais excedido para {dia}/{mes}/{ano}.')
-                    return redirect(self.success_url)
-
-                majorado = DataMajorada.objects.filter(data=data_completa).exists()
-
-                ajuda_custo = Ajuda_Custo(
-                    matricula=servidor.matricula,
-                    nome=servidor.nome,
-                    data=data_completa,
-                    unidade=unidade,
-                    carga_horaria='12 horas' if dia in dias_12h_list else '24 horas',
-                    majorado=majorado
-                )
-                ajuda_custo.save()
-
-            except ValueError:
-                messages.error(self.request, f'Erro: Data inválida - {dia}/{mes}/{ano}')
-                return redirect(self.success_url)
-
-        messages.success(self.request, 'Datas adicionadas com sucesso!')
-        return super().form_valid(form)
+        except Exception as e:
+            logging.error(f"Erro ao adicionar Ajuda_Custo: {str(e)}")
+            messages.error(self.request, f'Erro: {str(e)}')
+            return redirect(self.success_url)
 
     def form_invalid(self, form):
         messages.error(self.request, 'Erro no Cadastro, Confira os Dados e Tente Novamente.')
         return super().form_invalid(form)
-
-
 class HorasLimite(LoginRequiredMixin, UserPassesTestMixin, FormView ):
     model = LimiteAjudaCusto
     form_class = LimiteAjudaCustoForm
