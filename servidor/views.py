@@ -364,7 +364,7 @@ class RelatorioRh(LoginRequiredMixin, ListView):
     model = Servidor
     template_name = "relatorio_rh.html"
     context_object_name = 'servidores'
-    paginate_by = 10
+    paginate_by = 20
 
     def get_queryset(self):
         queryset = Servidor.objects.all()
