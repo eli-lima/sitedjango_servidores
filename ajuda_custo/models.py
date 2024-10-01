@@ -55,6 +55,7 @@ class Ajuda_Custo(models.Model):
 
 
 
+
     def __str__(self):
         return f"{self.nome} - {self.data.strftime('%d/%m/%Y')}"
 
