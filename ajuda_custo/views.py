@@ -36,6 +36,7 @@ import requests
 def criar_arquivo_zip(request, queryset):
     # Cria um buffer de memória para o arquivo zip
     buffer = BytesIO()
+    arquivos_adicionados = 0  # Contador para arquivos adicionados
 
     try:
         # Cria o arquivo zip em memória
@@ -43,19 +44,28 @@ def criar_arquivo_zip(request, queryset):
             for registro in queryset:
                 if registro.folha_assinada:
                     try:
-                        # Caminho completo do arquivo no sistema de arquivos
+                        # Tente obter o caminho do arquivo
                         arquivo_path = registro.folha_assinada.path
+                        logging.info(f"Tentando adicionar arquivo: {arquivo_path}")
 
-                        # Verifica a extensão do arquivo
-                        extensao = os.path.splitext(arquivo_path)[1]  # Obtém a extensão do arquivo original
-                        nome_arquivo_zip = f"{registro.matricula}_{registro.data.strftime('%Y-%m')}_{os.path.basename(arquivo_path)}"
+                        # Verifica se o arquivo existe
+                        if os.path.exists(arquivo_path):
+                            # Nome do arquivo no ZIP (com base na matrícula e no mês)
+                            nome_arquivo_zip = f"{registro.matricula}_{registro.data.strftime('%Y-%m')}_{os.path.basename(arquivo_path)}"
 
-                        # Adiciona o arquivo ao zip
-                        zip_file.write(arquivo_path, nome_arquivo_zip)
+                            # Adiciona o arquivo ao zip
+                            zip_file.write(arquivo_path, nome_arquivo_zip)
+                            arquivos_adicionados += 1  # Incrementa o contador
+                        else:
+                            logging.error(f"O arquivo não existe: {arquivo_path}")
+                            messages.warning(request, f'O arquivo {arquivo_path} não pôde ser encontrado.')
 
                     except Exception as e:
                         logging.error(f"Erro ao adicionar arquivo {registro.folha_assinada.name} ao ZIP: {str(e)}")
                         messages.warning(request, f'Arquivo {registro.folha_assinada.name} não pôde ser adicionado ao ZIP.')
+
+        # Log de quantos arquivos foram adicionados
+        logging.info(f"Total de arquivos adicionados ao ZIP: {arquivos_adicionados}")
 
         # Configura o ponteiro do buffer para o início do arquivo
         buffer.seek(0)
