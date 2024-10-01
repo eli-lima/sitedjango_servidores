@@ -6,9 +6,6 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('ajuda_custo', '0002_remove_ajuda_custo_folha_assinada'),
-    ]
 
     operations = [
         migrations.AddField(
