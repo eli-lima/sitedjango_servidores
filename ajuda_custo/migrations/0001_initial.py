@@ -10,9 +10,7 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-        ('servidor', '0003_alter_servidor_local_trabalho'),
-    ]
+
 
     operations = [
         migrations.CreateModel(
