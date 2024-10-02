@@ -62,11 +62,17 @@ def criar_arquivo_zip(request, queryset):
                             else:
                                 extensao = '.pdf'  # Define PDF como padrão se não houver Content-Type
 
+                            # Configura o nome da pasta no ZIP (mês e ano)
+                            pasta_nome = registro.data.strftime('%m-%Y')
+
                             # Configura o nome do arquivo no ZIP
-                            nome_arquivo_zip = f"{registro.matricula}_{registro.data.strftime('%Y-%m')}_{registro.folha_assinada.name}{extensao}"
+                            nome_arquivo_zip = f"{registro.matricula}_{registro.data.strftime('%Y-%m')}{extensao}"
+
+                            # Caminho completo dentro do ZIP
+                            caminho_no_zip = os.path.join(pasta_nome, nome_arquivo_zip)
 
                             # Adiciona o arquivo ao zip
-                            zip_file.writestr(nome_arquivo_zip, arquivo_resposta.content)
+                            zip_file.writestr(caminho_no_zip, arquivo_resposta.content)
                             arquivos_adicionados += 1  # Incrementa o contador
                         else:
                             logging.error(f"Erro ao acessar o arquivo {registro.folha_assinada.name} no Cloudinary.")
