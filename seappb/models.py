@@ -42,6 +42,12 @@ class Usuario(AbstractUser):
     first_name = None
     last_name = None
 
+    def save(self, *args, **kwargs):
+        # Converte o nome completo para maiúsculas
+        if self.nome_completo:
+            self.nome_completo = self.nome_completo.upper()
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.username
 
