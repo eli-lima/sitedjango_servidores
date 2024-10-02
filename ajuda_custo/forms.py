@@ -122,3 +122,7 @@ class LimiteAjudaCustoForm(forms.ModelForm):
 
 def teste():
     pass
+
+
+def teste2():
+    pass
