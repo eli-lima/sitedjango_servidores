@@ -34,51 +34,47 @@ import requests
 # def baixar zip arquivos assinados
 
 def criar_arquivo_zip(request, queryset):
-    # Cria um buffer de memória para o arquivo zip
-    buffer = BytesIO()
+    # Verifica se a queryset tem registros
+    if not queryset.exists():
+        messages.error(request, 'Nenhum registro encontrado.')
+        return HttpResponse(status=404)
+
+    # Obtém o primeiro registro da queryset
+    registro = queryset.first()
+
+    # Verifica se o registro tem uma folha assinada
+    if not registro.folha_assinada:
+        messages.error(request, 'O registro não contém um arquivo para download.')
+        return HttpResponse(status=404)
 
     try:
-        # Cria o arquivo zip em memória
-        with zipfile.ZipFile(buffer, 'w') as zip_file:
-            for registro in queryset:
-                if registro.folha_assinada:
-                    try:
-                        # Obtém a URL do arquivo armazenado no Cloudinary
-                        arquivo_url = registro.folha_assinada.url
+        # Obtém a URL do arquivo armazenado no Cloudinary
+        arquivo_url = registro.folha_assinada.url
 
-                        # Adiciona o arquivo a partir da URL
-                        arquivo_resposta = requests.get(arquivo_url)
+        # Baixa o arquivo a partir da URL
+        arquivo_resposta = requests.get(arquivo_url, stream=True)
 
-                        if arquivo_resposta.status_code == 200:
-                            # Nome do arquivo no ZIP (com base na matrícula e no mês)
-                            nome_arquivo_zip = f"{registro.matricula}_{registro.data.strftime('%Y-%m')}_{os.path.basename(arquivo_url)}"
+        if arquivo_resposta.status_code == 200:
+            # Obtém o nome do arquivo original com a extensão
+            nome_arquivo_origem = os.path.basename(arquivo_url)
 
-                            # Escreve o conteúdo do arquivo na memória
-                            zip_file.writestr(nome_arquivo_zip, arquivo_resposta.content)
-                        else:
-                            logging.error(f"Erro ao acessar o arquivo {registro.folha_assinada.name} no Cloudinary.")
-                            messages.warning(request, f'Arquivo {registro.folha_assinada.name} não pôde ser acessado.')
+            # Cria uma resposta HTTP para download do arquivo
+            response = HttpResponse(arquivo_resposta.content, content_type=arquivo_resposta.headers['Content-Type'])
+            response['Content-Disposition'] = f'attachment; filename={nome_arquivo_origem}'
 
-                    except Exception as e:
-                        logging.error(f"Erro ao adicionar arquivo {registro.folha_assinada.name} ao ZIP: {str(e)}")
-                        messages.warning(request, f'Arquivo {registro.folha_assinada.name} não pôde ser adicionado ao ZIP.')
-
-        # Configura o ponteiro do buffer para o início do arquivo
-        buffer.seek(0)
-
-        # Configura o nome do arquivo de download
-        filename = "arquivos_assinados.zip"
-
-        # Cria uma resposta HTTP com o tipo de conteúdo para download de arquivos ZIP
-        response = HttpResponse(buffer, content_type='application/zip')
-        response['Content-Disposition'] = f'attachment; filename={filename}'
-
-        return response
+            return response
+        else:
+            logging.error(
+                f"Erro ao acessar o arquivo {registro.folha_assinada.name} no Cloudinary (Status: {arquivo_resposta.status_code}).")
+            messages.error(request, f"Erro ao acessar o arquivo {registro.folha_assinada.name}.")
+            return HttpResponse(status=404)
 
     except Exception as e:
-        logging.error(f"Erro ao criar o arquivo ZIP: {str(e)}")
-        messages.error(request, 'Erro ao criar o arquivo ZIP. Tente novamente mais tarde.')
-        return HttpResponse(status=500)  # Retorna um status de erro
+        logging.error(f"Erro ao baixar o arquivo {registro.folha_assinada.name}: {str(e)}")
+        messages.error(request, f"Erro ao baixar o arquivo {registro.folha_assinada.name}.")
+        return HttpResponse(status=500)
+
+
 
 
 
