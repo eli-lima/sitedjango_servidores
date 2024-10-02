@@ -111,3 +111,8 @@ class LimiteAjudaCustoForm(forms.ModelForm):
             'limite_horas': forms.NumberInput(attrs={'placeholder': 'Digite o limite em horas'}),
             'servidor': forms.Select(attrs={'placeholder': 'Selecione o servidor'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super(LimiteAjudaCustoForm, self).__init__(*args, **kwargs)
+        # Ordena a lista de servidores por nome
+        self.fields['servidor'].queryset = self.fields['servidor'].queryset.order_by('nome')
