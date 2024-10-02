@@ -700,12 +700,12 @@ class HorasLimite(LoginRequiredMixin, UserPassesTestMixin, FormView ):
         if query:
             cargas = LimiteAjudaCusto.objects.filter(
                 Q(servidor__nome__icontains=query) | Q(servidor__matricula__icontains=query)
-            )
+            ).order_by('servidor__nome')  # Ordena os servidores por nome
         else:
-            cargas = LimiteAjudaCusto.objects.all()
+            cargas = LimiteAjudaCusto.objects.all().order_by('servidor__nome')  # Ordena os servidores por nome
 
         # Adiciona a paginação
-        paginator = Paginator(cargas, 20)  # Mostra 10 registros por página
+        paginator = Paginator(cargas, 20)  # Mostra 20 registros por página
         page_number = self.request.GET.get('page')
         page_obj = paginator.get_page(page_number)
 
