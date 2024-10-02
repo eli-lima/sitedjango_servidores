@@ -34,45 +34,44 @@ import requests
 # def baixar zip arquivos assinados
 
 def criar_arquivo_zip(request, queryset):
-    # Verifica se a queryset tem registros
-    if not queryset.exists():
-        messages.error(request, 'Nenhum registro encontrado.')
-        return HttpResponse(status=404)
-
-    # Obtém o primeiro registro da queryset
-    registro = queryset.first()
-
-    # Verifica se o registro tem uma folha assinada
-    if not registro.folha_assinada:
-        messages.error(request, 'O registro não contém um arquivo para download.')
-        return HttpResponse(status=404)
-
     try:
-        # Obtém a URL do arquivo armazenado no Cloudinary
-        arquivo_url = registro.folha_assinada.url
+        for registro in queryset:
+            if registro.folha_assinada:
+                # Obtém a URL do arquivo armazenado no Cloudinary
+                arquivo_url = registro.folha_assinada.url
+                logging.info(f"Tentando baixar arquivo: {arquivo_url}")
 
-        # Baixa o arquivo a partir da URL
-        arquivo_resposta = requests.get(arquivo_url, stream=True)
+                # Baixa o arquivo do Cloudinary
+                arquivo_resposta = requests.get(arquivo_url)
+                if arquivo_resposta.status_code == 200:
+                    # Determina a extensão do arquivo a partir do Content-Type
+                    content_type = arquivo_resposta.headers.get('Content-Type')
+                    if content_type == 'application/pdf':
+                        extensao = '.pdf'
+                    elif content_type == 'image/jpeg':
+                        extensao = '.jpeg'
+                    elif content_type == 'image/jpg':
+                        extensao = '.jpg'
+                    else:
+                        extensao = '.pdf'  # Define PDF como padrão se não houver Content-Type
 
-        if arquivo_resposta.status_code == 200:
-            # Obtém o nome do arquivo original com a extensão
-            nome_arquivo_origem = os.path.basename(arquivo_url)
+                    # Configura o nome do arquivo de download
+                    nome_arquivo = f"{registro.matricula}_{registro.data.strftime('%Y-%m')}_{registro.folha_assinada.name}{extensao}"
 
-            # Cria uma resposta HTTP para download do arquivo
-            response = HttpResponse(arquivo_resposta.content, content_type=arquivo_resposta.headers['Content-Type'])
-            response['Content-Disposition'] = f'attachment; filename={nome_arquivo_origem}'
+                    # Cria uma resposta HTTP com o conteúdo do arquivo
+                    response = HttpResponse(arquivo_resposta.content, content_type='application/octet-stream')
+                    response['Content-Disposition'] = f'attachment; filename={nome_arquivo}'
 
-            return response
-        else:
-            logging.error(
-                f"Erro ao acessar o arquivo {registro.folha_assinada.name} no Cloudinary (Status: {arquivo_resposta.status_code}).")
-            messages.error(request, f"Erro ao acessar o arquivo {registro.folha_assinada.name}.")
-            return HttpResponse(status=404)
+                    return response
+                else:
+                    logging.error(f"Erro ao acessar o arquivo {registro.folha_assinada.name} no Cloudinary.")
+                    messages.warning(request, f'Arquivo {registro.folha_assinada.name} não pôde ser acessado.')
+                    return HttpResponse(status=404)  # Retorna um status de não encontrado
 
     except Exception as e:
         logging.error(f"Erro ao baixar o arquivo {registro.folha_assinada.name}: {str(e)}")
-        messages.error(request, f"Erro ao baixar o arquivo {registro.folha_assinada.name}.")
-        return HttpResponse(status=500)
+        messages.error(request, 'Erro ao baixar o arquivo. Tente novamente mais tarde.')
+        return HttpResponse(status=500)  # Retorna um status de erro
 
 
 
