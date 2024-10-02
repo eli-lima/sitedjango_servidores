@@ -31,16 +31,16 @@ Ajuda de Custo
                 <form method="GET">
                     <div class="mt-4 px-0 flex flex-row justify-between w-full">
                         <div class="flex space-x-4 items-center">
-                            <button type="submit" name="action" value="export_excel" class="btn btn-success">Excel Resumido</button>
-                            <button type="submit" name="action" value="excel_detalhado" class="btn btn-danger">Excel Detalhado</button>
-                            <button type="submit" name="action" value="arquivos_assinados" class="btn btn-warning">Arquivos Assinados</button>
+                            <a href="#"><button type="submit" name="action" value="export_excel" class="btn btn-success">Excel Resumido</button></a>
+                            <a href="#"><button type="submit" name="action" value="excel_detalhado" class="btn btn-danger">Excel Detalhado</button></a>
+                            <a href="#"><button type="submit" name="action" value="arquivos_assinados" class="btn btn-warning">Arquivos Assinados</button></a>
                         </div>
 
                         <div class="flex flex-row">
-                            <input class="form-input w-full sm:w-auto sm:ml-4 p-1.5 rounded-md border-1 border-gray-600" type="date" name="dataInicial" id="dataInicial" value="{{ dataInicial }}">
-                            <input class="form-input w-full sm:w-auto sm:ml-4 p-1.5 rounded-md border-1 border-gray-600" type="date" name="dataFinal" id="dataFinal" value="{{ dataFinal }}">
-                            <input type="text" name="query" id="searchInput" class="form-input w-full sm:w-auto sm:ml-4 p-1.5 rounded-md border-1 border-gray-600" placeholder="Pesquisar..." value="{{ query }}">
-                            <button type="submit" name="action" value="search" class="btn btn-primary">Pesquisar</button>
+                            <input class="form-input w-full sm:w-auto sm:ml-2 p-1.5 rounded-md border-1 border-gray-600" type="date" name="dataInicial" id="dataInicial" value="{{ dataInicial }}">
+                            <input class="form-input w-full sm:w-auto sm:ml-2 p-1.5 rounded-md border-1 border-gray-600" type="date" name="dataFinal" id="dataFinal" value="{{ dataFinal }}">
+                            <input type="text" name="query" id="searchInput" class="form-input w-full sm:w-auto sm:ml-2 p-1.5 rounded-md border-1 border-gray-600" placeholder="Pesquisar..." value="{{ query }}">
+                            <button type="submit" name="action" value="search" id="searchButton" class="ml-2 btn btn-primary">Pesquisar</button>
                         </div>
                     </div>
                 </form>
@@ -114,6 +114,20 @@ Ajuda de Custo
         </div>
     </div>
 </div>
+
+<script>
+    function handleEnterKey(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault(); // Impede o comportamento padrão do Enter
+            document.getElementById('searchButton').click(); // Simula o clique no botão "Pesquisar"
+        }
+    }
+
+    document.getElementById('searchInput').addEventListener('keypress', handleEnterKey);
+    document.getElementById('dataInicial').addEventListener('keypress', handleEnterKey);
+    document.getElementById('dataFinal').addEventListener('keypress', handleEnterKey);
+</script>
+
 
 
 {% endblock %}
