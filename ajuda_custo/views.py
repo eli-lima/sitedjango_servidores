@@ -147,6 +147,9 @@ def exportar_excel(request):
     elif data_final:
         queryset = queryset.filter(data__lte=data_final)
 
+    # Adicionando um print para verificar o queryset
+    print(f"Queryset após filtros: {queryset}")
+
     # Processar os resultados em um dicionário
     dados_matriculas = {}
     for item in queryset:
@@ -156,12 +159,16 @@ def exportar_excel(request):
         data = item.data
         majorado = item.majorado
 
+        # Adicionando prints para verificar os valores
+        print(
+            f"Processando: Matrícula={matricula}, Nome={nome}, Carga Horária={carga_horaria}, Data={data}, Majorado={majorado}")
+
         if matricula not in dados_matriculas:
             dados_matriculas[matricula] = {'Matrícula': matricula, 'Nome': nome, 'Carga Horária Total': 0,
                                            'Horas Majoradas': 0, 'Horas Normais': 0, 'Total': 0,
                                            'Datas 12 Horas': [], 'Datas 24 Horas': [], '12h': 0, '24h': 0}
 
-        if carga_horaria == '12_horas':
+        if carga_horaria == '12 horas':
             dados_matriculas[matricula]['Datas 12 Horas'].append(pd.to_datetime(data))
             dados_matriculas[matricula]['Carga Horária Total'] += 12
             if majorado:
@@ -171,7 +178,7 @@ def exportar_excel(request):
                 dados_matriculas[matricula]['Horas Normais'] += 12
                 dados_matriculas[matricula]['12h'] += 1
 
-        elif carga_horaria == '24_horas':
+        elif carga_horaria == '24 horas':
             dados_matriculas[matricula]['Datas 24 Horas'].append(pd.to_datetime(data))
             dados_matriculas[matricula]['Carga Horária Total'] += 24
             if majorado:
@@ -181,17 +188,23 @@ def exportar_excel(request):
                 dados_matriculas[matricula]['Horas Normais'] += 24
                 dados_matriculas[matricula]['24h'] += 1
 
+        # Adicionando um print para verificar o total calculado
+        print(f"Dados acumulados para {matricula}: {dados_matriculas[matricula]}")
+
         # Calcular o total de horas
         dados_matriculas[matricula]['Total'] = "{:07d}".format(
             int(f"{dados_matriculas[matricula]['Horas Majoradas']:03d}{dados_matriculas[matricula]['Horas Normais']:03d}")
         )
+
+    # Adicionando um print para verificar o dicionário final
+    print(f"Dados finais processados: {dados_matriculas}")
 
     # Criar um DataFrame com os dados processados
     df = pd.DataFrame(list(dados_matriculas.values()))
 
     # Exportar para Excel com openpyxl
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename=relatorio_ajuda_custo.xlsx'
+    response['Content-Disposition'] = 'attachment; filename=ajuda_custo_resumo.xlsx'
 
     # Criar uma nova planilha Excel
     wb = Workbook()
@@ -200,7 +213,8 @@ def exportar_excel(request):
 
     # Adicionar o período de datas no topo da planilha
     ws.merge_cells('A1:J1')
-    ws['A1'] = f"Período: {data_inicial.strftime('%d/%m/%Y')} a {data_final.strftime('%d/%m/%Y')}" if data_inicial and data_final else 'Período: Todos os Dados'
+    ws[
+        'A1'] = f"Período: {data_inicial.strftime('%d/%m/%Y')} a {data_final.strftime('%d/%m/%Y')}" if data_inicial and data_final else 'Período: Todos os Dados'
 
     # Adicionar os cabeçalhos das colunas
     cabecalhos = ['Matrícula', 'Nome', 'Carga Horária Total', 'Horas Majoradas', 'Horas Normais', 'Total',
@@ -211,7 +225,7 @@ def exportar_excel(request):
     def formatar_datas_em_linhas(datas):
         linhas = []
         for i in range(0, len(datas), 3):  # Agrupa a cada 3 datas
-            linhas.append(', '.join(datas[i:i+3]))
+            linhas.append(', '.join(datas[i:i + 3]))
         return '\n'.join(linhas)  # Junta as linhas com quebra de linha
 
     # Adicionar os dados do DataFrame na planilha
@@ -293,7 +307,7 @@ def excel_detalhado(request):
         cpf = ''  # Deixe a coluna de CPF em branco se não disponível
         data = item.data.strftime('%d/%m/%Y')
 
-        if item.carga_horaria == '12_horas':
+        if item.carga_horaria == '12 horas':
             carga_horaria = '12 horas'
         else:
             carga_horaria = '24 horas'
@@ -342,7 +356,7 @@ def excel_detalhado(request):
 
     # Salvar a planilha no response
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename=relatorio_ajuda_custo.xlsx'
+    response['Content-Disposition'] = 'attachment; filename=ajuda_custo_detalhado.xlsx'
     wb.save(response)
 
     return response
