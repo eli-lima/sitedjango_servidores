@@ -59,7 +59,7 @@ def atualizar_majorado_ao_remover(sender, instance, **kwargs):
 
 
 class LimiteAjudaCusto(models.Model):
-    servidor = models.ForeignKey('servidor.Servidor', on_delete=models.CASCADE, null=True, blank=False)
+    servidor = models.ForeignKey('servidor.Servidor', on_delete=models.CASCADE)
     limite_horas = models.IntegerField()  # Limite de horas mensais para o servidor
 
     def __str__(self):
