@@ -29,7 +29,7 @@ def user_directory_path(instance, filename):
     filename = f'{instance.matricula}_{slugify(instance.nome_completo)}.{ext}'
 
     # Retorna o caminho para ser usado no Cloudinary (pode adicionar um prefixo se desejar)
-    return f'foto_servidores/{instance.matricula}/{filename}'
+    return f'profile_pics/{instance.matricula}/{filename}'
 
 
 class Usuario(AbstractUser):
