@@ -67,7 +67,7 @@
         </div>
 
         <!-- Mobile menu (sidebar) -->
-        <div class="fixed inset-y-0 left-0 z-30 w-3/4 transform -translate-x-full transition-transform duration-300 ease-in-out bg-gray-800 text-white lg:hidden" id="mobile-menu">
+        <div class="flex justify-center fixed inset-y-0 left-0 z-30 w-3/4 transform -translate-x-full transition-transform duration-300 ease-in-out bg-gray-800 text-white lg:hidden" id="mobile-menu">
             <div class="space-y-1 px-2 pb-3 pt-2">
                 <div class="flex flex-row justify-between pb-10">
                     <div class="flex flex-shrink-0 items-center">
@@ -81,29 +81,58 @@
                         </button>
                     </div>
                 </div>
-                <div class="pt-4 pb-8 space-y-4">
-                    <h3  class="block rounded-md px-3 pt-2 pb-8 text-4xl font-medium text-white" aria-current="page">{{ user_role }}</h3>
-                    <a href="/" class="block rounded-md px-3 py-2 text-4xl font-medium {% if request.path == '/' %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}" aria-current="page">Inicio</a>
-                    <a href="{{ gesipe_url }}" class="block rounded-md px-3 py-2 text-4xl font-medium {% if request.path == gesipe_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">Gesipe</a>
-                    <a href="{{ ajuda_custo_url }}" class="block rounded-md px-3 py-2 text-4xl font-medium {% if request.path == ajuda_custo_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">Ajuda de Custo</a>
-                    <a href="{{ servidor_url }}" class="block rounded-md px-3 py-2 text-4xl font-medium {% if request.path == servidor_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">Recursos Humanos</a>
+                <div class="pt-4 pb-8 space-y-6">
+                    <h3  class="block rounded-md px-3 pt-2 pb-16 text-7xl font-medium text-white" aria-current="page">{{ user_role }}</h3>
+                    <div class="flex space-x-12 block rounded-md py-3 text-5xl font-medium {% if request.path == '/' %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}" aria-current="page">
+                        <ion-icon name="home"></ion-icon>
+                        <a href="/">Inicio</a>
+                    </div>
+                    <div class="flex space-x-12 block rounded-md py-3 text-5xl font-medium {% if request.path == gesipe_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">
+                        <ion-icon name="document-text"></ion-icon>
+                        <a href="{{ gesipe_url }}" >Gesipe</a>
+                    </div>
+                    <div class="flex space-x-12 block rounded-md py-3 text-5xl font-medium {% if request.path == ajuda_custo_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">
+                        <ion-icon name="time"></ion-icon>
+                        <a href="{{ ajuda_custo_url }}" >Ajuda de Custo</a>
+                    </div>
+                    <div class="flex space-x-12 block rounded-md py-3 text-5xl font-medium {% if request.path == servidor_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">
+                        <ion-icon name="people"></ion-icon>
+                        <a href="{{ servidor_url }}">Recursos Humanos</a>
+                    </div>
+
+
+
+
+
                 </div>
                 <form class=" px-3 pt-6">
-                    <input type="text" class="py-1 px-2 rounded-md text-black text-4xl" placeholder="Pesquisar...">
+                    <input type="text" class="py-1 px-2 rounded-md text-black text-5xl" placeholder="Pesquisar...">
                 </form>
 
     <!--            menu perfil mobile versao-->
                 {% if user.is_authenticated %}
                 <div class="pt-4 pb-8 space-y-4">
-                    <div class="text-5xl pt-8 pb-4 text-slate-400 px-3">
+                    <div class="text-7xl pt-8 pb-10 text-slate-400 px-3">
                         <h4>Pessoal</h4>
                     </div>
-                    <div class="space-y-4">
-                        <a href="{% url 'seappb:editarperfil' user.pk %}" class="block rounded-md px-3 py-2 text-4xl font-medium {% if request.path == 'editarperfil/<int:pk>' %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">Seu Perfil</a>
-                        <a href="#" class="block rounded-md px-3 py-2 text-4xl font-medium">Configurações</a>
+                    <div class="space-y-6">
+                        <div class="flex space-x-10 block rounded-md py-3 text-5xl font-medium {% if request.path == 'editarperfil/<int:pk>' %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">
+                            <ion-icon name="person"></ion-icon>
+                            <a href="{% url 'seappb:editarperfil' user.pk %}">Perfil</a>
+                        </div>
+                        <div class="flex space-x-8 block rounded-md py-3 text-5xl font-medium">
+                            <ion-icon name="settings"></ion-icon>
+                            <a href="#">Configurações</a>
+                        </div>
+                        <div class="flex space-x-8 block rounded-md py-3 text-5xl font-medium">
+                            <ion-icon name="log-out"></ion-icon>
+                            <a href="" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Sair</a>
+                        </div>
 
 
-                        <a class="block rounded-md px-3 py-2 text-4xl font-medium" href="" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Sair</a>
+
+
+
                     </div>
                 </div>
                 {% endif %}
