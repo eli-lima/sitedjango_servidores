@@ -6,7 +6,7 @@ from .forms import AjudaCustoForm, AdminDatasForm, LimiteAjudaCustoForm
 from django.urls import reverse_lazy
 from datetime import datetime
 from django.contrib import messages
-from django.db.models import Q, Sum, F, Value
+from django.db.models import Q, Sum, F, Value, IntegerField
 from openpyxl.styles import Alignment
 from django.utils.dateparse import parse_date
 from django.http import HttpResponse
