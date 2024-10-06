@@ -512,12 +512,12 @@ class AjudaCustoAdicionar(LoginRequiredMixin, FormView):
 
                 # Iterar sobre os registros do mês e somar as cargas horárias
                 for registro in registros_mes:
-                    carga_horaria_passado = registro.carga_horaria  # Acessa o campo 'carga_horaria' do registro
+                    carga_horaria_passado = registro.carga_horaria.strip()  # Acessa o campo 'carga_horaria'
 
                     # Verifica e converte o valor de 'carga_horaria'
-                    if carga_horaria_passado.strip() == "12 horas":
+                    if carga_horaria_passado == "12 horas":
                         carga_horaria_passado_total += 12
-                    elif carga_horaria_passado.strip() == "24 horas":
+                    elif carga_horaria_passado == "24 horas":
                         carga_horaria_passado_total += 24
 
                 # Agora 'carga_horaria_passado_total' contém a soma das horas já registradas no mês
@@ -527,45 +527,46 @@ class AjudaCustoAdicionar(LoginRequiredMixin, FormView):
                 try:
                     limite = LimiteAjudaCusto.objects.get(servidor=servidor)
                     limite_horas = limite.limite_horas
-                    print(limite, limite_horas)
                 except LimiteAjudaCusto.DoesNotExist:
                     messages.error(self.request, 'Limite de horas não definido. Contate o administrador.')
                     return redirect(self.success_url)
 
+                # Calcula a soma das horas que o servidor pretende adicionar
+                horas_a_adicionar_total = 0
+                for carga_horaria in cargas_horarias:
+                    carga_horaria_limpa = carga_horaria.strip().replace(' horas', '')  # Remove ' horas'
+                    horas_a_adicionar_total += int(carga_horaria_limpa)  # Somar as horas
 
+                # Verificar se o total de horas no mês excederá o limite global de 192 horas
+                if total_horas_mes + horas_a_adicionar_total > 192:  # Limite global
+                    messages.error(self.request,
+                                   f'Limite global de 192 horas mensais excedido. Total pretendido: {total_horas_mes + horas_a_adicionar_total}.')
+                    return self.form_invalid(form)
 
-                # Processar os dados das novas datas, unidades e cargas horárias
+                # Verificar se o total de horas no mês excederá o limite individual do servidor
+                if total_horas_mes + horas_a_adicionar_total > limite_horas:
+                    messages.error(self.request,
+                                   f'O limite individual de {limite_horas} horas foi excedido. Total pretendido: {total_horas_mes + horas_a_adicionar_total}.')
+                    return self.form_invalid(form)
+
+                # Processar as novas datas, unidades e cargas horárias, já que os limites foram verificados
                 for dia, unidade, carga_horaria in zip(dias, unidades, cargas_horarias):
                     try:
                         data_completa = datetime.strptime(f"{dia}/{mes}/{ano}", "%d/%m/%Y").date()
 
-                        # Limpar a carga horária
-                        carga_horaria_limpa = carga_horaria.strip().replace(' horas', '')  # Remove ' horas'
-                        horas_a_adicionar = int(carga_horaria_limpa)  # Conversão para inteiro
-
-
+                        # Limpar e converter a carga horária
+                        carga_horaria_limpa = carga_horaria.strip().replace(' horas', '')
+                        horas_a_adicionar = int(carga_horaria_limpa)
 
                         # Verificar se o servidor já marcou essa data
                         if Ajuda_Custo.objects.filter(matricula=servidor.matricula, data=data_completa).exists():
                             messages.error(self.request, f'O servidor já possui uma entrada para {dia}/{mes}/{ano}.')
                             return self.form_invalid(form)
 
-                        # Verificar o total de horas para o mês
-                        if total_horas_mes + horas_a_adicionar > 192:  # Limite global
-                            messages.error(self.request,
-                                           f'Limite global de 192 horas mensais excedido para {dia}/{mes}/{ano}.')
-                            return self.form_invalid(form)
-
-                        # Verificar o limite individual do servidor
-                        if total_horas_mes + horas_a_adicionar > limite_horas:
-                            messages.error(self.request,
-                                           f'O limite individual de {limite_horas} horas foi excedido para {dia}/{mes}/{ano}.')
-                            return self.form_invalid(form)
-
                         # Atualiza o total de horas mensais após a verificação
                         total_horas_mes += horas_a_adicionar
 
-                        # Aqui garantimos que a carga horária seja "12 horas" ou "24 horas" como string
+                        # Garantimos que a carga horária seja "12 horas" ou "24 horas" como string
                         carga_horaria_final = f"{horas_a_adicionar} horas"
 
                         # Cria o objeto Ajuda_Custo e salva no banco de dados
@@ -574,59 +575,49 @@ class AjudaCustoAdicionar(LoginRequiredMixin, FormView):
                             nome=self.request.user.nome_completo,
                             data=data_completa,
                             unidade=unidade,
-                            carga_horaria=carga_horaria_final,  # Salva como '12 horas' ou '24 horas'
+                            carga_horaria=carga_horaria_final,
                             majorado=DataMajorada.objects.filter(data=data_completa).exists()
                         )
                         ajuda_custo.save()
 
-
-
-                    except ValueError as e:
+                    except ValueError:
                         messages.error(self.request, f'Erro: Data inválida - {dia}/{mes}/{ano}')
                         return self.form_invalid(form)
 
                 # Após inserir novos registros, verificar se um novo arquivo de folha assinada foi enviado
                 novo_arquivo = form.cleaned_data.get('folha_assinada')
                 if novo_arquivo:
-                    # Verifica se há registros existentes para o servidor no mês e ano especificados
                     registros_existentes = Ajuda_Custo.objects.filter(
                         matricula=servidor.matricula,
                         data__year=ano_int,
                         data__month=mes_int
                     )
-
                     if registros_existentes.exists():
-                        # Excluir o arquivo antigo de todos os registros existentes
                         for registro in registros_existentes:
                             arquivo_antigo = registro.folha_assinada
                             if arquivo_antigo:
                                 try:
-                                    arquivo_antigo.delete(save=False)  # Exclui o arquivo fisicamente
+                                    arquivo_antigo.delete(save=False)
                                 except Exception as e:
                                     messages.error(self.request, f'Erro ao excluir o arquivo antigo: {e}')
 
-                        # Se já existe um registro no banco, use o primeiro registro existente
                         primeiro_registro = registros_existentes.first()
-                        # Verifica se o novo arquivo é diferente do arquivo atual
                         if primeiro_registro.folha_assinada != novo_arquivo:
-                            primeiro_registro.folha_assinada = novo_arquivo  # Atribui o novo arquivo
-                            primeiro_registro.save()  # Salva o novo arquivo apenas uma vez
+                            primeiro_registro.folha_assinada = novo_arquivo
+                            primeiro_registro.save()
 
-                        # Atualiza todos os registros do servidor para usar o mesmo arquivo
                         for registro in registros_existentes:
-                            registro.folha_assinada = primeiro_registro.folha_assinada  # Atribui o mesmo arquivo
+                            registro.folha_assinada = primeiro_registro.folha_assinada
                             try:
-                                registro.save()  # Salva as alterações
+                                registro.save()
                             except Exception as e:
                                 messages.error(self.request, f'Erro ao salvar registro {registro.id}: {e}')
 
-                # Exibir mensagem de sucesso e redirecionar
                 messages.success(self.request, 'Datas adicionadas e atualizadas com sucesso!')
                 return redirect(self.success_url)
 
             except Exception as e:
-                # Log o erro
-                print(f'Erro: {e}')  # Isso pode ser substituído por um logger adequado
+                print(f'Erro: {e}')
                 messages.error(self.request, 'Ocorreu um erro interno. Tente novamente mais tarde.')
                 return self.form_invalid(form)
 
