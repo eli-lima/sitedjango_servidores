@@ -579,16 +579,7 @@ class AjudaCustoAdicionar(LoginRequiredMixin, FormView):
                         )
                         ajuda_custo.save()
 
-                        # Cria o objeto Ajuda_Custo e salva no banco de dados
-                        ajuda_custo = Ajuda_Custo(
-                            matricula=self.request.user.matricula,
-                            nome=self.request.user.nome_completo,
-                            data=data_completa,
-                            unidade=unidade,
-                            carga_horaria=horas_a_adicionar,  # Use a carga horária limpa
-                            majorado=DataMajorada.objects.filter(data=data_completa).exists()
-                        )
-                        ajuda_custo.save()
+
 
                     except ValueError as e:
                         messages.error(self.request, f'Erro: Data inválida - {dia}/{mes}/{ano}')
