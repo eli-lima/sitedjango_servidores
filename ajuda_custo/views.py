@@ -6,7 +6,7 @@ from .forms import AjudaCustoForm, AdminDatasForm, LimiteAjudaCustoForm
 from django.urls import reverse_lazy
 from datetime import datetime
 from django.contrib import messages
-from django.db.models import Q, Sum
+from django.db.models import Q, Sum, F, Value
 from openpyxl.styles import Alignment
 from django.utils.dateparse import parse_date
 from django.http import HttpResponse
@@ -24,7 +24,7 @@ from django.conf import settings
 import logging
 import cloudinary.uploader
 import requests
-
+from django.db.models.functions import Cast
 
 
 # Create your views here.
@@ -507,12 +507,10 @@ class AjudaCustoAdicionar(LoginRequiredMixin, FormView):
                     data__range=[inicio_do_mes, fim_do_mes]
                 )
 
-                # Limpar a carga horária
-                carga_horaria_limpa = cargas_horarias.strip().replace(' horas', '')  # Remove ' horas'
-                cargas_horarias =int(carga_horaria_limpa)
-
-                # Somar as horas já registradas
-                total_horas_mes = registros_mes.aggregate(Sum('carga_horaria'))['carga_horaria__sum'] or 0
+                # Somar as horas já registradas, convertendo de string para inteiro
+                total_horas_mes = registros_mes.aggregate(
+                    total=Sum(Cast(F('carga_horaria'), output_field=IntegerField()) * Value(1))
+                )['total'] or 0
 
 
 
