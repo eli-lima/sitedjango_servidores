@@ -507,6 +507,10 @@ class AjudaCustoAdicionar(LoginRequiredMixin, FormView):
                     data__range=[inicio_do_mes, fim_do_mes]
                 )
 
+                # Limpar a carga horária
+                carga_horaria_limpa = cargas_horarias.strip().replace(' horas', '')  # Remove ' horas'
+                cargas_horarias =int(carga_horaria_limpa)
+
                 # Somar as horas já registradas
                 total_horas_mes = registros_mes.aggregate(Sum('carga_horaria'))['carga_horaria__sum'] or 0
 
