@@ -6,7 +6,7 @@ from .forms import AjudaCustoForm, AdminDatasForm, LimiteAjudaCustoForm
 from django.urls import reverse_lazy
 from datetime import datetime
 from django.contrib import messages
-from django.db.models import Q, Sum, F, Value, IntegerField
+from django.db.models import Q, Sum
 from openpyxl.styles import Alignment
 from django.utils.dateparse import parse_date
 from django.http import HttpResponse
@@ -24,7 +24,7 @@ from django.conf import settings
 import logging
 import cloudinary.uploader
 import requests
-from django.db.models.functions import Cast
+
 
 
 # Create your views here.
@@ -507,12 +507,21 @@ class AjudaCustoAdicionar(LoginRequiredMixin, FormView):
                     data__range=[inicio_do_mes, fim_do_mes]
                 )
 
-                # Somar as horas já registradas, convertendo de string para inteiro
-                total_horas_mes = registros_mes.aggregate(
-                    total=Sum(Cast(F('carga_horaria'), output_field=IntegerField()) * Value(1))
-                )['total'] or 0
+                # Inicializa a variável para armazenar a soma das cargas horárias passadas
+                carga_horaria_passado_total = 0
 
+                # Iterar sobre os registros do mês e somar as cargas horárias
+                for registro in registros_mes:
+                    carga_horaria_passado = registro.carga_horaria  # Acessa o campo 'carga_horaria' do registro
 
+                    # Verifica e converte o valor de 'carga_horaria'
+                    if carga_horaria_passado.strip() == "12 horas":
+                        carga_horaria_passado_total += 12
+                    elif carga_horaria_passado.strip() == "24 horas":
+                        carga_horaria_passado_total += 24
+
+                # Agora 'carga_horaria_passado_total' contém a soma das horas já registradas no mês
+                total_horas_mes = carga_horaria_passado_total or 0
 
                 # Obter limite de horas do servidor
                 try:
@@ -555,6 +564,20 @@ class AjudaCustoAdicionar(LoginRequiredMixin, FormView):
 
                         # Atualiza o total de horas mensais após a verificação
                         total_horas_mes += horas_a_adicionar
+
+                        # Aqui garantimos que a carga horária seja "12 horas" ou "24 horas" como string
+                        carga_horaria_final = f"{horas_a_adicionar} horas"
+
+                        # Cria o objeto Ajuda_Custo e salva no banco de dados
+                        ajuda_custo = Ajuda_Custo(
+                            matricula=self.request.user.matricula,
+                            nome=self.request.user.nome_completo,
+                            data=data_completa,
+                            unidade=unidade,
+                            carga_horaria=carga_horaria_final,  # Salva como '12 horas' ou '24 horas'
+                            majorado=DataMajorada.objects.filter(data=data_completa).exists()
+                        )
+                        ajuda_custo.save()
 
                         # Cria o objeto Ajuda_Custo e salva no banco de dados
                         ajuda_custo = Ajuda_Custo(
