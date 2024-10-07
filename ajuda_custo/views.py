@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404, reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView, CreateView, FormView, ListView, View
 from .models import Ajuda_Custo, DataMajorada, LimiteAjudaCusto
-from .forms import AjudaCustoForm, AdminDatasForm, LimiteAjudaCustoForm
+from .forms import AjudaCustoForm, AdminDatasForm, LimiteAjudaCustoForm, UploadExcelRx2Form
 from django.urls import reverse_lazy
 from datetime import datetime
 from django.contrib import messages
@@ -22,7 +22,6 @@ from io import BytesIO
 import os
 from django.conf import settings
 import logging
-import cloudinary.uploader
 import requests
 
 
