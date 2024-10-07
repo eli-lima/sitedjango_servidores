@@ -52,10 +52,7 @@ def upload_excel_rx2(request):
                         continue
 
                     # Convertendo a matrícula para string e removendo caracteres não numéricos
-                    matricula = re.sub(r'\D', '', str(matricula_raw))
-
-                    # Remove os zeros à esquerda da matrícula
-                    matricula = matricula.lstrip('0')
+                    matricula = re.sub(r'\D', '', str(matricula_raw)).lstrip('0')
 
                     unidade = row['Unidade']
                     nome = row['Nome']
@@ -69,7 +66,7 @@ def upload_excel_rx2(request):
                         messages.error(request, f"Erro: Servidor com matrícula {matricula} não encontrado.")
                         continue
 
-                    # Processar a data, usando o parser do dateutil para lidar com diferentes formatos
+                    # Processar a data
                     try:
                         data_completa = parser.parse(str(data)).date()
                     except ValueError:
@@ -102,6 +99,9 @@ def upload_excel_rx2(request):
                         messages.error(request, f'Limite de 192 horas mensais excedido para {nome} na data {data}.')
                         continue
 
+                    # Verificação das datas majoradas
+                    majorado = DataMajorada.objects.filter(data=data_completa).exists()
+
                     # Criar o registro de ajuda de custo
                     ajuda_custo = Ajuda_Custo(
                         matricula=servidor.matricula,
@@ -109,6 +109,7 @@ def upload_excel_rx2(request):
                         data=data_completa,
                         unidade=unidade,
                         carga_horaria=carga_horaria,
+                        majorado=majorado  # Adiciona a informação sobre se a data é majorada
                     )
                     ajuda_custo.save()
                     registros_inseridos = True
@@ -124,7 +125,6 @@ def upload_excel_rx2(request):
         form = UploadExcelRx2Form()
 
     return render(request, 'upload_excel_rx2.html', {'form': form})
-
 
 
 
