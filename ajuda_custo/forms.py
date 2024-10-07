@@ -47,7 +47,29 @@ class AjudaCustoForm(forms.ModelForm):
 
     class Meta:
         model = Ajuda_Custo
-        fields = ['unidade', 'carga_horaria', 'folha_assinada']
+        fields = ['ano', 'dia', 'mes', 'unidade', 'carga_horaria', 'folha_assinada']
+
+    def __init__(self, *args, **kwargs):
+        super(AjudaCustoForm, self).__init__(*args, **kwargs)
+
+        # Aplicando classes e alterando labels dos campos personalizados
+        self.fields['dia'].label = 'Dia'
+        self.fields['dia'].widget.attrs.update({'class': 'form-control xl:text-base text-2xl'})
+
+        self.fields['mes'].label = 'Mês'
+        self.fields['mes'].widget.attrs.update({'class': 'form-control xl:text-base text-2xl'})
+
+        self.fields['ano'].label = 'Ano'
+        self.fields['ano'].widget.attrs.update({'class': 'form-control xl:text-base text-2xl'})
+
+        self.fields['unidade'].label = 'Unidade de Trabalho'
+        self.fields['unidade'].widget.attrs.update({'class': 'form-control xl:text-base text-2xl'})
+
+        self.fields['carga_horaria'].label = 'Horas'
+        self.fields['carga_horaria'].widget.attrs.update({'class': 'form-control xl:text-base text-2xl'})
+
+        self.fields['folha_assinada'].label = 'Folha Assinada'
+        self.fields['folha_assinada'].widget.attrs.update({'class': 'form-control xl:text-base text-2xl'})
 
     def clean_folha_assinada(self):
         folha_assinada = self.cleaned_data.get('folha_assinada')
@@ -56,8 +78,8 @@ class AjudaCustoForm(forms.ModelForm):
         if folha_assinada:
             if folha_assinada.size > 10 * 1024 * 1024:
                 raise forms.ValidationError("O arquivo deve ter no máximo 10MB.")
-            if not folha_assinada.content_type in ['application/pdf', 'image/jpeg', 'image/jpg']:
-                raise forms.ValidationError("Apenas arquivos PDF, JPG e JPEG são permitidos.")
+            if not folha_assinada.content_type in ['application/pdf', 'image/jpeg']:
+                raise forms.ValidationError("Apenas arquivos PDF ou JPG são permitidos.")
         return folha_assinada
 
     def clean(self):
