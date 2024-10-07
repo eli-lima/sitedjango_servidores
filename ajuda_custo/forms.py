@@ -140,11 +140,7 @@ class LimiteAjudaCustoForm(forms.ModelForm):
         self.fields['servidor'].queryset = self.fields['servidor'].queryset.order_by('nome')
 
 
+class UploadExcelRx2Form(forms.Form):
+    file = forms.FileField(label='Selecione o arquivo Excel')
 
 
-def teste():
-    pass
-
-
-def teste2():
-    pass
