@@ -234,3 +234,7 @@ LOGGING = {
         },
     },
 }
+
+
+# Aumentar o número máximo de campos permitidos em um upload de formulário
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000

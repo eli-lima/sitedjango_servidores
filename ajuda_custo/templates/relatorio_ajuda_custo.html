@@ -89,7 +89,7 @@ Ajuda de Custo
                     </li>
                     {% endif %}
 
-                    {% for p in page_obj.paginator.page_range %}
+                    {% for p in page_range %}
                     {% if p == page_obj.number %}
                     <li>
                         <span class="px-3 py-2 text-sm font-medium text-white bg-blue-500 border border-gray-300">{{ p }}</span>

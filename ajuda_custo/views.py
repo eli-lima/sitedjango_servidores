@@ -23,10 +23,14 @@ import os
 from django.conf import settings
 import logging
 import requests
+import re
+from dateutil import parser  # Isso ajudará a lidar com diferentes formatos de data
 
 
 
 # Create your views here.
+#upload relatorios do rx2
+
 
 def upload_excel_rx2(request):
     if request.method == 'POST':
@@ -41,10 +45,17 @@ def upload_excel_rx2(request):
 
                 # Iterar pelas linhas da planilha
                 for _, row in df.iterrows():
-                    matricula = row['Matrícula']
+                    # Verificar se a matrícula existe e não é nula
+                    matricula_raw = row['Matrícula']
+                    if pd.isnull(matricula_raw):
+                        messages.error(request, "Erro: Matrícula vazia encontrada.")
+                        continue
+
+                    # Convertendo a matrícula para string e removendo caracteres não numéricos
+                    matricula = re.sub(r'\D', '', str(matricula_raw))
 
                     # Remove os zeros à esquerda da matrícula
-                    matricula = str(matricula).lstrip('0')
+                    matricula = matricula.lstrip('0')
 
                     unidade = row['Unidade']
                     nome = row['Nome']
@@ -58,9 +69,14 @@ def upload_excel_rx2(request):
                         messages.error(request, f"Erro: Servidor com matrícula {matricula} não encontrado.")
                         continue
 
-                    # Verificar se a data já existe para o servidor
-                    data_completa = datetime.strptime(str(data), "%d/%m/%Y").date()
+                    # Processar a data, usando o parser do dateutil para lidar com diferentes formatos
+                    try:
+                        data_completa = parser.parse(str(data)).date()
+                    except ValueError:
+                        messages.error(request, f"Erro: Data inválida {data}.")
+                        continue
 
+                    # Verificar se a data já existe para o servidor
                     if Ajuda_Custo.objects.filter(matricula=servidor.matricula, data=data_completa).exists():
                         messages.warning(request, f'Registro já existente para o servidor {nome} na data {data}.')
                         continue
@@ -74,6 +90,7 @@ def upload_excel_rx2(request):
                         data__range=[inicio_do_mes, fim_do_mes]
                     )
 
+                    # Calcular o total de horas do mês
                     total_horas_mes = sum(
                         12 if registro.carga_horaria == '12 horas' else 24
                         for registro in registros_mes
@@ -117,6 +134,7 @@ def criar_arquivo_zip(request, queryset):
     # Cria um buffer de memória para o arquivo zip
     buffer = BytesIO()
     arquivos_adicionados = 0  # Contador para arquivos adicionados
+    urls_adicionadas = set()  # Conjunto para rastrear URLs já adicionadas
 
     try:
         # Cria o arquivo zip em memória
@@ -126,6 +144,11 @@ def criar_arquivo_zip(request, queryset):
                     try:
                         # Obtém a URL do arquivo armazenado no Cloudinary
                         arquivo_url = registro.folha_assinada.url
+
+                        # Verifica se a URL já foi adicionada
+                        if arquivo_url in urls_adicionadas:
+                            continue  # Pula para o próximo registro se já foi adicionado
+
                         logging.info(f"Tentando baixar arquivo: {arquivo_url}")
 
                         # Baixa o arquivo do Cloudinary
@@ -154,13 +177,15 @@ def criar_arquivo_zip(request, queryset):
                             # Adiciona o arquivo ao zip
                             zip_file.writestr(caminho_no_zip, arquivo_resposta.content)
                             arquivos_adicionados += 1  # Incrementa o contador
+                            urls_adicionadas.add(arquivo_url)  # Marca a URL como adicionada
                         else:
                             logging.error(f"Erro ao acessar o arquivo {registro.folha_assinada.name} no Cloudinary.")
                             messages.warning(request, f'Arquivo {registro.folha_assinada.name} não pôde ser acessado.')
 
                     except Exception as e:
                         logging.error(f"Erro ao adicionar arquivo {registro.folha_assinada.name} ao ZIP: {str(e)}")
-                        messages.warning(request, f'Arquivo {registro.folha_assinada.name} não pôde ser adicionado ao ZIP.')
+                        messages.warning(request,
+                                         f'Arquivo {registro.folha_assinada.name} não pôde ser adicionado ao ZIP.')
 
         # Log de quantos arquivos foram adicionados
         logging.info(f"Total de arquivos adicionados ao ZIP: {arquivos_adicionados}")
@@ -181,7 +206,6 @@ def criar_arquivo_zip(request, queryset):
         logging.error(f"Erro ao criar o arquivo ZIP: {str(e)}")
         messages.error(request, 'Erro ao criar o arquivo ZIP. Tente novamente mais tarde.')
         return HttpResponse(status=500)  # Retorna um status de erro
-
 
 
 
@@ -450,7 +474,6 @@ class AjudaCusto(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         # Captura os parâmetros de pesquisa
-        # Obtém o usuário logado
         user = self.request.user
         query = self.request.GET.get('query', '')
         data_inicial = self.request.GET.get('dataInicial')
@@ -464,8 +487,8 @@ class AjudaCusto(LoginRequiredMixin, ListView):
         if user.groups.filter(name__in=['Administrador', 'GerGesipe']).exists():
             queryset = Ajuda_Custo.objects.all()
         else:
-            # Se o usuário for do grupo padrão, filtra para exibir apenas os registros do próprio usuário
             queryset = Ajuda_Custo.objects.filter(matricula=user.matricula)
+
         if query:
             queryset = queryset.filter(
                 Q(nome__icontains=query) | Q(matricula__icontains=query)
@@ -479,7 +502,6 @@ class AjudaCusto(LoginRequiredMixin, ListView):
         elif data_final:
             queryset = queryset.filter(data__lte=data_final)
 
-        # Ordena por nome
         return queryset.order_by('nome')
 
     def get_context_data(self, **kwargs):
@@ -487,7 +509,27 @@ class AjudaCusto(LoginRequiredMixin, ListView):
         context['query'] = self.request.GET.get('query', '')
         context['dataInicial'] = self.request.GET.get('dataInicial', '')
         context['dataFinal'] = self.request.GET.get('dataFinal', '')
+
+        # Paginação personalizada
+        page_obj = context['page_obj']
+        paginator = page_obj.paginator
+        page_range = paginator.page_range
+
+        # Lógica para limitar a exibição das páginas
+        if page_obj.number > 3:
+            start = page_obj.number - 2
+        else:
+            start = 1
+
+        if page_obj.number < paginator.num_pages - 2:
+            end = page_obj.number + 2
+        else:
+            end = paginator.num_pages
+
+        context['page_range'] = range(start, end + 1)
+
         return context
+
 
 
 class RelatorioAjudaCusto(LoginRequiredMixin, UserPassesTestMixin, ListView):
@@ -534,6 +576,25 @@ class RelatorioAjudaCusto(LoginRequiredMixin, UserPassesTestMixin, ListView):
         context['query'] = self.request.GET.get('query', '')
         context['dataInicial'] = self.request.GET.get('dataInicial', '')
         context['dataFinal'] = self.request.GET.get('dataFinal', '')
+
+        # Paginação personalizada
+        page_obj = context['page_obj']
+        paginator = page_obj.paginator
+        page_range = paginator.page_range
+
+        # Lógica para limitar a exibição das páginas
+        if page_obj.number > 3:
+            start = page_obj.number - 2
+        else:
+            start = 1
+
+        if page_obj.number < paginator.num_pages - 2:
+            end = page_obj.number + 2
+        else:
+            end = paginator.num_pages
+
+        context['page_range'] = range(start, end + 1)
+
         return context
 
     def get(self, request, *args, **kwargs):
@@ -548,7 +609,6 @@ class RelatorioAjudaCusto(LoginRequiredMixin, UserPassesTestMixin, ListView):
             # Chama a função para criar o arquivo ZIP
             return criar_arquivo_zip(request, queryset)
         return super().get(request, *args, **kwargs)
-
 
 
 class AjudaCustoAdicionar(LoginRequiredMixin, FormView):
