@@ -263,9 +263,6 @@ def exportar_excel(request):
         data = item.data
         majorado = item.majorado
 
-        # Adicionando prints para verificar os valores
-        print(
-            f"Processando: Matrícula={matricula}, Nome={nome}, Carga Horária={carga_horaria}, Data={data}, Majorado={majorado}")
 
         if matricula not in dados_matriculas:
             dados_matriculas[matricula] = {'Matrícula': matricula, 'Nome': nome, 'Carga Horária Total': 0,
@@ -292,16 +289,14 @@ def exportar_excel(request):
                 dados_matriculas[matricula]['Horas Normais'] += 24
                 dados_matriculas[matricula]['24h'] += 1
 
-        # Adicionando um print para verificar o total calculado
-        print(f"Dados acumulados para {matricula}: {dados_matriculas[matricula]}")
+
 
         # Calcular o total de horas
         dados_matriculas[matricula]['Total'] = "{:07d}".format(
             int(f"{dados_matriculas[matricula]['Horas Majoradas']:03d}{dados_matriculas[matricula]['Horas Normais']:03d}")
         )
 
-    # Adicionando um print para verificar o dicionário final
-    print(f"Dados finais processados: {dados_matriculas}")
+
 
     # Criar um DataFrame com os dados processados
     df = pd.DataFrame(list(dados_matriculas.values()))
@@ -325,6 +320,10 @@ def exportar_excel(request):
                   '12h', '24h', 'Datas 12 Horas', 'Datas 24 Horas']
     ws.append(cabecalhos)
 
+    ws.column_dimensions['I'].width = 40  # Largura da coluna I (Datas 12 Horas)
+    ws.column_dimensions['J'].width = 40  # Largura da coluna J (Datas 24 Horas)
+
+    # Função para formatar as datas em múltiplas linhas
     # Função para formatar as datas em múltiplas linhas
     def formatar_datas_em_linhas(datas):
         linhas = []
@@ -356,7 +355,12 @@ def exportar_excel(request):
             if cell.value:
                 max_length = max(max_length, len(str(cell.value)))
         adjusted_width = (max_length + 2)
-        ws.column_dimensions[column_letter].width = adjusted_width
+
+        # Define a largura da coluna, garantindo que as colunas I e J mantenham a largura definida
+        if column_letter in ['I', 'J']:
+            ws.column_dimensions[column_letter].width = 50  # Garante que as colunas I e J tenham largura fixa
+        else:
+            ws.column_dimensions[column_letter].width = adjusted_width
 
     # Ajustar o alinhamento e a altura das linhas para as colunas de datas
     for row in ws.iter_rows(min_row=2, max_row=ws.max_row, min_col=9, max_col=10):  # Colunas 9 e 10 são as de datas
