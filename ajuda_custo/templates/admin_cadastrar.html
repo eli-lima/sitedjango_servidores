@@ -7,12 +7,12 @@ Gesipe Administrativo
 {% endblock %}
 
 {% block content %}
-<div class="xl:pt-16 pt-36 h-screen mx-0 xl:mx-10 flex">
-    <div class="flex flex-col bg-white w-full rounded-3xl shadow-lg mb-4 mx-10 px-8">
-        <h1 class="text-center py-8 font-bold text-4xl">Preencha os Dados do Servidor:</h1>
+<div class="xl:pt-16 pt-36 mx-0 xl:mx-10 flex">
+    <div class="flex flex-col bg-white w-full rounded-3xl shadow-lg mb-4 mx-10 px-8 pt-8">
+
         <form id="mainForm" class="flex flex-col" method="POST">
             {% csrf_token %}
-            <div class="flex flex-row justify-evenly p-3 gap-x-8">
+            <div class="flex flex-row justify-center gap-x-8">
                  <div class="pl-2 pb-3">
                     <label class="form-label xl:text-base text-2xl font-semibold">
                         {{ form.mes.label }}
@@ -39,7 +39,13 @@ Gesipe Administrativo
                         </ul>
                     {% endif %}
                  </div>
-                <div class="pl-2 pb-3">
+
+
+            </div>
+            <div class="flex flex-row justify-evenly gap-x-8 pb-16">
+
+<!--                menu unidade-->
+                <div class="pl-2 pb-3 ">
                     <label class="form-label xl:text-base text-2xl font-semibold">
                         {{ form.unidade.label }}
                     </label>
@@ -114,18 +120,9 @@ Gesipe Administrativo
                 </div>
 
             </div>
-            <div class="flex flex-col items-center border-b-2">
-                <div class="flex flex-row justify-start p-3 gap-x-12">
 
-
-
-                </div>
-                <div class="flex flex-row justify-evenly p-3 gap-x-16">
-
-                </div>
-            </div>
             <div class="col-md-12 col-12 text-center mt-4 mb-4">
-                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal">Verificar Datas</button>
+                <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#exampleModal">Verificar Datas</button>
             </div>
         </form>
     </div>
