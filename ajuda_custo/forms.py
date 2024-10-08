@@ -118,9 +118,19 @@ class AdminDatasForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Adiciona IDs aos campos para uso no JavaScript
-        self.fields['mes'].widget.attrs.update({'id': 'mes'})
-        self.fields['ano'].widget.attrs.update({'id': 'ano'})
-        self.fields['unidade'].widget.attrs.update({'id': 'unidade'})
+        self.fields['mes'].label = 'Mês'
+        self.fields['mes'].widget.attrs.update({'id': 'mes', 'class': 'form-control xl:text-base text-2xl'})
+        self.fields['ano'].label = 'Ano'
+        self.fields['ano'].widget.attrs.update({'id': 'ano', 'class': 'form-control xl:text-base text-2xl'})
+        self.fields['unidade'].label = 'Unidade'
+        self.fields['unidade'].widget.attrs.update({'id': 'unidade', 'class': 'form-control xl:text-base text-2xl'})
+        self.fields['matricula'].label = 'Matrícula'
+        self.fields['matricula'].widget.attrs.update({'id': 'matricula', 'class': 'form-control xl:text-base text-2xl'})
+        self.fields['dias_12h'].label = 'Dias 12 Horas'
+        self.fields['dias_12h'].widget.attrs.update({'id': 'dias_12h', 'class': 'form-control xl:text-base text-2xl'})
+        self.fields['dias_24h'].label = 'Dias 24 Horas'
+        self.fields['dias_24h'].widget.attrs.update({'id': 'dias_24h', 'class': 'form-control xl:text-base text-2xl'})
+
 
 
 class LimiteAjudaCustoForm(forms.ModelForm):

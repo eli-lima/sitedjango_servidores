@@ -7,42 +7,121 @@ Gesipe Administrativo
 {% endblock %}
 
 {% block content %}
-<div class="pt-16 mx-10 flex justify-center">
+<div class="xl:pt-16 pt-36 h-screen mx-0 xl:mx-10 flex">
     <div class="flex flex-col bg-white w-full rounded-3xl shadow-lg mb-4 mx-10 px-8">
         <h1 class="text-center py-8 font-bold text-4xl">Preencha os Dados do Servidor:</h1>
-        <form id="mainForm" class="flex flex-col justify-center" method="POST">
+        <form id="mainForm" class="flex flex-col" method="POST">
             {% csrf_token %}
-            <div class="flex flex-row justify-center p-3 gap-x-8">
-                {{ form.mes|as_crispy_field }}
-                {{ form.ano|as_crispy_field }}
-                {{ form.unidade|as_crispy_field }}
+            <div class="flex flex-row justify-evenly p-3 gap-x-8">
+                 <div class="pl-2 pb-3">
+                    <label class="form-label xl:text-base text-2xl font-semibold">
+                        {{ form.mes.label }}
+                    </label>
+                        {{ form.mes }}
+                    {% if form.mes.errors %}
+                        <ul class="text-danger">
+                            {% for error in form.mes.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                 </div>
+                <div class="pl-2 pb-3">
+                    <label class="form-label xl:text-base text-2xl font-semibold">
+                        {{ form.ano.label }}
+                    </label>
+                        {{ form.ano }}
+                    {% if form.ano.errors %}
+                        <ul class="text-danger">
+                            {% for error in form.ano.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                 </div>
+                <div class="pl-2 pb-3">
+                    <label class="form-label xl:text-base text-2xl font-semibold">
+                        {{ form.unidade.label }}
+                    </label>
+                        {{ form.unidade }}
+                    {% if form.unidade.errors %}
+                        <ul class="text-danger">
+                            {% for error in form.unidade.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                 </div>
+
             </div>
-            <div class="flex flex-row items-center justify-evenly border-b-2 items-end gap-x-8">
-                <div class="grid grid-cols-4 space-x-4 gap-x-8">
-                    <!-- menu matrícula -->
-                    <div class="pb-5">
-                        {{ form.matricula|as_crispy_field }}
-                    </div>
-                    <!-- menu nome -->
-                    <div class="pb-5 col-span-2">
-                        <label class="Form-label pb-1">Nome:</label>
-                        <input id="nome" type="text" class="form-control form-control-lg" placeholder="Nome Servidor..." disabled>
-                    </div>
-                    <!-- menu cargo -->
-                    <div class="pb-5">
-                        <label class="Form-label pb-1">Cargo:</label>
-                        <input id="cargo" type="text" class="form-control form-control-lg" placeholder="Cargo..." disabled>
-                    </div>
-                    <!-- menu Dia 12 horas -->
-                    <div class="pb-5 col-span-2 px-16">
-                        {{ form.dias_12h|as_crispy_field }}
-                        <small>Separar por vírgulas</small>
-                    </div>
-                    <!-- menu Dia 24 horas -->
-                    <div class="pb-5 col-span-2 px-16">
-                        {{ form.dias_24h|as_crispy_field }}
-                        <small>Separar por vírgulas</small>
-                    </div>
+            <div class="flex flex-row justify-evenly p-3 gap-x-8">
+                <!-- menu matrícula -->
+                <div class="pl-2 pb-3">
+                    <label class="form-label xl:text-base text-2xl font-semibold">
+                        {{ form.matricula.label }}
+                    </label>
+                        {{ form.matricula }}
+                    {% if form.matricula.errors %}
+                        <ul class="text-danger">
+                            {% for error in form.matricula.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                <!-- menu nome -->
+                <div class="pb-3 w-96">
+                    <label class="form-label xl:text-base text-2xl font-semibold">Nome:</label>
+                    <input id="nome" type="text" class="form-control form-control-lg xl:text-base text-2xl" placeholder="Nome Servidor..." disabled>
+                </div>
+                <!-- menu cargo -->
+                <div class="pb-3 xl:block hidden">
+                    <label class="form-label xl:text-base font-semibold">Cargo:</label>
+                    <input id="cargo" type="text" class="form-control form-control-lg xl:text-base text-2xl" placeholder="Cargo..." disabled>
+                </div>
+
+            </div>
+            <div class="flex flex-row justify-evenly p-3 gap-x-8">
+                <!-- menu Dia 12 horas -->
+                <div class="pl-2 pb-3">
+                    <label class="form-label xl:text-base text-2xl font-semibold">
+                        {{ form.dias_12h.label }}
+                    </label>
+                        {{ form.dias_12h }}
+                    <small>Separar por vírgulas</small>
+                    {% if form.dias_12h.errors %}
+                        <ul class="text-danger">
+                            {% for error in form.dias_12h.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                <!-- menu Dia 24 horas -->
+                <div class="pl-2 pb-3">
+                    <label class="form-label xl:text-base text-2xl font-semibold">
+                        {{ form.dias_24h.label }}
+                    </label>
+                        {{ form.dias_24h }}
+                    <small>Separar por vírgulas</small>
+                    {% if form.dias_24h.errors %}
+                        <ul class="text-danger">
+                            {% for error in form.dias_24h.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+
+            </div>
+            <div class="flex flex-col items-center border-b-2">
+                <div class="flex flex-row justify-start p-3 gap-x-12">
+
+
+
+                </div>
+                <div class="flex flex-row justify-evenly p-3 gap-x-16">
+
                 </div>
             </div>
             <div class="col-md-12 col-12 text-center mt-4 mb-4">
