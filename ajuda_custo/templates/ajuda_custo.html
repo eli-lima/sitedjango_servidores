@@ -14,7 +14,7 @@ Ajuda de Custo
 <div class="xl:pt-24 pt-36 grid gap-x-6 gap-y-6 grid-cols-2 xl:grid-cols-4 justify-items-center px-4">
 
     <!-- adicionar ajuda de Custo -->
-    <div class="h-72 w-[450px] xl:h-auto xl:w-auto flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+    <div class="h-auto w-[450px] xl:h-auto xl:w-auto flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
         <div class="mb-8">
           <h3 class="xl:text-2xl text-4xl font-semibold ">Ajuda De Custo Operacional</h3>
           <p class="mt-4 text-gray-600">Marque suas datas individuais aqui. </p>
@@ -25,14 +25,14 @@ Ajuda de Custo
 
         </div>
 
-        <a href="{% url 'ajuda_custo:adicionar' %}" class="block w-full py-3 px-6 text-center text-white text-base rounded-md  font-medium bg-gray-400">
+        <a href="{% url 'ajuda_custo:adicionar' %}" class="block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md  font-medium bg-gray-600">
           Adicionar Datas:
         </a>
     </div>
 
 
     <!-- Administrador Cadastrar -->
-    <div class="h-72 w-[450px] xl:h-auto xl:w-auto flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+    <div class="h-auto w-[450px] xl:h-auto xl:w-auto flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
         <div class="mb-8">
           <h3 class="xl:text-2xl text-4xl font-semibold ">Cadastro Administrativo</h3>
           <p class="mt-4 text-gray-600">Cadastro de Ajuda de Custo de Servidores.</p>
@@ -43,27 +43,27 @@ Ajuda de Custo
 
         </div>
 
-        <a href="{% url 'ajuda_custo:admin_cadastrar' %}" class="block py-3 px-6 text-center text-white text-base rounded-md  font-medium bg-gray-400">
+        <a href="{% url 'ajuda_custo:admin_cadastrar' %}" class="block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md  font-medium bg-gray-600">
           Adicionar:
         </a>
     </div>
 
 
     <!-- Limite de horas -->
-    <div class="h-72 w-[450px] xl:h-auto xl:w-auto flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+    <div class="h-auto w-[450px] xl:h-auto xl:w-auto flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
         <div class="mb-8">
           <h3 class="xl:text-2xl text-4xl font-semibold ">Limites Horas Servidor</h3>
           <p class="mt-4 text-gray-600">Estipular a Carga Horaria Mensal de Servidor</p>
         </div>
 
 
-        <a href="{% url 'ajuda_custo:horas_limite' %}" class="block py-3 px-6 text-center text-white text-base rounded-md  font-medium bg-gray-400">
+        <a href="{% url 'ajuda_custo:horas_limite' %}" class="block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md  font-medium bg-gray-600">
           Adicionar Informaçoes:
         </a>
     </div>
 
     <!-- Relatorio Rx2 -->
-    <div class="h-72 w-[450px] xl:h-auto xl:w-auto flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+    <div class="h-auto w-[450px] xl:h-auto xl:w-auto flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
         <div class="mb-8">
           <h3 class="xl:text-2xl text-4xl font-semibold ">Relatorio Rx2</h3>
           <p class="mt-4 text-gray-600">Introduza relatorio Do Sistema RX-2</p>
@@ -74,11 +74,10 @@ Ajuda de Custo
 
         </div>
 
-        <a href="{% url 'ajuda_custo:upload_excel_rx2' %}" class="block py-3 px-6 text-center text-white text-base rounded-md  font-medium bg-gray-400">
+        <a href="{% url 'ajuda_custo:upload_excel_rx2' %}" class="block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md  font-medium bg-gray-600">
           Adicionar Informaçoes:
         </a>
     </div>
-
 
 
 </div>
@@ -94,10 +93,10 @@ Ajuda de Custo
             <div>
                <div class="flex items-center justify-between pb-4 mb-4 border-b border-gray-200">
                     <div>
-                        <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Relatório</h3>
-                        <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">Ajuda de Custo</span>
+                        <h3 class="xl:text-base text-2xl font-normal text-gray-500 dark:text-gray-400 pb-2">Relatório</h3>
+                        <span class="xl:text-2xl text-5xl font-bold leading-none text-gray-900 dark:text-white">Ajuda de Custo</span>
                     </div>
-                    <a href="{% url 'ajuda_custo:relatorio_ajuda_custo' %}" class="inline-flex items-center p-2 text-xs font-medium uppercase rounded-lg text-primary-700 sm:text-sm hover:bg-gray-100 dark:text-primary-500 dark:hover:bg-gray-700">
+                    <a href="{% url 'ajuda_custo:relatorio_ajuda_custo' %}" class="inline-flex items-center p-2 text-2xl xl:text-xl font-medium uppercase rounded-lg text-primary-700 hover:bg-gray-100 dark:text-primary-500 dark:hover:bg-gray-700">
                         Dados Completos
                         <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -124,25 +123,25 @@ Ajuda de Custo
             <table class="min-w-full bg-white divide-y divide-gray-200">
                 <thead class="bg-gray-100">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Matrcula</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unidade</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Carga Horaria</th>
+                        <th class="px-6 py-3 text-left xl:text-base text-xl font-medium text-gray-500 uppercase tracking-wider">Matricula</th>
+                        <th class="px-6 py-3 text-left xl:text-base text-xl font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+                        <th class="px-6 py-3 text-left xl:text-base text-xl font-medium text-gray-500 uppercase tracking-wider">Data</th>
+                        <th class="px-6 py-3 xl:text-base text-xl font-medium text-gray-500 uppercase tracking-wider">Unidade</th>
+                        <th class="px-6 py-3 text-left xl:text-base text-xl font-medium text-gray-500 uppercase tracking-wider">Carga Horaria</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     {% for data in datas %}
                     <tr class="clickable-row" data-href="{% url 'ajuda_custo:ajuda_custo' %}">
-                        <td class="px-6 py-4 whitespace-nowrap">{{ data.matricula }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ data.nome }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ data.data|date:"d/m/Y"}}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ data.unidade }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ data.carga_horaria }}</td>
+                        <td class="px-6 py-4 xl:text-base text-xl whitespace-nowrap">{{ data.matricula }}</td>
+                        <td class="px-6 py-4 xl:text-base text-xl whitespace-nowrap">{{ data.nome }}</td>
+                        <td class="px-6 py-4 xl:text-base text-xl whitespace-nowrap">{{ data.data|date:"d/m/Y"}}</td>
+                        <td class="px-6 py-4 xl:text-base text-xl whitespace-nowrap">{{ data.unidade }}</td>
+                        <td class="px-6 py-4 xl:text-base text-xl whitespace-nowrap">{{ data.carga_horaria }}</td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="4" class="px-6 py-4 text-center text-gray-500">Nenhum servidor encontrado</td>
+                        <td colspan="4" class="px-6 py-4 xl:text-base text-xl text-center text-gray-500">Nenhum servidor encontrado</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -205,7 +204,7 @@ Ajuda de Custo
         </div>
 
         <!-- Botão no final -->
-        <a href="{% url 'ajuda_custo:adicionar' %}" class="block w-full py-3 px-6 text-center text-white xl:text-base text-2xl rounded-md font-medium bg-green-600 mt-auto">
+        <a href="{% url 'ajuda_custo:adicionar' %}" class="block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md  font-medium bg-green-600">
             Adicionar Datas:
         </a>
     </div>
@@ -218,7 +217,7 @@ Ajuda de Custo
                    <div class="flex items-center justify-between pb-4 mb-4 border-b border-gray-200">
                         <div>
                             <div class="mb-2">
-                                <h3 class="xl:text-base text-2xl font-normal text-gray-500 dark:text-gray-400">Relatório</h3>
+                                <h3 class="xl:text-base text-2xl font-normal text-gray-500 dark:text-gray-400 pb-2">Relatório</h3>
                             </div>
                             <div>
                                 <span class="xl:text-2xl text-5xl font-bold leading-none text-gray-900 dark:text-white">Ajuda de Custo</span>
@@ -246,25 +245,25 @@ Ajuda de Custo
                 <table class="min-w-full bg-white divide-y divide-gray-200">
                     <thead class="bg-gray-100">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Matrcula</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unidade</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Carga Horaria</th>
+                            <th class="px-6 py-3 text-left xl:text-base text-xl font-medium text-gray-500 uppercase tracking-wider">Matricula</th>
+                            <th class="px-6 py-3 text-left xl:text-base text-xl font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+                            <th class="px-6 py-3 text-left xl:text-base text-xl font-medium text-gray-500 uppercase tracking-wider">Data</th>
+                            <th class="px-6 py-3 xl:text-base text-xl font-medium text-gray-500 uppercase tracking-wider">Unidade</th>
+                            <th class="px-6 py-3 text-left xl:text-base text-xl font-medium text-gray-500 uppercase tracking-wider">Carga Horaria</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         {% for data in datas %}
                         <tr class="clickable-row" data-href="{% url 'ajuda_custo:ajuda_custo' %}">
-                            <td class="px-6 py-4 whitespace-nowrap">{{ data.matricula }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ data.nome }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ data.data|date:"d/m/Y"}}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ data.unidade }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ data.carga_horaria }}</td>
+                            <td class="px-6 py-4 xl:text-base text-xl whitespace-nowrap">{{ data.matricula }}</td>
+                            <td class="px-6 py-4 xl:text-base text-xl whitespace-nowrap">{{ data.nome }}</td>
+                            <td class="px-6 py-4 xl:text-base text-xl whitespace-nowrap">{{ data.data|date:"d/m/Y"}}</td>
+                            <td class="px-6 py-4 xl:text-base text-xl whitespace-nowrap">{{ data.unidade }}</td>
+                            <td class="px-6 py-4 xl:text-base text-xl whitespace-nowrap">{{ data.carga_horaria }}</td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="4" class="px-6 py-4 text-center text-gray-500">Nenhum servidor encontrado</td>
+                            <td colspan="4" class="px-6 py-4 xl:text-base text-xl xl:text-base text-xl text-center text-gray-500">Nenhum servidor encontrado</td>
                         </tr>
                         {% endfor %}
                     </tbody>

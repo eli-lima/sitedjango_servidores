@@ -1,3 +1,10 @@
+/*Fonte do Site */
+
+body {
+    font-family: 'Be Vietnam', sans-serif;
+}
+
+
 /* Estilo para linhas clicáveis */
 .clickable-row {
     cursor: pointer; /* Muda o cursor para uma mão ao passar o mouse */
