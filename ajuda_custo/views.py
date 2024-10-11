@@ -25,6 +25,7 @@ import logging
 import requests
 import re
 from dateutil import parser  # Isso ajudará a lidar com diferentes formatos de data
+from django.utils import timezone
 
 
 
@@ -620,6 +621,85 @@ class AjudaCusto(LoginRequiredMixin, ListView):
 
         return context
 
+
+
+class RelatorioAjudaCusto(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    model = Ajuda_Custo
+    template_name = "relatorio_ajuda_custo.html"
+    context_object_name = 'datas'
+    paginate_by = 50  # Quantidade de registros por página
+
+    def test_func(self):
+        user = self.request.user
+        grupos_permitidos = ['Administrador', 'GerGesipe']
+        return user.groups.filter(name__in=grupos_permitidos).exists()
+
+    def handle_no_permission(self):
+        messages.error(self.request, "Você não tem permissão para acessar esta página.")
+        return render(self.request, '403.html', status=403)
+
+    def get_queryset(self):
+        query = self.request.GET.get('query', '')
+        data_inicial = self.request.GET.get('dataInicial')
+        data_final = self.request.GET.get('dataFinal')
+
+        data_inicial = parse_date(data_inicial) if data_inicial else None
+        data_final = parse_date(data_final) if data_final else None
+
+        queryset = Ajuda_Custo.objects.all()
+
+        if query:
+            queryset = queryset.filter(
+                Q(nome__icontains=query) | Q(matricula__icontains=query)
+            )
+
+        if data_inicial and data_final:
+            queryset = queryset.filter(data__range=[data_inicial, data_final])
+        elif data_inicial:
+            queryset = queryset.filter(data__gte=data_inicial)
+        elif data_final:
+            queryset = queryset.filter(data__lte=data_final)
+
+        return queryset.order_by('nome')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['query'] = self.request.GET.get('query', '')
+        context['dataInicial'] = self.request.GET.get('dataInicial', '')
+        context['dataFinal'] = self.request.GET.get('dataFinal', '')
+
+        # Paginação personalizada
+        page_obj = context['page_obj']
+        paginator = page_obj.paginator
+        page_range = paginator.page_range
+
+        # Lógica para limitar a exibição das páginas
+        if page_obj.number > 3:
+            start = page_obj.number - 2
+        else:
+            start = 1
+
+        if page_obj.number < paginator.num_pages - 2:
+            end = page_obj.number + 2
+        else:
+            end = paginator.num_pages
+
+        context['page_range'] = range(start, end + 1)
+
+        return context
+
+    def get(self, request, *args, **kwargs):
+        action = request.GET.get('action')
+        if action == 'export_excel':
+            return exportar_excel(request)
+        elif action == 'excel_detalhado':
+            return excel_detalhado(request)
+        elif action == 'arquivos_assinados':
+            # Filtra os dados conforme os critérios
+            queryset = self.get_queryset()
+            # Chama a função para criar o arquivo ZIP
+            return criar_arquivo_zip(request, queryset)
+        return super().get(request, *args, **kwargs)
 
 
 class AjudaCustoAdicionar(LoginRequiredMixin, FormView):
