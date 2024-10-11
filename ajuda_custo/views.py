@@ -532,87 +532,94 @@ class AjudaCusto(LoginRequiredMixin, ListView):
 
         context['page_range'] = range(start, end + 1)
 
+        # Obtendo o mês atual e o mês anterior
+        today = timezone.now().date()
+        current_month_start = today.replace(day=1)
+        last_day_of_last_month = current_month_start - timedelta(days=1)
+        previous_month_start = last_day_of_last_month.replace(day=1)
+
+        # Registros do mês atual
+        lista_mes_ajuda = Ajuda_Custo.objects.filter(
+            data__year=current_month_start.year, data__month=current_month_start.month
+        )
+
+        # Registros do mês anterior
+        lista_mes_anterior = Ajuda_Custo.objects.filter(
+            data__year=previous_month_start.year, data__month=previous_month_start.month
+        )
+
+        # Contagem de ajudas de custo do mês atual levando em conta a carga horária
+        ajudas_mes_atual_12h = lista_mes_ajuda.filter(carga_horaria='12 horas').count()  # Contagem de registros de 12 horas
+        ajudas_mes_atual_24h = lista_mes_ajuda.filter(carga_horaria='24 horas').count()  # Contagem de registros de 24 horas
+        ajudas_mes_atual = ajudas_mes_atual_24h + (ajudas_mes_atual_12h / 2)  # 12 horas conta como meia ajuda
+
+        # Contagem de ajudas de custo do mês anterior levando em conta a carga horária
+        ajudas_mes_anterior_12h = lista_mes_anterior.filter(carga_horaria='12 horas').count()
+        ajudas_mes_anterior_24h = lista_mes_anterior.filter(carga_horaria='24 horas').count()
+        ajudas_mes_anterior = ajudas_mes_anterior_24h + (ajudas_mes_anterior_12h / 2)
+
+        # Cálculo da variação percentual
+        if ajudas_mes_anterior > 0:
+            variacao_percentual = ((ajudas_mes_atual - ajudas_mes_anterior) / ajudas_mes_anterior) * 100
+        else:
+            variacao_percentual = 0  # Caso não haja registros no mês anterior
+
+        # Contagem distinta de matrículas para o mês atual
+        servidores_com_ajuda = lista_mes_ajuda.values('matricula').distinct().count()
+
+        # Background da variação percentual
+        if variacao_percentual > 0:
+            context['bg_class'] = 'bg-green-600'
+        elif variacao_percentual < 0:
+            context['bg_class'] = 'bg-red-600'
+        else:
+            context['bg_class'] = 'bg-gray-600'
+
+        # Adiciona os dados ao contexto
+        context['ajudas_mes_atual'] = round(ajudas_mes_atual)  # Arredonda para duas casas decimais
+        context['ajudas_mes_anterior'] = round(ajudas_mes_anterior)
+        context['variacao_percentual'] = round(variacao_percentual, 2)
+        context['servidores_com_ajuda'] = servidores_com_ajuda
+
+        # Gráfico de pizza: majorado x normal, levando em conta a carga horária
+        ajuda_normal_12h = lista_mes_ajuda.filter(majorado=False, carga_horaria='12 horas').count()
+        ajuda_normal_24h = lista_mes_ajuda.filter(majorado=False, carga_horaria='24 horas').count()
+        ajuda_majorado_12h = lista_mes_ajuda.filter(majorado=True, carga_horaria='12 horas').count()
+        ajuda_majorado_24h = lista_mes_ajuda.filter(majorado=True, carga_horaria='24 horas').count()
+
+        # Contagens ajustadas para normal e majorado
+        ajuda_normal = ajuda_normal_24h + (ajuda_normal_12h / 2)
+        ajuda_majorado = ajuda_majorado_24h + (ajuda_majorado_12h / 2)
+
+        # Passa as contagens para o contexto
+        context['pie_values'] = [round(ajuda_normal, 2), round(ajuda_majorado, 2)]
+        context['pie_labels'] = ['Ajuda Normal', 'Ajuda Majorada']
+
+        # Gráfico de barras ajuda custo
+        # Obtendo o ano atual
+        current_year = timezone.now().year
+        monthly_totals = []
+
+        # Loop pelos meses do ano
+        for month in range(1, 13):
+            # Contagem de ajudas por mês, ajustando a carga horária
+            ajudas_12h = Ajuda_Custo.objects.filter(data__year=current_year, data__month=month,
+                                                    carga_horaria='12 horas').count()
+            ajudas_24h = Ajuda_Custo.objects.filter(data__year=current_year, data__month=month,
+                                                    carga_horaria='24 horas').count()
+            monthly_total = ajudas_24h + (ajudas_12h / 2)
+            monthly_totals.append(round(monthly_total, 2))
+
+        # Labels dos meses em português
+        meses_portugues = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                           'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
+
+        # Adicionar os valores ao contexto existente
+        context['labels_mensais'] = meses_portugues
+        context['values_mensais'] = monthly_totals
+
         return context
 
-
-
-class RelatorioAjudaCusto(LoginRequiredMixin, UserPassesTestMixin, ListView):
-    model = Ajuda_Custo
-    template_name = "relatorio_ajuda_custo.html"
-    context_object_name = 'datas'
-    paginate_by = 50  # Quantidade de registros por página
-
-    def test_func(self):
-        user = self.request.user
-        grupos_permitidos = ['Administrador', 'GerGesipe']
-        return user.groups.filter(name__in=grupos_permitidos).exists()
-
-    def handle_no_permission(self):
-        messages.error(self.request, "Você não tem permissão para acessar esta página.")
-        return render(self.request, '403.html', status=403)
-
-    def get_queryset(self):
-        query = self.request.GET.get('query', '')
-        data_inicial = self.request.GET.get('dataInicial')
-        data_final = self.request.GET.get('dataFinal')
-
-        data_inicial = parse_date(data_inicial) if data_inicial else None
-        data_final = parse_date(data_final) if data_final else None
-
-        queryset = Ajuda_Custo.objects.all()
-
-        if query:
-            queryset = queryset.filter(
-                Q(nome__icontains=query) | Q(matricula__icontains=query)
-            )
-
-        if data_inicial and data_final:
-            queryset = queryset.filter(data__range=[data_inicial, data_final])
-        elif data_inicial:
-            queryset = queryset.filter(data__gte=data_inicial)
-        elif data_final:
-            queryset = queryset.filter(data__lte=data_final)
-
-        return queryset.order_by('nome')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['query'] = self.request.GET.get('query', '')
-        context['dataInicial'] = self.request.GET.get('dataInicial', '')
-        context['dataFinal'] = self.request.GET.get('dataFinal', '')
-
-        # Paginação personalizada
-        page_obj = context['page_obj']
-        paginator = page_obj.paginator
-        page_range = paginator.page_range
-
-        # Lógica para limitar a exibição das páginas
-        if page_obj.number > 3:
-            start = page_obj.number - 2
-        else:
-            start = 1
-
-        if page_obj.number < paginator.num_pages - 2:
-            end = page_obj.number + 2
-        else:
-            end = paginator.num_pages
-
-        context['page_range'] = range(start, end + 1)
-
-        return context
-
-    def get(self, request, *args, **kwargs):
-        action = request.GET.get('action')
-        if action == 'export_excel':
-            return exportar_excel(request)
-        elif action == 'excel_detalhado':
-            return excel_detalhado(request)
-        elif action == 'arquivos_assinados':
-            # Filtra os dados conforme os critérios
-            queryset = self.get_queryset()
-            # Chama a função para criar o arquivo ZIP
-            return criar_arquivo_zip(request, queryset)
-        return super().get(request, *args, **kwargs)
 
 
 class AjudaCustoAdicionar(LoginRequiredMixin, FormView):

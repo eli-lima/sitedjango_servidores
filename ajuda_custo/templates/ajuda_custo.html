@@ -10,8 +10,131 @@ Ajuda de Custo
 <!--tela administrador-->
 {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups %}
 
+<div class="flex flex-col xl:pt-12 pt-24">
+  <div class="flex justify-evenly flex-wrap">
+    <div class="py-2 px-2 w-1/2 xl:w-1/4">
+          <!-- Card 1 -->
 
-<div class="xl:pt-24 pt-36 grid gap-x-6 gap-y-6 grid-cols-2 xl:grid-cols-4 justify-items-center px-4">
+    <div class="flex-auto shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
+        <div class="flex flex-row justify-between items-center h-full px-4">
+            <div class="flex flex-col justify-between h-full py-10">
+                <div class="pb-4">
+                    <h3 class="font-bold text-size uppercase xl:text-base text-lg">Ajuda de Custo Mês Atual</h3>
+                </div>
+                <div>
+                    <p class="px-2 bg-gray-600 rounded text-white font-semibold xl:text-base text-lg">{{ ajudas_mes_atual }}</p>
+                </div>
+            </div>
+            <div class="bg-green-600 rounded-full h-20 min-w-20 flex items-center justify-center">
+                <i class="fs-1 bi bi-calendar-fill text-white"></i>
+            </div>
+
+        </div>
+    </div>
+
+    </div>
+
+    <div class="py-2 px-2 w-1/2 xl:w-1/4">
+          <!-- Card 2 -->
+
+        <div class="flex-auto shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
+            <div class="flex flex-row justify-between items-center h-full px-4">
+                <div class="flex flex-col justify-between h-full py-10">
+                    <div class="pb-4">
+                        <h3 class="font-bold text-size uppercase xl:text-base text-lg">Ajuda de Custo Mês Anterior</h3>
+                    </div>
+                    <div>
+                        <p class="px-2 bg-gray-600 rounded text-white font-semibold xl:text-base text-lg">{{ ajudas_mes_anterior }}</p>
+                    </div>
+                </div>
+                <div class="bg-red-600 rounded-full h-20 min-w-20 flex items-center justify-center">
+                    <i class="fs-1 bi bi-calendar-x-fill text-white"></i>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <div class="py-2 px-2 w-1/2 xl:w-1/4">
+          <!-- Card 3 -->
+
+        <div class="flex-auto shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
+            <div class="flex flex-row justify-between items-center h-full px-4">
+                <div class="flex flex-col justify-between h-full py-10">
+                    <div class="pb-4">
+                        <h3 class="font-bold text-size uppercase xl:text-base text-lg">Variação Percentual Mês Anterior</h3>
+                    </div>
+                    <div>
+                        <p class="px-2 {{ bg_class }} rounded text-white font-semibold xl:text-base text-lg">{{variacao_percentual}}%</p>
+                    </div>
+                </div>
+                <div class="{{ bg_class }} rounded-full h-20 min-w-20 flex items-center justify-center">
+                    <i class="fs-1 bi bi-people-fill text-white"></i>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <div class="py-2 px-2 w-1/2 xl:w-1/4">
+          <!-- Card 4 -->
+
+        <div class="flex-auto shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
+            <div class="flex flex-row justify-between items-center h-full px-4">
+                <div class="flex flex-col justify-between h-full py-10">
+                    <div class="pb-4">
+                        <h3 class="font-bold text-size uppercase xl:text-base text-lg">Servidores Com Ajuda de Custo no Mês</h3>
+                    </div>
+                    <div>
+                        <p class="px-2 bg-blue-600 rounded text-white font-semibold xl:text-base text-lg">{{ servidores_com_ajuda }}</p>
+                    </div>
+                </div>
+                <div class="bg-blue-600 rounded-full h-20 min-w-20 flex items-center justify-center">
+                    <i class="fs-1 bi bi-people-fill text-white"></i>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="mb-4 pt-4 flex flex-row px-4 xl:px-12 justify-start w-full h-auto">
+<!-- Gráfico de barra administrativo-->
+    <div class=" w-3/4 mr-4 bg-white border border-gray-200 rounded-lg shadow-xl px-4 py-4">
+        <div class="flex items-center justify-between pb-4 mb-4 border-b border-gray-200">
+            <div>
+                <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Quantidade Total Mensal</h3>
+                <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">Ajuda de Custo</span>
+            </div>
+
+        </div>
+        <div class="">
+            <canvas id="chart-bar-ajuda-custo" width="800" height="200"></canvas>
+        </div>
+    </div>
+    <div class="w-1/4 flex flex-col items-stretch rounded-lg shadow-lg p-6">
+        <div class="border-b border-gray-200 pb-4 mb-4">
+            <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Proporçāo Majorado x Normal:</h3>
+            <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">Mês Atual</span>
+        </div>
+
+
+        <div class="h-[300px]">
+            <canvas id="majorado-pizza" width="200" height="100"></canvas>
+        </div>
+
+    </div>
+
+
+</div>
+
+
+
+<div class="xl:pt-4 pt-4 pb-4 grid gap-x-6 gap-y-6 grid-cols-2 xl:grid-cols-4 justify-items-center px-4">
 
     <!-- adicionar ajuda de Custo -->
     <div class="h-auto w-[450px] xl:h-auto xl:w-auto flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
@@ -85,9 +208,10 @@ Ajuda de Custo
 
 
 
+
 <!--tabela com ajuda de custo-->
 
-<div class="mb-12 pt-4 flex px-4 xl:px-12 justify-start w-full">
+<div class="mb-12 flex px-4 xl:px-12 justify-start w-full">
     <div class="bg-white shadow-lg rounded-lg w-full">
         <div class="p-6 rounded-t-lg">
             <div>
@@ -185,7 +309,13 @@ Ajuda de Custo
             </nav>
         </div>
     </div>
+
 </div>
+
+
+
+
+
 
 {% endif %}
 
@@ -310,12 +440,111 @@ Ajuda de Custo
     </div>
 
 
-
-
 </div>
 
 
 {% endif %}
+
+
+
+
+
+<script>
+    // Dados do gráfico de barra para Ajuda de Custo
+    var ctx = document.getElementById('chart-bar-ajuda-custo').getContext('2d');
+    var barLabels = {{ labels_mensais|safe }};  // Labels dos meses
+    var barValues = {{ values_mensais|safe }};  // Quantidade mensal de Ajuda de Custo
+
+    var myBarChart = new Chart(ctx, {
+        type: 'bar', // Tipo de gráfico: barra
+        data: {
+            labels: barLabels, // Nomes dos meses (Janeiro, Fevereiro, etc.)
+            datasets: [{
+                label: 'Total de Ajuda de Custo',
+                data: barValues, // Valores mensais calculados no backend
+                backgroundColor: 'rgba(210, 0, 0, 1)', // Cor de fundo das barras (vermelho)
+                borderColor: 'rgba(210, 0, 0, 1)', // Cor da borda das barras (vermelho)
+                borderWidth: 2, // Largura da borda das barras
+                borderRadius: 4 // Arredondamento das bordas das barras
+            }]
+        },
+        options: {
+            scales: {
+                x: {
+                    grid: {
+                        display: false // Oculta a grade no eixo X
+                    }
+                },
+                y: {
+                    beginAtZero: true, // Começa o eixo Y no zero
+                    grid: {
+                        display: false // Oculta a grade no eixo Y
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+
+<!--grafico Pizza majorado x normal-->
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var ctx = document.getElementById('majorado-pizza').getContext('2d');
+        var myPieChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: {{ pie_labels|safe }},  // Ex.: ['Ajuda Normal', 'Ajuda Majorada']
+                datasets: [{
+                    label: 'Distribuição de Ajuda de Custo',
+                    data: {{ pie_values|safe }},  // Ex.: [50, 30] - dados dinâmicos
+                    backgroundColor: [
+                        'rgba(54, 162, 35, 1)',  // verde para Ajuda Normal
+                        'rgba(255, 69, 58, 1)'   // Vermelho para Ajuda Majorada
+                    ],
+                    borderColor: [
+                        'rgba(54, 162, 35, 1)',  // Verde
+                        'rgba(255, 69, 58, 1)'   // Vermelho
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return tooltipItem.label + ': ' + tooltipItem.raw;
+                            }
+                        }
+                    },
+                    datalabels: {
+                        display: true,
+                        color: '#ffffff',
+                        font: {
+                            weight: 'bold',
+                            size: 14
+                        },
+                        formatter: (value) => {
+                            return `${value}`;  // Exibe o valor numérico de cada segmento
+                        }
+                    }
+                },
+                cutout: '50%'  // Ajusta a espessura do gráfico tipo donut, caso esteja usando um gráfico de donut
+            }
+        });
+    });
+</script>
 
 
 
