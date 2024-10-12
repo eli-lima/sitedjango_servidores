@@ -478,6 +478,7 @@ class AjudaCusto(LoginRequiredMixin, ListView):
     paginate_by = 20  # Quantidade de registros por página
 
     def get_queryset(self):
+
         # Captura os parâmetros de pesquisa
         user = self.request.user
         query = self.request.GET.get('query', '')
@@ -533,20 +534,32 @@ class AjudaCusto(LoginRequiredMixin, ListView):
 
         context['page_range'] = range(start, end + 1)
 
-        # Obtendo o mês atual e o mês anterior
-        today = timezone.now().date()
-        current_month_start = today.replace(day=1)
-        last_day_of_last_month = current_month_start - timedelta(days=1)
-        previous_month_start = last_day_of_last_month.replace(day=1)
+        # Pega o mês e ano selecionados da requisição GET usando self.request
+        mes_selecionado = self.request.GET.get('mes') or timezone.now().month
+        ano_selecionado = self.request.GET.get('ano') or timezone.now().year
 
-        # Registros do mês atual
+        context['mes_selecionado'] = int(mes_selecionado)
+        context['ano_selecionado'] = int(ano_selecionado)
+
+        # Adiciona os meses e anos disponíveis ao contexto para popular os campos no template
+        context['meses'] = {
+            1: 'Janeiro', 2: 'Fevereiro', 3: 'Março', 4: 'Abril',
+            5: 'Maio', 6: 'Junho', 7: 'Julho', 8: 'Agosto',
+            9: 'Setembro', 10: 'Outubro', 11: 'Novembro', 12: 'Dezembro'
+        }
+        context['anos'] = range(2020, timezone.now().year + 1)  # Exemplo: lista de anos a partir de 2020
+
+
+        # Filtrar os dados para os gráficos com base no mês e ano selecionados
         lista_mes_ajuda = Ajuda_Custo.objects.filter(
-            data__year=current_month_start.year, data__month=current_month_start.month
+            data__year=ano_selecionado, data__month=mes_selecionado
         )
 
-        # Registros do mês anterior
+        # Registros do mês anterior para comparação
+        previous_month = int(mes_selecionado) - 1 if int(mes_selecionado) > 1 else 12
+        previous_year = int(ano_selecionado) if previous_month != 12 else int(ano_selecionado) - 1
         lista_mes_anterior = Ajuda_Custo.objects.filter(
-            data__year=previous_month_start.year, data__month=previous_month_start.month
+            data__year=previous_year, data__month=previous_month
         )
 
         # Contagem de ajudas de custo do mês atual levando em conta a carga horária

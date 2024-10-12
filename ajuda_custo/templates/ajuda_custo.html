@@ -10,12 +10,48 @@ Ajuda de Custo
 <!--tela administrador-->
 {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups %}
 
-<div class="flex flex-col xl:pt-12 pt-24">
+<div class="flex px-4 flex-col xl:pt-16 pt-36">
+    <div class="mb-0">
+      <form method="GET" class="flex space-x-4 items-center">
+        <!-- Campo para selecionar o mês -->
+        <div class="flex flex-col w-full xl:w-auto">
+          <label for="mes" class="text-sm font-medium text-gray-700">Selecione o Mês</label>
+          <select id="mes" name="mes" class="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            {% for numero, nome in meses.items %}
+              <option value="{{ numero }}" {% if mes_selecionado == numero %}selected{% endif %}>{{ nome }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Campo para selecionar o ano -->
+        <div class="flex flex-col">
+          <label for="ano" class="text-sm font-medium text-gray-700">Selecione o Ano</label>
+          <select id="ano" name="ano" class="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            {% for ano in anos %}
+              <option value="{{ ano }}" {% if ano_selecionado == ano %}selected{% endif %}>{{ ano }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Botão de submissão -->
+        <div class="flex flex-col justify-end">
+          <button type="submit" class="mt-4 px-4 py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-700">Filtrar</button>
+        </div>
+      </form>
+    </div>
+
+
+
+</div>
+
+
+
+<div class="flex flex-col">
   <div class="flex justify-evenly flex-wrap">
     <div class="py-2 px-2 w-1/2 xl:w-1/4">
           <!-- Card 1 -->
 
-    <div class="ml-4 flex-auto shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
+    <div class="ml-4 flex-auto xl:h-auto h-48 shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
         <div class="flex flex-row justify-between items-center h-full px-4">
             <div class="flex flex-col justify-between h-full py-10">
                 <div class="pb-4">
@@ -37,7 +73,7 @@ Ajuda de Custo
     <div class="py-2 px-2 w-1/2 xl:w-1/4">
           <!-- Card 2 -->
 
-        <div class="mr-4 xl:mr-0 flex-auto shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
+        <div class="mr-4 xl:mr-0 flex-auto xl:h-auto h-48 shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
             <div class="flex flex-row justify-between items-center h-full px-4">
                 <div class="flex flex-col justify-between h-full py-10">
                     <div class="pb-4">
@@ -59,7 +95,7 @@ Ajuda de Custo
     <div class="py-2 px-2 w-1/2 xl:w-1/4">
           <!-- Card 3 -->
 
-        <div class="ml-4 xl:ml-0 flex-auto shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
+        <div class="ml-4 xl:ml-0 flex-auto xl:h-auto h-48 shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
             <div class="flex flex-row justify-between items-center h-full px-4">
                 <div class="flex flex-col justify-between h-full py-10">
                     <div class="pb-4">
@@ -81,7 +117,7 @@ Ajuda de Custo
     <div class=" py-2 px-2 w-1/2 xl:w-1/4">
           <!-- Card 4 -->
 
-        <div class="mr-4 flex-auto shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
+        <div class="mr-4 flex-auto xl:h-auto h-48 shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
             <div class="flex flex-row justify-between items-center h-full px-4">
                 <div class="flex flex-col justify-between h-full py-10">
                     <div class="pb-4">
