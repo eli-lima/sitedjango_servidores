@@ -656,8 +656,21 @@ class RelatorioAjudaCusto(LoginRequiredMixin, UserPassesTestMixin, ListView):
         data_inicial = self.request.GET.get('dataInicial')
         data_final = self.request.GET.get('dataFinal')
 
-        data_inicial = parse_date(data_inicial) if data_inicial else None
-        data_final = parse_date(data_final) if data_final else None
+        # Caso dataInicial ou dataFinal não sejam fornecidas, utilizar o mês corrente
+        today = now().date()
+        first_day_of_month = today.replace(day=1)
+        last_day_of_month = (first_day_of_month + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+
+        # Garantir que as datas estejam no formato de string antes de usar parse_date
+        if not data_inicial:
+            data_inicial = first_day_of_month
+        else:
+            data_inicial = parse_date(data_inicial)  # Converter para objeto de data
+
+        if not data_final:
+            data_final = last_day_of_month
+        else:
+            data_final = parse_date(data_final)  # Converter para objeto de data
 
         queryset = Ajuda_Custo.objects.all()
 
@@ -666,6 +679,7 @@ class RelatorioAjudaCusto(LoginRequiredMixin, UserPassesTestMixin, ListView):
                 Q(nome__icontains=query) | Q(matricula__icontains=query)
             )
 
+        # Aplicar filtro de data apenas se as datas forem válidas
         if data_inicial and data_final:
             queryset = queryset.filter(data__range=[data_inicial, data_final])
         elif data_inicial:
@@ -677,9 +691,6 @@ class RelatorioAjudaCusto(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['query'] = self.request.GET.get('query', '')
-        context['dataInicial'] = self.request.GET.get('dataInicial', '')
-        context['dataFinal'] = self.request.GET.get('dataFinal', '')
 
         # Paginação personalizada
         page_obj = context['page_obj']
@@ -699,7 +710,26 @@ class RelatorioAjudaCusto(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
         context['page_range'] = range(start, end + 1)
 
+        # Garantir que as datas estejam no formato correto (YYYY-MM-DD)
+        today = now().date()
+        first_day_of_month = today.replace(day=1)
+        last_day_of_month = (first_day_of_month + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+
+        data_inicial = self.request.GET.get('dataInicial', first_day_of_month)
+        data_final = self.request.GET.get('dataFinal', last_day_of_month)
+
+        # Certifique-se de que as datas estejam formatadas corretamente (YYYY-MM-DD)
+        if isinstance(data_inicial, str):
+            data_inicial = parse_date(data_inicial)  # Se for string, converter para data
+        if isinstance(data_final, str):
+            data_final = parse_date(data_final)  # Se for string, converter para data
+
+        context['query'] = self.request.GET.get('query', '')
+        context['dataInicial'] = data_inicial.strftime('%Y-%m-%d') if data_inicial else ''
+        context['dataFinal'] = data_final.strftime('%Y-%m-%d') if data_final else ''
+
         return context
+
 
     def get(self, request, *args, **kwargs):
         action = request.GET.get('action')
@@ -708,9 +738,7 @@ class RelatorioAjudaCusto(LoginRequiredMixin, UserPassesTestMixin, ListView):
         elif action == 'excel_detalhado':
             return excel_detalhado(request)
         elif action == 'arquivos_assinados':
-            # Filtra os dados conforme os critérios
             queryset = self.get_queryset()
-            # Chama a função para criar o arquivo ZIP
             return criar_arquivo_zip(request, queryset)
         return super().get(request, *args, **kwargs)
 
