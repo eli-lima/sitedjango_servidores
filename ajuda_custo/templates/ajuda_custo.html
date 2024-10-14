@@ -18,7 +18,7 @@ Ajuda de Custo
           <label for="mes" class="xl:text-base text-xl font-semibold text-gray-700">Selecione o Mês</label>
           <select id="mes" name="mes" class="xl:text-base text-xl mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
             {% for numero, nome in meses.items %}
-              <option value="{{ numero }}" {% if mes_selecionado == numero %}selected{% endif %}>{{ nome }}</option>
+              <option class="" value="{{ numero }}" {% if mes_selecionado == numero %}selected{% endif %}>{{ nome }}</option>
             {% endfor %}
           </select>
         </div>
@@ -138,8 +138,8 @@ Ajuda de Custo
   </div>
 </div>
 
-<div class="mb-4 pt-4 flex flex-row px-4 xl:px-12 justify-start w-full h-auto">
-<!-- Gráfico de barra administrativo-->
+<div class="pt-4 flex flex-row px-4 xl:px-12 justify-start w-full xl:h-auto h-96">
+<!-- Gráfico de barra ajuda custo-->
     <div class=" w-3/4 mr-4 bg-white border border-gray-200 rounded-lg shadow-xl px-4 py-4">
         <div class="flex items-center justify-between pb-4 mb-4 border-b border-gray-200">
             <div>
@@ -152,14 +152,16 @@ Ajuda de Custo
             <canvas id="chart-bar-ajuda-custo" width="800" height="200"></canvas>
         </div>
     </div>
-    <div class="w-1/4 flex flex-col items-stretch rounded-lg shadow-lg p-6">
-        <div class="border-b border-gray-200 pb-4 mb-4">
-            <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Proporçāo Majorado x Normal:</h3>
-            <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">Mês Atual</span>
+
+<!--    GRAFICO MAJOARADO PIZZA-->
+    <div class="w-1/4 flex flex-col items-stretch rounded-lg shadow-lg pr-4">
+        <div class="border-b border-gray-200 pb-4 mb-4 p-4">
+            <h3 class="text-base font-semibold text-gray-500 dark:text-gray-400">Proporçāo Majorado x Normal:</h3>
+
         </div>
 
 
-        <div class="h-[300px]">
+        <div class="h-[280px] xl:p-4 p-1">
             <canvas id="majorado-pizza" width="200" height="100"></canvas>
         </div>
 
