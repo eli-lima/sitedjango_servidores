@@ -11,7 +11,6 @@ from django.utils.dateparse import parse_date
 from django.http import HttpResponse
 from openpyxl import Workbook
 import pandas as pd
-from django.http import JsonResponse
 from servidor.models import Servidor
 from django.core.paginator import Paginator
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -23,14 +22,16 @@ import logging
 import requests
 import re
 from dateutil import parser  # Isso ajudará a lidar com diferentes formatos de data
+from django.utils import timezone
+from django.http import JsonResponse
 from django.utils.timezone import now
 from datetime import datetime, timedelta
 
 
-
-
 # Create your views here.
-#upload relatorios do rx2
+
+
+# upload relatorios do rx2
 
 
 def upload_excel_rx2(request):
@@ -477,43 +478,22 @@ class AjudaCusto(LoginRequiredMixin, ListView):
     context_object_name = 'datas'
     paginate_by = 20  # Quantidade de registros por página
 
+
     def get_queryset(self):
-        # Captura os parâmetros de pesquisa
+        # Captura o usuário para possíveis filtros
         user = self.request.user
-        query = self.request.GET.get('query', '')
-        data_inicial = self.request.GET.get('dataInicial')
-        data_final = self.request.GET.get('dataFinal')
 
-        # Converte as datas em objetos datetime, se fornecidas
-        data_inicial = parse_date(data_inicial) if data_inicial else None
-        data_final = parse_date(data_final) if data_final else None
+    # Filtro de acordo com o tipo de usuário
 
-        # Cria o filtro básico com base na query de pesquisa
         if user.groups.filter(name__in=['Administrador', 'GerGesipe']).exists():
             queryset = Ajuda_Custo.objects.all()
         else:
             queryset = Ajuda_Custo.objects.filter(matricula=user.matricula)
 
-        if query:
-            queryset = queryset.filter(
-                Q(nome__icontains=query) | Q(matricula__icontains=query)
-            )
-
-        # Aplica os filtros de data se fornecidos
-        if data_inicial and data_final:
-            queryset = queryset.filter(data__range=[data_inicial, data_final])
-        elif data_inicial:
-            queryset = queryset.filter(data__gte=data_inicial)
-        elif data_final:
-            queryset = queryset.filter(data__lte=data_final)
-
         return queryset.order_by('nome')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['query'] = self.request.GET.get('query', '')
-        context['dataInicial'] = self.request.GET.get('dataInicial', '')
-        context['dataFinal'] = self.request.GET.get('dataFinal', '')
 
         # Paginação personalizada
         page_obj = context['page_obj']
@@ -532,6 +512,106 @@ class AjudaCusto(LoginRequiredMixin, ListView):
             end = paginator.num_pages
 
         context['page_range'] = range(start, end + 1)
+
+        # Pega o mês e ano selecionados da requisição GET usando self.request
+        mes_selecionado = self.request.GET.get('mes') or timezone.now().month
+        ano_selecionado = self.request.GET.get('ano') or timezone.now().year
+
+        context['mes_selecionado'] = int(mes_selecionado)
+        context['ano_selecionado'] = int(ano_selecionado)
+
+        # Adiciona os meses e anos disponíveis ao contexto para popular os campos no template
+        context['meses'] = {
+            1: 'Janeiro', 2: 'Fevereiro', 3: 'Março', 4: 'Abril',
+            5: 'Maio', 6: 'Junho', 7: 'Julho', 8: 'Agosto',
+            9: 'Setembro', 10: 'Outubro', 11: 'Novembro', 12: 'Dezembro'
+        }
+        context['anos'] = range(2020, timezone.now().year + 1)  # Exemplo: lista de anos a partir de 2020
+
+
+        # Filtrar os dados para os gráficos com base no mês e ano selecionados
+        lista_mes_ajuda = Ajuda_Custo.objects.filter(
+            data__year=ano_selecionado, data__month=mes_selecionado
+        )
+
+        # Registros do mês anterior para comparação
+        previous_month = int(mes_selecionado) - 1 if int(mes_selecionado) > 1 else 12
+        previous_year = int(ano_selecionado) if previous_month != 12 else int(ano_selecionado) - 1
+        lista_mes_anterior = Ajuda_Custo.objects.filter(
+            data__year=previous_year, data__month=previous_month
+        )
+
+        # Contagem de ajudas de custo do mês atual levando em conta a carga horária
+        ajudas_mes_atual_12h = lista_mes_ajuda.filter(carga_horaria='12 horas').count()  # Contagem de registros de 12 horas
+        ajudas_mes_atual_24h = lista_mes_ajuda.filter(carga_horaria='24 horas').count()  # Contagem de registros de 24 horas
+        ajudas_mes_atual = ajudas_mes_atual_24h + (ajudas_mes_atual_12h / 2)  # 12 horas conta como meia ajuda
+
+        # Contagem de ajudas de custo do mês anterior levando em conta a carga horária
+        ajudas_mes_anterior_12h = lista_mes_anterior.filter(carga_horaria='12 horas').count()
+        ajudas_mes_anterior_24h = lista_mes_anterior.filter(carga_horaria='24 horas').count()
+        ajudas_mes_anterior = ajudas_mes_anterior_24h + (ajudas_mes_anterior_12h / 2)
+
+        # Cálculo da variação percentual
+        if ajudas_mes_anterior > 0:
+            variacao_percentual = ((ajudas_mes_atual - ajudas_mes_anterior) / ajudas_mes_anterior) * 100
+        else:
+            variacao_percentual = 0  # Caso não haja registros no mês anterior
+
+        # Contagem distinta de matrículas para o mês atual
+        servidores_com_ajuda = lista_mes_ajuda.values('matricula').distinct().count()
+
+        # Background da variação percentual
+        if variacao_percentual > 0:
+            context['bg_class'] = 'bg-green-600'
+        elif variacao_percentual < 0:
+            context['bg_class'] = 'bg-red-600'
+        else:
+            context['bg_class'] = 'bg-gray-600'
+
+        # Adiciona os dados ao contexto
+        context['ajudas_mes_atual'] = round(ajudas_mes_atual)  # Arredonda para duas casas decimais
+        context['ajudas_mes_anterior'] = round(ajudas_mes_anterior)
+        context['variacao_percentual'] = round(variacao_percentual, 2)
+        context['servidores_com_ajuda'] = servidores_com_ajuda
+
+        # Gráfico de pizza: majorado x normal, levando em conta a carga horária
+        ajuda_normal_12h = lista_mes_ajuda.filter(majorado=False, carga_horaria='12 horas').count()
+        ajuda_normal_24h = lista_mes_ajuda.filter(majorado=False, carga_horaria='24 horas').count()
+        ajuda_majorado_12h = lista_mes_ajuda.filter(majorado=True, carga_horaria='12 horas').count()
+        ajuda_majorado_24h = lista_mes_ajuda.filter(majorado=True, carga_horaria='24 horas').count()
+
+        # Contagens ajustadas para normal e majorado
+        ajuda_normal = ajuda_normal_24h + (ajuda_normal_12h / 2)
+        ajuda_majorado = ajuda_majorado_24h + (ajuda_majorado_12h / 2)
+
+        # Passa as contagens para o contexto
+        context['pie_values'] = [round(ajuda_normal, 2), round(ajuda_majorado, 2)]
+        context['pie_labels'] = ['Ajuda Normal', 'Ajuda Majorada']
+
+        # Gráfico de barras ajuda custo
+        # Obtendo o ano atual
+        current_year = timezone.now().year
+        monthly_totals = []
+
+        # Loop pelos meses do ano
+        for month in range(1, 13):
+            # Contagem de ajudas por mês, ajustando a carga horária
+            ajudas_12h = Ajuda_Custo.objects.filter(data__year=current_year, data__month=month,
+                                                    carga_horaria='12 horas').count()
+            ajudas_24h = Ajuda_Custo.objects.filter(data__year=current_year, data__month=month,
+                                                    carga_horaria='24 horas').count()
+            monthly_total = ajudas_24h + (ajudas_12h / 2)
+            monthly_totals.append(round(monthly_total, 2))
+
+        # Labels dos meses em português
+        meses_portugues = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                           'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
+
+        # Adicionar os valores ao contexto existente
+        context['labels_mensais'] = meses_portugues
+        context['values_mensais'] = monthly_totals
+
+
 
         return context
 
