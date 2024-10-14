@@ -475,7 +475,7 @@ class AjudaCusto(LoginRequiredMixin, ListView):
     model = Ajuda_Custo
     template_name = "ajuda_custo.html"
     context_object_name = 'datas'
-    paginate_by = 2  # Quantidade de registros por página
+    paginate_by = 50  # Quantidade de registros por página
 
 
     def get_queryset(self):
