@@ -253,8 +253,7 @@ def exportar_excel(request):
     elif data_final:
         queryset = queryset.filter(data__lte=data_final)
 
-    # Adicionando um print para verificar o queryset
-    print(f"Queryset após filtros: {queryset}")
+
 
     # Processar os resultados em um dicionário
     dados_matriculas = {}
@@ -476,19 +475,30 @@ class AjudaCusto(LoginRequiredMixin, ListView):
     model = Ajuda_Custo
     template_name = "ajuda_custo.html"
     context_object_name = 'datas'
-    paginate_by = 20  # Quantidade de registros por página
+    paginate_by = 2  # Quantidade de registros por página
 
 
     def get_queryset(self):
-        # Captura o usuário para possíveis filtros
+
         user = self.request.user
 
-    # Filtro de acordo com o tipo de usuário
-
+        # Verificação de grupos de usuário
         if user.groups.filter(name__in=['Administrador', 'GerGesipe']).exists():
             queryset = Ajuda_Custo.objects.all()
         else:
             queryset = Ajuda_Custo.objects.filter(matricula=user.matricula)
+
+        # Determina o mês corrente como padrão, sem levar em consideração a pesquisa
+        today = now().date()
+        first_day_of_month = today.replace(day=1)
+        last_day_of_month = (first_day_of_month + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+
+        # Processar as datas: usar o mês atual
+        data_inicial = first_day_of_month
+        data_final = last_day_of_month
+
+        # Filtro de data (mês atual)
+        queryset = queryset.filter(data__range=[data_inicial, data_final])
 
         return queryset.order_by('nome')
 
@@ -512,6 +522,14 @@ class AjudaCusto(LoginRequiredMixin, ListView):
             end = paginator.num_pages
 
         context['page_range'] = range(start, end + 1)
+
+        # Definir datas de contexto (apenas para exibição, JavaScript já define as datas)
+        today = now().date()
+        first_day_of_month = today.replace(day=1)
+        last_day_of_month = (first_day_of_month + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+
+        context['dataInicial'] = first_day_of_month.strftime('%Y-%m-%d')
+        context['dataFinal'] = last_day_of_month.strftime('%Y-%m-%d')
 
         # Pega o mês e ano selecionados da requisição GET usando self.request
         mes_selecionado = self.request.GET.get('mes') or timezone.now().month

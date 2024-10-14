@@ -297,7 +297,7 @@ Ajuda de Custo
                </div>
             </div>
 
-                <form method="GET">
+                <form method="GET" onsubmit="return false;">
                     <div class="mt-4 px-0 flex flex-row justify-between w-full">
                         <div class="flex flex-row">
                             <input class="form-input w-full sm:w-auto sm:ml-4 p-1.5 rounded-md border-1 border-gray-600"
@@ -321,7 +321,7 @@ Ajuda de Custo
                                    hx-trigger="keyup changed delay:500ms"
                                    hx-target="#content2"
                                    hx-include="[name='dataInicial'], [name='dataFinal']">
-                            <button type="submit" class="hidden"></button>
+
                         </div>
                     </div>
                 </form>
@@ -496,56 +496,24 @@ Ajuda de Custo
 </script>
 
 
-<!--alimentar tabela por api-->
-
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const fetchAjudaCusto = async () => {
-            const response = await fetch(`/api/ajuda_custo/?query=${document.getElementById('searchInput').value}&dataInicial=${document.getElementById('dataInicial').value}&dataFinal=${document.getElementById('dataFinal').value}`);
-            const data = await response.json();
-            const tbody = document.querySelector("tbody");
-            tbody.innerHTML = "";
+    document.addEventListener('DOMContentLoaded', function() {
+    const dataInicialField = document.getElementById('dataInicial');
+    const dataFinalField = document.getElementById('dataFinal');
 
-            data.forEach(item => {
-                const tr = document.createElement("tr");
-                tr.innerHTML = `
-                    <td class="px-6 py-4 xl:text-base text-xl whitespace-nowrap">${item.matricula}</td>
-                    <td class="px-6 py-4 xl:text-base text-xl whitespace-nowrap">${item.nome}</td>
-                    <td class="px-6 py-4 xl:text-base text-xl whitespace-nowrap">${new Date(item.data).toLocaleDateString()}</td>
-                    <td class="px-6 py-4 xl:text-base text-xl whitespace-nowrap">${item.unidade}</td>
-                    <td class="px-6 py-4 xl:text-base text-xl whitespace-nowrap">${item.carga_horaria}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        };
-
-        document.querySelector("form").addEventListener("submit", function(e) {
-            e.preventDefault();
-            fetchAjudaCusto();
-        });
-
-        // Fetch initial data on page load
-        fetchAjudaCusto();
-    });
-</script>
-
-<script>
-    // Função para definir a data inicial e final do mês atual
-    function setInitialAndFinalDates() {
+    // Verificar se os campos já têm valores (vindos do Django)
+    if (!dataInicialField.value) {
         const now = new Date();
         const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-        const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0); // Último dia do mês atual
-
-        // Formata as datas no formato YYYY-MM-DD
-        const formatDate = (date) => date.toISOString().split('T')[0];
-
-        // Preenche os campos de data
-        document.getElementById('dataInicial').value = formatDate(firstDay);
-        document.getElementById('dataFinal').value = formatDate(lastDay);
+        dataInicialField.value = firstDay.toISOString().split('T')[0];  // Define apenas se estiver vazio
     }
 
-    // Chama a função ao carregar a página
-    document.addEventListener('DOMContentLoaded', setInitialAndFinalDates);
+    if (!dataFinalField.value) {
+        const now = new Date();
+        const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        dataFinalField.value = lastDay.toISOString().split('T')[0];  // Define apenas se estiver vazio
+    }
+});
 
 </script>
 
