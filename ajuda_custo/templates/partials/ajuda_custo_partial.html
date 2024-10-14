@@ -1,0 +1,17 @@
+
+
+
+
+    {% for data in datas %}
+    <tr>
+        <td class="px-6 py-4 whitespace-nowrap">{{ data.matricula }}</td>
+        <td class="px-6 py-4 whitespace-nowrap">{{ data.nome }}</td>
+        <td class="px-6 py-4 whitespace-nowrap">{{ data.data|date:"d/m/Y" }}</td>
+        <td class="px-6 py-4 whitespace-nowrap">{{ data.unidade }}</td>
+        <td class="px-6 py-4 whitespace-nowrap">{{ data.carga_horaria }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="5" class="px-6 py-4 text-center text-gray-500">Nenhum resultado encontrado</td>
+    </tr>
+    {% endfor %}
