@@ -14,8 +14,8 @@ Ajuda de Custo
     <div class="mb-0">
       <form method="GET" class="flex space-x-4 items-center">
         <!-- Campo para selecionar o mês -->
-        <div class="flex flex-col w-full xl:w-auto">
-          <label for="mes" class="text-sm font-medium text-gray-700">Selecione o Mês</label>
+        <div class="flex flex-col w-56 xl:w-auto mr-4">
+          <label for="mes" class="xl:text-base text-xl font-semibold text-gray-700">Selecione o Mês</label>
           <select id="mes" name="mes" class="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
             {% for numero, nome in meses.items %}
               <option value="{{ numero }}" {% if mes_selecionado == numero %}selected{% endif %}>{{ nome }}</option>
@@ -24,8 +24,8 @@ Ajuda de Custo
         </div>
 
         <!-- Campo para selecionar o ano -->
-        <div class="flex flex-col">
-          <label for="ano" class="text-sm font-medium text-gray-700">Selecione o Ano</label>
+        <div class="flex flex-col w-56 xl:w-auto mr-4">
+          <label for="ano" class="xl:text-base text-xl font-semibold text-gray-700">Selecione o Ano</label>
           <select id="ano" name="ano" class="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
             {% for ano in anos %}
               <option value="{{ ano }}" {% if ano_selecionado == ano %}selected{% endif %}>{{ ano }}</option>
@@ -35,7 +35,7 @@ Ajuda de Custo
 
         <!-- Botão de submissão -->
         <div class="flex flex-col justify-end">
-          <button type="submit" class="mt-4 px-4 py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-700">Filtrar</button>
+          <button type="submit" class="mt-4 px-4 py-2 bg-blue-500 text-white xl:text-base text-xl font-semibold rounded-md hover:bg-blue-700">Filtrar</button>
         </div>
       </form>
     </div>
