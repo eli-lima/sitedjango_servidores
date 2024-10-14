@@ -35,9 +35,7 @@ def ajuda_custo_list(request):
 
     # Obtém as 50 datas mais recentes após aplicar todos os filtros
     queryset = queryset.order_by('-data')[:50]
-    print(len(queryset))
 
-    print(queryset, data_inicial, data_final)
 
     context = {
         'datas': queryset,
