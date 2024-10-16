@@ -238,3 +238,12 @@ LOGGING = {
 
 # Aumentar o número máximo de campos permitidos em um upload de formulário
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
+
+
+# Configurações do Celery
+CELERY_BROKER_URL = os.environ.get('REDISGREEN_URL')  # Para Stackhero, use 'STACKHERO_REDIS_URL_TLS'
+CELERY_RESULT_BACKEND = os.environ.get('REDISGREEN_URL')
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'America/Sao_Paulo'

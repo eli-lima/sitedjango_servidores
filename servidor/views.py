@@ -27,60 +27,37 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 #Relatorios PDF
 @login_required
 def export_to_pdf(request):
-    # Inicializa o queryset de Servidor
     servidores = Servidor.objects.all().order_by('nome')
-
-    # Verifique se os parâmetros estão sendo recebidos
     query = request.GET.get('query')
     if query:
-        servidores = servidores.filter(
-            Q(nome__icontains=query) | Q(matricula__icontains=query)
-        )
-
+        servidores = servidores.filter(Q(nome__icontains=query) | Q(matricula__icontains=query))
     cargo = request.GET.get('cargo')
     if cargo:
         servidores = servidores.filter(cargo=cargo)
-
-    local_trabalho = request.GET.get('local_trabalho')  # Alterado de 'lotacao' para 'local_trabalho'
-
+    local_trabalho = request.GET.get('local_trabalho')
     if local_trabalho:
         servidores = servidores.filter(local_trabalho__icontains=local_trabalho)
-
     cargo_comissionado = request.GET.get('cargo_comissionado')
-
     if cargo_comissionado:
         servidores = servidores.filter(cargo_comissionado=cargo_comissionado)
-
     status = request.GET.get('status')
-
     if status:
         servidores = servidores.filter(status=status)
-
     genero = request.GET.get('genero')
-
     if genero:
         servidores = servidores.filter(genero=genero)
 
-    # Gera o PDF
     template_path = 'servidor_pdf.html'
     context = {'servidores': servidores}
+    task = gerar_pdf.delay(context, template_path)
 
-    # Renderiza o template HTML com os dados
-    template = get_template(template_path)
-    html = template.render(context)
+    while not task.ready():
+        time.sleep(1)  # Espera um pouco para a tarefa ser concluída
 
-    # Cria a resposta do PDF
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="relatorio_servidores.pdf"'
-
-    # Converte o HTML para PDF
-    pisa_status = pisa.CreatePDF(html, dest=response)
-
-    # Se houver um erro no PDF, exibe mensagem de erro
-    if pisa_status.err:
+    if task.result == 'Erro ao gerar PDF':
         return HttpResponse('Erro ao gerar PDF', status=500)
-    return response
 
+    return FileResponse(open(task.result, 'rb'), as_attachment=True, filename='relatorio_servidores.pdf')
 
 
 
