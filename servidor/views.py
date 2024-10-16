@@ -29,6 +29,9 @@ import time
 # Create your views here.
 
 #Relatorios PDF
+time
+
+
 @login_required
 def export_to_pdf(request):
     servidores = Servidor.objects.all().order_by('nome')
@@ -62,7 +65,6 @@ def export_to_pdf(request):
         return HttpResponse('Erro ao gerar PDF', status=500)
 
     return FileResponse(open(task.result, 'rb'), as_attachment=True, filename='relatorio_servidores.pdf')
-
 
 
 class RecursosHumanosPage(LoginRequiredMixin, ListView):
