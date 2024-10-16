@@ -18,6 +18,10 @@ from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.contrib.auth.mixins import UserPassesTestMixin
+from .tasks import gerar_pdf
+from django.shortcuts import render
+from django.http import JsonResponse, FileResponse
+import time
 
 
 
