@@ -18,11 +18,11 @@ from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.contrib.auth.mixins import UserPassesTestMixin
-from .tasks import gerar_pdf
+from .tasks import render_html, create_pdf
 from django.shortcuts import render
 from django.http import JsonResponse, FileResponse
 import time
-
+from celery import chain
 
 
 
@@ -49,22 +49,23 @@ def export_to_pdf(request):
         servidores = servidores.filter(cargo_comissionado=cargo_comissionado)
     status = request.GET.get('status')
     if status:
-        servidores = servidores.filter(status=status)
+        servidores.filter(status=status)
     genero = request.GET.get('genero')
     if genero:
         servidores = servidores.filter(genero=genero)
 
     template_path = 'servidor_pdf.html'
     context = {'servidores': servidores}
-    task = gerar_pdf.delay(context, template_path)
 
-    while not task.ready():
-        time.sleep(1)  # Espera um pouco para a tarefa ser concluída
+    result = chain(render_html.s(context, template_path), create_pdf.s()).apply_async()
 
-    if task.result == 'Erro ao gerar PDF':
+    while not result.ready():
+        time.sleep(1)
+
+    if result.result == 'Erro ao gerar PDF':
         return HttpResponse('Erro ao gerar PDF', status=500)
 
-    return FileResponse(open(task.result, 'rb'), as_attachment=True, filename='relatorio_servidores.pdf')
+    return FileResponse(open(result.result, 'rb'), as_attachment=True, filename='relatorio_servidores.pdf')
 
 
 class RecursosHumanosPage(LoginRequiredMixin, ListView):
