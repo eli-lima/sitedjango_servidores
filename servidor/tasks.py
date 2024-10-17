@@ -12,14 +12,16 @@ def render_html_chunk(servidores_chunk, template_path):
         print(f"Rendering HTML chunk for servidores: {servidores_chunk}")
         html = render_to_string(template_path, {'servidores': servidores_chunk})
         print("HTML chunk rendered successfully")
-        return html
+        return html  # Certifique-se de que isso é uma string
     except Exception as e:
         print(f"Error rendering HTML chunk: {e}")
-        return 'Erro ao renderizar HTML'  # Garanta que estamos retornando uma string
+        return 'Erro ao renderizar HTML'  # Retorna uma string mesmo em caso de erro
 
 @shared_task
 def create_partial_pdf(html_chunk, part):
     try:
+        if isinstance(html_chunk, dict):
+            html_chunk = str(html_chunk)  # Converte dict para string
         print(f"Creating PDF part: {part}")
         output_path = os.path.join(settings.MEDIA_ROOT, f'relatorio_servidores_{part}.pdf')
         with open(output_path, 'wb') as output:

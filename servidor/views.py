@@ -46,8 +46,9 @@ def export_to_pdf(request):
             )
         cargo = request.GET.get('cargo')
         if cargo:
-            servidores = servidores.filter(cargo=cargo)
-        local_trabalho = request.GET.get('local_trabalho')  # Alterado de 'lotacao' para 'local_trabalho'
+            servidores
+            filter(cargo=cargo)
+        local_trabalho = request.GET.get('local_trabalho')
         if local_trabalho:
             servidores = servidores.filter(local_trabalho__icontains=local_trabalho)
         cargo_comissionado = request.GET.get('cargo_comissionado')
