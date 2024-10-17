@@ -31,7 +31,6 @@ import psutil
 #Relatorios PDF
 
 
-@login_required
 def export_to_pdf(request):
     try:
         print(f"Initial memory usage: {psutil.virtual_memory().percent}%")
@@ -80,7 +79,8 @@ def export_to_pdf(request):
         if result.result == 'Erro ao gerar PDF' or result.result == 'Erro ao combinar PDFs':
             return HttpResponse('Erro ao gerar PDF', status=500)
 
-        return FileResponse(open(result.result, 'rb'), as_attachment=True, filename='relatorio_servidores.pdf')
+        # Retornar URL do Cloudinary
+        return JsonResponse({'pdf_url': result.result})
     except Exception as e:
         print(f"Error in export_to_pdf view: {e}")
         return HttpResponse('Erro ao gerar PDF', status=500)
