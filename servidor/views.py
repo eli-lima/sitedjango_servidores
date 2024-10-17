@@ -18,55 +18,68 @@ from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.contrib.auth.mixins import UserPassesTestMixin
-from .tasks import render_html, create_pdf
+from .tasks import render_html_chunk, create_partial_pdf,combine_pdfs
 from django.shortcuts import render
 from django.http import JsonResponse, FileResponse
 import time
-from celery import chain
+from celery import chain, group
 
 
 
 # Create your views here.
 
 #Relatorios PDF
-time
 
 
 @login_required
 def export_to_pdf(request):
-    servidores = Servidor.objects.all().order_by('nome')
-    query = request.GET.get('query')
-    if query:
-        servidores = servidores.filter(Q(nome__icontains=query) | Q(matricula__icontains=query))
-    cargo = request.GET.get('cargo')
-    if cargo:
-        servidores = servidores.filter(cargo=cargo)
-    local_trabalho = request.GET.get('local_trabalho')
-    if local_trabalho:
-        servidores = servidores.filter(local_trabalho__icontains=local_trabalho)
-    cargo_comissionado = request.GET.get('cargo_comissionado')
-    if cargo_comissionado:
-        servidores = servidores.filter(cargo_comissionado=cargo_comissionado)
-    status = request.GET.get('status')
-    if status:
-        servidores.filter(status=status)
-    genero = request.GET.get('genero')
-    if genero:
-        servidores = servidores.filter(genero=genero)
+    try:
+        # Inicializa o queryset de Servidor
+        servidores = Servidor.objects.all().order_by('nome')
 
-    template_path = 'servidor_pdf.html'
-    context = {'servidores': servidores}
+        # Verifica se os parâmetros estão sendo recebidos
+        query = request.GET.get('query')
+        if query:
+            servidores = servidores.filter(
+                Q(nome__icontains=query) | Q(matricula__icontains=query)
+            )
+        cargo = request.GET.get('cargo')
+        if cargo:
+            servidores = servidores.filter(cargo=cargo)
+        local_trabalho = request.GET.get('local_trabalho')  # Alterado de 'lotacao' para 'local_trabalho'
+        if local_trabalho:
+            servidores = servidores.filter(local_trabalho__icontains=local_trabalho)
+        cargo_comissionado = request.GET.get('cargo_comissionado')
+        if cargo_comissionado:
+            servidores = servidores.filter(cargo_comissionado=cargo_comissionado)
+        status = request.GET.get('status')
+        if status:
+            servidores = servidores.filter(status=status)
+        genero = request.GET.get('genero')
+        if genero:
+            servidores = servidores.filter(genero=genero)
 
-    result = chain(render_html.s(context, template_path), create_pdf.s()).apply_async()
+        servidores = list(servidores)
+        chunk_size = 50  # Ajustar para 50 funcionários por chunk
+        chunks = [servidores[i:i + chunk_size] for i in range(0, len(servidores), chunk_size)]
 
-    while not result.ready():
-        time.sleep(1)
+        template_path = 'servidor_pdf.html'
 
-    if result.result == 'Erro ao gerar PDF':
+        render_tasks = [render_html_chunk.s(chunk, template_path, i * chunk_size, (i + 1) * chunk_size) for i, chunk in enumerate(chunks)]
+        create_tasks = group(create_partial_pdf.s(html_chunk, i) for i, html_chunk in enumerate(render_tasks))
+
+        result = chain(create_tasks, combine_pdfs.s()).apply_async()
+
+        while not result.ready():
+            time.sleep(1)
+
+        if result.result == 'Erro ao gerar PDF' or result.result == 'Erro ao combinar PDFs':
+            return HttpResponse('Erro ao gerar PDF', status=500)
+
+        return FileResponse(open(result.result, 'rb'), as_attachment=True, filename='relatorio_servidores.pdf')
+    except Exception as e:
+        print(f"Error in export_to_pdf view: {e}")
         return HttpResponse('Erro ao gerar PDF', status=500)
-
-    return FileResponse(open(result.result, 'rb'), as_attachment=True, filename='relatorio_servidores.pdf')
-
 
 class RecursosHumanosPage(LoginRequiredMixin, ListView):
     model = Servidor
