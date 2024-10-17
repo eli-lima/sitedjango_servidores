@@ -3,7 +3,7 @@ from django.template.loader import render_to_string
 from django.conf import settings
 import os
 from xhtml2pdf import pisa
-from PyPDF2 import PdfMerger  # Atualize de PdfFileMerger para PdfMerger
+from PyPDF2 import PdfMerger
 import psutil
 
 @shared_task
