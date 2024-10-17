@@ -31,9 +31,6 @@ import psutil
 #Relatorios PDF
 
 
-
-
-
 @login_required
 def export_to_pdf(request):
     try:
@@ -64,7 +61,8 @@ def export_to_pdf(request):
         if genero:
             servidores = servidores.filter(genero=genero)
 
-        servidores = list(servidores)
+        servidores = list(
+            servidores.values('nome', 'matricula', 'cargo', 'local_trabalho', 'cargo_comissionado', 'status', 'genero'))
         chunk_size = 50  # Ajustar para 50 funcionários por chunk
         chunks = [servidores[i:i + chunk_size] for i in range(0, len(servidores), chunk_size)]
 
