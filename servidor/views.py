@@ -23,7 +23,7 @@ from django.shortcuts import render
 from django.http import JsonResponse, FileResponse
 import time
 from celery import chain, group
-
+import psutil
 
 
 # Create your views here.
@@ -31,7 +31,7 @@ from celery import chain, group
 #Relatorios PDF
 
 
-psutil
+
 
 
 @login_required
