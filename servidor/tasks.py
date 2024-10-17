@@ -4,6 +4,7 @@ from django.conf import settings
 import os
 from xhtml2pdf import pisa
 from PyPDF2 import PdfFileMerger
+import psutil
 
 @shared_task
 def render_html_chunk(context, template_path, start, end):
@@ -28,6 +29,7 @@ def create_partial_pdf(html_chunk, part):
             print("Error creating PDF part")
             return 'Erro ao gerar PDF'
         print(f"PDF part {part} created successfully")
+        print(f"Memory usage after creating PDF part {part}: {psutil.virtual_memory().percent}%")
         return output_path
     except Exception as e:
         print(f"Error creating PDF part: {e}")
@@ -36,8 +38,6 @@ def create_partial_pdf(html_chunk, part):
 @shared_task
 def combine_pdfs(parts):
     try:
-        from PyPDF2 import PdfFileMerger
-
         print("Combining PDF parts")
         merger = PdfFileMerger()
         final_output_path = os.path.join(settings.MEDIA_ROOT, 'relatorio_servidores_final.pdf')
@@ -48,6 +48,7 @@ def combine_pdfs(parts):
         with open(final_output_path, 'wb') as output:
             merger.write(output)
         print("Combined PDF created successfully")
+        print(f"Memory usage after combining PDFs: {psutil.virtual_memory().percent}%")
         return final_output_path
     except Exception as e:
         print(f"Error combining PDFs: {e}")
