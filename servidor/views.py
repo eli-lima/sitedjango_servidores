@@ -46,9 +46,8 @@ def export_to_pdf(request):
             )
         cargo = request.GET.get('cargo')
         if cargo:
-            servidores
-            filter(cargo=cargo)
-        local_trabalho = request.GET.get('local_trabalho')
+            servidores = servidores.filter(cargo=cargo)
+        local_trabalho = request.GET.get('local_trabalho')  # Alterado de 'lotacao' para 'local_trabalho'
         if local_trabalho:
             servidores = servidores.filter(local_trabalho__icontains=local_trabalho)
         cargo_comissionado = request.GET.get('cargo_comissionado')
@@ -82,7 +81,7 @@ def export_to_pdf(request):
         return FileResponse(open(result.result, 'rb'), as_attachment=True, filename='relatorio_servidores.pdf')
     except Exception as e:
         print(f"Error in export_to_pdf view: {e}")
-        return HttpResponse('Erro ao gerar PDF', status=500)
+        return HttpResponse('Erro ao gerar PDF')
 
 
 class RecursosHumanosPage(LoginRequiredMixin, ListView):
