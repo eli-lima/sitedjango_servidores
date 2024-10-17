@@ -15,7 +15,7 @@ def render_html_chunk(servidores_chunk, template_path):
         return html
     except Exception as e:
         print(f"Error rendering HTML chunk: {e}")
-        return 'Erro ao renderizar HTML'
+        return 'Erro ao renderizar HTML'  # Garanta que estamos retornando uma string
 
 @shared_task
 def create_partial_pdf(html_chunk, part):
@@ -23,7 +23,7 @@ def create_partial_pdf(html_chunk, part):
         print(f"Creating PDF part: {part}")
         output_path = os.path.join(settings.MEDIA_ROOT, f'relatorio_servidores_{part}.pdf')
         with open(output_path, 'wb') as output:
-            pisa_status = pisa.CreatePDF(html_chunk, dest=output)
+            pisa_status = pisa.CreatePDF(html_chunk.encode('utf-8'), dest=output)
         if pisa_status.err:
             print("Error creating PDF part")
             return 'Erro ao gerar PDF'
