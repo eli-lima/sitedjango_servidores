@@ -3,7 +3,7 @@ from django.template.loader import render_to_string
 from django.conf import settings
 import os
 from xhtml2pdf import pisa
-from PyPDF2 import PdfFileMerger
+from PyPDF2 import PdfMerger  # Atualize de PdfFileMerger para PdfMerger
 import psutil
 
 @shared_task
@@ -39,7 +39,7 @@ def create_partial_pdf(html_chunk, part):
 def combine_pdfs(parts):
     try:
         print("Combining PDF parts")
-        merger = PdfFileMerger()
+        merger = PdfMerger()
         final_output_path = os.path.join(settings.MEDIA_ROOT, 'relatorio_servidores_final.pdf')
         for part in parts:
             merger.append(part)

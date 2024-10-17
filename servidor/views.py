@@ -68,8 +68,8 @@ def export_to_pdf(request):
 
         template_path = 'servidor_pdf.html'
 
-        render_tasks = [render_html_chunk.s(chunk, template_path, i * chunk_size, (i + 1) * chunk_size) for i, chunk in
-                        enumerate(chunks)]
+        render_tasks = [render_html_chunk.s({'servidores': chunk}, template_path, i * chunk_size, (i + 1) * chunk_size)
+                        for i, chunk in enumerate(chunks)]
         create_tasks = group(create_partial_pdf.s(html_chunk, i) for i, html_chunk in enumerate(render_tasks))
 
         result = chain(create_tasks, combine_pdfs.s()).apply_async()
