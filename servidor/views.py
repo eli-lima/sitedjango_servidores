@@ -30,7 +30,7 @@ import psutil
 
 #Relatorios PDF
 
-
+@login_required()
 def export_to_pdf(request):
     try:
         print(f"Initial memory usage: {psutil.virtual_memory().percent}%")
@@ -67,8 +67,7 @@ def export_to_pdf(request):
 
         template_path = 'servidor_pdf.html'
 
-        render_tasks = [render_html_chunk.s(chunk, template_path, i * chunk_size, (i + 1) * chunk_size) for i, chunk in
-                        enumerate(chunks)]
+        render_tasks = [render_html_chunk.s(chunk, template_path) for chunk in chunks]
         create_tasks = group(create_partial_pdf.s(html_chunk, i) for i, html_chunk in enumerate(render_tasks))
 
         result = chain(create_tasks, combine_pdfs.s()).apply_async()
@@ -79,8 +78,7 @@ def export_to_pdf(request):
         if result.result == 'Erro ao gerar PDF' or result.result == 'Erro ao combinar PDFs':
             return HttpResponse('Erro ao gerar PDF', status=500)
 
-        # Retornar URL do Cloudinary
-        return JsonResponse({'pdf_url': result.result})
+        return FileResponse(open(result.result, 'rb'), as_attachment=True, filename='relatorio_servidores.pdf')
     except Exception as e:
         print(f"Error in export_to_pdf view: {e}")
         return HttpResponse('Erro ao gerar PDF', status=500)
