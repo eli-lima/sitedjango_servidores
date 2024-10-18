@@ -1,9 +1,8 @@
 from celery import shared_task
 from django.template.loader import render_to_string
 from cloudinary.uploader import upload as cloudinary_upload
-from cloudinary.uploader import destroy as cloudinary_destroy
-from cloudinary.utils import cloudinary_url
 import os
+import requests
 from xhtml2pdf import pisa
 from PyPDF2 import PdfMerger
 import psutil
@@ -56,9 +55,16 @@ def combine_pdfs(parts):
         merger = PdfMerger()
         final_output_path = os.path.join('/tmp', 'relatorio_servidores_final.pdf')
         for part in parts:
-            print(f"Downloading and appending {part} to final PDF")
-            part_path = part.split('http')[-1]  # Ajuste o caminho conforme necessário
-            merger.append(part_path)
+            if part.startswith('http'):
+                print(f"Downloading and appending {part} to final PDF")
+                response = requests.get(part)
+                part_path = os.path.join('/tmp', os.path.basename(part))
+                with open(part_path, 'wb') as f:
+                    f.write(response.content)
+                merger.append(part_path)
+            else:
+                print(f"Appending {part} to final PDF")
+                merger.append(part)
 
         with open(final_output_path, 'wb') as output:
             merger.write(output)
