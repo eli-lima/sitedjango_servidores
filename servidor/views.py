@@ -72,11 +72,11 @@ def export_to_pdf(request):
         if result.result == 'Erro ao gerar PDF':
             return HttpResponse('Erro ao gerar PDF', status=500)
 
-
         return HttpResponseRedirect(result.result)
     except Exception as e:
         print(f"Error in export_to_pdf view: {e}")
         return HttpResponse('Erro ao gerar PDF', status=500)
+
 
 class RecursosHumanosPage(LoginRequiredMixin, ListView):
     model = Servidor
