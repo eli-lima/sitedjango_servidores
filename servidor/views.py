@@ -29,6 +29,8 @@ from celery.result import AsyncResult
 #Relatorios PDF
 
 
+AsyncResult
+
 @login_required
 def export_to_pdf(request):
     try:
@@ -46,7 +48,7 @@ def export_to_pdf(request):
         cargo = request.GET.get('cargo')
         if cargo:
             servidores = servidores.filter(cargo=cargo)
-        local_trabalho = request.GET.get('local_trabalho')
+        local_trabalho = request.GET.get('local_tralho')
         if local_trabalho:
             servidores = servidores.filter(local_trabalho__icontains=local_trabalho)
         cargo_comissionado = request.GET.get('cargo_comissionado')
@@ -77,7 +79,6 @@ def check_task_status(request, task_id):
         return JsonResponse({'status': task.state, 'url': task.result})
     else:
         return JsonResponse({'status': task.state})
-
 
 
 class RecursosHumanosPage(LoginRequiredMixin, ListView):
