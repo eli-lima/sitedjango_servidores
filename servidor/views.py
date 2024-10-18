@@ -21,15 +21,14 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from .tasks import generate_pdf
 from django.shortcuts import render
 from django.http import JsonResponse, FileResponse, HttpResponse, HttpResponseRedirect
-from celery.result import AsyncResult
+import time
+from celery import chain, group
+
 
 
 # Create your views here.
 
 #Relatorios PDF
-
-
-AsyncResult
 
 @login_required
 def export_to_pdf(request):
@@ -48,7 +47,7 @@ def export_to_pdf(request):
         cargo = request.GET.get('cargo')
         if cargo:
             servidores = servidores.filter(cargo=cargo)
-        local_trabalho = request.GET.get('local_tralho')
+        local_trabalho = request.GET.get('local_trabalho')
         if local_trabalho:
             servidores = servidores.filter(local_trabalho__icontains=local_trabalho)
         cargo_comissionado = request.GET.get('cargo_comissionado')
@@ -67,19 +66,17 @@ def export_to_pdf(request):
 
         result = generate_pdf.delay(servidores, template_path)
 
-        return JsonResponse({'task_id': result.id})
+        while not result.ready():
+            time.sleep(1)
+
+        if result.result == 'Erro ao gerar PDF':
+            return HttpResponse('Erro ao gerar PDF', status=500)
+
+
+        return HttpResponseRedirect(result.result)
     except Exception as e:
         print(f"Error in export_to_pdf view: {e}")
         return HttpResponse('Erro ao gerar PDF', status=500)
-
-@login_required
-def check_task_status(request, task_id):
-    task = AsyncResult(task_id)
-    if task.state == 'SUCCESS':
-        return JsonResponse({'status': task.state, 'url': task.result})
-    else:
-        return JsonResponse({'status': task.state})
-
 
 class RecursosHumanosPage(LoginRequiredMixin, ListView):
     model = Servidor
