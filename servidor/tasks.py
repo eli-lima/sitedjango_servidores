@@ -4,6 +4,7 @@ import tempfile
 import gc
 from cloudinary.uploader import upload as cloudinary_upload
 from celery import shared_task
+from xhtml2pdf import pisa
 
 
 @shared_task
