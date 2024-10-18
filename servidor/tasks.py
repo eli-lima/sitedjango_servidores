@@ -1,6 +1,5 @@
 from celery import shared_task
 from django.template.loader import render_to_string
-from django.conf import settings
 import os
 from xhtml2pdf import pisa
 from cloudinary.uploader import upload as cloudinary_upload
