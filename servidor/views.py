@@ -34,10 +34,7 @@ from django.conf import settings
 
 #Relatorios PDF
 
-from django.http import JsonResponse
-from .tasks import generate_pdf
-
-
+@login_required
 def export_to_pdf(request):
     try:
         print("Initializing PDF export...")
@@ -60,8 +57,7 @@ def export_to_pdf(request):
         genero = request.GET.get('genero')
         if genero:
             servidores = servidores.filter(genero=genero)
-        servidores = list(
-            servidores.values('nome', 'matricula', 'cargo', 'local_trabalho', 'cargo_comissionado', 'status', 'genero'))
+        servidores = list(servidores.values('nome', 'matricula', 'cargo', 'local_trabalho', 'cargo_comissionado', 'status', 'genero'))
 
         template_path = 'servidor_pdf.html'
         result = generate_pdf.delay(servidores, template_path)
@@ -71,7 +67,7 @@ def export_to_pdf(request):
             return HttpResponse('Erro ao gerar PDF', status=500)
 
         cloudinary_url = result.result
-        return JsonResponse({'pdf_url': cloudinary_url})
+        return HttpResponseRedirect(cloudinary_url)
     except Exception as e:
         print(f"Error in export_to_pdf view: {e}")
         return HttpResponse('Erro ao gerar PDF', status=500)
