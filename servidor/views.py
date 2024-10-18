@@ -21,17 +21,13 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from .tasks import generate_pdf
 from django.shortcuts import render
 from django.http import JsonResponse, FileResponse, HttpResponse, HttpResponseRedirect
-import time
-from celery import chain, group
-import psutil
+from celery.result import AsyncResult
 
 
 # Create your views here.
 
 #Relatorios PDF
 
-Q
-from celery.result import AsyncResult
 
 @login_required
 def export_to_pdf(request):
@@ -67,8 +63,9 @@ def export_to_pdf(request):
 
         template_path = 'servidor_pdf.html'
 
-        task = generate_pdf.delay(servidores, template_path)
-        return JsonResponse({'task_id': task.id}, status=202)
+        result = generate_pdf.delay(servidores, template_path)
+
+        return JsonResponse({'task_id': result.id})
     except Exception as e:
         print(f"Error in export_to_pdf view: {e}")
         return HttpResponse('Erro ao gerar PDF', status=500)
