@@ -34,7 +34,10 @@ from django.conf import settings
 
 #Relatorios PDF
 
-@login_required
+from django.http import JsonResponse
+from .tasks import generate_pdf
+
+
 def export_to_pdf(request):
     try:
         print("Initializing PDF export...")
@@ -67,11 +70,12 @@ def export_to_pdf(request):
         if result.result == 'Erro ao gerar PDF':
             return HttpResponse('Erro ao gerar PDF', status=500)
 
-        pdf_url = request.build_absolute_uri(settings.MEDIA_URL + 'relatorio_servidores.pdf')
-        return JsonResponse({'pdf_url': pdf_url})
+        cloudinary_url = result.result
+        return JsonResponse({'pdf_url': cloudinary_url})
     except Exception as e:
         print(f"Error in export_to_pdf view: {e}")
         return HttpResponse('Erro ao gerar PDF', status=500)
+
 
 class RecursosHumanosPage(LoginRequiredMixin, ListView):
     model = Servidor
