@@ -6,7 +6,7 @@ from celery import shared_task
 from xhtml2pdf import pisa
 
 @shared_task
-def generate_single_pdf(servidores, template_path):
+def generate_pdf(servidores, template_path):
     try:
         print("Starting single PDF generation...")
 
