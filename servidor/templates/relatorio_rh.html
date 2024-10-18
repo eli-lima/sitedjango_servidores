@@ -142,6 +142,30 @@ Servidores
 
 </script>
 
+<script>
+function checkTaskStatus(taskId) {
+    fetch(`/task-status/${taskId}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'SUCCESS') {
+                window.location.href = data.url;
+            } else {
+                setTimeout(() => checkTaskStatus(taskId), 5000);
+            }
+        });
+}
+
+document.getElementById('exportButton').addEventListener('click', () => {
+    fetch('/export-to-pdf/', {method: 'GET'})
+        .then(response => response.json())
+        .then(data => {
+            if (data.task_id) {
+                checkTaskStatus(data.task_id);
+            }
+        });
+});
+</script>
+
 
 
 {% endblock %}

@@ -30,6 +30,9 @@ import psutil
 
 #Relatorios PDF
 
+Q
+from celery.result import AsyncResult
+
 @login_required
 def export_to_pdf(request):
     try:
@@ -64,18 +67,21 @@ def export_to_pdf(request):
 
         template_path = 'servidor_pdf.html'
 
-        result = generate_pdf.delay(servidores, template_path)
-
-        while not result.ready():
-            time.sleep(1)
-
-        if result.result == 'Erro ao gerar PDF':
-            return HttpResponse('Erro ao gerar PDF', status=500)
-
-        return HttpResponseRedirect(result.result)
+        task = generate_pdf.delay(servidores, template_path)
+        return JsonResponse({'task_id': task.id}, status=202)
     except Exception as e:
         print(f"Error in export_to_pdf view: {e}")
         return HttpResponse('Erro ao gerar PDF', status=500)
+
+@login_required
+def check_task_status(request, task_id):
+    task = AsyncResult(task_id)
+    if task.state == 'SUCCESS':
+        return JsonResponse({'status': task.state, 'url': task.result})
+    else:
+        return JsonResponse({'status': task.state})
+
+
 
 class RecursosHumanosPage(LoginRequiredMixin, ListView):
     model = Servidor
