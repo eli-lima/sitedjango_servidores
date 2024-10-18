@@ -61,31 +61,17 @@ def export_to_pdf(request):
             servidores.values('nome', 'matricula', 'cargo', 'local_trabalho', 'cargo_comissionado', 'status', 'genero'))
 
         template_path = 'servidor_pdf.html'
-        result = generate_pdf(servidores, template_path)
-        if result == 'Erro ao gerar PDF':
+        result = generate_pdf.delay(servidores, template_path)
+        while not result.ready():
+            time.sleep(1)
+        if result.result == 'Erro ao gerar PDF':
             return HttpResponse('Erro ao gerar PDF', status=500)
 
-        return FileResponse(open(result, 'rb'), content_type='application/pdf')
+        pdf_url = request.build_absolute_uri(settings.MEDIA_URL + 'relatorio_servidores.pdf')
+        return JsonResponse({'pdf_url': pdf_url})
     except Exception as e:
         print(f"Error in export_to_pdf view: {e}")
         return HttpResponse('Erro ao gerar PDF', status=500)
-
-
-def generate_pdf(servidores, template_path):
-    try:
-        print("Starting PDF generation...")
-        html = render_to_string(template_path, {'servidores': servidores})
-        output_path = os.path.join(settings.MEDIA_ROOT, 'relatorio_servidores.pdf')
-        with open(output_path, 'wb') as output:
-            pisa_status = pisa.CreatePDF(html.encode('utf-8'), dest=output)
-        if pisa_status.err:
-            print("Error creating PDF")
-            return 'Erro ao gerar PDF'
-        print("PDF created successfully")
-        return output_path
-    except Exception as e:
-        print(f"Error generating PDF: {e}")
-        return 'Erro ao gerar PDF'
 
 class RecursosHumanosPage(LoginRequiredMixin, ListView):
     model = Servidor
