@@ -1,4 +1,3 @@
-from math import ceil
 from django.template.loader import render_to_string
 import tempfile
 import gc
@@ -6,45 +5,42 @@ from cloudinary.uploader import upload as cloudinary_upload
 from celery import shared_task
 from xhtml2pdf import pisa
 
-
 @shared_task
-def generate_pdf(servidores, template_path):
+def generate_single_pdf(servidores, template_path):
     try:
-        print("Starting PDF generation...")
+        print("Starting single PDF generation...")
 
-        # Dividir os servidores em lotes de 100 (ou qualquer número adequado)
-        batch_size = 100
-        total_batches = ceil(len(servidores) / batch_size)
-        cloudinary_urls = []
+        # Renderizar o HTML para todos os servidores de uma vez
+        try:
+            html = render_to_string(template_path, {'servidores': servidores})
+            print("HTML renderizado com sucesso para todos os servidores")
+        except Exception as e:
+            print(f"Erro ao renderizar o HTML: {e}")
+            return 'Erro ao renderizar HTML'
 
-        for batch_num in range(total_batches):
-            # Definindo os limites do lote atual
-            batch_start = batch_num * batch_size
-            batch_end = batch_start + batch_size
-            servidores_batch = servidores[batch_start:batch_end]
-
-            # Renderizando o HTML para o lote atual
-            html = render_to_string(template_path, {'servidores': servidores_batch})
-
-            # Usando NamedTemporaryFile para criar o PDF temporário
+        # Usar NamedTemporaryFile para criar o PDF temporário
+        try:
             with tempfile.NamedTemporaryFile(delete=True, suffix=".pdf") as output:
                 pisa_status = pisa.CreatePDF(html.encode('utf-8'), dest=output)
                 if pisa_status.err:
-                    print(f"Error creating PDF for batch {batch_num}")
-                    continue
+                    print("Erro ao criar PDF")
+                    return 'Erro ao gerar PDF'
 
-                # Carregar o PDF no Cloudinary
+                # Carregar o PDF único no Cloudinary
                 output.flush()
                 output.seek(0)
                 response = cloudinary_upload(output.name, resource_type='raw')
-                cloudinary_urls.append(response['url'])
+                print(f"PDF único enviado para o Cloudinary: {response['url']}")
 
-            # Liberar memória ao final de cada lote
-            gc.collect()
-
-        print("PDFs uploaded to Cloudinary successfully")
-        return cloudinary_urls
+                # Retornar a URL do PDF no Cloudinary
+                return response['url']
+        except Exception as e:
+            print(f"Erro ao gerar ou enviar o PDF: {e}")
+            return 'Erro ao gerar ou enviar o PDF'
 
     except Exception as e:
-        print(f"Error generating PDFs: {e}")
-        return 'Erro ao gerar PDFs'
+        print(f"Erro geral ao gerar PDF único: {e}")
+        return 'Erro ao gerar PDF único'
+    finally:
+        # Limpar memória após conclusão
+        gc.collect()
