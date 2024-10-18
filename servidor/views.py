@@ -9,7 +9,7 @@ from io import BytesIO
 from django.core.files.base import ContentFile
 from .models import Servidor, ServidorHistory
 from django.db.models import Q, Count
-
+from django.template.loader import render_to_string
 from reportlab.pdfgen import canvas
 from django.template.loader import get_template
 from xhtml2pdf import pisa
@@ -23,6 +23,10 @@ from django.shortcuts import render
 from django.http import JsonResponse, FileResponse, HttpResponse, HttpResponseRedirect
 import time
 from celery import chain, group
+from django.http import FileResponse
+import os
+from django.conf import settings
+
 
 
 
@@ -34,16 +38,10 @@ from celery import chain, group
 def export_to_pdf(request):
     try:
         print("Initializing PDF export...")
-
-        # Inicializa o queryset de Servidor
         servidores = Servidor.objects.all().order_by('nome')
-
-        # Verifica se os parâmetros estão sendo recebidos
         query = request.GET.get('query')
         if query:
-            servidores = servidores.filter(
-                Q(nome__icontains=query) | Q(matricula__icontains=query)
-            )
+            servidores = servidores.filter(Q(nome__icontains=query) | Q(matricula__icontains=query))
         cargo = request.GET.get('cargo')
         if cargo:
             servidores = servidores.filter(cargo=cargo)
@@ -59,24 +57,35 @@ def export_to_pdf(request):
         genero = request.GET.get('genero')
         if genero:
             servidores = servidores.filter(genero=genero)
-
-        servidores = list(servidores.values('nome', 'matricula', 'cargo', 'local_trabalho', 'cargo_comissionado', 'status', 'genero'))
+        servidores = list(
+            servidores.values('nome', 'matricula', 'cargo', 'local_trabalho', 'cargo_comissionado', 'status', 'genero'))
 
         template_path = 'servidor_pdf.html'
-
-        result = generate_pdf.delay(servidores, template_path)
-
-        while not result.ready():
-            time.sleep(1)
-
-        if result.result == 'Erro ao gerar PDF':
+        result = generate_pdf(servidores, template_path)
+        if result == 'Erro ao gerar PDF':
             return HttpResponse('Erro ao gerar PDF', status=500)
 
-        return HttpResponseRedirect(result.result)
+        return FileResponse(open(result, 'rb'), content_type='application/pdf')
     except Exception as e:
         print(f"Error in export_to_pdf view: {e}")
         return HttpResponse('Erro ao gerar PDF', status=500)
 
+
+def generate_pdf(servidores, template_path):
+    try:
+        print("Starting PDF generation...")
+        html = render_to_string(template_path, {'servidores': servidores})
+        output_path = os.path.join(settings.MEDIA_ROOT, 'relatorio_servidores.pdf')
+        with open(output_path, 'wb') as output:
+            pisa_status = pisa.CreatePDF(html.encode('utf-8'), dest=output)
+        if pisa_status.err:
+            print("Error creating PDF")
+            return 'Erro ao gerar PDF'
+        print("PDF created successfully")
+        return output_path
+    except Exception as e:
+        print(f"Error generating PDF: {e}")
+        return 'Erro ao gerar PDF'
 
 class RecursosHumanosPage(LoginRequiredMixin, ListView):
     model = Servidor
