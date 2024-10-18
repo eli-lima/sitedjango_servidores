@@ -9,7 +9,7 @@ from io import BytesIO
 from django.core.files.base import ContentFile
 from .models import Servidor, ServidorHistory
 from django.db.models import Q, Count
-from django.http import HttpResponse
+
 from reportlab.pdfgen import canvas
 from django.template.loader import get_template
 from xhtml2pdf import pisa
@@ -18,9 +18,9 @@ from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.contrib.auth.mixins import UserPassesTestMixin
-from .tasks import render_html_chunk, create_partial_pdf,combine_pdfs
+from .tasks import generate_pdf
 from django.shortcuts import render
-from django.http import JsonResponse, FileResponse
+from django.http import JsonResponse, FileResponse, HttpResponse, HttpResponseRedirect
 import time
 from celery import chain, group
 import psutil
@@ -29,10 +29,11 @@ import psutil
 # Create your views here.
 
 #Relatorios PDF
+
 @login_required
 def export_to_pdf(request):
     try:
-        print(f"Initial memory usage: {psutil.virtual_memory().percent}%")
+        print("Initializing PDF export...")
 
         # Inicializa o queryset de Servidor
         servidores = Servidor.objects.all().order_by('nome')
@@ -45,8 +46,7 @@ def export_to_pdf(request):
             )
         cargo = request.GET.get('cargo')
         if cargo:
-            servidores
-            filter(cargo=cargo)
+            servidores = servidores.filter(cargo=cargo)
         local_trabalho = request.GET.get('local_trabalho')
         if local_trabalho:
             servidores = servidores.filter(local_trabalho__icontains=local_trabalho)
@@ -60,29 +60,22 @@ def export_to_pdf(request):
         if genero:
             servidores = servidores.filter(genero=genero)
 
-        servidores = list(
-            servidores.values('nome', 'matricula', 'cargo', 'local_trabalho', 'cargo_comissionado', 'status', 'genero'))
-        chunk_size = 50  # Ajustar para 50 funcionários por chunk
-        chunks = [servidores[i:i + chunk_size] for i in range(0, len(servidores), chunk_size)]
+        servidores = list(servidores.values('nome', 'matricula', 'cargo', 'local_trabalho', 'cargo_comissionado', 'status', 'genero'))
 
         template_path = 'servidor_pdf.html'
 
-        render_tasks = [render_html_chunk.s(chunk, template_path) for chunk in chunks]
-        create_tasks = group(create_partial_pdf.s(html_chunk, i) for i, html_chunk in enumerate(render_tasks))
-
-        result = chain(create_tasks, combine_pdfs.s()).apply_async()
+        result = generate_pdf.delay(servidores, template_path)
 
         while not result.ready():
             time.sleep(1)
 
-        if result.result == 'Erro ao gerar PDF' or result.result == 'Erro ao combinar PDFs':
+        if result.result == 'Erro ao gerar PDF':
             return HttpResponse('Erro ao gerar PDF', status=500)
 
-        return FileResponse(open(result.result, 'rb'), as_attachment=True, filename='relatorio_servidores.pdf')
+        return HttpResponseRedirect(result.result)
     except Exception as e:
         print(f"Error in export_to_pdf view: {e}")
         return HttpResponse('Erro ao gerar PDF', status=500)
-
 
 class RecursosHumanosPage(LoginRequiredMixin, ListView):
     model = Servidor
