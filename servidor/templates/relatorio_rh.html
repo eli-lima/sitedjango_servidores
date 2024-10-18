@@ -21,7 +21,7 @@ Servidores
                     <div class="mt-4 px-0 grid grid-cols-4 w-full">
                         <div class="flex space-x-4 items-center">
                             <a href="#"><button class="btn btn-success">Exportar para Excel</button></a>
-                            <a class="btn btn-warning" href="{% url 'servidor:export_to_pdf' %}?query={{ request.GET.query }}&cargo={{ request.GET.cargo }}&local_trabalho={{ request.GET.local_trabalho }}&cargo_comissionado={{ request.GET.cargo_comissionado }}&status={{ request.GET.status }}&genero={{ request.GET.genero }}">
+                            <a class="btn btn-warning" id="exportButton" href="{% url 'servidor:export_to_pdf' %}?query={{ request.GET.query }}&cargo={{ request.GET.cargo }}&local_trabalho={{ request.GET.local_trabalho }}&cargo_comissionado={{ request.GET.cargo_comissionado }}&status={{ request.GET.status }}&genero={{ request.GET.genero }}">
                                 Exportar para PDF
                             </a>
                         </div>
