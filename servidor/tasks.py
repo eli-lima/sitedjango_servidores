@@ -1,38 +1,49 @@
-from celery import shared_task
+from math import ceil
 from django.template.loader import render_to_string
-import os
-from xhtml2pdf import pisa
+import tempfile
+import gc
 from cloudinary.uploader import upload as cloudinary_upload
-import gc  # Para liberar a memória manualmente após o processamento
-import tempfile  # Para a criação de arquivos temporários
+from celery import shared_task
 
 
 @shared_task
 def generate_pdf(servidores, template_path):
     try:
         print("Starting PDF generation...")
-        html = render_to_string(template_path, {'servidores': servidores})
 
-        # Usando NamedTemporaryFile para evitar criação de arquivos permanentes e gerenciar melhor o espaço em memória
-        with tempfile.NamedTemporaryFile(delete=True, suffix=".pdf") as output:
-            pisa_status = pisa.CreatePDF(html.encode('utf-8'), dest=output)
-            if pisa_status.err:
-                print("Error creating PDF")
-                return 'Erro ao gerar PDF'
+        # Dividir os servidores em lotes de 100 (ou qualquer número adequado)
+        batch_size = 100
+        total_batches = ceil(len(servidores) / batch_size)
+        cloudinary_urls = []
 
-            output.flush()  # Garante que todo conteúdo seja escrito
-            output.seek(0)  # Vai para o início do arquivo para fazer o upload
+        for batch_num in range(total_batches):
+            # Definindo os limites do lote atual
+            batch_start = batch_num * batch_size
+            batch_end = batch_start + batch_size
+            servidores_batch = servidores[batch_start:batch_end]
 
-            # Upload do PDF para o Cloudinary
-            response = cloudinary_upload(output.name, resource_type='raw')
-            cloudinary_url = response['url']
+            # Renderizando o HTML para o lote atual
+            html = render_to_string(template_path, {'servidores': servidores_batch})
 
-        # Força o garbage collector para liberar memória
-        gc.collect()
+            # Usando NamedTemporaryFile para criar o PDF temporário
+            with tempfile.NamedTemporaryFile(delete=True, suffix=".pdf") as output:
+                pisa_status = pisa.CreatePDF(html.encode('utf-8'), dest=output)
+                if pisa_status.err:
+                    print(f"Error creating PDF for batch {batch_num}")
+                    continue
 
-        print("PDF uploaded to Cloudinary successfully")
-        return cloudinary_url
+                # Carregar o PDF no Cloudinary
+                output.flush()
+                output.seek(0)
+                response = cloudinary_upload(output.name, resource_type='raw')
+                cloudinary_urls.append(response['url'])
+
+            # Liberar memória ao final de cada lote
+            gc.collect()
+
+        print("PDFs uploaded to Cloudinary successfully")
+        return cloudinary_urls
 
     except Exception as e:
-        print(f"Error generating PDF: {e}")
-        return 'Erro ao gerar PDF'
+        print(f"Error generating PDFs: {e}")
+        return 'Erro ao gerar PDFs'
