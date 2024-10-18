@@ -148,6 +148,7 @@ function checkTaskStatus(taskId) {
     fetch(`/task-status/${taskId}/`)
         .then(response => response.json())
         .then(data => {
+            console.log(data);  // Adicionar log para verificar a resposta do servidor
             if (data.status === 'SUCCESS') {
                 document.getElementById('pdfLink').innerHTML = `<a href="${data.url}" target="_blank">Download PDF</a>`;
             } else {
@@ -160,12 +161,12 @@ document.getElementById('exportButton').addEventListener('click', () => {
     fetch('/export-to-pdf/', {method: 'GET'})
         .then(response => response.json())
         .then(data => {
+            console.log(data);  // Adicionar log para verificar a resposta do servidor
             if (data.task_id) {
                 checkTaskStatus(data.task_id);
             }
         });
 });
-
 </script>
 
 
