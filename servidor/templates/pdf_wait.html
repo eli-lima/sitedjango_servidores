@@ -5,22 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerando PDF...</title>
     <script>
-        function checkPDFStatus() {
-            var taskId = "{{ task_id }}";
-            fetch(`/servidor/pdf-status/?task_id=` + taskId)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'ready') {
-                        // Abre uma nova aba com o link para o PDF
-                        window.open(data.pdf_url, '_blank');
-                        // Redireciona o usuário para uma página de confirmação ou fecha a aba atual
-                        window.location.href = '/servidor/relatorio_rh';
-                    } else {
-                        // Tenta novamente após 3 segundos
-                        setTimeout(checkPDFStatus, 3000);
-                    }
-                });
-        }
+        function checkTaskStatus() {
+    const taskId = "{{ task_id }}";
+    fetch(`/servidor/check-task/?task_id=${taskId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'SUCCESS') {
+                window.location.href = data.url;  // Redireciona para a URL do PDF
+            } else if (data.status === 'FAILURE') {
+                document.getElementById('status').innerText = "Erro ao gerar o PDF.";
+            } else {
+                setTimeout(checkTaskStatus, 5000);  // Checar novamente após 5 segundos
+            }
+        });
+}
 
         // Inicia a verificação quando a página é carregada
         window.onload = checkPDFStatus;
