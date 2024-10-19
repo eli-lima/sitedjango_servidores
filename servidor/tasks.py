@@ -5,7 +5,7 @@ from cloudinary.uploader import upload as cloudinary_upload
 from celery import shared_task
 from xhtml2pdf import pisa
 
-@shared_task
+
 @shared_task
 def generate_pdf(servidores, template_path):
     try:
@@ -45,4 +45,5 @@ def generate_pdf(servidores, template_path):
     finally:
         # Limpar a memória após a execução
         gc.collect()
+
 
