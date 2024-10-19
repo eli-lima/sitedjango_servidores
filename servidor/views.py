@@ -29,8 +29,6 @@ from django.conf import settings
 from celery.result import AsyncResult
 
 
-
-
 # Create your views here.
 
 #Relatorios PDF
