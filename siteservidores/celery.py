@@ -1,6 +1,7 @@
 from __future__ import absolute_import, unicode_literals
 import os
 from celery import Celery
+from celery.schedules import crontab
 
 # Define as configurações padrão do Django para o ambiente 'celery'
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'siteservidores.settings')
@@ -19,3 +20,13 @@ app.conf.update(
     worker_prefetch_multiplier=1,  # Evita que os workers fiquem com muitas tarefas ao mesmo tempo
     broker_connection_retry_on_startup=True,  # Garante que a reconexão seja feita corretamente
 )
+
+
+app = Celery('your_project_name')
+
+app.conf.beat_schedule = {
+    'delete-old-pdfs-every-two-weeks': {
+        'task': 'your_app_name.tasks.delete_old_pdfs',
+        'schedule': crontab(minute=0, hour=0, day_of_week='sunday', day_of_month='*/14'),  # Executa a cada 14 dias
+    },
+}
