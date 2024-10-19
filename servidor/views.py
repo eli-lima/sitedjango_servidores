@@ -37,6 +37,7 @@ from celery.result import AsyncResult
 
 
 @login_required
+@login_required
 def export_to_pdf(request):
     try:
         # Buscar servidores e aplicar filtros
@@ -68,6 +69,7 @@ def export_to_pdf(request):
 
         # Iniciar a tarefa Celery para gerar o PDF
         result = generate_pdf.delay(servidores, template_path)
+        print(f"Tarefa Celery iniciada com ID: {result.id}")
 
         # Redirecionar para uma página de espera, passando o ID da tarefa
         return HttpResponseRedirect(f'/servidor/pdf-wait/?task_id={result.id}')
@@ -78,27 +80,24 @@ def export_to_pdf(request):
 
 def pdf_wait(request):
     task_id = request.GET.get('task_id')
+    print(f"Página de espera carregada com task_id: {task_id}")
     return render(request, 'pdf_wait.html', {'task_id': task_id})
-
-def pdf_status(request):
-    task_id = request.GET.get('task_id')
-    result = AsyncResult(task_id)
-
-    if result.ready() and result.result != 'Erro ao gerar PDF':
-        return JsonResponse({'status': 'ready', 'pdf_url': result.result})
-
-    return JsonResponse({'status': 'processing'})
 
 
 def check_task_status(request):
     task_id = request.GET.get('task_id')
+    print(f"Verificando status da tarefa com task_id: {task_id}")
+
     task = AsyncResult(task_id)
 
     if task.state == 'SUCCESS':
+        print(f"Tarefa concluída com sucesso. URL do PDF: {task.result}")
         return JsonResponse({'status': 'SUCCESS', 'url': task.result})
     elif task.state == 'FAILURE':
+        print("Falha ao gerar o PDF.")
         return JsonResponse({'status': 'FAILURE'})
     else:
+        print(f"Status da tarefa: {task.state}")
         return JsonResponse({'status': task.state})
 
 
