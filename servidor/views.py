@@ -80,7 +80,6 @@ def pdf_wait(request):
     print(f"Página de espera carregada com task_id: {task_id}")
     return render(request, 'pdf_wait.html', {'task_id': task_id})
 
-
 def check_task_status(request):
     task_id = request.GET.get('task_id')
     print(f"Verificando status da tarefa com task_id: {task_id}")
@@ -89,7 +88,7 @@ def check_task_status(request):
 
     if task.state == 'SUCCESS':
         print(f"Tarefa concluída com sucesso. URL do PDF: {task.result}")
-        return JsonResponse({'status': 'SUCCESS', 'url': task.result})
+        return JsonResponse({'status': 'SUCCESS', 'url': task.result['url'], 'public_id': task.result['public_id']})
     elif task.state == 'FAILURE':
         print("Falha ao gerar o PDF.")
         return JsonResponse({'status': 'FAILURE'})
@@ -97,9 +96,6 @@ def check_task_status(request):
         print(f"Status da tarefa: {task.state}")
         return JsonResponse({'status': task.state})
 
-
-
-# View para o download e exclusão após download
 @login_required
 def download_and_delete_pdf(request):
     task_id = request.GET.get('task_id')
@@ -112,7 +108,8 @@ def download_and_delete_pdf(request):
 
         # Após o download, excluir o arquivo do Cloudinary
         try:
-            delete_resources([public_id])
+            from cloudinary import CloudinaryResource
+            CloudinaryResource.delete(public_id)
             print(f"Arquivo {public_id} excluído do Cloudinary.")
         except Exception as e:
             print(f"Erro ao excluir o arquivo do Cloudinary: {e}")
@@ -121,7 +118,6 @@ def download_and_delete_pdf(request):
         return JsonResponse({'status': 'SUCCESS', 'url': pdf_url})
     else:
         return JsonResponse({'status': task.state})
-
 
 class RecursosHumanosPage(LoginRequiredMixin, ListView):
     model = Servidor
