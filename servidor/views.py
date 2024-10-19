@@ -68,7 +68,7 @@ def export_to_pdf(request):
         result = generate_pdf.delay(servidores, template_path)
         print(f"Tarefa Celery iniciada com ID: {result.id}")
 
-        # Redirecionar para uma página de espera, passando o ID da tarefa corretamente
+        # Redirecionar para uma página de espera, passando o ID da tarefa
         return HttpResponseRedirect(f'/servidor/pdf-wait/?task_id={result.id}')
 
     except Exception as e:
@@ -80,6 +80,7 @@ def pdf_wait(request):
     print(f"Página de espera carregada com task_id: {task_id}")
     return render(request, 'pdf_wait.html', {'task_id': task_id})
 
+
 def check_task_status(request):
     task_id = request.GET.get('task_id')
     print(f"Verificando status da tarefa com task_id: {task_id}")
@@ -88,35 +89,12 @@ def check_task_status(request):
 
     if task.state == 'SUCCESS':
         print(f"Tarefa concluída com sucesso. URL do PDF: {task.result}")
-        return JsonResponse({'status': 'SUCCESS', 'url': task.result['url'], 'public_id': task.result['public_id']})
+        return JsonResponse({'status': 'SUCCESS', 'url': task.result})
     elif task.state == 'FAILURE':
         print("Falha ao gerar o PDF.")
         return JsonResponse({'status': 'FAILURE'})
     else:
         print(f"Status da tarefa: {task.state}")
-        return JsonResponse({'status': task.state})
-
-@login_required
-def download_and_delete_pdf(request):
-    task_id = request.GET.get('task_id')
-    task = AsyncResult(task_id)
-
-    if task.state == 'SUCCESS':
-        pdf_data = task.result
-        pdf_url = pdf_data['url']
-        public_id = pdf_data['public_id']
-
-        # Após o download, excluir o arquivo do Cloudinary
-        try:
-            from cloudinary import CloudinaryResource
-            CloudinaryResource.delete(public_id)
-            print(f"Arquivo {public_id} excluído do Cloudinary.")
-        except Exception as e:
-            print(f"Erro ao excluir o arquivo do Cloudinary: {e}")
-
-        # Redirecionar ou mostrar o link para o PDF
-        return JsonResponse({'status': 'SUCCESS', 'url': pdf_url})
-    else:
         return JsonResponse({'status': task.state})
 
 class RecursosHumanosPage(LoginRequiredMixin, ListView):

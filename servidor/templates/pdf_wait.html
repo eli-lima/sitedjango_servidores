@@ -6,29 +6,29 @@
     <title>Gerando PDF...</title>
     <script>
         function checkTaskStatus() {
-    const taskId = "{{ task_id }}";
-    console.log("Verificando status da tarefa com task_id:", taskId);
+            const taskId = "{{ task_id }}";
+            console.log("Verificando status da tarefa com task_id:", taskId);
 
-    fetch(`/servidor/check-task/?task_id=${taskId}`)
-        .then(response => response.json())
-        .then(data => {
-            console.log("Resposta do servidor:", data);
-            if (data.status === 'SUCCESS') {
-                console.log("Tarefa concluída, redirecionando para:", data.url);
-                window.location.href = data.url;  // Redireciona para a URL do PDF
-            } else if (data.status === 'FAILURE') {
-                document.getElementById('status').innerText = "Erro ao gerar o PDF.";
-            } else {
-                setTimeout(checkTaskStatus, 5000);  // Checar novamente após 5 segundos
-            }
-        })
-        .catch(error => {
-            console.log("Erro ao verificar status da tarefa:", error);
-        });
-}
+            fetch(`/servidor/check-task/?task_id=${taskId}`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Resposta do servidor:", data);
+                    if (data.status === 'SUCCESS') {
+                        console.log("Tarefa concluída, redirecionando para:", data.url);
+                        window.location.href = data.url;  // Redireciona para a URL do PDF
+                    } else if (data.status === 'FAILURE') {
+                        document.getElementById('status').innerText = "Erro ao gerar o PDF.";
+                    } else {
+                        setTimeout(checkTaskStatus, 5000);  // Checar novamente após 5 segundos
+                    }
+                })
+                .catch(error => {
+                    console.log("Erro ao verificar status da tarefa:", error);
+                });
+        }
 
-// Iniciar verificação
-checkTaskStatus();
+        // Iniciar verificação
+        checkTaskStatus();
     </script>
 </head>
 <body>
