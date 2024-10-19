@@ -34,7 +34,7 @@ def generate_pdf(servidores, template_path):
                 output.flush()  # Garantir que o conteúdo foi escrito corretamente
                 output.seek(0)
                 response = cloudinary_upload(output.name, resource_type='raw',
-                                             folder="relatorios_pdfs")  # Definir a pasta onde o arquivo será salvo
+                                             folder="media/relatorios_pdfs")  # Definir a pasta onde o arquivo será salvo
                 print(f"PDF único enviado para o Cloudinary: {response['url']}")
 
                 # Retornar a URL do PDF no Cloudinary
