@@ -21,12 +21,10 @@ app.conf.update(
     broker_connection_retry_on_startup=True,  # Garante que a reconexão seja feita corretamente
 )
 
-
-app = Celery('your_project_name')
-
+# Definição do agendamento para exclusão de PDFs antigos
 app.conf.beat_schedule = {
     'delete-old-pdfs-every-two-weeks': {
-        'task': 'your_app_name.tasks.delete_old_pdfs',
+        'task': 'servidor.tasks.delete_old_pdfs',  # Certifique-se de usar o nome correto do app
         'schedule': crontab(minute=0, hour=0, day_of_week='sunday', day_of_month='*/14'),  # Executa a cada 14 dias
     },
 }

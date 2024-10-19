@@ -77,8 +77,3 @@ def delete_old_pdfs():
         print(f"Erro ao excluir PDFs antigos: {e}")
 
 
-from celery import shared_task
-
-@shared_task
-def test_celery():
-    print("Celery is working!")
