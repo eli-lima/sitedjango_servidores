@@ -37,7 +37,6 @@ from cloudinary.api import delete_resources
 #Relatorios PDF
 
 
-
 @login_required
 def export_to_pdf(request):
     try:
