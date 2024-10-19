@@ -35,7 +35,7 @@ from celery.result import AsyncResult
 
 #Relatorios PDF
 
-@login_required
+
 @login_required
 def export_to_pdf(request):
     try:
