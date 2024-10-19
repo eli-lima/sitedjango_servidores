@@ -68,7 +68,7 @@ def export_to_pdf(request):
         result = generate_pdf.delay(servidores, template_path)
         print(f"Tarefa Celery iniciada com ID: {result.id}")
 
-        # Redirecionar para uma página de espera, passando o ID da tarefa
+        # Redirecionar para uma página de espera, passando o ID da tarefa corretamente
         return HttpResponseRedirect(f'/servidor/pdf-wait/?task_id={result.id}')
 
     except Exception as e:
