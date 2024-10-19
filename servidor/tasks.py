@@ -2,7 +2,6 @@ from django.template.loader import render_to_string
 import tempfile
 import gc
 from cloudinary.uploader import upload as cloudinary_upload
-from celery import shared_task
 from xhtml2pdf import pisa
 from cloudinary.api import resources, delete_resources
 from celery import shared_task
@@ -76,3 +75,10 @@ def delete_old_pdfs():
         print("Exclusão de PDFs antigos concluída.")
     except Exception as e:
         print(f"Erro ao excluir PDFs antigos: {e}")
+
+
+from celery import shared_task
+
+@shared_task
+def test_celery():
+    print("Celery is working!")
