@@ -10,15 +10,15 @@ def generate_pdf(servidores, template_path):
     try:
         print("Starting single PDF generation...")
 
-        # Renderizar o HTML para todos os servidores de uma vez
+        # Renderizar o HTML com os dados dos servidores
         try:
             html = render_to_string(template_path, {'servidores': servidores})
-            print("HTML renderizado com sucesso para todos os servidores")
+            print("HTML renderizado com sucesso para todos os servidores.")
         except Exception as e:
             print(f"Erro ao renderizar o HTML: {e}")
             return 'Erro ao renderizar HTML'
 
-        # Usar NamedTemporaryFile para criar o PDF temporário
+        # Criar o PDF em um arquivo temporário
         try:
             with tempfile.NamedTemporaryFile(delete=True, suffix=".pdf") as output:
                 pisa_status = pisa.CreatePDF(html.encode('utf-8'), dest=output)
@@ -26,8 +26,8 @@ def generate_pdf(servidores, template_path):
                     print("Erro ao criar PDF")
                     return 'Erro ao gerar PDF'
 
-                # Carregar o PDF único no Cloudinary
-                output.flush()
+                # Carregar o PDF no Cloudinary
+                output.flush()  # Garantir que o conteúdo foi escrito corretamente
                 output.seek(0)
                 response = cloudinary_upload(output.name, resource_type='raw')
                 print(f"PDF único enviado para o Cloudinary: {response['url']}")
@@ -42,5 +42,5 @@ def generate_pdf(servidores, template_path):
         print(f"Erro geral ao gerar PDF único: {e}")
         return 'Erro ao gerar PDF único'
     finally:
-        # Limpar memória após conclusão
+        # Limpar a memória após a execução
         gc.collect()

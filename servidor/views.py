@@ -38,6 +38,8 @@ from django.conf import settings
 def export_to_pdf(request):
     try:
         print("Initializing PDF export...")
+
+        # Buscar servidores e aplicar filtros
         servidores = Servidor.objects.all().order_by('nome')
         query = request.GET.get('query')
         if query:
@@ -57,17 +59,28 @@ def export_to_pdf(request):
         genero = request.GET.get('genero')
         if genero:
             servidores = servidores.filter(genero=genero)
+
+        # Converter QuerySet em lista de dicionários
         servidores = list(servidores.values('nome', 'matricula', 'cargo', 'local_trabalho', 'cargo_comissionado', 'status', 'genero'))
 
+        # Definir o caminho do template
         template_path = 'servidor_pdf.html'
+
+        # Iniciar a tarefa assíncrona para gerar o PDF
         result = generate_pdf.delay(servidores, template_path)
+
+        # Aguardar o resultado da tarefa (de forma simplificada, aguardando de forma síncrona)
         while not result.ready():
-            time.sleep(1)
+            time.sleep(1)  # Você pode otimizar o tempo de espera se necessário
+
+        # Verificar se houve erro ao gerar o PDF
         if result.result == 'Erro ao gerar PDF':
             return HttpResponse('Erro ao gerar PDF', status=500)
 
+        # Redirecionar para o PDF gerado no Cloudinary
         cloudinary_url = result.result
         return HttpResponseRedirect(cloudinary_url)
+
     except Exception as e:
         print(f"Error in export_to_pdf view: {e}")
         return HttpResponse('Erro ao gerar PDF', status=500)
