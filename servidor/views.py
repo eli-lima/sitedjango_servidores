@@ -27,6 +27,7 @@ from django.http import FileResponse
 import os
 from django.conf import settings
 from celery.result import AsyncResult
+from cloudinary.api import delete_resources
 
 
 
@@ -98,6 +99,31 @@ def check_task_status(request):
         return JsonResponse({'status': 'FAILURE'})
     else:
         print(f"Status da tarefa: {task.state}")
+        return JsonResponse({'status': task.state})
+
+
+
+# View para o download e exclusão após download
+@login_required
+def download_and_delete_pdf(request):
+    task_id = request.GET.get('task_id')
+    task = AsyncResult(task_id)
+
+    if task.state == 'SUCCESS':
+        pdf_data = task.result
+        pdf_url = pdf_data['url']
+        public_id = pdf_data['public_id']
+
+        # Após o download, excluir o arquivo do Cloudinary
+        try:
+            delete_resources([public_id])
+            print(f"Arquivo {public_id} excluído do Cloudinary.")
+        except Exception as e:
+            print(f"Erro ao excluir o arquivo do Cloudinary: {e}")
+
+        # Redirecionar ou mostrar o link para o PDF
+        return JsonResponse({'status': 'SUCCESS', 'url': pdf_url})
+    else:
         return JsonResponse({'status': task.state})
 
 

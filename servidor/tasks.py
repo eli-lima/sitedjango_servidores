@@ -6,6 +6,7 @@ from celery import shared_task
 from xhtml2pdf import pisa
 
 
+
 @shared_task
 def generate_pdf(servidores, template_path):
     try:
@@ -33,8 +34,11 @@ def generate_pdf(servidores, template_path):
                 response = cloudinary_upload(output.name, resource_type='raw')
                 print(f"PDF único enviado para o Cloudinary: {response['url']}")
 
-                # Retornar a URL do PDF no Cloudinary
-                return response['url']
+                # Retornar a URL do PDF no Cloudinary e seu identificador público
+                return {
+                    'url': response['url'],
+                    'public_id': response['public_id']
+                }
         except Exception as e:
             print(f"Erro ao gerar ou enviar o PDF: {e}")
             return 'Erro ao gerar ou enviar o PDF'
@@ -45,5 +49,4 @@ def generate_pdf(servidores, template_path):
     finally:
         # Limpar a memória após a execução
         gc.collect()
-
 
