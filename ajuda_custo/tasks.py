@@ -7,12 +7,15 @@ import re
 import pandas as pd
 from celery import shared_task
 import requests
+from collections import defaultdict
 
 
 @shared_task
 def process_batch(df_batch):
     ajuda_custos_para_inserir = []
     erros = []  # Lista para armazenar as informações sobre falhas
+    horas_por_servidor = defaultdict(int)  # Para rastrear as horas acumuladas por servidor e mês
+    datas_processadas = defaultdict(set)  # Para rastrear datas processadas por servidor
 
     for row in df_batch:  # Agora df_batch é uma lista de dicionários
         matricula_raw = row['Matrícula']
@@ -20,7 +23,7 @@ def process_batch(df_batch):
         unidade = row['Unidade']
         nome = row['Nome']
         data = row['Data']
-        carga_horaria = row['Carga Horaria']
+        carga_horaria_raw = row['Carga Horaria']
 
         # Tentar buscar o servidor
         try:
@@ -36,7 +39,14 @@ def process_batch(df_batch):
             erros.append(f"Data inválida para a matrícula {matricula}: {data}")
             continue  # Pular se a data for inválida
 
-        # Verificar total de horas do mês
+        # Verificar se a data já foi processada para este servidor
+        if data_completa in datas_processadas[servidor.matricula]:
+            erros.append(f"Registro duplicado na planilha para a matrícula {matricula} na data {data_completa}.")
+            continue
+
+        datas_processadas[servidor.matricula].add(data_completa)
+
+        # Calcular o total de horas do mês
         inicio_do_mes = data_completa.replace(day=1)
         fim_do_mes = (inicio_do_mes + timedelta(days=31)).replace(day=1) - timedelta(days=1)
 
@@ -51,30 +61,25 @@ def process_batch(df_batch):
             for registro in registros_mes
         )
 
-        horas_a_adicionar = 12 if carga_horaria == '12 horas' else 24
+        horas_a_adicionar = 12 if carga_horaria_raw == '12 horas' else 24
 
         if total_horas_mes + horas_a_adicionar > 192:
-            erros.append(f'Limite de 192 horas mensais excedido para {nome} na data {data}.')
+            erros.append(f'Limite de 192 horas mensais excedido para {nome} na data {data_completa}.')
             continue
 
         # Verificar se o registro já existe
-        try:
-            registro_existente = Ajuda_Custo.objects.filter(matricula=servidor.matricula, data=data_completa).exists()
-
-            if not registro_existente:
-                majorado = DataMajorada.objects.filter(data=data_completa).exists()
-                ajuda_custos_para_inserir.append(Ajuda_Custo(
-                    matricula=servidor.matricula,
-                    nome=servidor.nome,
-                    data=data_completa,
-                    unidade=unidade,
-                    carga_horaria=carga_horaria,
-                    majorado=majorado
-                ))
-            else:
-                erros.append(f"Registro já existente para a matrícula {matricula} e data {data_completa}.")
-        except Exception as e:
-            erros.append(f"Erro ao verificar duplicidade para matrícula {matricula}: {str(e)}")
+        if not Ajuda_Custo.objects.filter(matricula=servidor.matricula, data=data_completa).exists():
+            majorado = DataMajorada.objects.filter(data=data_completa).exists()
+            ajuda_custos_para_inserir.append(Ajuda_Custo(
+                matricula=servidor.matricula,
+                nome=servidor.nome,
+                data=data_completa,
+                unidade=unidade,
+                carga_horaria=carga_horaria_raw,  # Armazena a carga horária original
+                majorado=majorado
+            ))
+        else:
+            erros.append(f"Registro já existente para a matrícula {matricula} e data {data_completa}.")
 
     # Inserir dados em massa
     try:
