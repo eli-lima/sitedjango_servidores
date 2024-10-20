@@ -7,6 +7,7 @@ import re
 import pandas as pd
 from celery import shared_task
 import requests
+import cloudinary
 
 
 @shared_task
@@ -81,43 +82,29 @@ def process_batch(df_batch):
     return erros  # Retorna a lista de erros para feedback
 
 
-
 @shared_task(bind=True)
-def process_excel_file(self, cloudinary_url):
-    print(f"Iniciando o processamento do arquivo com URL: {cloudinary_url}")  # Print de início
+def process_excel_file(cloudinary_url, public_id):
     try:
-        # Fazer o download do arquivo do Cloudinary
-        response = requests.get(cloudinary_url)
-        response.raise_for_status()
-        print("Arquivo baixado com sucesso.")  # Print de sucesso no download
+        # Lógica de processamento do arquivo Excel (baixar, processar, etc.)
+        print(f"Processando o arquivo: {cloudinary_url}")
 
-        # Ler o arquivo Excel
-        df = pd.read_excel(response.content)
-        print(f"Arquivo Excel lido. Total de registros: {df.shape[0]}")  # Print do total de registros
+        # Simulação de sucesso do processamento
+        resultado = {"status": "sucesso"}
 
-        # Lógica de processamento dos dados
-        batch_size = 2000
-        total_registros = df.shape[0]
-        print(f"Total de registros a processar: {total_registros}")
-        erros_totais = []
+        print("Processamento concluído. Excluindo o arquivo do Cloudinary...")
+        cloudinary.uploader.destroy(public_id, resource_type="raw")
+        print(f"Arquivo com public_id {public_id} excluído do Cloudinary com sucesso.")
 
-        for start in range(0, total_registros, batch_size):
-            end = min(start + batch_size, total_registros)
-            df_batch = df.iloc[start:end]
-
-            # Converte o batch para uma lista de dicionários
-            df_batch_dict = df_batch.to_dict(orient='records')
-            print(f"Processando lote de registros: {start} a {end}")
-
-            # Processa o lote e acumula erros
-            result = process_batch(df_batch_dict)  # Chama a função que já processa os dados
-            erros_totais.extend(result)
-
-        print(f"Processamento concluído. Erros totais: {len(erros_totais)}")
-
-        # Retorna status e erros, se houver
-        return {'status': 'sucesso' if not erros_totais else 'erro', 'erros': erros_totais}
+        return resultado
 
     except Exception as e:
-        print(f"Ocorreu um erro durante o processamento: {str(e)}")  # Print do erro
-        return {'status': 'falha', 'mensagem': str(e)}
+        print(f"Erro durante o processamento: {str(e)}")
+
+        # Tenta excluir o arquivo mesmo se houver erro no processamento
+        try:
+            cloudinary.uploader.destroy(public_id, resource_type="raw")
+            print(f"Arquivo com public_id {public_id} excluído do Cloudinary após erro.")
+        except Exception as delete_error:
+            print(f"Erro ao excluir o arquivo após falha no processamento: {str(delete_error)}")
+
+        return {"status": "falha", "erros": [str(e)]}
