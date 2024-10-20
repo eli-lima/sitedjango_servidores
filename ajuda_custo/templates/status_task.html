@@ -10,44 +10,21 @@
 
 
 <script>
-    let previousStatus = ""; // Variável para armazenar o status anterior
-
-function refreshPage() {
-    location.reload(); // Recarrega a página
-}
-
-const taskId = "{{ task_id }}";  // Certifique-se de que isso está sendo passado corretamente
-
-if (taskId) {
-    const interval = setInterval(() => {
-        refreshPage(); // Atualiza a página a cada 5 segundos
-    }, 5000);
-
-    // Função para verificar se o status mudou
-    function checkStatusChange() {
+    function verificarStatus() {
+        // Obtém o elemento com o ID 'status'
         const statusElement = document.getElementById('status');
-        if (statusElement) {
-            const currentStatus = statusElement.innerText; // Pega o texto atual do elemento
 
-            // Verifica se o status mudou
-            if (currentStatus !== previousStatus) {
-                previousStatus = currentStatus; // Atualiza o status anterior
-
-                // Se o status não for 'Processamento pendente...', para a atualização
-                if (!currentStatus.includes("Processamento pendente...")) {
-                    clearInterval(interval); // Para o intervalo de atualização
-                }
-            }
+        // Verifica se o elemento existe e se o texto é 'Processamento pendente...'
+        if (statusElement && statusElement.innerText.trim() === 'Processamento pendente...') {
+            // Recarrega a página após 5 segundos
+            setTimeout(function() {
+                location.reload();
+            }, 5000);
         }
     }
 
-    // Verifica a cada 5 segundos se o status mudou
-    setInterval(checkStatusChange, 5000);
-} else {
-    console.error('taskId não está definido. Verifique se está sendo passado corretamente no template.');
-}
-
-
+    // Executa a função após o carregamento da página
+    window.onload = verificarStatus;
 
 </script>
 
