@@ -16,30 +16,37 @@ function refreshPage() {
     location.reload(); // Recarrega a página
 }
 
-const interval = setInterval(() => {
-    refreshPage(); // Atualiza a página a cada 5 segundos
-}, 5000);
+const taskId = "{{ task_id }}";  // Certifique-se de que isso está sendo passado corretamente
 
-// Função para verificar se o status mudou
-function checkStatusChange() {
-    const statusElement = document.getElementById('status');
-    if (statusElement) {
-        const currentStatus = statusElement.innerText; // Pega o texto atual do elemento
+if (taskId) {
+    const interval = setInterval(() => {
+        refreshPage(); // Atualiza a página a cada 5 segundos
+    }, 5000);
 
-        // Verifica se o status mudou
-        if (currentStatus !== previousStatus) {
-            previousStatus = currentStatus; // Atualiza o status anterior
+    // Função para verificar se o status mudou
+    function checkStatusChange() {
+        const statusElement = document.getElementById('status');
+        if (statusElement) {
+            const currentStatus = statusElement.innerText; // Pega o texto atual do elemento
 
-            // Se o status não for 'Processamento pendente...', para a atualização
-            if (!currentStatus.includes("Processamento pendente...")) {
-                clearInterval(interval); // Para o intervalo de atualização
+            // Verifica se o status mudou
+            if (currentStatus !== previousStatus) {
+                previousStatus = currentStatus; // Atualiza o status anterior
+
+                // Se o status não for 'Processamento pendente...', para a atualização
+                if (!currentStatus.includes("Processamento pendente...")) {
+                    clearInterval(interval); // Para o intervalo de atualização
+                }
             }
         }
     }
+
+    // Verifica a cada 5 segundos se o status mudou
+    setInterval(checkStatusChange, 5000);
+} else {
+    console.error('taskId não está definido. Verifique se está sendo passado corretamente no template.');
 }
 
-// Verifica a cada 5 segundos se o status mudou
-setInterval(checkStatusChange, 5000);
 
 
 </script>
