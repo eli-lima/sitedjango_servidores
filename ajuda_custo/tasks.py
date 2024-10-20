@@ -13,7 +13,7 @@ def process_batch(df_batch):
     ajuda_custos_para_inserir = []
     erros = []  # Lista para armazenar as informações sobre falhas
 
-    for _, row in df_batch.iterrows():
+    for row in df_batch:  # Agora df_batch é uma lista de dicionários
         matricula_raw = row['Matrícula']
         matricula = re.sub(r'\D', '', str(matricula_raw)).lstrip('0')
         unidade = row['Unidade']

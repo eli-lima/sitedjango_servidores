@@ -49,9 +49,13 @@ def upload_excel_rx2(request):
                     end = min(start + batch_size, total_registros)
                     df_batch = df.iloc[start:end]
 
+                    # Converte o batch para uma lista de dicionários
+                    df_batch_dict = df_batch.to_dict(orient='records')
+
                     # Processa o lote e retorna os erros
-                    erros = process_batch.delay(df_batch.to_dict())  # Envia a tarefa para o Celery
-                    erros_totais.extend(erros.get())  # Captura os erros após a execução da tarefa
+                    result = process_batch.delay(df_batch_dict)  # Envia a tarefa para o Celery
+                    erros = result.get()  # Captura os erros após a execução da tarefa
+                    erros_totais.extend(erros)
 
                 if erros_totais:
                     # Exibir uma mensagem de erro com os detalhes das falhas
@@ -67,7 +71,6 @@ def upload_excel_rx2(request):
         form = UploadExcelRx2Form()
 
     return render(request, 'upload_excel_rx2.html', {'form': form})
-
 
 
 # def baixar zip arquivos assinados
