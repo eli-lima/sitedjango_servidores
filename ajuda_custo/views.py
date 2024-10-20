@@ -38,29 +38,35 @@ from .tasks import process_excel_file  # Task Celery para processamento
 
 def upload_excel_rx2(request):
     if request.method == 'POST':
+        print("Método POST recebido.")  # Print para verificação do método
         form = UploadExcelRx2Form(request.POST, request.FILES)
         if form.is_valid():
+            print("Formulário é válido.")  # Print para confirmação de validade do formulário
             excel_file = request.FILES['file']
             try:
                 # Upload para o Cloudinary
+                print("Fazendo upload do arquivo para o Cloudinary...")  # Print antes do upload
                 upload_result = cloudinary.uploader.upload(excel_file, resource_type="raw")
                 cloudinary_url = upload_result['url']
+                print(f"Upload bem-sucedido! URL do Cloudinary: {cloudinary_url}")  # Print do resultado do upload
 
                 # Envia a tarefa de processamento para o Celery
                 task = process_excel_file.delay(cloudinary_url)
+                print(f"Tarefa de processamento iniciada com task_id: {task.id}")  # Print do ID da tarefa
 
                 # Informa o usuário e redireciona para a página de status
                 messages.success(request, "Arquivo enviado para o Cloudinary e processamento iniciado.")
                 return redirect('ajuda_custo:status_task', task_id=task.id)
 
             except Exception as e:
+                print(f"Erro ao fazer upload no Cloudinary: {str(e)}")  # Print do erro
                 messages.error(request, f"Erro ao fazer upload no Cloudinary: {str(e)}")
                 return redirect('ajuda_custo:upload_excel_rx2')
     else:
+        print("Método não é POST, renderizando o formulário.")  # Print para verificar se não é um POST
         form = UploadExcelRx2Form()
 
     return render(request, 'upload_excel_rx2.html', {'form': form})
-
 
 def status_task(request, task_id):
     task = AsyncResult(task_id)
