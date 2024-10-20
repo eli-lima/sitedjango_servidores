@@ -78,7 +78,7 @@ def status_task(request, task_id):
     else:
         status = f"Processamento em andamento... Status: {task.state}"
 
-    return render(request, 'ajuda_custo/status_task.html', {'status': status})
+    return render(request, 'status_task.html', {'status': status})
 
 
 # def baixar zip arquivos assinados
