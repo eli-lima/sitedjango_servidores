@@ -1,5 +1,3 @@
-# tasks.py
-
 from .models import Ajuda_Custo, DataMajorada
 from servidor.models import Servidor
 from datetime import timedelta
@@ -62,8 +60,6 @@ def process_batch(df_batch):
     return erros  # Retorna a lista de erros para feedback
 
 
-
-
 @shared_task(bind=True)
 def process_excel_file(self, cloudinary_url):
     print(f"Iniciando o processamento do arquivo com URL: {cloudinary_url}")  # Print de início
@@ -91,14 +87,14 @@ def process_excel_file(self, cloudinary_url):
             df_batch_dict = df_batch.to_dict(orient='records')
             print(f"Processando lote de registros: {start} a {end}")
 
-            # Processa o lote
+            # Processa o lote e acumula erros
             result = process_batch(df_batch_dict)  # Chama a função que já processa os dados
             erros_totais.extend(result)
 
         print(f"Processamento concluído. Erros totais: {len(erros_totais)}")
 
-        return {'status': 'sucesso', 'erros': erros_totais} if not erros_totais else {'status': 'erro',
-                                                                                      'erros': erros_totais}
+        # Retorna status e erros, se houver
+        return {'status': 'sucesso' if not erros_totais else 'erro', 'erros': erros_totais}
 
     except Exception as e:
         print(f"Ocorreu um erro durante o processamento: {str(e)}")  # Print do erro

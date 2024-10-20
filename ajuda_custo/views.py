@@ -71,16 +71,20 @@ def upload_excel_rx2(request):
 def status_task(request, task_id):
     task = AsyncResult(task_id)
 
+    # Verifica se a tarefa está pendente
     if task.state == 'PENDING':
         status = "Processamento pendente..."
+    # Verifica se a tarefa foi concluída com sucesso
     elif task.state == 'SUCCESS':
         result = task.result
         if result['status'] == 'sucesso':
             status = "Processamento concluído com sucesso!"
         else:
             status = f"Erros encontrados: {', '.join(result['erros'])}"
+    # Verifica se houve falha na tarefa
     elif task.state == 'FAILURE':
         status = f"Falha no processamento: {task.result}"
+    # Para outros estados
     else:
         status = f"Processamento em andamento... Status: {task.state}"
 
