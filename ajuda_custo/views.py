@@ -26,6 +26,8 @@ from django.http import JsonResponse
 from django.utils.timezone import now
 from datetime import datetime, timedelta
 from .tasks import process_batch
+from celery.result import AsyncResult  # Para lidar com o status da task
+from .tasks import process_excel_file  # Task Celery para processamento
 
 
 # Create your views here.
@@ -40,37 +42,43 @@ def upload_excel_rx2(request):
         if form.is_valid():
             excel_file = request.FILES['file']
             try:
-                df = pd.read_excel(excel_file)
-                batch_size = 2000
-                total_registros = df.shape[0]
-                erros_totais = []  # Lista para armazenar todos os erros
+                # Upload para o Cloudinary
+                upload_result = cloudinary.uploader.upload(excel_file, resource_type="raw")
+                cloudinary_url = upload_result['url']
 
-                for start in range(0, total_registros, batch_size):
-                    end = min(start + batch_size, total_registros)
-                    df_batch = df.iloc[start:end]
+                # Envia a tarefa de processamento para o Celery
+                task = process_excel_file.delay(cloudinary_url)
 
-                    # Converte o batch para uma lista de dicionários
-                    df_batch_dict = df_batch.to_dict(orient='records')
+                # Informa o usuário e redireciona para a página de status
+                messages.success(request, "Arquivo enviado para o Cloudinary e processamento iniciado.")
+                return redirect('ajuda_custo:status_task', task_id=task.id)
 
-                    # Processa o lote e retorna os erros
-                    result = process_batch.delay(df_batch_dict)  # Envia a tarefa para o Celery
-                    erros = result.get()  # Captura os erros após a execução da tarefa
-                    erros_totais.extend(erros)
-
-                if erros_totais:
-                    # Exibir uma mensagem de erro com os detalhes das falhas
-                    messages.error(request, f"Erros encontrados: {', '.join(erros_totais)}")
-                else:
-                    messages.success(request, "Arquivo processado com sucesso!")
-
-                return redirect('ajuda_custo:upload_excel_rx2')
             except Exception as e:
-                messages.error(request, f"Erro ao processar o arquivo: {str(e)}")
+                messages.error(request, f"Erro ao fazer upload no Cloudinary: {str(e)}")
                 return redirect('ajuda_custo:upload_excel_rx2')
     else:
         form = UploadExcelRx2Form()
 
-    return render(request, 'upload_excel_rx2.html', {'form': form})
+    return render(request, 'ajuda_custo/upload_excel_rx2.html', {'form': form})
+
+
+def status_task(request, task_id):
+    task = AsyncResult(task_id)
+
+    if task.state == 'PENDING':
+        status = "Processamento pendente..."
+    elif task.state == 'SUCCESS':
+        result = task.result
+        if result['status'] == 'sucesso':
+            status = "Processamento concluído com sucesso!"
+        else:
+            status = f"Erros encontrados: {', '.join(result['erros'])}"
+    elif task.state == 'FAILURE':
+        status = f"Falha no processamento: {task.result}"
+    else:
+        status = f"Processamento em andamento... Status: {task.state}"
+
+    return render(request, 'ajuda_custo/status_task.html', {'status': status})
 
 
 # def baixar zip arquivos assinados

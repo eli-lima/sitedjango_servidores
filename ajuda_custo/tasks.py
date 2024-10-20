@@ -1,11 +1,14 @@
 # tasks.py
-from celery import shared_task
+
 from .models import Ajuda_Custo, DataMajorada
 from servidor.models import Servidor
 from datetime import timedelta
 from django.db import IntegrityError
 from dateutil import parser
 import re
+import pandas as pd
+from celery import shared_task
+import requests
 
 
 @shared_task
@@ -57,3 +60,37 @@ def process_batch(df_batch):
         erros.append(f"Erro de integridade durante a inserção: {str(e)}")
 
     return erros  # Retorna a lista de erros para feedback
+
+
+
+
+@shared_task(bind=True)
+def process_excel_file(self, cloudinary_url):
+    try:
+        # Fazer o download do arquivo do Cloudinary
+        response = requests.get(cloudinary_url)
+        response.raise_for_status()
+
+        # Ler o arquivo Excel
+        df = pd.read_excel(response.content)
+
+        # Lógica de processamento dos dados
+        batch_size = 2000
+        total_registros = df.shape[0]
+        erros_totais = []
+
+        for start in range(0, total_registros, batch_size):
+            end = min(start + batch_size, total_registros)
+            df_batch = df.iloc[start:end]
+
+            # Converte o batch para uma lista de dicionários
+            df_batch_dict = df_batch.to_dict(orient='records')
+
+            # Processa o lote
+            result = process_batch(df_batch_dict)  # Chama a função que já processa os dados
+            erros_totais.extend(result)
+
+        return {'status': 'sucesso', 'erros': erros_totais} if not erros_totais else {'status': 'erro', 'erros': erros_totais}
+
+    except Exception as e:
+        return {'status': 'falha', 'mensagem': str(e)}

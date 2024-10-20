@@ -3,7 +3,7 @@
 from django.urls import path
 from .views import AjudaCusto, AjudaCustoAdicionar, RelatorioAjudaCusto, exportar_excel, \
     excel_detalhado, AdminCadastrar, buscar_nome_servidor, \
-    HorasLimite, excluir_limite, upload_excel_rx2
+    HorasLimite, excluir_limite, upload_excel_rx2, status_task
 from .htmx_views import ajuda_custo_list
 
 
@@ -22,6 +22,7 @@ urlpatterns = [
     path('horas_limite/', HorasLimite.as_view(), name='horas_limite'),
     path('excluir-limite/<int:pk>/', excluir_limite, name='excluir_limite'),
     path('upload-excel_rx2/', upload_excel_rx2, name='upload_excel_rx2'),
+    path('status_task/<str:task_id>/', status_task, name='status_task'),
 ]
 
 htmx_urlpatterns = [
