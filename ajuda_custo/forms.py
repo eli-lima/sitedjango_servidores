@@ -33,13 +33,12 @@ def get_mes_field():
 def get_ano_field():
     return forms.ChoiceField(choices=ANOS, required=True)
 
-def get_unidade_field():
-    return forms.ChoiceField(
-        choices=[('', '--- Selecione uma unidade ---')] + [(u.nome, u.nome) for u in Unidade.objects.all()]
-    )
+def get_unidade_choices():
+    # Mova a lógica de consulta para uma função separada
+    return [('', '--- Selecione uma unidade ---')] + [(u.id, u.nome) for u in Unidade.objects.all()]
 
 class AjudaCustoForm(forms.ModelForm):
-    unidade = get_unidade_field()
+    unidade = forms.ChoiceField(choices=[], required=True)  # Inicialmente vazio
     dia = forms.ChoiceField(choices=DIAS, required=True)
     mes = get_mes_field()
     ano = get_ano_field()
@@ -51,6 +50,9 @@ class AjudaCustoForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(AjudaCustoForm, self).__init__(*args, **kwargs)
+
+        # Preencha as escolhas do campo unidade
+        self.fields['unidade'].choices = get_unidade_choices()
 
         # Aplicando classes e alterando labels dos campos personalizados
         self.fields['dia'].label = 'Dia'
@@ -105,7 +107,7 @@ class AdminDatasForm(forms.Form):
     )
     mes = get_mes_field()
     ano = get_ano_field()
-    unidade = get_unidade_field()
+    unidade = forms.ChoiceField(choices=[], required=True)  # Inicialmente vazio
     dias_12h = forms.CharField(
         widget=forms.TextInput(attrs={'placeholder': 'Dias separados por vírgulas...', 'id': 'dias_12h'}),
         required=False
@@ -117,20 +119,28 @@ class AdminDatasForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Adiciona IDs aos campos para uso no JavaScript
+
+        # Preencha as escolhas do campo unidade
+        self.fields['unidade'].choices = get_unidade_choices()
+
+        # Adiciona IDs e classes aos campos para uso no JavaScript
         self.fields['mes'].label = 'Mês'
         self.fields['mes'].widget.attrs.update({'id': 'mes', 'class': 'form-control xl:text-base text-2xl'})
+
         self.fields['ano'].label = 'Ano'
         self.fields['ano'].widget.attrs.update({'id': 'ano', 'class': 'form-control xl:text-base text-2xl'})
+
         self.fields['unidade'].label = 'Unidade'
         self.fields['unidade'].widget.attrs.update({'id': 'unidade', 'class': 'form-control xl:text-base text-2xl'})
+
         self.fields['matricula'].label = 'Matrícula'
         self.fields['matricula'].widget.attrs.update({'id': 'matricula', 'class': 'form-control xl:text-base text-2xl'})
+
         self.fields['dias_12h'].label = 'Dias 12 Horas'
         self.fields['dias_12h'].widget.attrs.update({'id': 'dias_12h', 'class': 'form-control xl:text-base text-2xl'})
+
         self.fields['dias_24h'].label = 'Dias 24 Horas'
         self.fields['dias_24h'].widget.attrs.update({'id': 'dias_24h', 'class': 'form-control xl:text-base text-2xl'})
-
 
 
 class LimiteAjudaCustoForm(forms.ModelForm):
