@@ -48,11 +48,10 @@ def upload_excel_rx2(request):
                 print("Fazendo upload do arquivo para o Cloudinary...")  # Print antes do upload
                 upload_result = cloudinary.uploader.upload(excel_file, resource_type="raw")
                 cloudinary_url = upload_result['url']
-                public_id = upload_result['public_id']  # Captura o public_id para exclusão posterior
-                print(f"Upload bem-sucedido! URL do Cloudinary: {cloudinary_url}, Public ID: {public_id}")  # Print do resultado do upload
+                print(f"Upload bem-sucedido! URL do Cloudinary: {cloudinary_url}")  # Print do resultado do upload
 
-                # Envia a tarefa de processamento para o Celery, passando o public_id
-                task = process_excel_file.delay(cloudinary_url, public_id)
+                # Envia a tarefa de processamento para o Celery
+                task = process_excel_file.delay(cloudinary_url)
                 print(f"Tarefa de processamento iniciada com task_id: {task.id}")  # Print do ID da tarefa
 
                 # Informa o usuário e redireciona para a página de status
@@ -68,7 +67,6 @@ def upload_excel_rx2(request):
         form = UploadExcelRx2Form()
 
     return render(request, 'upload_excel_rx2.html', {'form': form})
-
 
 def status_task(request, task_id):
     task = AsyncResult(task_id)

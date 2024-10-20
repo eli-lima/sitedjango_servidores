@@ -81,7 +81,6 @@ def process_batch(df_batch):
     return erros  # Retorna a lista de erros para feedback
 
 
-
 @shared_task(bind=True)
 def process_excel_file(self, cloudinary_url):
     print(f"Iniciando o processamento do arquivo com URL: {cloudinary_url}")  # Print de início

@@ -97,7 +97,6 @@ def check_task_status(request):
         print(f"Status da tarefa: {task.state}")
         return JsonResponse({'status': task.state})
 
-
 class RecursosHumanosPage(LoginRequiredMixin, ListView):
     model = Servidor
     template_name = "servidor.html"
