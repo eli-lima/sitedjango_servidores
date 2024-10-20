@@ -12,14 +12,17 @@
 <script>
     // Função para recarregar a página
     function recarregarPagina() {
+        console.log("Recarregando a página..."); // Adiciona log para verificar
         location.reload();  // Recarrega a página
     }
 
     // Executa a função de recarregar a página a cada 5 segundos
     window.onload = function() {
+        console.log("Script carregado com sucesso!"); // Log para verificar se o script é carregado
         setInterval(recarregarPagina, 5000);  // Recarrega a página a cada 5 segundos
     };
 </script>
+
 
 
 
