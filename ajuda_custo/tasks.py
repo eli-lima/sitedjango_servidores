@@ -31,27 +31,34 @@ def process_batch(df_batch):
         # Tentar buscar o servidor
         try:
             servidor = Servidor.objects.get(matricula=matricula)
+            print(f"Servidor encontrado: {servidor.nome} (Matrícula: {matricula})")
         except Servidor.DoesNotExist:
             erros.append(f"Servidor com matrícula {matricula} não encontrado.")
+            print(f"Erro: Servidor com matrícula {matricula} não encontrado.")
             continue  # Pular se não encontrar o servidor
 
         # Processar data
         try:
             data_completa = parser.parse(str(data)).date()  # Certifique-se de que isso retorna um objeto date
+            print(f"Data processada corretamente: {data_completa}")
         except ValueError:
             erros.append(f"Data inválida para a matrícula {matricula}: {data}")
+            print(f"Erro: Data inválida para a matrícula {matricula}: {data}")
             continue  # Pular se a data for inválida
 
         # Verificar se a data já foi processada para este servidor
         if data_completa in datas_processadas[servidor.matricula]:
             erros.append(f"Registro duplicado na planilha para a matrícula {matricula} na data {data_completa}.")
+            print(f"Erro: Registro duplicado para a matrícula {matricula} na data {data_completa}.")
             continue
 
         datas_processadas[servidor.matricula].add(data_completa)
+        print(f"Data adicionada ao conjunto de datas processadas: {data_completa} para matrícula {matricula}")
 
         # Calcular a carga horária a ser adicionada
         horas_a_adicionar = 12 if carga_horaria_raw == '12 horas' else 24
         horas_a_adicionar_por_servidor[servidor.matricula] += horas_a_adicionar
+        print(f"Horas a adicionar para o servidor {servidor.nome}: {horas_a_adicionar_por_servidor[servidor.matricula]}")
 
         # Adicionar dados para inserção
         dados_a_inserir.append((servidor.matricula, nome, data_completa, unidade, carga_horaria_raw))
@@ -66,12 +73,14 @@ def process_batch(df_batch):
             matricula=matricula,
             data__range=[inicio_do_mes, fim_do_mes]
         )
+        print(f"Registros do mês para matrícula {matricula} (de {inicio_do_mes} a {fim_do_mes}): {registros_mes.count()} encontrados")
 
         # Calcular o total de horas do mês
         total_horas_mes = sum(
             12 if registro.carga_horaria == '12 horas' else 24
             for registro in registros_mes
         )
+        print(f"Total de horas acumuladas no mês para matrícula {matricula}: {total_horas_mes}")
 
         # Calcular as horas que seriam adicionadas
         horas_a_adicionar = horas_a_adicionar_por_servidor[matricula]
@@ -79,6 +88,7 @@ def process_batch(df_batch):
         # Verificar se o limite de 192 horas é excedido
         if total_horas_mes + horas_a_adicionar > 192:
             erros.append(f'Limite de 192 horas mensais excedido para {nome} na data {data_completa}.')
+            print(f"Erro: Limite de 192 horas excedido para {nome} na data {data_completa}.")
             continue
 
         # Verificar se o registro já existe
@@ -92,17 +102,22 @@ def process_batch(df_batch):
                 carga_horaria=carga_horaria_raw,  # Armazena a carga horária original
                 majorado=majorado
             ))
+            print(f"Adicionando ajuda de custo para matrícula {matricula} na data {data_completa}")
         else:
             erros.append(f"Registro já existente para a matrícula {matricula} e data {data_completa}.")
+            print(f"Erro: Registro já existente para matrícula {matricula} e data {data_completa}.")
 
     # Inserir dados em massa
     try:
         if ajuda_custos_para_inserir:
             Ajuda_Custo.objects.bulk_create(ajuda_custos_para_inserir)
+            print(f"Registros inseridos com sucesso.")
     except IntegrityError as e:
         erros.append(f"Erro de integridade durante a inserção: {str(e)}")
+        print(f"Erro de integridade durante a inserção: {str(e)}")
 
     return erros  # Retorna a lista de erros para feedback
+
 
 
 @shared_task(bind=True)
