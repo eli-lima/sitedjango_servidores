@@ -20,12 +20,12 @@ import os
 from django.conf import settings
 import logging
 import requests
-import re
-from dateutil import parser  # Isso ajudará a lidar com diferentes formatos de data
+
 from django.utils import timezone
 from django.http import JsonResponse
 from django.utils.timezone import now
 from datetime import datetime, timedelta
+from .tasks import process_batch
 
 
 # Create your views here.
@@ -40,95 +40,26 @@ def upload_excel_rx2(request):
         if form.is_valid():
             excel_file = request.FILES['file']
             try:
-                # Ler o arquivo Excel
                 df = pd.read_excel(excel_file)
-
-                registros_inseridos = False
+                batch_size = 2000
                 total_registros = df.shape[0]
-                batch_size = 2000  # Tamanho do lote
-                ajuda_custos_para_inserir = []
+                erros_totais = []  # Lista para armazenar todos os erros
 
                 for start in range(0, total_registros, batch_size):
                     end = min(start + batch_size, total_registros)
-                    df_batch = df.iloc[start:end]  # Obter o lote de registros
+                    df_batch = df.iloc[start:end]
 
-                    for _, row in df_batch.iterrows():
-                        matricula_raw = row['Matrícula']
-                        if pd.isnull(matricula_raw):
-                            messages.error(request, "Erro: Matrícula vazia encontrada.")
-                            continue
+                    # Processa o lote e retorna os erros
+                    erros = process_batch.delay(df_batch.to_dict())  # Envia a tarefa para o Celery
+                    erros_totais.extend(erros.get())  # Captura os erros após a execução da tarefa
 
-                        # Convertendo a matrícula para string e removendo caracteres não numéricos
-                        matricula = re.sub(r'\D', '', str(matricula_raw)).lstrip('0')
-
-                        unidade = row['Unidade']
-                        nome = row['Nome']
-                        data = row['Data']
-                        carga_horaria = row['Carga Horaria']
-
-                        # Tentar encontrar o servidor no banco de dados
-                        try:
-                            servidor = Servidor.objects.get(matricula=matricula)
-                        except Servidor.DoesNotExist:
-                            messages.error(request, f"Erro: Servidor com matrícula {matricula} não encontrado.")
-                            continue
-
-                        # Processar a data
-                        try:
-                            data_completa = parser.parse(str(data)).date()
-                        except ValueError:
-                            messages.error(request, f"Erro: Data inválida {data}.")
-                            continue
-
-                        # Verificar se a data já existe para o servidor
-                        if Ajuda_Custo.objects.filter(matricula=servidor.matricula, data=data_completa).exists():
-                            messages.warning(request, f'Registro já existente para o servidor {nome} na data {data}.')
-                            continue
-
-                        # Verificar total de horas do mês
-                        inicio_do_mes = data_completa.replace(day=1)
-                        fim_do_mes = (inicio_do_mes + timedelta(days=31)).replace(day=1) - timedelta(days=1)
-
-                        registros_mes = Ajuda_Custo.objects.filter(
-                            matricula=servidor.matricula,
-                            data__range=[inicio_do_mes, fim_do_mes]
-                        )
-
-                        # Calcular o total de horas do mês
-                        total_horas_mes = sum(
-                            12 if registro.carga_horaria == '12 horas' else 24
-                            for registro in registros_mes
-                        )
-
-                        horas_a_adicionar = 12 if carga_horaria == '12 horas' else 24
-
-                        if total_horas_mes + horas_a_adicionar > 192:
-                            messages.error(request, f'Limite de 192 horas mensais excedido para {nome} na data {data}.')
-                            continue
-
-                        # Verificação das datas majoradas
-                        majorado = DataMajorada.objects.filter(data=data_completa).exists()
-
-                        # Adicionar o registro à lista para bulk create
-                        ajuda_custos_para_inserir.append(Ajuda_Custo(
-                            matricula=servidor.matricula,
-                            nome=servidor.nome,
-                            data=data_completa,
-                            unidade=unidade,
-                            carga_horaria=carga_horaria,
-                            majorado=majorado  # Adiciona a informação sobre se a data é majorada
-                        ))
-
-                    # Inserir os registros em lote
-                    if ajuda_custos_para_inserir:
-                        Ajuda_Custo.objects.bulk_create(ajuda_custos_para_inserir)
-                        registros_inseridos = True
-                        ajuda_custos_para_inserir.clear()  # Limpar a lista após a inserção
-
-                if registros_inseridos:
-                    messages.success(request, "Registros inseridos com sucesso!")
+                if erros_totais:
+                    # Exibir uma mensagem de erro com os detalhes das falhas
+                    messages.error(request, f"Erros encontrados: {', '.join(erros_totais)}")
                 else:
-                    messages.info(request, "Nenhum registro foi inserido.")
+                    messages.success(request, "Arquivo processado com sucesso!")
+
+                return redirect('ajuda_custo:upload_excel_rx2')
             except Exception as e:
                 messages.error(request, f"Erro ao processar o arquivo: {str(e)}")
                 return redirect('ajuda_custo:upload_excel_rx2')
