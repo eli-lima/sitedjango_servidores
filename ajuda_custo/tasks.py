@@ -82,7 +82,7 @@ def process_batch(df_batch):
     return erros  # Retorna a lista de erros para feedback
 
 
-@shared_task(bind=True)
+@shared_task()
 def process_excel_file(cloudinary_url, public_id):
     try:
         # Lógica de processamento do arquivo Excel (baixar, processar, etc.)
