@@ -12,109 +12,111 @@ from collections import defaultdict
 
 @shared_task
 def process_batch(df_batch):
+    registros_inseridos = False
     ajuda_custos_para_inserir = []
+    horas_por_servidor = defaultdict(int)  # Dicionário para armazenar as horas acumuladas por servidor e mês
+    datas_processadas = set()
     erros = []  # Lista para armazenar as informações sobre falhas
-    datas_processadas = defaultdict(set)  # Para rastrear datas processadas por servidor
-
-    # Primeiro, percorremos o DataFrame para calcular as horas a serem adicionadas
-    horas_a_adicionar_por_servidor = defaultdict(int)  # Para rastrear horas a serem adicionadas
-    dados_a_inserir = []
 
     for row in df_batch:  # Agora df_batch é uma lista de dicionários
         matricula_raw = row['Matrícula']
+        if not matricula_raw:
+            erros.append("Erro: Matrícula vazia encontrada.")
+            continue
+
         matricula = re.sub(r'\D', '', str(matricula_raw)).lstrip('0')
         unidade = row['Unidade']
         nome = row['Nome']
         data = row['Data']
         carga_horaria_raw = row['Carga Horaria']
 
-        # Tentar buscar o servidor
+        # Converte a carga horária de texto para número inteiro
+        carga_horaria = 0
+        if carga_horaria_raw.strip() == "12 horas":
+            carga_horaria = 12
+        elif carga_horaria_raw.strip() == "24 horas":
+            carga_horaria = 24
+        else:
+            erros.append(f"Erro: Carga horária inválida '{carga_horaria_raw}' para o servidor {nome}.")
+            continue
+
         try:
             servidor = Servidor.objects.get(matricula=matricula)
-            print(f"Servidor encontrado: {servidor.nome} (Matrícula: {matricula})")
         except Servidor.DoesNotExist:
-            erros.append(f"Servidor com matrícula {matricula} não encontrado.")
-            print(f"Erro: Servidor com matrícula {matricula} não encontrado.")
-            continue  # Pular se não encontrar o servidor
+            erros.append(f"Erro: Servidor com matrícula {matricula} não encontrado.")
+            continue
 
-        # Processar data
         try:
-            data_completa = parser.parse(str(data)).date()  # Certifique-se de que isso retorna um objeto date
-            print(f"Data processada corretamente: {data_completa}")
+            data_completa = parser.parse(str(data)).date()
         except ValueError:
-            erros.append(f"Data inválida para a matrícula {matricula}: {data}")
-            print(f"Erro: Data inválida para a matrícula {matricula}: {data}")
-            continue  # Pular se a data for inválida
-
-        # Verificar se a data já foi processada para este servidor
-        if data_completa in datas_processadas[servidor.matricula]:
-            erros.append(f"Registro duplicado na planilha para a matrícula {matricula} na data {data_completa}.")
-            print(f"Erro: Registro duplicado para a matrícula {matricula} na data {data_completa}.")
+            erros.append(f"Erro: Data inválida {data} para o servidor {nome}.")
             continue
 
-        datas_processadas[servidor.matricula].add(data_completa)
-        print(f"Data adicionada ao conjunto de datas processadas: {data_completa} para matrícula {matricula}")
-
-        # Calcular a carga horária a ser adicionada
-        horas_a_adicionar = 12 if carga_horaria_raw == '12 horas' else 24
-        horas_a_adicionar_por_servidor[servidor.matricula] += horas_a_adicionar
-        print(f"Horas a adicionar para o servidor {servidor.nome}: {horas_a_adicionar_por_servidor[servidor.matricula]}")
-
-        # Adicionar dados para inserção
-        dados_a_inserir.append((servidor.matricula, nome, data_completa, unidade, carga_horaria_raw))
-
-    # Após coletar todos os dados, verifique as horas no banco
-    for matricula, nome, data_completa, unidade, carga_horaria_raw in dados_a_inserir:
-        # Calcular total de horas do mês
-        inicio_do_mes = data_completa.replace(day=1)
-        fim_do_mes = (inicio_do_mes + timedelta(days=31)).replace(day=1) - timedelta(days=1)
-
-        registros_mes = Ajuda_Custo.objects.filter(
-            matricula=matricula,
-            data__range=[inicio_do_mes, fim_do_mes]
-        )
-        print(f"Registros do mês para matrícula {matricula} (de {inicio_do_mes} a {fim_do_mes}): {registros_mes.count()} encontrados")
-
-        # Calcular o total de horas do mês
-        total_horas_mes = sum(
-            12 if registro.carga_horaria == '12 horas' else 24
-            for registro in registros_mes
-        )
-        print(f"Total de horas acumuladas no mês para matrícula {matricula}: {total_horas_mes}")
-
-        # Calcular as horas que seriam adicionadas
-        horas_a_adicionar = horas_a_adicionar_por_servidor[matricula]
-
-        # Verificar se o limite de 192 horas é excedido
-        if total_horas_mes + horas_a_adicionar > 192:
-            erros.append(f'Limite de 192 horas mensais excedido para {nome} na data {data_completa}.')
-            print(f"Erro: Limite de 192 horas excedido para {nome} na data {data_completa}.")
+        # Verificar se a data já foi processada
+        if (servidor.matricula, data_completa) in datas_processadas:
+            erros.append(f"Registro duplicado para o servidor {nome} na data {data_completa}.")
             continue
 
-        # Verificar se o registro já existe
-        if not Ajuda_Custo.objects.filter(matricula=matricula, data=data_completa).exists():
-            majorado = DataMajorada.objects.filter(data=data_completa).exists()
-            ajuda_custos_para_inserir.append(Ajuda_Custo(
-                matricula=matricula,
-                nome=nome,
-                data=data_completa,
-                unidade=unidade,
-                carga_horaria=carga_horaria_raw,  # Armazena a carga horária original
-                majorado=majorado
-            ))
-            print(f"Adicionando ajuda de custo para matrícula {matricula} na data {data_completa}")
-        else:
-            erros.append(f"Registro já existente para a matrícula {matricula} e data {data_completa}.")
-            print(f"Erro: Registro já existente para matrícula {matricula} e data {data_completa}.")
+        datas_processadas.add((servidor.matricula, data_completa))
+
+        # Extraindo mês e ano da data
+        mes_ano = (data_completa.year, data_completa.month)
+
+        # Verificar se a soma da carga horária do mês excede 192 horas
+        horas_mes_atual = horas_por_servidor[(servidor.matricula, mes_ano)]
+
+        # Obter registros do banco para o mês
+        registros_mes_atual = Ajuda_Custo.objects.filter(
+            matricula=servidor.matricula,
+            data__year=mes_ano[0],
+            data__month=mes_ano[1]
+        )
+
+        # Calcular horas do banco de dados
+        for registro in registros_mes_atual:
+            carga_horaria_passado = registro.carga_horaria.strip()
+            if carga_horaria_passado == "12 horas":
+                horas_mes_atual += 12
+            elif carga_horaria_passado == "24 horas":
+                horas_mes_atual += 24
+
+        horas_mes_atual += carga_horaria
+
+        if horas_mes_atual > 192:
+            erros.append(f"Limite de 192 horas excedido para o servidor {nome} no mês {data_completa.strftime('%m/%Y')}.")
+            continue
+
+        # Atualiza o dicionário com as horas acumuladas
+        horas_por_servidor[(servidor.matricula, mes_ano)] = horas_mes_atual
+
+        majorado = DataMajorada.objects.filter(data=data_completa).exists()
+
+        ajuda_custos_para_inserir.append(Ajuda_Custo(
+            matricula=servidor.matricula,
+            nome=servidor.nome,
+            data=data_completa,
+            unidade=unidade,
+            carga_horaria=carga_horaria_raw,  # Armazena como texto original
+            majorado=majorado
+        ))
 
     # Inserir dados em massa
     try:
         if ajuda_custos_para_inserir:
             Ajuda_Custo.objects.bulk_create(ajuda_custos_para_inserir)
-            print(f"Registros inseridos com sucesso.")
+            registros_inseridos = True
     except IntegrityError as e:
         erros.append(f"Erro de integridade durante a inserção: {str(e)}")
-        print(f"Erro de integridade durante a inserção: {str(e)}")
+
+    if registros_inseridos:
+        print("Registros inseridos com sucesso!")
+    else:
+        print("Nenhum registro foi inserido.")
+
+    if erros:
+        print("Erros encontrados:")
+        for erro in erros:
+            print(erro)
 
     return erros  # Retorna a lista de erros para feedback
 
