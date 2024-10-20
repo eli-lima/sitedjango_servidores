@@ -70,6 +70,7 @@ def upload_excel_rx2(request):
 
 def status_task(request, task_id):
     task = AsyncResult(task_id)
+    print(f"Estado da tarefa: {task.state}")
 
     # Verifica se a tarefa está pendente
     if task.state == 'PENDING':

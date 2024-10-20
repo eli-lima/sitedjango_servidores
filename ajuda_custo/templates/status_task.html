@@ -3,6 +3,28 @@
 {% block content %}
   <div class="pt-48 flex justify-center">
     <h2>Status do Processamento</h2>
-    <p>{{ status }}</p>
+    <div>
+      <p>{{ status }}</p>
+    </div>
   </div>
+
+
+<script>
+    function checkTaskStatus(taskId) {
+        fetch(`/ajuda_custo/status_task/${taskId}/`)  // Altere a URL conforme necessário
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('status').innerHTML = data;
+                // Verifique se o status não é mais 'PENDING'
+                if (!data.includes("Processamento pendente...")) {
+                    clearInterval(interval);  // Para o polling se não for mais pendente
+                }
+            })
+            .catch(error => console.error('Erro ao buscar o status:', error));
+    }
+
+    const taskId = "{{ task_id }}";  // Supondo que você passe o ID da tarefa para o template
+    const interval = setInterval(() => checkTaskStatus(taskId), 5000);  // Verifica a cada 5 segundos
+</script>
+
 {% endblock %}
