@@ -12,11 +12,16 @@
 <script>
     // Função para recarregar a página
     function recarregarPagina() {
-        location.reload();  // Recarrega a página
+        var statusElement = document.getElementById('status');
+        if (statusElement && statusElement.innerText === "Processamento pendente...") {
+            location.reload();  // Recarrega a página
+        } else {
+            clearInterval(reloadInterval);  // Para de recarregar a página
+        }
     }
 
     // Define o intervalo para recarregar a página a cada 5 segundos (5000 milissegundos)
-    setInterval(recarregarPagina, 5000);
+    var reloadInterval = setInterval(recarregarPagina, 5000);
 </script>
 
 
