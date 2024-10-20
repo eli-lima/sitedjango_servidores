@@ -14,8 +14,11 @@ from collections import defaultdict
 def process_batch(df_batch):
     ajuda_custos_para_inserir = []
     erros = []  # Lista para armazenar as informações sobre falhas
-    horas_por_servidor = defaultdict(int)  # Para rastrear as horas acumuladas por servidor e mês
     datas_processadas = defaultdict(set)  # Para rastrear datas processadas por servidor
+
+    # Primeiro, percorremos o DataFrame para calcular as horas a serem adicionadas
+    horas_a_adicionar_por_servidor = defaultdict(int)  # Para rastrear horas a serem adicionadas
+    dados_a_inserir = []
 
     for row in df_batch:  # Agora df_batch é uma lista de dicionários
         matricula_raw = row['Matrícula']
@@ -46,12 +49,21 @@ def process_batch(df_batch):
 
         datas_processadas[servidor.matricula].add(data_completa)
 
-        # Calcular o total de horas do mês
+        # Calcular a carga horária a ser adicionada
+        horas_a_adicionar = 12 if carga_horaria_raw == '12 horas' else 24
+        horas_a_adicionar_por_servidor[servidor.matricula] += horas_a_adicionar
+
+        # Adicionar dados para inserção
+        dados_a_inserir.append((servidor.matricula, nome, data_completa, unidade, carga_horaria_raw))
+
+    # Após coletar todos os dados, verifique as horas no banco
+    for matricula, nome, data_completa, unidade, carga_horaria_raw in dados_a_inserir:
+        # Calcular total de horas do mês
         inicio_do_mes = data_completa.replace(day=1)
         fim_do_mes = (inicio_do_mes + timedelta(days=31)).replace(day=1) - timedelta(days=1)
 
         registros_mes = Ajuda_Custo.objects.filter(
-            matricula=servidor.matricula,
+            matricula=matricula,
             data__range=[inicio_do_mes, fim_do_mes]
         )
 
@@ -61,18 +73,20 @@ def process_batch(df_batch):
             for registro in registros_mes
         )
 
-        horas_a_adicionar = 12 if carga_horaria_raw == '12 horas' else 24
+        # Calcular as horas que seriam adicionadas
+        horas_a_adicionar = horas_a_adicionar_por_servidor[matricula]
 
+        # Verificar se o limite de 192 horas é excedido
         if total_horas_mes + horas_a_adicionar > 192:
             erros.append(f'Limite de 192 horas mensais excedido para {nome} na data {data_completa}.')
             continue
 
         # Verificar se o registro já existe
-        if not Ajuda_Custo.objects.filter(matricula=servidor.matricula, data=data_completa).exists():
+        if not Ajuda_Custo.objects.filter(matricula=matricula, data=data_completa).exists():
             majorado = DataMajorada.objects.filter(data=data_completa).exists()
             ajuda_custos_para_inserir.append(Ajuda_Custo(
-                matricula=servidor.matricula,
-                nome=servidor.nome,
+                matricula=matricula,
+                nome=nome,
                 data=data_completa,
                 unidade=unidade,
                 carga_horaria=carga_horaria_raw,  # Armazena a carga horária original
