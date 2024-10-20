@@ -44,77 +44,86 @@ def upload_excel_rx2(request):
                 df = pd.read_excel(excel_file)
 
                 registros_inseridos = False
+                total_registros = df.shape[0]
+                batch_size = 2000  # Tamanho do lote
+                ajuda_custos_para_inserir = []
 
-                # Iterar pelas linhas da planilha
-                for _, row in df.iterrows():
-                    # Verificar se a matrícula existe e não é nula
-                    matricula_raw = row['Matrícula']
-                    if pd.isnull(matricula_raw):
-                        messages.error(request, "Erro: Matrícula vazia encontrada.")
-                        continue
+                for start in range(0, total_registros, batch_size):
+                    end = min(start + batch_size, total_registros)
+                    df_batch = df.iloc[start:end]  # Obter o lote de registros
 
-                    # Convertendo a matrícula para string e removendo caracteres não numéricos
-                    matricula = re.sub(r'\D', '', str(matricula_raw)).lstrip('0')
+                    for _, row in df_batch.iterrows():
+                        matricula_raw = row['Matrícula']
+                        if pd.isnull(matricula_raw):
+                            messages.error(request, "Erro: Matrícula vazia encontrada.")
+                            continue
 
-                    unidade = row['Unidade']
-                    nome = row['Nome']
-                    data = row['Data']
-                    carga_horaria = row['Carga Horaria']
+                        # Convertendo a matrícula para string e removendo caracteres não numéricos
+                        matricula = re.sub(r'\D', '', str(matricula_raw)).lstrip('0')
 
-                    # Tentar encontrar o servidor no banco de dados
-                    try:
-                        servidor = Servidor.objects.get(matricula=matricula)
-                    except Servidor.DoesNotExist:
-                        messages.error(request, f"Erro: Servidor com matrícula {matricula} não encontrado.")
-                        continue
+                        unidade = row['Unidade']
+                        nome = row['Nome']
+                        data = row['Data']
+                        carga_horaria = row['Carga Horaria']
 
-                    # Processar a data
-                    try:
-                        data_completa = parser.parse(str(data)).date()
-                    except ValueError:
-                        messages.error(request, f"Erro: Data inválida {data}.")
-                        continue
+                        # Tentar encontrar o servidor no banco de dados
+                        try:
+                            servidor = Servidor.objects.get(matricula=matricula)
+                        except Servidor.DoesNotExist:
+                            messages.error(request, f"Erro: Servidor com matrícula {matricula} não encontrado.")
+                            continue
 
-                    # Verificar se a data já existe para o servidor
-                    if Ajuda_Custo.objects.filter(matricula=servidor.matricula, data=data_completa).exists():
-                        messages.warning(request, f'Registro já existente para o servidor {nome} na data {data}.')
-                        continue
+                        # Processar a data
+                        try:
+                            data_completa = parser.parse(str(data)).date()
+                        except ValueError:
+                            messages.error(request, f"Erro: Data inválida {data}.")
+                            continue
 
-                    # Verificar total de horas do mês
-                    inicio_do_mes = data_completa.replace(day=1)
-                    fim_do_mes = (inicio_do_mes + timedelta(days=31)).replace(day=1) - timedelta(days=1)
+                        # Verificar se a data já existe para o servidor
+                        if Ajuda_Custo.objects.filter(matricula=servidor.matricula, data=data_completa).exists():
+                            messages.warning(request, f'Registro já existente para o servidor {nome} na data {data}.')
+                            continue
 
-                    registros_mes = Ajuda_Custo.objects.filter(
-                        matricula=servidor.matricula,
-                        data__range=[inicio_do_mes, fim_do_mes]
-                    )
+                        # Verificar total de horas do mês
+                        inicio_do_mes = data_completa.replace(day=1)
+                        fim_do_mes = (inicio_do_mes + timedelta(days=31)).replace(day=1) - timedelta(days=1)
 
-                    # Calcular o total de horas do mês
-                    total_horas_mes = sum(
-                        12 if registro.carga_horaria == '12 horas' else 24
-                        for registro in registros_mes
-                    )
+                        registros_mes = Ajuda_Custo.objects.filter(
+                            matricula=servidor.matricula,
+                            data__range=[inicio_do_mes, fim_do_mes]
+                        )
 
-                    horas_a_adicionar = 12 if carga_horaria == '12 horas' else 24
+                        # Calcular o total de horas do mês
+                        total_horas_mes = sum(
+                            12 if registro.carga_horaria == '12 horas' else 24
+                            for registro in registros_mes
+                        )
 
-                    if total_horas_mes + horas_a_adicionar > 192:
-                        messages.error(request, f'Limite de 192 horas mensais excedido para {nome} na data {data}.')
-                        continue
+                        horas_a_adicionar = 12 if carga_horaria == '12 horas' else 24
 
-                    # Verificação das datas majoradas
-                    majorado = DataMajorada.objects.filter(data=data_completa).exists()
+                        if total_horas_mes + horas_a_adicionar > 192:
+                            messages.error(request, f'Limite de 192 horas mensais excedido para {nome} na data {data}.')
+                            continue
 
-                    # Criar o registro de ajuda de custo
-                    ajuda_custo = Ajuda_Custo(
-                        matricula=servidor.matricula,
-                        nome=servidor.nome,
-                        data=data_completa,
-                        unidade=unidade,
-                        carga_horaria=carga_horaria,
-                        majorado=majorado  # Adiciona a informação sobre se a data é majorada
-                    )
-                    ajuda_custo.save()
-                    registros_inseridos = True
+                        # Verificação das datas majoradas
+                        majorado = DataMajorada.objects.filter(data=data_completa).exists()
+
+                        # Adicionar o registro à lista para bulk create
+                        ajuda_custos_para_inserir.append(Ajuda_Custo(
+                            matricula=servidor.matricula,
+                            nome=servidor.nome,
+                            data=data_completa,
+                            unidade=unidade,
+                            carga_horaria=carga_horaria,
+                            majorado=majorado  # Adiciona a informação sobre se a data é majorada
+                        ))
+
+                    # Inserir os registros em lote
+                    if ajuda_custos_para_inserir:
+                        Ajuda_Custo.objects.bulk_create(ajuda_custos_para_inserir)
+                        registros_inseridos = True
+                        ajuda_custos_para_inserir.clear()  # Limpar a lista após a inserção
 
                 if registros_inseridos:
                     messages.success(request, "Registros inseridos com sucesso!")
