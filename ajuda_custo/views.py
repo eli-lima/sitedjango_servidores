@@ -20,7 +20,7 @@ import os
 from django.conf import settings
 import logging
 import requests
-
+import cloudinary.uploader
 from django.utils import timezone
 from django.http import JsonResponse
 from django.utils.timezone import now
