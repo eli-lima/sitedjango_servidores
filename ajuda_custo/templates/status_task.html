@@ -10,34 +10,37 @@
 
 
 <script>
-    function checkTaskStatus(taskId) {
-    fetch(`/ajuda_custo/status_task/${taskId}/`)  // Altere a URL conforme necessário
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.text();
-        })
-        .then(data => {
-            document.getElementById('status').innerHTML = data;
+    let previousStatus = ""; // Variável para armazenar o status anterior
 
-            // Verifique se o status não é mais 'PENDING'
-            if (!data.includes("Processamento pendente...")) {
-                clearInterval(interval);  // Para o polling se não for mais pendente
-
-                // Verifica se o processamento foi concluído ou se houve erro
-                if (data.includes("Processamento concluído com sucesso!") || data.includes("Erros encontrados")) {
-                    setTimeout(() => {
-                        location.reload(); // Recarrega a página após 2 segundos
-                    }, 2000);
-                }
-            }
-        })
-        .catch(error => console.error('Erro ao buscar o status:', error));
+function refreshPage() {
+    location.reload(); // Recarrega a página
 }
 
-const taskId = "{{ task_id }}";  // Supondo que você passe o ID da tarefa para o template
-const interval = setInterval(() => checkTaskStatus(taskId), 5000);  // Verifica a cada 5 segundos
+const interval = setInterval(() => {
+    refreshPage(); // Atualiza a página a cada 5 segundos
+}, 5000);
+
+// Função para verificar se o status mudou
+function checkStatusChange() {
+    const statusElement = document.getElementById('status');
+    if (statusElement) {
+        const currentStatus = statusElement.innerText; // Pega o texto atual do elemento
+
+        // Verifica se o status mudou
+        if (currentStatus !== previousStatus) {
+            previousStatus = currentStatus; // Atualiza o status anterior
+
+            // Se o status não for 'Processamento pendente...', para a atualização
+            if (!currentStatus.includes("Processamento pendente...")) {
+                clearInterval(interval); // Para o intervalo de atualização
+            }
+        }
+    }
+}
+
+// Verifica a cada 5 segundos se o status mudou
+setInterval(checkStatusChange, 5000);
+
 
 </script>
 
