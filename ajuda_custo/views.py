@@ -934,6 +934,8 @@ class AdminCadastrar(LoginRequiredMixin, UserPassesTestMixin, FormView):
     def form_invalid(self, form):
         messages.error(self.request, 'Erro no Cadastro, Confira os Dados e Tente Novamente.')
         return super().form_invalid(form)
+
+
 class HorasLimite(LoginRequiredMixin, UserPassesTestMixin, FormView ):
     model = LimiteAjudaCusto
     form_class = LimiteAjudaCustoForm
