@@ -15,17 +15,26 @@
         const statusElement = document.getElementById('status');
 
         // Verifica se o elemento existe e se o texto é 'Processamento pendente...'
-        if (statusElement && statusElement.innerText.trim() === 'Processamento pendente...') {
-            // Recarrega a página após 5 segundos
-            setTimeout(function() {
-                location.reload();
-            }, 5000);
+        if (statusElement) {
+            const statusText = statusElement.innerText.trim();
+
+            // Verifica se o status é 'Processamento pendente...'
+            if (statusText === 'Processamento pendente...') {
+                // Recarrega a página após 5 segundos
+                setTimeout(function() {
+                    location.reload();
+                }, 5000);
+            } else {
+                console.log('Status mudou:', statusText);
+            }
+        } else {
+            console.error('Elemento com ID "status" não encontrado.');
         }
     }
 
-    // Executa a função após o carregamento da página
-    window.onload = verificarStatus;
-
+    // Checa o status a cada 5 segundos
+    setInterval(verificarStatus, 5000);
 </script>
+
 
 {% endblock %}
