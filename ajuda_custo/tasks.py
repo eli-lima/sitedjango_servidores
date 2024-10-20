@@ -66,13 +66,16 @@ def process_batch(df_batch):
 
 @shared_task(bind=True)
 def process_excel_file(self, cloudinary_url):
+    print(f"Iniciando o processamento do arquivo com URL: {cloudinary_url}")  # Print de início
     try:
-        print(f"Fazendo download do arquivo do Cloudinary: {cloudinary_url}")
+        # Fazer o download do arquivo do Cloudinary
         response = requests.get(cloudinary_url)
         response.raise_for_status()
+        print("Arquivo baixado com sucesso.")  # Print de sucesso no download
 
-        print("Arquivo baixado com sucesso. Lendo o arquivo Excel.")
+        # Ler o arquivo Excel
         df = pd.read_excel(response.content)
+        print(f"Arquivo Excel lido. Total de registros: {df.shape[0]}")  # Print do total de registros
 
         # Lógica de processamento dos dados
         batch_size = 2000
