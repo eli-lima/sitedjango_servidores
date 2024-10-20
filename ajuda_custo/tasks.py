@@ -31,7 +31,7 @@ def process_batch(df_batch):
 
         # Processar data
         try:
-            data_completa = parser.parse(str(data)).date()
+            data_completa = parser.parse(str(data)).date()  # Certifique-se de que isso retorna um objeto date
         except ValueError:
             erros.append(f"Data inválida para a matrícula {matricula}: {data}")
             continue  # Pular se a data for inválida
@@ -58,18 +58,23 @@ def process_batch(df_batch):
             continue
 
         # Verificar se o registro já existe
-        if not Ajuda_Custo.objects.filter(matricula=servidor.matricula, data=data_completa).exists():
-            majorado = DataMajorada.objects.filter(data=data_completa).exists()
-            ajuda_custos_para_inserir.append(Ajuda_Custo(
-                matricula=servidor.matricula,
-                nome=servidor.nome,
-                data=data_completa,
-                unidade=unidade,
-                carga_horaria=carga_horaria,
-                majorado=majorado
-            ))
-        else:
-            erros.append(f"Registro já existente para a matrícula {matricula} e data {data_completa}.")
+        try:
+            registro_existente = Ajuda_Custo.objects.filter(matricula=servidor.matricula, data=data_completa).exists()
+
+            if not registro_existente:
+                majorado = DataMajorada.objects.filter(data=data_completa).exists()
+                ajuda_custos_para_inserir.append(Ajuda_Custo(
+                    matricula=servidor.matricula,
+                    nome=servidor.nome,
+                    data=data_completa,
+                    unidade=unidade,
+                    carga_horaria=carga_horaria,
+                    majorado=majorado
+                ))
+            else:
+                erros.append(f"Registro já existente para a matrícula {matricula} e data {data_completa}.")
+        except Exception as e:
+            erros.append(f"Erro ao verificar duplicidade para matrícula {matricula}: {str(e)}")
 
     # Inserir dados em massa
     try:
