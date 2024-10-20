@@ -36,6 +36,27 @@ def process_batch(df_batch):
             erros.append(f"Data inválida para a matrícula {matricula}: {data}")
             continue  # Pular se a data for inválida
 
+        # Verificar total de horas do mês
+        inicio_do_mes = data_completa.replace(day=1)
+        fim_do_mes = (inicio_do_mes + timedelta(days=31)).replace(day=1) - timedelta(days=1)
+
+        registros_mes = Ajuda_Custo.objects.filter(
+            matricula=servidor.matricula,
+            data__range=[inicio_do_mes, fim_do_mes]
+        )
+
+        # Calcular o total de horas do mês
+        total_horas_mes = sum(
+            12 if registro.carga_horaria == '12 horas' else 24
+            for registro in registros_mes
+        )
+
+        horas_a_adicionar = 12 if carga_horaria == '12 horas' else 24
+
+        if total_horas_mes + horas_a_adicionar > 192:
+            erros.append(f'Limite de 192 horas mensais excedido para {nome} na data {data}.')
+            continue
+
         # Verificar se o registro já existe
         if not Ajuda_Custo.objects.filter(matricula=servidor.matricula, data=data_completa).exists():
             majorado = DataMajorada.objects.filter(data=data_completa).exists()
@@ -58,6 +79,7 @@ def process_batch(df_batch):
         erros.append(f"Erro de integridade durante a inserção: {str(e)}")
 
     return erros  # Retorna a lista de erros para feedback
+
 
 
 @shared_task(bind=True)
