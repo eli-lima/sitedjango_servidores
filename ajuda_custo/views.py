@@ -59,7 +59,7 @@ def upload_excel_rx2(request):
     else:
         form = UploadExcelRx2Form()
 
-    return render(request, 'ajuda_custo/upload_excel_rx2.html', {'form': form})
+    return render(request, 'upload_excel_rx2.html', {'form': form})
 
 
 def status_task(request, task_id):
