@@ -542,9 +542,9 @@ class AjudaCusto(LoginRequiredMixin, ListView):
 
         # Background da variação percentual
         if variacao_percentual > 0:
-            context['bg_class'] = 'bg-green-600'
-        elif variacao_percentual < 0:
             context['bg_class'] = 'bg-red-600'
+        elif variacao_percentual < 0:
+            context['bg_class'] = 'bg-green-600'
         else:
             context['bg_class'] = 'bg-gray-600'
 
