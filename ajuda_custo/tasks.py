@@ -86,7 +86,13 @@ def process_batch(df_batch):
             elif carga_horaria_passado == "24 horas":
                 horas_mes_atual += 24
 
+        # Imprimir o estado atual antes de adicionar a nova carga horária
+        print(f"Servidor: {nome}, Matrícula: {matricula}, Data: {data_completa}, Carga Horária Atual: {horas_mes_atual}, Carga Horária Nova: {carga_horaria}")
+
         horas_mes_atual += carga_horaria
+
+        # Imprimir o estado após a adição da nova carga horária
+        print(f"Após adicionar, Total de Horas: {horas_mes_atual} (Limite: 192)")
 
         if horas_mes_atual > 192:
             erros.append(f"Limite de 192 horas excedido para o servidor {nome} no mês {data_completa.strftime('%m/%Y')}.")
