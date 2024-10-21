@@ -39,7 +39,7 @@ class ServidorForm(forms.ModelForm):
             'data_nascimento': 'Data de Nascimento',
             'cargo': 'Cargo',
             'cargo_comissionado': 'Cargo Comissionado',
-            'simb_cargo_comissionado': 'Símbolo do Cargo Comissionado',
+            'simb_cargo_comissionado': 'Símbolo',
             'local_trabalho': 'Local de Trabalho',
             'genero': 'Gênero',
             'lotacao': 'Lotação',
