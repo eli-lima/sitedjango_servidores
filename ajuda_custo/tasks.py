@@ -71,14 +71,18 @@ def process_batch(df_batch):
         # Verificar se a soma da carga horária do mês excede 192 horas
         horas_mes_atual = horas_por_servidor[(servidor.matricula, mes_ano)]
 
-        # Obter registros do banco para o mês
+        print(f"\n--- Processando servidor: {nome} (Matrícula: {matricula}) ---")
+        print(f"Data: {data_completa}, Carga horária atual: {carga_horaria_raw}")
+        print(f"Horas acumuladas até o momento (antes do somatório): {horas_mes_atual}")
+
+        # Obter registros do banco para o mês e somar as horas já registradas
         registros_mes_atual = Ajuda_Custo.objects.filter(
             matricula=servidor.matricula,
             data__year=mes_ano[0],
             data__month=mes_ano[1]
         )
 
-        # Calcular horas do banco de dados
+        # Calcular as horas do banco de dados e adicionar ao contador de horas
         for registro in registros_mes_atual:
             carga_horaria_passado = registro.carga_horaria.strip()
             if carga_horaria_passado == "12 horas":
@@ -86,14 +90,14 @@ def process_batch(df_batch):
             elif carga_horaria_passado == "24 horas":
                 horas_mes_atual += 24
 
-        # Imprimir o estado atual antes de adicionar a nova carga horária
-        print(f"Servidor: {nome}, Matrícula: {matricula}, Data: {data_completa}, Carga Horária Atual: {horas_mes_atual}, Carga Horária Nova: {carga_horaria}")
+        print(f"Horas acumuladas no banco de dados para este mês (após somar banco): {horas_mes_atual}")
 
+        # Adicionar a carga horária da nova entrada
         horas_mes_atual += carga_horaria
 
-        # Imprimir o estado após a adição da nova carga horária
-        print(f"Após adicionar, Total de Horas: {horas_mes_atual} (Limite: 192)")
+        print(f"Horas acumuladas após nova entrada: {horas_mes_atual}")
 
+        # Verificar o limite de 192 horas mensais
         if horas_mes_atual > 192:
             erros.append(f"Limite de 192 horas excedido para o servidor {nome} no mês {data_completa.strftime('%m/%Y')}.")
             continue
