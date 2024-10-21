@@ -52,9 +52,15 @@ def process_batch(df_batch):
             erros.append(f"Erro: Data inválida {data} para o servidor {nome}.")
             continue
 
-        # Verificar se a data já foi processada
+        # Verificar se a data já foi processada neste lote
         if (servidor.matricula, data_completa) in datas_processadas:
             erros.append(f"Registro duplicado para o servidor {nome} na data {data_completa}.")
+            continue
+
+        # **Verificar no banco de dados se já existe um registro para a mesma matrícula e data**
+        registro_existente = Ajuda_Custo.objects.filter(matricula=servidor.matricula, data=data_completa).exists()
+        if registro_existente:
+            erros.append(f"Erro: Registro já existe para o servidor {nome} na data {data_completa}.")
             continue
 
         datas_processadas.add((servidor.matricula, data_completa))
