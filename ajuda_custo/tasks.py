@@ -148,7 +148,7 @@ def process_excel_file(self, cloudinary_url):
         print(f"Arquivo Excel lido. Total de registros: {df.shape[0]}")  # Print do total de registros
 
         # Lógica de processamento dos dados
-        batch_size = 2000
+        batch_size = 10000
         total_registros = df.shape[0]
         print(f"Total de registros a processar: {total_registros}")
         erros_totais = []
