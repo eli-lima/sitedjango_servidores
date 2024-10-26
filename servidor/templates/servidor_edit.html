@@ -12,10 +12,10 @@ Editar Servidor
 
 
 <!--formulario teste-->
-<div class="pt-28 grid grid-cols-4 gap-4">
-    <div class="bg-white rounded-3xl shadow-lg ml-10 mb-4 pl-3">
+<div class="pt-28 lg:pt-16 grid lg:grid-cols-4 grid-cols-3">
+    <div class="bg-white rounded-3xl shadow-lg ml-2 mb-4 lg:block hidden">
 <!--        cartao profile-->
-        <div class="pl-10 border-t border-gray-100 dark:border-gray-700">
+        <div class="px-10 border-t border-gray-100 dark:border-gray-700">
             <h3 class="py-4 text-lg font-semibold">Informações Servidor</h3>
 <!--            imagem servidor-->
             <div class="">
@@ -59,7 +59,7 @@ Editar Servidor
         </div>
 
     </div>
-    <div class="col-span-3 mr-10">
+    <div class="col-span-3 lg:mx-4 mx-12">
 <!--       Formulario-->
         <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
@@ -129,7 +129,7 @@ Editar Servidor
                         {{ form.cargo }}
                         <p class="text-red-500 text-xs italic">{{ form.cargo.errors }}</p>
                     </div>
-                    <div class="w-1/6 px-3 mb-6 md:mb-0 space-y-2">
+                    <div class="w-3/6 px-3 mb-6 md:mb-0 space-y-2">
                         <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                         {{ form.cargo_comissionado.label }}
                         </label>
@@ -143,26 +143,19 @@ Editar Servidor
                         {{ form.simb_cargo_comissionado }}
                         <p class="text-red-500 text-xs italic">{{ form.simb_cargo_comissionado.errors }}</p>
                     </div>
-                    <div class="w-1/6 px-3 mb-6 md:mb-0 space-y-2">
+                    <div class="w-2/6 px-3 mb-6 md:mb-0 space-y-2">
                         <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                         {{ form.regime.label }}
                         </label>
                         {{ form.regime }}
                         <p class="text-red-500 text-xs italic">{{ form.regime.errors }}</p>
                     </div>
-                    <div class="w-1/6 px-3 mb-6 md:mb-0">
+                    <div class="w-2/6 px-3 mb-6 md:mb-0">
                         <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                         {{ form.status.label }}
                         </label>
                         {{ form.status }}
                         <p class="text-red-500 text-xs italic">{{ form.status.errors }}</p>
-                    </div>
-                    <div class="w-3/6 px-3 mb-6 md:mb-0 space-y-2">
-                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                        {{ form.local_trabalho.label }}
-                        </label>
-                        {{ form.local_trabalho }}
-                        <p class="text-red-500 text-xs italic">{{ form.local_trabalho.errors }}</p>
                     </div>
                     <div class="w-2/6 px-3 mb-6 md:mb-0 space-y-2">
                         <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
@@ -171,15 +164,23 @@ Editar Servidor
                         {{ form.lotacao }}
                         <p class="text-red-500 text-xs italic">{{ form.lotacao.errors }}</p>
                     </div>
+                    <div class="w-4/6 px-3 mb-6 md:mb-0 space-y-2">
+                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                        {{ form.local_trabalho.label }}
+                        </label>
+                        {{ form.local_trabalho }}
+                        <p class="text-red-500 text-xs italic">{{ form.local_trabalho.errors }}</p>
+                    </div>
 
-                    <div class="w-1/6 px-3 mb-6 md:mb-0 space-y-2">
+
+                    <div class="w-2/6 px-3 mb-6 md:mb-0 space-y-2">
                         <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                         {{ form.data_admissao.label }}
                         </label>
                         {{ form.data_admissao }}
                         <p class="text-red-500 text-xs italic">{{ form.data_admissao.errors }}</p>
                     </div>
-                    <div class="w-5/6 px-3 mb-6 md:mb-0 space-y-2">
+                    <div class="w-5/6 px-3 mb-6 md:mb-0 space-y-2 pt-12">
                         <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                         {{ form.foto_servidor.label }}
                         </label>
@@ -187,18 +188,41 @@ Editar Servidor
                         <p class="text-red-500 text-xs italic">{{ form.foto_servidor.errors }}</p>
                     </div>
 
+
+
+                    <div class="flex flex-col w-full px-3 mb-6 md:mb-0 space-y-2 pt-12">
+                        <div class="w-full flex justify-start">
+                            <h3 class="w-full px-3 pb-2 border-bottom mb-4 font-semibold text-5xl lg:text-2xl mb-5">Incluir Documentos</h3>
+
+                        </div>
+                        <div class="flex justify-start">
+                            <div class="w-5/6">
+                                <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2 form-label">
+                                {{ documento_form.descricao.label }}
+                                </label>
+
+                                {{ documento_form.descricao }}
+                                <p class="text-red-500 text-xs italic">{{ documento_form.descricao.errors }}</p>
+                            </div>
+                        </div>
+
+                        <div class="w-5/6 pt-1">
+                            <input class="form-control" type="file" name="documentos" multiple>
+                        </div>
+                    </div>
                     <div class="w-full px-3 flex justify-center pt-8">
                         <button type="submit" name="botao_submit" class="btn btn-success">Editar Servidor</button>
                     </div>
 
+
+
                 </div>
             </div>
 
-
-
-
-
         </form>
+
+
+
     </div>
 </div>
 
@@ -212,11 +236,11 @@ Editar Servidor
         <table class="min-w-full bg-white divide-y divide-gray-200">
             <thead class="bg-gray-100">
                 <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Campo Alterado</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">De:</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Para:</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data da Alteração</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuário Responsável</th>
+                    <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Campo Alterado</th>
+                    <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">De:</th>
+                    <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Para:</th>
+                    <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Data da Alteração</th>
+                    <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Usuário Responsável</th>
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
@@ -242,8 +266,49 @@ Editar Servidor
 
 
 
+<!--Documentos-->
+<div class="mx-5 pt-8 mb-4 bg-white rounded-3xl shadow-lg text-center items-center">
+    <div class="w-full flex flex-wrap">
 
+        <h3 class="text-3xl font-bold text-center pt-2 pb-3 pl-3">Documentos Disponiveis</h3>
+        <table class="min-w-full bg-white divide-y divide-gray-200">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Data de Inclusão</th>
+                    <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Descrição</th>
+                    <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Arquivo</th>
+                     <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th> <!-- Nova coluna para ações -->
 
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for documento in documentos %}
+                <tr>
+                    <td class="px-4 py-3 whitespace-nowrap">{{ documento.data_upload }}</td>
+                    <td class="px-4 py-3 whitespace-nowrap">{{ documento.descricao }}</td>
+                    <td class="px-4 py-3 whitespace-nowrap"><a href="{{ documento.arquivo.url }}">{{ documento.nome_arquivo }}</a></td>
+                    <td class="px-4 py-3 whitespace-nowrap"><!-- Ícone de download -->
+                        <a href="{{ documento.arquivo.url }}" class="text-blue-600 hover:text-blue-700 pr-3" download title="Baixar">
+                            <i class="bi bi-download"></i> <!-- Ícone de download -->
+                        </a>
+                        <form action="{% url 'servidor:documento_delete' documento.id %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="text-red-500 hover:text-red-700" title="Excluir">
+                                <i class="bi bi-trash-fill"></i> <!-- Ícone de exclusão -->
+                            </button>
+                        </form>
+                    </td>
+
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5">Nenhum Documento Encontrado.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 
 
 
