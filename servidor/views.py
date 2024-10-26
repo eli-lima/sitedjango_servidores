@@ -1,33 +1,43 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView, CreateView, ListView, UpdateView, View, DetailView
-from .forms import ServidorForm, UploadFileForm
+from .forms import ServidorForm, UploadFileForm, DocumentoForm
 from django.urls import reverse_lazy
 from django.contrib import messages
 from PIL import Image
 from io import BytesIO
 from django.core.files.base import ContentFile
-from .models import Servidor, ServidorHistory
+from .models import Servidor, ServidorHistory, Documento
 from django.db.models import Q, Count
-from django.template.loader import render_to_string
-from reportlab.pdfgen import canvas
-from django.template.loader import get_template
-from xhtml2pdf import pisa
 import openpyxl
-from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
-from django.utils import timezone
 from django.contrib.auth.mixins import UserPassesTestMixin
 from .tasks import generate_pdf
 from django.shortcuts import render
 from django.http import JsonResponse, FileResponse, HttpResponse, HttpResponseRedirect
-import time
-from celery import chain, group
-from django.http import FileResponse
 import os
 from django.conf import settings
 from celery.result import AsyncResult
-from cloudinary.api import delete_resources
+
+#deletar documentos
+
+def documento_delete(request, documento_id):
+    documento = get_object_or_404(Documento, id=documento_id)
+
+    # Verifica se o usuário possui permissões necessárias (se necessário)
+    if not request.user.has_perm('app.delete_documento'):
+        messages.error(request, "Você não tem permissão para excluir este documento.")
+        return redirect('servidor:servidor_detail', pk=documento.servidor.id)
+
+    # Exclui o arquivo do sistema de arquivos e do banco de dados
+    if documento.arquivo:
+        documento.arquivo.delete()  # Remove o arquivo do sistema de arquivos
+    documento.delete()  # Remove o registro do banco de dados
+
+    # Adiciona uma mensagem de sucesso e redireciona
+    messages.success(request, "Documento excluído com sucesso.")
+    return redirect('servidor:servidor_edit', pk=documento.servidor.id)
+
 
 
 # Create your views here.
@@ -230,26 +240,18 @@ class ServidorEdit(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
     def test_func(self):
         user = self.request.user
-        # Define os grupos permitidos
         grupos_permitidos = ['Administrador', 'GerHr']
-        # Retorna True se o usuário pertence a pelo menos um dos grupos
         return user.groups.filter(name__in=grupos_permitidos).exists()
-
-        # Levanta exceção em caso de falta de permissão
 
     def handle_no_permission(self):
         messages.error(self.request, "Você não tem permissão para acessar esta página.")
-        return render(self.request, '403.html', status=403)  # Substitua '404.html' pelo nome do seu template
+        return render(self.request, '403.html', status=403)
 
-
-    # Define o success_url dinâmico
     def get_success_url(self):
-        # Redireciona para a própria página de edição após o salvamento, usando o ID do servidor
         return reverse_lazy('servidor:servidor_detail', kwargs={'pk': self.object.pk})
 
     def form_valid(self, form):
         servidor = form.save(commit=False)
-        # Convertendo os campos para maiúsculas (como antes)
         servidor.nome = servidor.nome.upper()
         servidor.cargo = servidor.cargo.upper()
         servidor.cargo_comissionado = servidor.cargo_comissionado.upper() if servidor.cargo_comissionado else None
@@ -257,12 +259,10 @@ class ServidorEdit(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         servidor.lotacao = servidor.lotacao.upper() if servidor.lotacao else None
         servidor.genero = servidor.genero.upper()
         servidor.regime = servidor.regime.upper()
-        servidor.telefone = servidor.telefone if servidor.telefone else None
-        servidor.email = servidor.email if servidor.email else None
+        servidor.usuario_responsavel = self.request.user
 
-
-
-        if self.request.FILES:
+        # Processamento da foto do servidor
+        if self.request.FILES.get('foto_servidor'):
             foto_servidor = self.request.FILES['foto_servidor']
             image = Image.open(foto_servidor)
             if image.mode in ("RGBA", "P"):
@@ -274,18 +274,30 @@ class ServidorEdit(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
             file_buffer = ContentFile(buffer.getvalue())
             servidor.foto_servidor.save(foto_servidor.name, file_buffer)
 
-        # Passando o usuário responsável para o signal
-        servidor.usuario_responsavel = self.request.user
+        servidor.save()
 
-        try:
-            servidor.save()  # Salva o servidor após processar as alterações
-            messages.success(self.request, 'Servidor editado com sucesso!')
-        except Exception as e:
-            messages.error(self.request, f'Ocorreu um erro ao editar o servidor: {e}')
+        # Processa os documentos enviados
+        if self.request.FILES.getlist('documentos'):
+            for arquivo in self.request.FILES.getlist('documentos'):
+                # Valida o tamanho do arquivo
+                if arquivo.size > 10 * 1024 * 1024:  # 10MB
+                    messages.error(self.request, "O arquivo deve ter no máximo 10MB.")
+                    return self.form_invalid(form)
 
+                # Valida o tipo do arquivo
+                if arquivo.content_type not in ['application/pdf', 'image/jpeg', 'image/jpg']:
+                    messages.error(self.request, "Apenas arquivos PDF ou JPG são permitidos.")
+                    return self.form_invalid(form)
+
+                # Cria o documento
+                Documento.objects.create(
+                    servidor=servidor,
+                    arquivo=arquivo,
+                    descricao=self.request.POST.get('descricao', 'Documento sem descrição')
+                )
+
+        messages.success(self.request, 'Servidor e documentos atualizados com sucesso!')
         return super().form_valid(form)
-
-        # Processamento da imagem
 
     def form_invalid(self, form):
         messages.error(self.request, 'Erro ao editar o servidor. Verifique os dados e tente novamente.')
@@ -294,7 +306,12 @@ class ServidorEdit(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['historico'] = ServidorHistory.objects.filter(servidor=self.object).order_by('-data_alteracao')
+        context['documento_form'] = DocumentoForm()
+        context['documentos'] = Documento.objects.filter(servidor=self.object)
+        # Extrai apenas os nomes dos arquivos dos documentos
+        context['nomes_arquivos'] = [os.path.basename(doc.arquivo.name) for doc in context['documentos']]
         return context
+
 
 
 

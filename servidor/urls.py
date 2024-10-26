@@ -3,7 +3,9 @@
 from django.urls import path, include
 from .views import RecursosHumanosPage, CriarServidorView, \
     ServidorEdit, export_to_pdf, ServidorLote, \
-    RelatorioRh, ServidorDetail, pdf_wait, check_task_status
+    RelatorioRh, ServidorDetail, pdf_wait, check_task_status, \
+    documento_delete
+
 
 
 app_name = 'servidor'
@@ -18,7 +20,7 @@ urlpatterns = [
     path('detail/<int:pk>', ServidorDetail.as_view(), name='servidor_detail'),
     path('pdf-wait/', pdf_wait, name='pdf_wait'),
     path('check-task/', check_task_status, name='check_task_status'),
-
+path('documento/<int:documento_id>/delete/', documento_delete, name='documento_delete'),
 
 
 

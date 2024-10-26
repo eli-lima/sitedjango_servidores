@@ -1,5 +1,5 @@
 from django.contrib.auth.forms import UserCreationForm
-from .models import Servidor
+from .models import Servidor, Documento
 from django import forms
 
 
@@ -62,3 +62,15 @@ class ServidorForm(forms.ModelForm):
 
 class UploadFileForm(forms.Form):
     arquivo_excel = forms.FileField()
+
+
+class DocumentoForm(forms.ModelForm):
+    class Meta:
+        model = Documento
+        fields = ['descricao']  # Remova 'arquivo' aqui
+        labels = {
+            'descricao': 'Descrição do Documento',
+        }
+        widgets = {
+            'descricao': forms.TextInput(attrs={'class': 'form-control'}),
+        }

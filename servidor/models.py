@@ -72,3 +72,22 @@ class ServidorHistory(models.Model):
 
     # Use settings.AUTH_USER_MODEL para referenciar o modelo de usuário
     usuario_responsavel = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
+
+
+def upload_documento(instance, filename):
+    # Define o caminho do arquivo como: 'documentos_servidores/<id_servidor>/<nome_arquivo>'
+    return f"documentos_servidores/{instance.servidor.matricula}/{filename}"
+
+
+
+class Documento(models.Model):
+    servidor = models.ForeignKey(Servidor, related_name="documentos", on_delete=models.CASCADE)
+    arquivo = models.FileField(upload_to=upload_documento)
+    descricao = models.CharField(max_length=255, blank=True, null=True)  # Descrição opcional do documento
+    data_upload = models.DateTimeField(auto_now_add=True)  # Data de upload automático
+
+    @property
+    def nome_arquivo(self):
+        return os.path.basename(self.arquivo.name)
+    def __str__(self):
+        return self.descricao if self.descricao else f"Documento de {self.servidor.nome}"
