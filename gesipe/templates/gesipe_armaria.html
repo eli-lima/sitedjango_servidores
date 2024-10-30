@@ -23,7 +23,7 @@ Servidores
                             <a href="{% static 'files/termo_acautelamento_coletes.docx' %}" class="btn btn-success" download>
                                 Termo De Acautelamento Em branco
                             </a>
-                            <a class="btn btn-primary" href="{% url 'gesipe:gesipe_armaria' %}?download_zip=true&query={{ request.GET.query }}&cargo={{ request.GET.cargo }}&local_trabalho={{ request.GET.local_trabalho }}&cargo_comissionado={{ request.GET.cargo_comissionado }}&status={{ request.GET.status }}&genero={{ request.GET.genero }}">
+                            <a class="btn btn-primary" href="{% url 'gesipe:gesipe_armaria' %}?download_zip=true&query={{ request.GET.query }}&cargo={{ request.GET.cargo }}&local_trabalho={{ request.GET.local_trabalho }}&cargo_comissionado={{ request.GET.cargo_comissionado }}&intervalo_alfabetico={{ request.GET.intervalo_alfabetico }}&status={{ request.GET.status }}&genero={{ request.GET.genero }}">
                                 Termo de Acautelamento Coletes
                             </a>
 
