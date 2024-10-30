@@ -23,18 +23,28 @@ from reportlab.lib.units import cm
 from reportlab.platypus import Paragraph, Image, Frame
 from reportlab.lib.styles import getSampleStyleSheet
 from django.contrib.staticfiles import finders
+from django.contrib.auth.mixins import UserPassesTestMixin
 
 
 # Create your views here.
 
 # url - view - html
 
-class GesipeArmaria(LoginRequiredMixin, ListView):
+class GesipeArmaria(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = Servidor
     template_name = "gesipe_armaria.html"
     context_object_name = 'servidores'
-    paginate_by = 10
-    max_pdfs = 100  # Limite máximo de PDFs
+    paginate_by = 20
+    max_pdfs = 50  # Limite máximo de PDFs
+
+    def test_func(self):
+        user = self.request.user
+        grupos_permitidos = ['Administrador', 'Armaria']
+        return user.groups.filter(name__in=grupos_permitidos).exists()
+
+    def handle_no_permission(self):
+        messages.error(self.request, "Você não tem permissão para acessar esta página.")
+        return render(self.request, '403.html', status=403)
 
     def get_queryset(self):
         queryset = Servidor.objects.all()
