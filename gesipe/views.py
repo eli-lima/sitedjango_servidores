@@ -13,12 +13,220 @@ from django.urls import reverse, reverse_lazy
 from django.http import JsonResponse
 from datetime import datetime, date
 import openpyxl
-
+from servidor.models import Servidor
+from io import BytesIO
+import zipfile
+from django.http import HttpResponse
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
+from reportlab.lib.units import cm
+from reportlab.platypus import Paragraph, Image, Frame
+from reportlab.lib.styles import getSampleStyleSheet
+from django.contrib.staticfiles import finders
 
 
 # Create your views here.
 
 # url - view - html
+
+class GesipeArmaria(LoginRequiredMixin, ListView):
+    model = Servidor
+    template_name = "gesipe_armaria.html"
+    context_object_name = 'servidores'
+    paginate_by = 10
+    max_pdfs = 100  # Limite máximo de PDFs
+
+    def get_queryset(self):
+        queryset = Servidor.objects.all()
+        query = self.request.GET.get('query')
+        if query:
+            queryset = queryset.filter(
+                Q(nome__icontains=query) | Q(matricula__icontains=query)
+            )
+
+        cargo = self.request.GET.get('cargo')
+        if cargo:
+            queryset = queryset.filter(cargo=cargo)
+
+        local_trabalho = self.request.GET.get('local_trabalho')
+        if local_trabalho:
+            queryset = queryset.filter(local_trabalho__icontains=local_trabalho)
+
+        cargo_comissionado = self.request.GET.get('cargo_comissionado')
+        if cargo_comissionado == "None":
+            cargo_comissionado = ""
+
+        if cargo_comissionado:
+            queryset = queryset.filter(cargo_comissionado__icontains=cargo_comissionado)
+
+        # Novo filtro de intervalo alfabético
+        intervalo_alfabetico = self.request.GET.get('intervalo_alfabetico')
+        if intervalo_alfabetico:
+            if intervalo_alfabetico == 'A-E':
+                queryset = queryset.filter(nome__regex=r'^[A-Ea-e]')
+            elif intervalo_alfabetico == 'F-J':
+                queryset = queryset.filter(nome__regex=r'^[F-Jf-j]')
+            elif intervalo_alfabetico == 'K-O':
+                queryset = queryset.filter(nome__regex=r'^[K-Ok-o]')
+            elif intervalo_alfabetico == 'P-T':
+                queryset = queryset.filter(nome__regex=r'^[P-Tp-t]')
+            elif intervalo_alfabetico == 'U-Z':
+                queryset = queryset.filter(nome__regex=r'^[U-Zu-z]')
+
+        status = self.request.GET.get('status')
+        if status:
+            queryset = queryset.filter(status=status)
+
+        genero = self.request.GET.get('genero')
+        if genero:
+            queryset = queryset.filter(genero__icontains=genero)
+
+        return queryset.order_by('nome')
+
+
+    def generate_pdf(self, servidor):
+        # Definindo a largura e altura da página
+        page_width, page_height = A4
+
+        # Crie o buffer e o canvas
+        pdf_buffer = BytesIO()
+        c = canvas.Canvas(pdf_buffer, pagesize=(page_width, page_height))
+
+        # Definindo margens
+        margin_x = 2 * cm
+        margin_y = page_height - 4 * cm  # Margem superior
+
+        # Cabeçalho com as imagens
+        logo_pb_path = finders.find('images/mini/GovPBT_mini.png')
+        logo_seap_path = finders.find('images/mini/seap-pb_mini.png')
+        logo_pp_path = finders.find('images/mini/pp_mini.png')
+
+        def resize_image(img_path, max_width, max_height):
+            img = Image(img_path)
+            img.drawWidth = min(img.imageWidth, max_width)
+            img.drawHeight = min(img.imageHeight, max_height)
+            return img
+
+        # Ajustar o tamanho das imagens
+        logo_pb = resize_image(logo_pb_path, 2 * cm, 1 * cm)
+        logo_seap = resize_image(logo_seap_path, 1 * cm, 1 * cm)
+        logo_pp = resize_image(logo_pp_path, 2 * cm, 1 * cm)
+
+        # Posicionamento das imagens com espaçamento
+        start_x = margin_x
+        start_y = margin_y - logo_pb.drawHeight
+        spacing = 6 * cm
+
+        logo_pb.drawOn(c, start_x, start_y)
+        logo_seap.drawOn(c, start_x + logo_pb.drawWidth + spacing, start_y)
+        logo_pp.drawOn(c, start_x + logo_pb.drawWidth + logo_seap.drawWidth + 2 * spacing, start_y)
+
+        # Adicionando título centralizado
+        c.setFont("Helvetica-Bold", 14)
+        c.drawCentredString(page_width / 2, start_y - 4 * cm, "TERMO DE ACAUTELAMENTO DE COLETE BALÍSTICO")
+
+        # Conteúdo principal do texto com quebra automática de linha
+        styles = getSampleStyleSheet()
+        text_style = styles["BodyText"]
+        text_style.leading = 22  # Ajuste o espaçamento entre linhas aqui
+        text = (
+            f"Eu, {servidor.nome}, Policial Penal do Estado da Paraíba, matrícula {servidor.matricula}, "
+            f"lotado(a) atualmente no(a) {servidor.local_trabalho}, RECEBI da Gerência Executiva do Sistema "
+            "Penitenciário, um (01) colete balístico da Marca PROTECTA, o qual ficará sob minha guarda e responsabilidade, "
+            "ressarcindo o erário por sua perda ou extravio, independente dos procedimentos que venham a ocorrer no "
+            "âmbito administrativo e criminal."
+        )
+
+        # Usando Frame e Paragraph para a quebra de linha automática
+        frame = Frame(margin_x, start_y - 12 * cm, page_width - 2 * margin_x, 6 * cm, showBoundary=False)
+        story = [Paragraph(text, text_style)]
+        frame.addFromList(story, c)
+
+        # Informações adicionais
+        y_position = start_y - 14 * cm
+        c.setFont("Helvetica", 10)
+        c.drawString(margin_x, y_position, "Tamanho     [     ] P               [     ] M               [     ] G")
+        c.drawString(margin_x, y_position - 1 * cm, "Número de Série ____________________")
+        c.drawString(margin_x, y_position - 2 * cm, "Data: ________/________/________")
+
+        # Campos de assinatura com verificação do limite inferior
+        signature_y_position = y_position - 5 * cm
+        for line, label in enumerate([
+            "Assinatura Policial Penal: ______________________________________",
+            "CPF: ______________________________________",
+            "Assinatura Chefe Imediato: ______________________________________",
+            "Matrícula: ______________________________________",
+            "Assinatura Membro da Comissão: ______________________________________",
+            "Matrícula: ______________________________________"
+        ]):
+            # Limite de quebra na borda inferior
+            if signature_y_position - (line * cm) > 2 * cm:
+                c.drawString(margin_x, signature_y_position - (line * cm), label)
+
+        # Finalização do PDF
+        c.showPage()
+        c.save()
+        pdf_buffer.seek(0)
+        return pdf_buffer.getvalue()
+
+    def generate_zip(self, servidores):
+        zip_buffer = BytesIO()
+
+        with zipfile.ZipFile(zip_buffer, 'w') as zip_file:
+            for servidor in servidores:
+                pdf_content = self.generate_pdf(servidor)
+                if pdf_content:
+                    # Adiciona o PDF gerado ao arquivo ZIP
+                    zip_file.writestr(f"termo_acautelamento_{servidor.nome}.pdf", pdf_content)
+
+        zip_buffer.seek(0)
+        return zip_buffer
+
+    def get(self, request, *args, **kwargs):
+        if 'download_zip' in request.GET:
+            servidores = self.get_queryset()
+
+            # Verifica se a quantidade de servidores excede o limite
+            if servidores.count() > self.max_pdfs:
+                messages.error(request, f"O limite máximo de geração é de {self.max_pdfs} PDFs por vez.")
+                return redirect('gesipe:gesipe_armaria')
+
+            if not servidores.exists():
+                messages.error(request, "Nenhum registro encontrado para os filtros selecionados.")
+                return redirect('gesipe:gesipe_armaria')
+
+            zip_buffer = self.generate_zip(servidores)
+            response = HttpResponse(zip_buffer, content_type='application/zip')
+            response['Content-Disposition'] = 'attachment; filename="termos_acautelamento.zip"'
+            return response
+        else:
+            return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        page_obj = context['page_obj']
+        paginator = page_obj.paginator
+        page_range = paginator.page_range
+
+        # Lógica para limitar a exibição das páginas
+        if page_obj.number > 3:
+            start = page_obj.number - 2
+        else:
+            start = 1
+
+        if page_obj.number < paginator.num_pages - 2:
+            end = page_obj.number + 2
+        else:
+            end = paginator.num_pages
+
+        context['page_range'] = range(start, end + 1)
+        context['generos'] = Servidor.objects.values_list('genero', flat=True).distinct()
+        context['cargos'] = Servidor.objects.values_list('cargo', flat=True).distinct()
+        context['cargos_comissionado'] = [cargo for cargo in
+                                          Servidor.objects.values_list('cargo_comissionado', flat=True).distinct()]
+        return context
+
+
 
 
 class Gesipe(LoginRequiredMixin, ListView):
