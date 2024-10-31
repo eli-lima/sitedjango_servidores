@@ -78,7 +78,7 @@ def process_batch(df_batch):
             continue
 
         try:
-            data_completa = datetime.strptime(str(data), "%Y-%m-%d").date()
+            data_completa = parser.parse(str(data)).date()
         except ValueError:
             erros.append(f"Erro: Data inválida {data} para o servidor {nome}.")
             continue
