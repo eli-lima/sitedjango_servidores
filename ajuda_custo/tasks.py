@@ -22,7 +22,7 @@ def process_batch(df_batch):
     meses_anos_planilha = set()
     for row in df_batch:
         try:
-            data = datetime.strptime(str(row['Data']), "%Y-%m-%d")
+            data = parser.parse(str(row['Data'])).date()  # Converte para a data sem horário
             meses_anos_planilha.add((data.year, data.month))
         except ValueError:
             erros.append(f"Erro: Data inválida {row['Data']} encontrada.")
@@ -78,9 +78,9 @@ def process_batch(df_batch):
             continue
 
         try:
-            data = str(data).split()[0]  # Pega apenas a parte da data, ignorando o horário
+
             data_completa = parser.parse(data).date()
-            print(data_completa)
+
         except ValueError:
             erros.append(f"Erro: Data inválida {data} para o servidor {nome}.")
             continue
