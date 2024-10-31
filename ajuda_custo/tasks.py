@@ -78,7 +78,8 @@ def process_batch(df_batch):
             continue
 
         try:
-            data_completa = parser.parse(str(data)).date()
+            data = str(data).split()[0]  # Pega apenas a parte da data, ignorando o horário
+            data_completa = parser.parse(data).date()
         except ValueError:
             erros.append(f"Erro: Data inválida {data} para o servidor {nome}.")
             continue
