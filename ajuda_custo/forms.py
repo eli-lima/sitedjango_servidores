@@ -35,7 +35,7 @@ def get_ano_field():
 
 def get_unidade_choices():
     # Mova a lógica de consulta para uma função separada
-    return [('', '--- Selecione uma unidade ---')] + [(u.id, u.nome) for u in Unidade.objects.all()]
+    return [('', '--- Selecione uma unidade ---')] + [(u.nome, u.nome) for u in Unidade.objects.all()]
 
 class AjudaCustoForm(forms.ModelForm):
     unidade = forms.ChoiceField(choices=[], required=True)  # Inicialmente vazio
