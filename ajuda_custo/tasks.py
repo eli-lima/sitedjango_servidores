@@ -23,7 +23,8 @@ def process_batch(df_batch):
     meses_anos_planilha = set()
     for row in df_batch:
         try:
-            data = parser.parse(str(row['Data'])).date()  # Converte para a data sem horário
+            data = row['Data']
+            data = parser.parse(str(data)).date()  # Converte para a data sem horário
             print(data)
             meses_anos_planilha.add((data.year, data.month))
         except ValueError:
