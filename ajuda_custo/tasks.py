@@ -1,69 +1,27 @@
 from .models import Ajuda_Custo, DataMajorada
 from servidor.models import Servidor
-
+from datetime import timedelta
+from django.db import IntegrityError
+from dateutil import parser
+import re
 import pandas as pd
 from celery import shared_task
 import requests
-from django.db.utils import IntegrityError
 from collections import defaultdict
-from dateutil import parser
-import re
-from django.db.models import IntegerField, Sum, F
-from django.db.models.functions import Cast, Substr
-
 
 
 @shared_task
 def process_batch(df_batch):
     registros_inseridos = False
     ajuda_custos_para_inserir = []
-    erros = []
-
-    # Passo 1: Extraia os meses e anos únicos da planilha
-    meses_anos_planilha = set()
-    for row in df_batch:
-        try:
-            data = row['Data']
-            data = parser.parse(str(data)).date()  # Converte para a data sem horário
-            print(f"Data extraída: {data}")
-            meses_anos_planilha.add((data.year, data.month))
-        except ValueError:
-            erros.append(f"Erro: Data inválida {row['Data']} encontrada.")
-            print(f"Erro de data: {row['Data']}")
-            continue
-
-    print(f"Meses e anos extraídos: {meses_anos_planilha}")
-
-    # Passo 2: Obtenha as horas acumuladas no banco de dados filtrando pelos meses e anos da planilha
-    horas_acumuladas_banco = defaultdict(int)
-    registros_db = (
-        Ajuda_Custo.objects
-        .filter(
-            data__year__in={ano for ano, mes in meses_anos_planilha},
-            data__month__in={mes for ano, mes in meses_anos_planilha}
-        )
-        .annotate(
-            carga_horaria_num=Cast(Substr(F('carga_horaria'), 1, 2), IntegerField())
-        )
-        .values('matricula', 'data__year', 'data__month')
-        .annotate(total_horas=Sum('carga_horaria_num'))
-    )
-
-    # Carrega as horas acumuladas do banco em um dicionário
-    for registro in registros_db:
-        matricula = registro['matricula']
-        mes_ano = (registro['data__year'], registro['data__month'])
-        horas_acumuladas_banco[(matricula, mes_ano)] += registro['total_horas']
-        print(f"Registro do DB: {registro}, Total horas acumuladas: {horas_acumuladas_banco[(matricula, mes_ano)]}")
-
-    # Passo 3: Verificação e processamento dos dados da planilha
+    horas_por_servidor = defaultdict(int)  # Dicionário para armazenar as horas acumuladas por servidor e mês
     datas_processadas = set()
+    erros = []  # Lista para armazenar as informações sobre falhas
 
-    for row in df_batch:
+    for row in df_batch:  # Agora df_batch é uma lista de dicionários
         matricula_raw = row['Matrícula']
         if not matricula_raw:
             erros.append("Erro: Matrícula vazia encontrada.")
-            print("Matrícula vazia encontrada.")
             continue
 
         matricula = re.sub(r'\D', '', str(matricula_raw)).lstrip('0')
@@ -80,35 +38,29 @@ def process_batch(df_batch):
             carga_horaria = 24
         else:
             erros.append(f"Erro: Carga horária inválida '{carga_horaria_raw}' para o servidor {nome}.")
-            print(f"Carga horária inválida: {carga_horaria_raw} para o servidor {nome}.")
             continue
 
         try:
             servidor = Servidor.objects.get(matricula=matricula)
-            print(f"Servidor encontrado: {servidor.nome} com matrícula {matricula}.")
         except Servidor.DoesNotExist:
             erros.append(f"Erro: Servidor com matrícula {matricula} não encontrado.")
-            print(f"Servidor com matrícula {matricula} não encontrado.")
             continue
 
         try:
-            data_completa = parser.parse(data).date()
-            print(f"Data convertida: {data_completa}")
+            data_completa = parser.parse(str(data)).date()
         except ValueError:
             erros.append(f"Erro: Data inválida {data} para o servidor {nome}.")
-            print(f"Data inválida: {data} para o servidor {nome}.")
             continue
 
         # Verificar se a data já foi processada neste lote
         if (servidor.matricula, data_completa) in datas_processadas:
             erros.append(f"Registro duplicado para o servidor {nome} na data {data_completa}.")
-            print(f"Registro duplicado encontrado para o servidor {nome} na data {data_completa}.")
             continue
 
-        # Verificar no banco de dados se já existe um registro para a mesma matrícula e data
-        if Ajuda_Custo.objects.filter(matricula=servidor.matricula, data=data_completa).exists():
+        # **Verificar no banco de dados se já existe um registro para a mesma matrícula e data**
+        registro_existente = Ajuda_Custo.objects.filter(matricula=servidor.matricula, data=data_completa).exists()
+        if registro_existente:
             erros.append(f"Erro: Registro já existe para o servidor {nome} na data {data_completa}.")
-            print(f"Registro já existe para o servidor {nome} na data {data_completa}.")
             continue
 
         datas_processadas.add((servidor.matricula, data_completa))
@@ -116,19 +68,40 @@ def process_batch(df_batch):
         # Extraindo mês e ano da data
         mes_ano = (data_completa.year, data_completa.month)
 
-        # Adicionar a carga horária do registro atual ao somatório do banco
-        horas_mes_ano = horas_acumuladas_banco[(servidor.matricula, mes_ano)] + carga_horaria
-        print(f"Total de horas para {servidor.nome} no mês {mes_ano}: {horas_mes_ano}")
+        # Verificar se a soma da carga horária do mês excede 192 horas
+        horas_mes_atual = horas_por_servidor[(servidor.matricula, mes_ano)]
 
-        # Verificar se o limite de 192 horas foi ultrapassado
-        if horas_mes_ano > 192:
-            erros.append(
-                f"Limite de 192 horas excedido para o servidor {nome} no mês {data_completa.strftime('%m/%Y')}.")
-            print(f"Limite excedido para o servidor {nome} no mês {data_completa.strftime('%m/%Y')}.")
+
+
+        # Obter registros do banco para o mês e somar as horas já registradas
+        registros_mes_atual = Ajuda_Custo.objects.filter(
+            matricula=servidor.matricula,
+            data__year=mes_ano[0],
+            data__month=mes_ano[1]
+        )
+
+        # Calcular as horas do banco de dados e adicionar ao contador de horas
+        for registro in registros_mes_atual:
+            carga_horaria_passado = registro.carga_horaria.strip()
+            if carga_horaria_passado == "12 horas":
+                horas_mes_atual += 12
+            elif carga_horaria_passado == "24 horas":
+                horas_mes_atual += 24
+
+
+
+        # Adicionar a carga horária da nova entrada
+        horas_mes_atual += carga_horaria
+
+
+
+        # Verificar o limite de 192 horas mensais
+        if horas_mes_atual > 192:
+            erros.append(f"Limite de 192 horas excedido para o servidor {nome} no mês {data_completa.strftime('%m/%Y')}.")
             continue
 
-        # Atualizar o somatório de horas no dicionário
-        horas_acumuladas_banco[(servidor.matricula, mes_ano)] = horas_mes_ano
+        # Atualiza o dicionário com as horas acumuladas
+        horas_por_servidor[(servidor.matricula, mes_ano)] = horas_mes_atual
 
         majorado = DataMajorada.objects.filter(data=data_completa).exists()
 
@@ -137,19 +110,20 @@ def process_batch(df_batch):
             nome=servidor.nome,
             data=data_completa,
             unidade=unidade,
-            carga_horaria=carga_horaria_raw,
+            carga_horaria=carga_horaria_raw,  # Armazena como texto original
             majorado=majorado
         ))
 
-    # Inserir dados em massa, se não houver erros
-    if not erros and ajuda_custos_para_inserir:
-        try:
+    # Inserir dados em massa
+    try:
+        if ajuda_custos_para_inserir:
             Ajuda_Custo.objects.bulk_create(ajuda_custos_para_inserir)
             registros_inseridos = True
-            print("Registros inseridos com sucesso!")
-        except IntegrityError as e:
-            erros.append(f"Erro de integridade durante a inserção: {str(e)}")
-            print(f"Erro de integridade durante a inserção: {str(e)}")
+    except IntegrityError as e:
+        erros.append(f"Erro de integridade durante a inserção: {str(e)}")
+
+    if registros_inseridos:
+        print("Registros inseridos com sucesso!")
     else:
         print("Nenhum registro foi inserido.")
 
@@ -159,6 +133,7 @@ def process_batch(df_batch):
             print(erro)
 
     return erros  # Retorna a lista de erros para feedback
+
 
 
 @shared_task(bind=True)
@@ -177,7 +152,7 @@ def process_excel_file(self, cloudinary_url):
         # Lógica de processamento dos dados
         batch_size = 10000
         total_registros = df.shape[0]
-
+        print(f"Total de registros a processar: {total_registros}")
         erros_totais = []
 
         for start in range(0, total_registros, batch_size):
@@ -186,7 +161,7 @@ def process_excel_file(self, cloudinary_url):
 
             # Converte o batch para uma lista de dicionários
             df_batch_dict = df_batch.to_dict(orient='records')
-
+            print(f"Processando lote de registros: {start} a {end}")
 
             # Processa o lote e acumula erros
             result = process_batch(df_batch_dict)  # Chama a função que já processa os dados
@@ -198,5 +173,5 @@ def process_excel_file(self, cloudinary_url):
         return {'status': 'sucesso' if not erros_totais else 'erro', 'erros': erros_totais}
 
     except Exception as e:
-
+        print(f"Ocorreu um erro durante o processamento: {str(e)}")  # Print do erro
         return {'status': 'falha', 'mensagem': str(e)}
