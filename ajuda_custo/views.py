@@ -727,6 +727,9 @@ class AjudaCustoAdicionar(LoginRequiredMixin, FormView):
                     messages.error(self.request, 'Erro: Servidor não encontrado.')
                     return redirect(self.success_url)
 
+                # Obtendo o nome do servidor do objeto 'servidor'
+                nome_servidor = servidor.nome  # Assumindo que o campo se chama 'nome_completo'
+
                 mes_int = int(mes)
                 ano_int = int(ano)
 
@@ -804,7 +807,7 @@ class AjudaCustoAdicionar(LoginRequiredMixin, FormView):
                         # Cria o objeto Ajuda_Custo e salva no banco de dados
                         ajuda_custo = Ajuda_Custo(
                             matricula=self.request.user.matricula,
-                            nome=self.request.user.nome_completo,
+                            nome=nome_servidor,
                             data=data_completa,
                             unidade=unidade,
                             carga_horaria=carga_horaria_final,
