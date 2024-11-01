@@ -8,7 +8,7 @@ from django.db.utils import IntegrityError
 from collections import defaultdict
 from dateutil import parser
 import re
-from django.db.models import IntegerField, Sum
+from django.db.models import IntegerField, Sum, F
 from django.db.models.functions import Cast, Substr
 
 
@@ -43,7 +43,7 @@ def process_batch(df_batch):
             data__month__in={mes for ano, mes in meses_anos_planilha}
         )
         .annotate(
-            carga_horaria_num=Cast(Substr('carga_horaria', 1, 2), IntegerField())  # Extraindo horas numéricas
+            carga_horaria_num=Cast(Substr(F('carga_horaria'), 1, 2), IntegerField())
         )
         .values('matricula', 'data__year', 'data__month')
         .annotate(total_horas=Sum('carga_horaria_num'))
