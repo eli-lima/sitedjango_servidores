@@ -22,35 +22,38 @@ def process_batch(df_batch):
     # Passo 1: Extraia os meses e anos únicos da planilha
     meses_anos_planilha = set()
     for row in df_batch:
+        print(f"Processando linha: {row}")  # Adicionado para verificar o conteúdo da linha
         try:
-            data = row['Data']
-            data = parser.parse(str(data)).date()  # Converte para a data sem horário
-            print(data)
+            data = parser.parse(str(row['Data'])).date()  # Converte para a data sem horário
+            print(f"Data convertida: {data}")  # Verifica se a conversão está correta
             meses_anos_planilha.add((data.year, data.month))
         except ValueError:
             erros.append(f"Erro: Data inválida {row['Data']} encontrada.")
             continue
 
+    print(f"Meses e anos extraídos: {meses_anos_planilha}")  # Verifica os meses e anos extraídos
+
     # Passo 2: Obtenha as horas acumuladas no banco de dados filtrando pelos meses e anos da planilha
     horas_acumuladas_banco = defaultdict(int)
-    registros_db = (
-        Ajuda_Custo.objects
-        .filter(
-            data__year__in={ano for ano, mes in meses_anos_planilha},
-            data__month__in={mes for ano, mes in meses_anos_planilha}
-        )
-        .annotate(
-            carga_horaria_num=Cast(Substr('carga_horaria', 1, 2), IntegerField())  # Extraindo horas numéricas
-        )
-        .values('matricula', 'data__year', 'data__month')
-        .annotate(total_horas=Sum('carga_horaria_num'))
-    )
+    registros_db = Ajuda_Custo.objects.filter(
+        data__year__in={ano for ano, mes in meses_anos_planilha},
+        data__month__in={mes for ano, mes in meses_anos_planilha}
+    ).values('matricula', 'data__year', 'data__month').annotate(total_horas=Sum('carga_horaria'))
 
-    # Carrega as horas acumuladas do banco em um dicionário
+    print(f"Registros do banco de dados: {list(registros_db)}")  # Verifica os registros retornados do banco
+
     for registro in registros_db:
         matricula = registro['matricula']
         mes_ano = (registro['data__year'], registro['data__month'])
-        horas_acumuladas_banco[(matricula, mes_ano)] += registro['total_horas']
+        carga_horaria_raw = registro['total_horas']
+
+        print(f"Registro: {registro}")  # Adicionado para verificar cada registro
+
+        # Conversão da carga horária para horas inteiras
+        if carga_horaria_raw == "12 horas":
+            horas_acumuladas_banco[(matricula, mes_ano)] += 12
+        elif carga_horaria_raw == "24 horas":
+            horas_acumuladas_banco[(matricula, mes_ano)] += 24
 
     # Passo 3: Verificação e processamento dos dados da planilha
     datas_processadas = set()
@@ -66,6 +69,8 @@ def process_batch(df_batch):
         nome = row['Nome']
         data = row['Data']
         carga_horaria_raw = row['Carga Horaria']
+
+        print(f"Processando registro: {nome}, Data: {data}, Carga Horária: {carga_horaria_raw}")  # Verifica cada registro
 
         # Converte a carga horária de texto para número inteiro
         carga_horaria = 0
@@ -85,6 +90,7 @@ def process_batch(df_batch):
 
         try:
             data_completa = parser.parse(data).date()
+            print(f"Data completa: {data_completa}")  # Verifica a data completa
         except ValueError:
             erros.append(f"Erro: Data inválida {data} para o servidor {nome}.")
             continue
@@ -146,6 +152,7 @@ def process_batch(df_batch):
             print(erro)
 
     return erros  # Retorna a lista de erros para feedback
+
 
 
 
