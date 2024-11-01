@@ -729,6 +729,7 @@ class AjudaCustoAdicionar(LoginRequiredMixin, FormView):
 
                 # Obtendo o nome do servidor do objeto 'servidor'
                 nome_servidor = servidor.nome  # Assumindo que o campo se chama 'nome_completo'
+                print(nome_servidor)
 
                 mes_int = int(mes)
                 ano_int = int(ano)
