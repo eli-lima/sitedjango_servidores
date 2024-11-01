@@ -22,38 +22,39 @@ def process_batch(df_batch):
     # Passo 1: Extraia os meses e anos únicos da planilha
     meses_anos_planilha = set()
     for row in df_batch:
-        print(f"Processando linha: {row}")  # Adicionado para verificar o conteúdo da linha
         try:
-            data = parser.parse(str(row['Data'])).date()  # Converte para a data sem horário
-            print(f"Data convertida: {data}")  # Verifica se a conversão está correta
+            data = row['Data']
+            data = parser.parse(str(data)).date()  # Converte para a data sem horário
+            print(f"Data extraída: {data}")
             meses_anos_planilha.add((data.year, data.month))
         except ValueError:
             erros.append(f"Erro: Data inválida {row['Data']} encontrada.")
+            print(f"Erro de data: {row['Data']}")
             continue
 
-    print(f"Meses e anos extraídos: {meses_anos_planilha}")  # Verifica os meses e anos extraídos
+    print(f"Meses e anos extraídos: {meses_anos_planilha}")
 
     # Passo 2: Obtenha as horas acumuladas no banco de dados filtrando pelos meses e anos da planilha
     horas_acumuladas_banco = defaultdict(int)
-    registros_db = Ajuda_Custo.objects.filter(
-        data__year__in={ano for ano, mes in meses_anos_planilha},
-        data__month__in={mes for ano, mes in meses_anos_planilha}
-    ).values('matricula', 'data__year', 'data__month').annotate(total_horas=Sum('carga_horaria'))
+    registros_db = (
+        Ajuda_Custo.objects
+        .filter(
+            data__year__in={ano for ano, mes in meses_anos_planilha},
+            data__month__in={mes for ano, mes in meses_anos_planilha}
+        )
+        .annotate(
+            carga_horaria_num=Cast(Substr('carga_horaria', 1, 2), IntegerField())  # Extraindo horas numéricas
+        )
+        .values('matricula', 'data__year', 'data__month')
+        .annotate(total_horas=Sum('carga_horaria_num'))
+    )
 
-    print(f"Registros do banco de dados: {list(registros_db)}")  # Verifica os registros retornados do banco
-
+    # Carrega as horas acumuladas do banco em um dicionário
     for registro in registros_db:
         matricula = registro['matricula']
         mes_ano = (registro['data__year'], registro['data__month'])
-        carga_horaria_raw = registro['total_horas']
-
-        print(f"Registro: {registro}")  # Adicionado para verificar cada registro
-
-        # Conversão da carga horária para horas inteiras
-        if carga_horaria_raw == "12 horas":
-            horas_acumuladas_banco[(matricula, mes_ano)] += 12
-        elif carga_horaria_raw == "24 horas":
-            horas_acumuladas_banco[(matricula, mes_ano)] += 24
+        horas_acumuladas_banco[(matricula, mes_ano)] += registro['total_horas']
+        print(f"Registro do DB: {registro}, Total horas acumuladas: {horas_acumuladas_banco[(matricula, mes_ano)]}")
 
     # Passo 3: Verificação e processamento dos dados da planilha
     datas_processadas = set()
@@ -62,6 +63,7 @@ def process_batch(df_batch):
         matricula_raw = row['Matrícula']
         if not matricula_raw:
             erros.append("Erro: Matrícula vazia encontrada.")
+            print("Matrícula vazia encontrada.")
             continue
 
         matricula = re.sub(r'\D', '', str(matricula_raw)).lstrip('0')
@@ -69,8 +71,6 @@ def process_batch(df_batch):
         nome = row['Nome']
         data = row['Data']
         carga_horaria_raw = row['Carga Horaria']
-
-        print(f"Processando registro: {nome}, Data: {data}, Carga Horária: {carga_horaria_raw}")  # Verifica cada registro
 
         # Converte a carga horária de texto para número inteiro
         carga_horaria = 0
@@ -80,29 +80,35 @@ def process_batch(df_batch):
             carga_horaria = 24
         else:
             erros.append(f"Erro: Carga horária inválida '{carga_horaria_raw}' para o servidor {nome}.")
+            print(f"Carga horária inválida: {carga_horaria_raw} para o servidor {nome}.")
             continue
 
         try:
             servidor = Servidor.objects.get(matricula=matricula)
+            print(f"Servidor encontrado: {servidor.nome} com matrícula {matricula}.")
         except Servidor.DoesNotExist:
             erros.append(f"Erro: Servidor com matrícula {matricula} não encontrado.")
+            print(f"Servidor com matrícula {matricula} não encontrado.")
             continue
 
         try:
             data_completa = parser.parse(data).date()
-            print(f"Data completa: {data_completa}")  # Verifica a data completa
+            print(f"Data convertida: {data_completa}")
         except ValueError:
             erros.append(f"Erro: Data inválida {data} para o servidor {nome}.")
+            print(f"Data inválida: {data} para o servidor {nome}.")
             continue
 
         # Verificar se a data já foi processada neste lote
         if (servidor.matricula, data_completa) in datas_processadas:
             erros.append(f"Registro duplicado para o servidor {nome} na data {data_completa}.")
+            print(f"Registro duplicado encontrado para o servidor {nome} na data {data_completa}.")
             continue
 
         # Verificar no banco de dados se já existe um registro para a mesma matrícula e data
         if Ajuda_Custo.objects.filter(matricula=servidor.matricula, data=data_completa).exists():
             erros.append(f"Erro: Registro já existe para o servidor {nome} na data {data_completa}.")
+            print(f"Registro já existe para o servidor {nome} na data {data_completa}.")
             continue
 
         datas_processadas.add((servidor.matricula, data_completa))
@@ -112,11 +118,13 @@ def process_batch(df_batch):
 
         # Adicionar a carga horária do registro atual ao somatório do banco
         horas_mes_ano = horas_acumuladas_banco[(servidor.matricula, mes_ano)] + carga_horaria
+        print(f"Total de horas para {servidor.nome} no mês {mes_ano}: {horas_mes_ano}")
 
         # Verificar se o limite de 192 horas foi ultrapassado
         if horas_mes_ano > 192:
             erros.append(
                 f"Limite de 192 horas excedido para o servidor {nome} no mês {data_completa.strftime('%m/%Y')}.")
+            print(f"Limite excedido para o servidor {nome} no mês {data_completa.strftime('%m/%Y')}.")
             continue
 
         # Atualizar o somatório de horas no dicionário
@@ -138,11 +146,10 @@ def process_batch(df_batch):
         try:
             Ajuda_Custo.objects.bulk_create(ajuda_custos_para_inserir)
             registros_inseridos = True
+            print("Registros inseridos com sucesso!")
         except IntegrityError as e:
             erros.append(f"Erro de integridade durante a inserção: {str(e)}")
-
-    if registros_inseridos:
-        print("Registros inseridos com sucesso!")
+            print(f"Erro de integridade durante a inserção: {str(e)}")
     else:
         print("Nenhum registro foi inserido.")
 
@@ -152,8 +159,6 @@ def process_batch(df_batch):
             print(erro)
 
     return erros  # Retorna a lista de erros para feedback
-
-
 
 
 @shared_task(bind=True)
