@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Confirmação de Datas Marcadas</title>
+</head>
+<body>
+    <h1>Confirmação de Datas Marcadas</h1>
+    <p>Prezado(a) {{ servidor }},</p>
+    <p>Segue abaixo as datas marcadas para o servidor {{ matricula }}:</p>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Data</th>
+                <th>Unidade</th>
+                <th>Carga Horária</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ajuda in ajuda_custo_list %}
+            <tr>
+                <td>{{ ajuda.data }}</td>
+                <td>{{ ajuda.unidade }}</td>
+                <td>{{ ajuda.carga_horaria }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p>Atenciosamente,</p>
+    <p>Gesipe - Secretaria de Administraçao Penitenciária da Paraíba</p>
+</body>
+</html>
