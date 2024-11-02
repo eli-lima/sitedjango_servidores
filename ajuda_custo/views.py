@@ -28,7 +28,9 @@ from datetime import datetime, timedelta
 from .tasks import process_batch
 from celery.result import AsyncResult  # Para lidar com o status da task
 from .tasks import process_excel_file  # Task Celery para processamento
-
+from django.core.mail import EmailMessage
+from django.template.loader import render_to_string
+from django.conf import settings
 
 # Create your views here.
 
@@ -785,6 +787,9 @@ class AjudaCustoAdicionar(LoginRequiredMixin, FormView):
                                    f'O limite individual de {limite_horas} horas foi excedido. Total pretendido: {total_horas_mes + horas_a_adicionar_total}.')
                     return self.form_invalid(form)
 
+                # armazenar datas
+                ajuda_custo_instances = []
+
                 # Processar as novas datas, unidades e cargas horárias, já que os limites foram verificados
                 for dia, unidade, carga_horaria in zip(dias, unidades, cargas_horarias):
                     try:
@@ -815,6 +820,7 @@ class AjudaCustoAdicionar(LoginRequiredMixin, FormView):
                             majorado=DataMajorada.objects.filter(data=data_completa).exists()
                         )
                         ajuda_custo.save()
+                        ajuda_custo_instances.append(ajuda_custo)
 
                     except ValueError:
                         messages.error(self.request, f'Erro: Data inválida - {dia}/{mes}/{ano}')
@@ -849,7 +855,9 @@ class AjudaCustoAdicionar(LoginRequiredMixin, FormView):
                             except Exception as e:
                                 messages.error(self.request, f'Erro ao salvar registro {registro.id}: {e}')
 
-                messages.success(self.request, 'Datas adicionadas e atualizadas com sucesso!')
+                            # Enviar e-mail após salvar todos os registros
+                self.enviar_email(ajuda_custo_instances)
+                messages.success(self.request, 'Datas Adicionadas Com Sucesso!')
                 return redirect(self.success_url)
 
             except Exception as e:
@@ -860,6 +868,25 @@ class AjudaCustoAdicionar(LoginRequiredMixin, FormView):
         else:
             messages.error(self.request, 'Erro no Cadastro, Confira os Dados e Tente Novamente.')
             return self.form_invalid(form)
+
+    def enviar_email(self, ajuda_custo_instances):
+        email_destinatario = self.request.user.email
+        assunto = 'Confirmação de Datas Marcadas'
+        contexto = {
+            'ajuda_custo_list': ajuda_custo_instances,
+            'servidor': self.request.user.nome_completo,
+            'matricula': self.request.user.matricula,
+        }
+
+        corpo_email = render_to_string('email_datasmarcadas.html', contexto)
+        email = EmailMessage(
+            assunto,
+            corpo_email,
+            settings.EMAIL_HOST_USER,
+            [email_destinatario],
+        )
+        email.content_subtype = 'html'
+        email.send()
 
 
 class AdminCadastrar(LoginRequiredMixin, UserPassesTestMixin, FormView):

@@ -251,3 +251,12 @@ CELERY_TIMEZONE = 'America/Sao_Paulo'
 CELERYD_TASK_SOFT_TIME_LIMIT = 300  # 5 minutos
 CELERYD_TASK_TIME_LIMIT = 600  # 10 minutos
 CELERY_BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 3600}  # 1 hora
+
+
+# Configurações de E-mail no Django
+
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'gesipeseappb@gmail.com'
+EMAIL_HOST_PASSWORD = 'dfpl ygsq hthl ohyi'
