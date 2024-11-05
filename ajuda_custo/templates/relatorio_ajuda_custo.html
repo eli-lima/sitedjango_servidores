@@ -29,20 +29,28 @@ Ajuda de Custo
             </div>
 
                 <form method="GET">
-                    <div class="mt-4 px-0 flex flex-row justify-between w-full">
-                        <div class="flex space-x-4 items-center">
-                            <a href="#"><button type="submit" name="action" value="export_excel" class="btn btn-success">Excel Resumido</button></a>
+
+                        <div class="flex flex-row space-x-4 justify-start">
+                            <a href="#"><button type="submit" name="action" value="export_excel" class="btn btn-success form-control">Excel Resumido</button></a>
                             <a href="#"><button type="submit" name="action" value="excel_detalhado" class="btn btn-danger">Excel Detalhado</button></a>
                             <a href="#"><button type="submit" name="action" value="arquivos_assinados" class="btn btn-warning">Arquivos Assinados</button></a>
+
+
                         </div>
 
-                        <div class="flex flex-row">
+                        <div class="flex flex-row justify-end pt-4">
+                            <select class="form-control" name="unidade">
+                                <option value="">Unidade...</option>
+                                {% for unidade in unidades %}
+                                <option value="{{ unidade }}" {% if request.GET.unidade == unidade %}selected{% endif %}>{{ unidade }}</option>
+                                {% endfor %}
+                            </select>
                             <input class="form-input w-full sm:w-auto sm:ml-2 p-1.5 rounded-md border-1 border-gray-600" type="date" name="dataInicial" id="dataInicial" value="{{ dataInicial }}">
                             <input class="form-input w-full sm:w-auto sm:ml-2 p-1.5 rounded-md border-1 border-gray-600" type="date" name="dataFinal" id="dataFinal" value="{{ dataFinal }}">
                             <input type="text" name="query" id="searchInput" class="form-input w-full sm:w-auto sm:ml-2 p-1.5 rounded-md border-1 border-gray-600" placeholder="Pesquisar..." value="{{ query }}">
                             <button type="submit" name="action" value="search" id="searchButton" class="ml-2 btn btn-primary">Pesquisar</button>
                         </div>
-                    </div>
+
                 </form>
 
 
@@ -82,10 +90,10 @@ Ajuda de Custo
                 <ul class="inline-flex items-center -space-x-px">
                     {% if page_obj.has_previous %}
                     <li>
-                        <a href="?page=1&query={{ query }}&dataInicial={{ dataInicial }}&dataFinal={{ dataFinal }}" class="px-3 py-2 ml-0 text-sm font-medium text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100">Primeira</a>
+                        <a href="?page=1&query={{ query }}&dataInicial={{ dataInicial }}&dataFinal={{ dataFinal }}&unidade={{ request.GET.unidade }}" class="px-3 py-2 ml-0 text-sm font-medium text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100">Primeira</a>
                     </li>
                     <li>
-                        <a href="?page={{ page_obj.previous_page_number }}&query={{ query }}&dataInicial={{ dataInicial }}&dataFinal={{ dataFinal }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">Anterior</a>
+                        <a href="?page={{ page_obj.previous_page_number }}&query={{ query }}&dataInicial={{ dataInicial }}&dataFinal={{ dataFinal }}&unidade={{ request.GET.unidade }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">Anterior</a>
                     </li>
                     {% endif %}
 
@@ -96,17 +104,17 @@ Ajuda de Custo
                     </li>
                     {% else %}
                     <li>
-                        <a href="?page={{ p }}&query={{ query }}&dataInicial={{ dataInicial }}&dataFinal={{ dataFinal }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">{{ p }}</a>
+                        <a href="?page={{ p }}&query={{ query }}&dataInicial={{ dataInicial }}&dataFinal={{ dataFinal }}&unidade={{ request.GET.unidade }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">{{ p }}</a>
                     </li>
                     {% endif %}
                     {% endfor %}
 
                     {% if page_obj.has_next %}
                     <li>
-                        <a href="?page={{ page_obj.next_page_number }}&query={{ query }}&dataInicial={{ dataInicial }}&dataFinal={{ dataFinal }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">Próxima</a>
+                        <a href="?page={{ page_obj.next_page_number }}&query={{ query }}&dataInicial={{ dataInicial }}&dataFinal={{ dataFinal }}&unidade={{ request.GET.unidade }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">Próxima</a>
                     </li>
                     <li>
-                        <a href="?page={{ page_obj.paginator.num_pages }}&query={{ query }}&dataInicial={{ dataInicial }}&dataFinal={{ dataFinal }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100">Última</a>
+                        <a href="?page={{ page_obj.paginator.num_pages }}&query={{ query }}&dataInicial={{ dataInicial }}&dataFinal={{ dataFinal }}&unidade={{ request.GET.unidade }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100">Última</a>
                     </li>
                     {% endif %}
                 </ul>

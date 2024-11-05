@@ -199,15 +199,25 @@ def exportar_excel(request):
     query = request.GET.get('query', '')
     data_inicial = request.GET.get('dataInicial')
     data_final = request.GET.get('dataFinal')
+    unidade = request.GET.get('unidade')
+
+
+
+
 
     # Converte as datas em objetos datetime, se fornecidas
     data_inicial = parse_date(data_inicial) if data_inicial else None
     data_final = parse_date(data_final) if data_final else None
 
+
     # Filtrar os dados com base nos parâmetros
     queryset = Ajuda_Custo.objects.all()
     if query:
         queryset = queryset.filter(Q(nome__icontains=query) | Q(matricula__icontains=query))
+
+
+    if unidade:
+        queryset = queryset.filter(unidade=unidade)
 
     if data_inicial and data_final:
         queryset = queryset.filter(data__range=[data_inicial, data_final])
@@ -226,6 +236,7 @@ def exportar_excel(request):
         carga_horaria = item.carga_horaria
         data = item.data
         majorado = item.majorado
+
 
 
         if matricula not in dados_matriculas:
@@ -284,10 +295,6 @@ def exportar_excel(request):
                   '12h', '24h', 'Datas 12 Horas', 'Datas 24 Horas']
     ws.append(cabecalhos)
 
-    ws.column_dimensions['I'].width = 40  # Largura da coluna I (Datas 12 Horas)
-    ws.column_dimensions['J'].width = 40  # Largura da coluna J (Datas 24 Horas)
-
-    # Função para formatar as datas em múltiplas linhas
     # Função para formatar as datas em múltiplas linhas
     def formatar_datas_em_linhas(datas):
         linhas = []
@@ -319,12 +326,7 @@ def exportar_excel(request):
             if cell.value:
                 max_length = max(max_length, len(str(cell.value)))
         adjusted_width = (max_length + 2)
-
-        # Define a largura da coluna, garantindo que as colunas I e J mantenham a largura definida
-        if column_letter in ['I', 'J']:
-            ws.column_dimensions[column_letter].width = 50  # Garante que as colunas I e J tenham largura fixa
-        else:
-            ws.column_dimensions[column_letter].width = adjusted_width
+        ws.column_dimensions[column_letter].width = adjusted_width
 
     # Ajustar o alinhamento e a altura das linhas para as colunas de datas
     for row in ws.iter_rows(min_row=2, max_row=ws.max_row, min_col=9, max_col=10):  # Colunas 9 e 10 são as de datas
@@ -352,6 +354,7 @@ def excel_detalhado(request):
     query = request.GET.get('query', '')
     data_inicial = request.GET.get('dataInicial')
     data_final = request.GET.get('dataFinal')
+    unidade = request.GET.get('unidade')
 
 
     # Converte as datas em objetos datetime, se fornecidas
@@ -362,6 +365,9 @@ def excel_detalhado(request):
     queryset = Ajuda_Custo.objects.all()
     if query:
         queryset = queryset.filter(Q(nome__icontains=query) | Q(matricula__icontains=query))
+
+    if unidade:
+        queryset = queryset.filter(unidade=unidade)
 
     if data_inicial and data_final:
         queryset = queryset.filter(data__range=[data_inicial, data_final])
@@ -592,10 +598,7 @@ class AjudaCusto(LoginRequiredMixin, ListView):
         context['labels_mensais'] = meses_portugues
         context['values_mensais'] = monthly_totals
 
-
-
         return context
-
 
 
 class RelatorioAjudaCusto(LoginRequiredMixin, UserPassesTestMixin, ListView):
@@ -641,6 +644,13 @@ class RelatorioAjudaCusto(LoginRequiredMixin, UserPassesTestMixin, ListView):
                 Q(nome__icontains=query) | Q(matricula__icontains=query)
             )
 
+        #filtro por unidade:
+
+        unidade = self.request.GET.get('unidade')
+        if unidade:
+            queryset = queryset.filter(unidade=unidade)
+
+
         # Aplicar filtro de data apenas se as datas forem válidas
         if data_inicial and data_final:
             queryset = queryset.filter(data__range=[data_inicial, data_final])
@@ -650,6 +660,7 @@ class RelatorioAjudaCusto(LoginRequiredMixin, UserPassesTestMixin, ListView):
             queryset = queryset.filter(data__lte=data_final)
 
         return queryset.order_by('nome')
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -689,9 +700,10 @@ class RelatorioAjudaCusto(LoginRequiredMixin, UserPassesTestMixin, ListView):
         context['query'] = self.request.GET.get('query', '')
         context['dataInicial'] = data_inicial.strftime('%Y-%m-%d') if data_inicial else ''
         context['dataFinal'] = data_final.strftime('%Y-%m-%d') if data_final else ''
+        # Ajuste aqui: mudando 'unidade' para 'unidades'
+        context['unidades'] = Ajuda_Custo.objects.values_list('unidade', flat=True).distinct()
 
         return context
-
 
     def get(self, request, *args, **kwargs):
         action = request.GET.get('action')
