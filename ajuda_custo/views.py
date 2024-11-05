@@ -31,6 +31,7 @@ from .tasks import process_excel_file  # Task Celery para processamento
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from django.conf import settings
+from openpyxl.styles import Alignment, NamedStyle
 
 # Create your views here.
 
@@ -350,12 +351,10 @@ def exportar_excel(request):
 
 
 def excel_detalhado(request):
-
     query = request.GET.get('query', '')
     data_inicial = request.GET.get('dataInicial')
     data_final = request.GET.get('dataFinal')
     unidade = request.GET.get('unidade')
-
 
     # Converte as datas em objetos datetime, se fornecidas
     data_inicial = parse_date(data_inicial) if data_inicial else None
@@ -385,10 +384,7 @@ def excel_detalhado(request):
         cpf = ''  # Deixe a coluna de CPF em branco se não disponível
         data = item.data.strftime('%d/%m/%Y')
 
-        if item.carga_horaria == '12 horas':
-            carga_horaria = '12 horas'
-        else:
-            carga_horaria = '24 horas'
+        carga_horaria = item.carga_horaria  # Mantém o valor original
 
         dados.append([
             matricula,
@@ -404,6 +400,9 @@ def excel_detalhado(request):
     ws = wb.active
     ws.title = "Relatório Completo Ajuda Custo"
 
+    # Estilo para datas
+    date_style = NamedStyle(name="date_style", number_format="DD/MM/YYYY")
+
     # Adicionar o período de datas no topo da planilha
     ws.merge_cells('A1:F1')
     ws[
@@ -416,6 +415,8 @@ def excel_detalhado(request):
     # Adicionar os dados na planilha
     for linha in dados:
         ws.append(linha)
+        # Aplicar o estilo de data na coluna de data
+        ws[f'E{ws.max_row}'].style = date_style
 
     # Ajustar a largura das colunas
     for col in ws.iter_cols(min_row=2, max_col=ws.max_column):
@@ -426,18 +427,14 @@ def excel_detalhado(request):
                 max_length = max(max_length, len(str(cell.value)))
         adjusted_width = (max_length + 2)
         ws.column_dimensions[column_letter].width = adjusted_width
-
-    # Ajustar o alinhamento central para todas as células
-    for row in ws.iter_rows(min_row=2):
-        for cell in row:
-            cell.alignment = Alignment(horizontal='left', vertical='center')
-
-    # Salvar a planilha no response
-    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename=ajuda_custo_detalhado.xlsx'
-    wb.save(response)
-
-    return response
+        # Ajustar o alinhamento central para todas as células
+        for row in ws.iter_rows(min_row=2):
+            for cell in row: cell.alignment = Alignment(horizontal='left', vertical='center')
+            # Salvar a planilha no response
+            response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+            response['Content-Disposition'] = 'attachment; filename=ajuda_custo_detalhado.xlsx'
+            wb.save(response)
+            return response
 
 
 class AjudaCusto(LoginRequiredMixin, ListView):
