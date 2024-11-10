@@ -537,7 +537,7 @@ class GesipeSga(LoginRequiredMixin, ListView):
     template_name = "gesipe_sga.html"
     model = Gesipe_adm
     paginate_by = 10
-    ordering = ['data']
+    ordering = ['-data']
 
     def get_queryset(self):
         query = self.request.GET.get('query', '')
