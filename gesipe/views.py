@@ -242,8 +242,8 @@ class GesipeArmaria(LoginRequiredMixin, UserPassesTestMixin, ListView):
 class Gesipe(LoginRequiredMixin, ListView):
     template_name = "gesipe.html"
     model = Gesipe_adm
-    paginate_by = 10
-    ordering = ['data']
+    paginate_by = 20
+    ordering = ['-data']
 
     def get_queryset(self):
         query = self.request.GET.get('query', '')
@@ -318,6 +318,67 @@ class Gesipe(LoginRequiredMixin, ListView):
             end = paginator.num_pages
 
         context['page_range'] = range(start, end + 1)
+
+        # Obtendo os dados para o gráfico de barra administrativo
+        current_year = timezone.now().year
+        monthly_totals_adm_barra = []
+
+        for month in range(1, 13):
+            monthly_total = \
+                Gesipe_adm.objects.filter(data__year=current_year, data__month=month).aggregate(total=Sum('total'))[
+                    'total'] or 0
+            monthly_totals_adm_barra.append(monthly_total)
+
+        # Labels dos meses
+        # Dicionário com os nomes dos meses em português
+        meses_em_portugues = {
+            1: "Janeiro",
+            2: "Fevereiro",
+            3: "Março",
+            4: "Abril",
+            5: "Maio",
+            6: "Junho",
+            7: "Julho",
+            8: "Agosto",
+            9: "Setembro",
+            10: "Outubro",
+            11: "Novembro",
+            12: "Dezembro"
+        }
+        labels_meses = [meses_em_portugues[month] for month in range(1, 13)]
+
+        # Obtendo os dados para o gráfico de pizza administrativo
+        total_values = Gesipe_adm.objects.aggregate(
+            total_memorando=Sum('total_memorando'),
+            total_despacho=Sum('total_despacho'),
+            total_oficio=Sum('total_oficio'),
+            total_os=Sum('total_os'),
+            processos=Sum('processos'),
+            portarias=Sum('portarias')
+        )
+
+        pie_labels_adm = [
+            'Memorandos',
+            'Despachos',
+            'Ofícios',
+            'OS',
+            'Processos',
+            'Portarias'
+        ]
+        pie_values_adm = [
+            total_values['total_memorando'] or 0,
+            total_values['total_despacho'] or 0,
+            total_values['total_oficio'] or 0,
+            total_values['total_os'] or 0,
+            total_values['processos'] or 0,
+            total_values['portarias'] or 0,
+        ]
+
+        # Passando os dados para o template
+        context['labels_mensais'] = labels_meses
+        context['values_mensais'] = monthly_totals_adm_barra
+        context['pie_labels_adm'] = pie_labels_adm
+        context['pie_values_adm'] = pie_values_adm
 
         return context
 
@@ -428,7 +489,7 @@ class GesipeAdmLote(LoginRequiredMixin, View):
 
                     # Extrair o valor da data
                     data = row[0]  # Supondo que a data está na primeira coluna
-                    print(data)
+
 
                     # Converter a data para o formato 'YYYY-MM-DD' se necessário
                     if isinstance(data, str):  # Se a data estiver como string
@@ -438,24 +499,6 @@ class GesipeAdmLote(LoginRequiredMixin, View):
                             messages.error(request, f'O formato de data "{data}" é inválido. Use o formato DD/MM/YYYY.')
                             return render(request, self.template_name, {'form': form})
 
-                        # Continuar extraindo outros valores conforme o modelo
-                        # processos = row[1] or 0
-                        # memorandos_diarias = row[2] or 0
-                        # memorandos_documentos_capturados = row[3] or 0
-                        # despachos_gerencias = row[4] or 0
-                        # despachos_unidades = row[5] or 0
-                        # despachos_grupos = row[6] or 0
-                        # oficios_internos_unidades_prisionais = row[7] or 0
-                        # oficios_internos_setores_seap_pb = row[8] or 0
-                        # oficios_internos_circular = row[9] or 0
-                        # oficios_externos_seap_pb = row[10] or 0
-                        # oficios_externos_diversos = row[11] or 0
-                        # oficios_externos_judiciario = row[12] or 0
-                        # os_grupos = row[13] or 0
-                        # os_diversos = row[14] or 0
-                        # portarias = row[15] or 0
-
-                    # Verificar se um registro com essa data já existe
 
                     # Se 'created' for True, significa que o registro foi criado; se False, ele foi atualizado.
                     obj, created = Gesipe_adm.objects.update_or_create(
@@ -488,3 +531,164 @@ class GesipeAdmLote(LoginRequiredMixin, View):
             return redirect('gesipe:gesipe_adm_lote')
 
         return render(request, self.template_name, {'form': form})
+
+
+class GesipeSga(LoginRequiredMixin, ListView):
+    template_name = "gesipe_sga.html"
+    model = Gesipe_adm
+    paginate_by = 10
+    ordering = ['data']
+
+    def get_queryset(self):
+        query = self.request.GET.get('query', '')
+        queryset = super().get_queryset()
+
+        if query:
+            # Tentar interpretar 'query' como data nos formatos DD/MM/YYYY, DD-MM-YYYY ou YYYY-MM-DD
+            data_pesquisa = self.parse_data(query)
+            if data_pesquisa:
+                queryset = queryset.filter(data=data_pesquisa)
+            else:
+                # Pesquisa normal por outros campos se não for data
+                queryset = queryset.filter(
+                    Q(usuario__username__icontains=query) |
+                    Q(total__icontains=query)
+                )
+
+        return queryset
+
+    def post(self, request, *args, **kwargs):
+        data_pesquisa = request.POST.get('data_pesquisa')
+
+        if data_pesquisa:
+            # Tentar interpretar a data nos formatos permitidos
+            data_pesquisa = self.parse_data(data_pesquisa)
+            if not data_pesquisa:
+                return JsonResponse({'error': 'Data inválida'}, status=400)
+
+            if Gesipe_adm.objects.filter(data=data_pesquisa).exists():
+                existing_record = Gesipe_adm.objects.get(data=data_pesquisa)
+                edit_url = reverse('gesipe:gesipe_adm_edit', kwargs={'pk': existing_record.pk})
+                return JsonResponse({'exists': True, 'url': edit_url})
+            else:
+                create_url = reverse('gesipe:gesipe_adm')
+                return JsonResponse({'exists': False, 'url': create_url})
+
+        return JsonResponse({'error': 'Data não fornecida'}, status=400)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['query'] = self.request.GET.get('query', '')
+
+        # total de movimentacoes gesipe admin
+        context['total_mov_adm'] = Gesipe_adm.objects.count()
+
+        # Obtendo dados gerais para o gráfico de linha
+        daily_totals = Gesipe_adm.objects.values('data') \
+            .annotate(total=Sum('total')) \
+            .order_by('data')
+
+        # Separar labels e valores
+        line_labels = [entry['data'].strftime("%d/%m/%Y") for entry in daily_totals]
+        line_values = [entry['total'] for entry in daily_totals]
+
+        # Passar os dados para o contexto
+        context['line_labels'] = line_labels
+        context['line_values'] = line_values
+
+        page_obj = context['page_obj']
+        paginator = page_obj.paginator
+        page_range = paginator.page_range
+
+        # Lógica para limitar a exibição das páginas
+        if page_obj.number > 3:
+            start = page_obj.number - 2
+        else:
+            start = 1
+
+        if page_obj.number < paginator.num_pages - 2:
+            end = page_obj.number + 2
+        else:
+            end = paginator.num_pages
+
+        context['page_range'] = range(start, end + 1)
+
+        # Obtendo os dados para o gráfico de barra administrativo
+        current_year = timezone.now().year
+        monthly_totals_adm_barra = []
+
+        for month in range(1, 13):
+            monthly_total = \
+            Gesipe_adm.objects.filter(data__year=current_year, data__month=month).aggregate(total=Sum('total'))[
+                'total'] or 0
+            monthly_totals_adm_barra.append(monthly_total)
+
+        # Labels dos meses
+        # Dicionário com os nomes dos meses em português
+        meses_em_portugues = {
+            1: "Janeiro",
+            2: "Fevereiro",
+            3: "Março",
+            4: "Abril",
+            5: "Maio",
+            6: "Junho",
+            7: "Julho",
+            8: "Agosto",
+            9: "Setembro",
+            10: "Outubro",
+            11: "Novembro",
+            12: "Dezembro"
+        }
+        labels_meses = [meses_em_portugues[month] for month in range(1, 13)]
+
+        # Obtendo os dados para o gráfico de pizza administrativo
+        total_values = Gesipe_adm.objects.aggregate(
+            total_memorando=Sum('total_memorando'),
+            total_despacho=Sum('total_despacho'),
+            total_oficio=Sum('total_oficio'),
+            total_os=Sum('total_os'),
+            processos=Sum('processos'),
+            portarias=Sum('portarias')
+        )
+
+        pie_labels_adm = [
+            'Memorandos',
+            'Despachos',
+            'Ofícios',
+            'OS',
+            'Processos',
+            'Portarias'
+        ]
+        pie_values_adm = [
+            total_values['total_memorando'] or 0,
+            total_values['total_despacho'] or 0,
+            total_values['total_oficio'] or 0,
+            total_values['total_os'] or 0,
+            total_values['processos'] or 0,
+            total_values['portarias'] or 0,
+        ]
+
+
+
+        # Passando os dados para o template
+        context['labels_mensais'] = labels_meses
+        context['values_mensais'] = monthly_totals_adm_barra
+        context['pie_labels_adm'] = pie_labels_adm
+        context['pie_values_adm'] = pie_values_adm
+
+
+        return context
+
+    def parse_data(self, date_str):
+        """
+        Tenta fazer o parsing de uma string de data nos formatos DD/MM/YYYY, DD-MM-YYYY e YYYY-MM-DD.
+        Retorna a data no formato 'datetime.date' se válido, senão retorna None.
+        """
+        date_formats = ["%d/%m/%Y", "%d-%m-%Y", "%Y-%m-%d"]
+
+        for fmt in date_formats:
+            try:
+                return datetime.strptime(date_str, fmt).date()
+            except ValueError:
+                continue
+        return None

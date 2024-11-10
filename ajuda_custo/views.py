@@ -32,6 +32,8 @@ from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from django.conf import settings
 from openpyxl.styles import Alignment, NamedStyle
+from django.db.models import Sum, Case, When, IntegerField
+
 
 # Create your views here.
 

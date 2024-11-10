@@ -25,9 +25,18 @@
                         <div class="flex space-x-4">
                             <a href="/" class="rounded-md px-3 py-2 text-lg font-medium {% if request.path == '/' %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}" aria-current="page">Inicio</a>
                             {% url 'gesipe:gesipe' as gesipe_url %}
-                            <a href="{{ gesipe_url }}" class="rounded-md px-3 py-2 text-lg font-medium {% if request.path == gesipe_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">Gesipe</a>
+                            {% url 'gesipe:gesipe_sga' as gesipe_sga_url %}
+                            <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" class="dropdown-toggle rounded-md px-3 py-2 text-lg font-medium {% if request.path == gesipe_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">Gesipe</a>
+                            <div class="dropdown bg-gray-800">
+                              <ul class="dropdown-menu bg-gray-800 py-2 ">
+                                <li><a class="dropdown-item {% if request.path == gesipe_url %}bg-gray-900 text-white hover:bg-gray-700{% else %}bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}" href="{{ gesipe_url }}">Administrativo</a></li>
+                                <li><a class="dropdown-item {% if request.path == gesipe_sga_url %}bg-gray-900 text-white hover:bg-gray-700{% else %}bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}" href="{{ gesipe_sga_url }}">SGA</a></li>
+
+                              </ul>
+                            </div>
+
                             {% url 'ajuda_custo:ajuda_custo' as ajuda_custo_url %}
-                            <a href="{{ ajuda_custo_url }}" class="rounded-md px-3 py-2 text-lg font-medium {% if request.path == ajuda_custo_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">Ajuda de Custo</a>
+                            <a href="{{ ajuda_custo_url }}" class="rounded-md mx-0 px-3 py-2 text-lg font-medium {% if request.path == ajuda_custo_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">Ajuda de Custo</a>
                             {% url 'servidor:recursos_humanos' as servidor_url %}
                             <a href="{{ servidor_url }}" class="rounded-md px-3 py-2 text-lg font-medium {% if request.path == servidor_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">Recursos Humanos</a>
                         </div>
