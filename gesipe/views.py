@@ -349,7 +349,8 @@ class Gesipe(LoginRequiredMixin, ListView):
 
         # Obtendo os dados para o gráfico de pizza administrativo
         total_values = Gesipe_adm.objects.aggregate(
-            total_memorando=Sum('total_memorando'),
+            diarias=Sum('diarias'),
+            documentos_capturados=Sum('documentos_capturados'),
             total_despacho=Sum('total_despacho'),
             total_oficio=Sum('total_oficio'),
             total_os=Sum('total_os'),
@@ -358,7 +359,8 @@ class Gesipe(LoginRequiredMixin, ListView):
         )
 
         pie_labels_adm = [
-            'Memorandos',
+            'Diárias',
+            'Documentos Capturados',
             'Despachos',
             'Ofícios',
             'OS',
@@ -366,7 +368,8 @@ class Gesipe(LoginRequiredMixin, ListView):
             'Portarias'
         ]
         pie_values_adm = [
-            total_values['total_memorando'] or 0,
+            total_values['diarias'] or 0,
+            total_values['documentos_capturados'] or 0,
             total_values['total_despacho'] or 0,
             total_values['total_oficio'] or 0,
             total_values['total_os'] or 0,
