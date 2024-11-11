@@ -75,37 +75,38 @@ class Homepage(LoginRequiredMixin, TemplateView):
         context['bar_labels'] = [item['local_trabalho'] for item in efetivo_por_unidade]
         context['bar_values'] = [item['total'] for item in efetivo_por_unidade]
 
-
-
-        # Obtendo os dados para o gráfico
+        # Obtendo os dados para o gráfico de barra administrativo
         current_year = timezone.now().year
         monthly_totals = []
 
         for month in range(1, 13):
-            monthly_total = Gesipe_adm.objects.filter(data__year=current_year, data__month=month).aggregate(total=models.Sum('total'))['total'] or 0
+            monthly_total = \
+            Gesipe_adm.objects.filter(data__year=current_year, data__month=month).aggregate(total=models.Sum('total'))[
+                'total'] or 0
             monthly_totals.append(monthly_total)
 
-            # Labels dos meses
-            # Dicionário com os nomes dos meses em português
-            meses_em_portugues = {
-                1: "Janeiro",
-                2: "Fevereiro",
-                3: "Março",
-                4: "Abril",
-                5: "Maio",
-                6: "Junho",
-                7: "Julho",
-                8: "Agosto",
-                9: "Setembro",
-                10: "Outubro",
-                11: "Novembro",
-                12: "Dezembro"
-            }
-            labels_meses = [meses_em_portugues[month] for month in range(1, 13)]
+        # Labels dos meses
+        # Dicionário com os nomes dos meses em português
+        meses_em_portugues = {
+            1: "Janeiro",
+            2: "Fevereiro",
+            3: "Março",
+            4: "Abril",
+            5: "Maio",
+            6: "Junho",
+            7: "Julho",
+            8: "Agosto",
+            9: "Setembro",
+            10: "Outubro",
+            11: "Novembro",
+            12: "Dezembro"
+        }
+        labels_mensais = [meses_em_portugues[month] for month in range(1, 13)]
 
-        # Obtendo os dados para o gráfico de pizza
+        # Obtendo os dados para o gráfico de pizza administrativo
         total_values = Gesipe_adm.objects.aggregate(
-            total_memorando=Sum('total_memorando'),
+            diarias=Sum('diarias'),
+            documentos_capturados=Sum('documentos_capturados'),
             total_despacho=Sum('total_despacho'),
             total_oficio=Sum('total_oficio'),
             total_os=Sum('total_os'),
@@ -114,7 +115,8 @@ class Homepage(LoginRequiredMixin, TemplateView):
         )
 
         pie_labels_adm = [
-            'Memorandos',
+            'Diárias',
+            'Documentos Capturados',
             'Despachos',
             'Ofícios',
             'OS',
@@ -122,7 +124,8 @@ class Homepage(LoginRequiredMixin, TemplateView):
             'Portarias'
         ]
         pie_values_adm = [
-            total_values['total_memorando'] or 0,
+            total_values['diarias'] or 0,
+            total_values['documentos_capturados'] or 0,
             total_values['total_despacho'] or 0,
             total_values['total_oficio'] or 0,
             total_values['total_os'] or 0,
@@ -134,14 +137,10 @@ class Homepage(LoginRequiredMixin, TemplateView):
         context['object_list'] = Gesipe_adm.objects.order_by('-data')[:12]
 
         # Passando os dados para o template
-        context['labels_mensais'] = labels_meses
+        context['labels_mensais'] = labels_mensais
         context['values_mensais'] = monthly_totals
         context['pie_labels_adm'] = pie_labels_adm
         context['pie_values_adm'] = pie_values_adm
-
-
-
-
 
         return context
 

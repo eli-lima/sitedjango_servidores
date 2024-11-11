@@ -7,12 +7,11 @@ class UploadFileForm(forms.Form):
     arquivo_excel = forms.FileField(label='Selecione o arquivo Excel')
 
 
-
 class GesipeAdmForm(forms.ModelForm):
     class Meta:
         model = Gesipe_adm
         fields = [
-            'data', 'processos', 'memorandos_diarias', 'memorandos_documentos_capturados',
+            'data', 'processos', 'diarias', 'documentos_capturados',
             'despachos_gerencias', 'despachos_unidades', 'despachos_grupos',
             'oficios_internos_unidades_prisionais', 'oficios_internos_setores_seap_pb',
             'oficios_internos_circular', 'oficios_externos_seap_pb', 'oficios_externos_judiciario',
@@ -22,8 +21,8 @@ class GesipeAdmForm(forms.ModelForm):
             'data': forms.DateInput( attrs={
                 'class': 'form-control lg:text-base text-xl lg:text-base text-xl', 'placeholder': 'Selecione a data', 'type': 'date'}),
             'processos': forms.NumberInput(attrs={'class': 'form-control lg:text-base text-xl', 'placeholder': '0'}),
-            'memorandos_diarias': forms.NumberInput(attrs={'class': 'form-control lg:text-base text-xl', 'placeholder': '0'}),
-            'memorandos_documentos_capturados': forms.NumberInput(attrs={'class': 'form-control lg:text-base text-xl', 'placeholder': '0'}),
+            'diarias': forms.NumberInput(attrs={'class': 'form-control lg:text-base text-xl', 'placeholder': '0'}),
+            'documentos_capturados': forms.NumberInput(attrs={'class': 'form-control lg:text-base text-xl', 'placeholder': '0'}),
             'portarias': forms.NumberInput(attrs={'class': 'form-control lg:text-base text-xl', 'placeholder': '0'}),
             'despachos_gerencias': forms.NumberInput(attrs={'class': 'form-control lg:text-base text-xl', 'placeholder': '0'}),
             'despachos_unidades': forms.NumberInput(attrs={'class': 'form-control lg:text-base text-xl', 'placeholder': '0'}),
@@ -42,8 +41,8 @@ class GesipeAdmForm(forms.ModelForm):
         labels = {
             'data': 'Data',
             'processos': 'Número de Processos',
-            'memorandos_diarias': 'Memorandos de Diárias',
-            'memorandos_documentos_capturados': 'Memorandos de Documentos Capturados',
+            'diarias': 'Diárias',
+            'documentos_capturados': 'Documentos Capturados',
             'portarias': 'Número de Portarias',
             'despachos_gerencias': 'Despachos das Gerências',
             'despachos_unidades': 'Despachos das Unidades',

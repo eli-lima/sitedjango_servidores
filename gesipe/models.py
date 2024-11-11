@@ -7,8 +7,8 @@ from django.utils import timezone
 class Gesipe_adm(models.Model):
     data = models.DateField(default=timezone.now, unique=True)
     processos = models.IntegerField(default=0, blank=True)
-    memorandos_diarias = models.IntegerField(default=0, blank=True)
-    memorandos_documentos_capturados = models.IntegerField(default=0, blank=True)
+    diarias = models.IntegerField(default=0, blank=True)
+    documentos_capturados = models.IntegerField(default=0, blank=True)
     despachos_gerencias = models.IntegerField(default=0, blank=True)
     despachos_unidades = models.IntegerField(default=0, blank=True)
     despachos_grupos = models.IntegerField(default=0, blank=True)
@@ -30,14 +30,13 @@ class Gesipe_adm(models.Model):
     usuario = models.ForeignKey('seappb.Usuario', on_delete=models.CASCADE, related_name='edicoes_adm')
 
     def save(self, *args, **kwargs):
-        self.total = (self.processos + self.memorandos_diarias +
-                      self.memorandos_documentos_capturados + self.despachos_gerencias +
+        self.total = (self.processos + self.diarias +
+                      self.documentos_capturados + self.despachos_gerencias +
                       self.despachos_unidades + self.despachos_grupos +
                       self.oficios_internos_unidades_prisionais + self.oficios_internos_setores_seap_pb +
                       self.oficios_internos_circular + self.oficios_externos_seap_pb +
                       self.oficios_externos_diversos + self.oficios_externos_judiciario +
                       self.os_grupos + self.os_diversos + self.portarias)
-        self.total_memorando = (self.memorandos_diarias + self.memorandos_documentos_capturados)
         self.total_despacho = (self.despachos_gerencias + self.despachos_unidades + self.despachos_grupos)
         self.total_oficio = (self.oficios_internos_circular + self.oficios_internos_unidades_prisionais +
                              self.oficios_internos_setores_seap_pb + self.oficios_externos_seap_pb +

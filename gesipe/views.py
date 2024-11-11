@@ -643,7 +643,8 @@ class GesipeSga(LoginRequiredMixin, ListView):
 
         # Obtendo os dados para o gráfico de pizza administrativo
         total_values = Gesipe_adm.objects.aggregate(
-            total_memorando=Sum('total_memorando'),
+            diarias=Sum('diarias'),
+            documentos_capturados=Sum('documentos_capturados'),
             total_despacho=Sum('total_despacho'),
             total_oficio=Sum('total_oficio'),
             total_os=Sum('total_os'),
@@ -652,7 +653,8 @@ class GesipeSga(LoginRequiredMixin, ListView):
         )
 
         pie_labels_adm = [
-            'Memorandos',
+            'Diárias',
+            'Documentos Capturados',
             'Despachos',
             'Ofícios',
             'OS',
@@ -660,7 +662,8 @@ class GesipeSga(LoginRequiredMixin, ListView):
             'Portarias'
         ]
         pie_values_adm = [
-            total_values['total_memorando'] or 0,
+            total_values['diarias'] or 0,
+            total_values['documentos_capturados'] or 0,
             total_values['total_despacho'] or 0,
             total_values['total_oficio'] or 0,
             total_values['total_os'] or 0,
@@ -668,14 +671,11 @@ class GesipeSga(LoginRequiredMixin, ListView):
             total_values['portarias'] or 0,
         ]
 
-
-
         # Passando os dados para o template
         context['labels_mensais'] = labels_meses
         context['values_mensais'] = monthly_totals_adm_barra
         context['pie_labels_adm'] = pie_labels_adm
         context['pie_values_adm'] = pie_values_adm
-
 
         return context
 
