@@ -15,7 +15,7 @@ urlpatterns = [
     path('gesipe_adm_lote/', GesipeAdmLote.as_view(), name='gesipe_adm_lote'),
     path('gesipe_armaria/', GesipeArmaria.as_view(), name='gesipe_armaria'),
     path('gesipe_sga/', GesipeSga.as_view(), name='gesipe_sga'),
-    path('gesipe/relatorio_gesipe_adm', RelatorioGesipeAdm.as_view(), name='relatorio_gesipe_adm'),
+    path('relatorio_gesipe_adm', RelatorioGesipeAdm.as_view(), name='relatorio_gesipe_adm'),
     path('relatorio_gesipe_adm/export_pdf/', RelatorioGesipeAdm.as_view(), name='relatorio_gesipe_adm_export_pdf'),
 
 
