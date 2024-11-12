@@ -536,6 +536,67 @@ class GesipeAdmLote(LoginRequiredMixin, View):
         return render(request, self.template_name, {'form': form})
 
 
+class RelatorioGesipeAdm(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    model = Gesipe_adm
+    template_name = "relatorio_gesipe_adm.html"
+    paginate_by = 20
+    ordering = ['-data']
+
+    def test_func(self):
+        user = self.request.user
+        grupos_permitidos = ['Administrador', 'GerGesipe', 'ServGesipe']
+        return user.groups.filter(name__in=grupos_permitidos).exists()
+
+    def handle_no_permission(self):
+        messages.error(self.request, "Você não tem permissão para acessar esta página.")
+        return render(self.request, '403.html', status=403)
+
+    def get_queryset(self):
+        query = self.request.GET.get('query', '')
+        data_inicial = self.request.GET.get('dataInicial')
+        data_final = self.request.GET.get('dataFinal')
+        queryset = super().get_queryset()
+
+        if data_inicial and data_final:
+            try:
+                data_inicial = datetime.strptime(data_inicial, '%Y-%m-%d').date()
+                data_final = datetime.strptime(data_final, '%Y-%m-%d').date()
+                queryset = queryset.filter(data__range=(data_inicial, data_final))
+            except ValueError:
+                messages.error(self.request, "Formato de data inválido.")
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['dataInicial'] = self.request.GET.get('dataInicial', '')
+        context['dataFinal'] = self.request.GET.get('dataFinal', '')
+        context['setor'] = 'Administrativo'
+
+        page_obj = context['page_obj']
+        paginator = page_obj.paginator
+        page_range = paginator.page_range
+
+        # Limite de páginas
+        if page_obj.number > 3:
+            start = page_obj.number - 2
+        else:
+            start = 1
+
+        if page_obj.number < paginator.num_pages - 2:
+            end = page_obj.number + 2
+        else:
+            end = paginator.num_pages
+
+        context['page_range'] = range(start, end + 1)
+
+        return context
+
+
+
+
+#GESIPE SGA
+
 class GesipeSga(LoginRequiredMixin, ListView):
     template_name = "gesipe_sga.html"
     model = Gesipe_adm
