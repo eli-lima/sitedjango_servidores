@@ -184,7 +184,8 @@ Gesipe
                             <thead class="bg-gray-100">
                                 <tr>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Memorandos</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Diárias</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Doc. Capturados</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Despachos</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Oficios</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ordem de Serviço</th>
@@ -200,7 +201,8 @@ Gesipe
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             {{ data.data|date:"d/m/Y" }}
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">{{ data.total_memorando }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">{{ data.diarias }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">{{ data.documentos_capturados }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap">{{ data.total_despacho }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap">{{ data.total_oficio }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap">{{ data.total_os }}</td>

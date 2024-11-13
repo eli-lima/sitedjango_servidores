@@ -66,7 +66,8 @@
     <thead>
         <tr>
             <th>Data</th>
-            <th>Memorandos</th>
+            <th>Diárias</th>
+            <th>Doc. Capturados</th>
             <th>Despachos</th>
             <th>Ofícios</th>
             <th>Ordem de Serviço</th>
@@ -79,7 +80,8 @@
         {% for data in object_list %}
         <tr>
             <td>{{ data.data|date:"d/m/Y" }}</td>
-            <td>{{ data.total_memorando }}</td>
+            <td>{{ data.diarias }}</td>
+            <td>{{ data.documentos_capturados }}</td>
             <td>{{ data.total_despacho }}</td>
             <td>{{ data.total_oficio }}</td>
             <td>{{ data.total_os }}</td>
