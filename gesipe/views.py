@@ -800,3 +800,5 @@ class GesipeSga(LoginRequiredMixin, ListView):
             except ValueError:
                 continue
         return None
+
+
