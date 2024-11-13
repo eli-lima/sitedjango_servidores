@@ -631,6 +631,14 @@ class RelatorioGesipeAdm(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
         return context
 
+    def get(self, request, *args, **kwargs):
+        action = request.GET.get('action')
+        if action == 'export_pdf':
+            return export_pdf(request)
+
+        return super().get(request, *args, **kwargs)
+
+
 #GESIPE SGA
 
 class GesipeSga(LoginRequiredMixin, ListView):
