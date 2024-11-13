@@ -24,6 +24,9 @@ from reportlab.platypus import Paragraph, Image, Frame
 from reportlab.lib.styles import getSampleStyleSheet
 from django.contrib.staticfiles import finders
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.template.loader import get_template
+from weasyprint import HTML
+
 
 
 # Create your views here.
@@ -593,6 +596,42 @@ class RelatorioGesipeAdm(LoginRequiredMixin, UserPassesTestMixin, ListView):
         return context
 
 
+    def get(self, request, *args, **kwargs):
+        # Verificar se a ação é export_pdf
+        if request.GET.get("action") == "export_pdf":
+            return self.export_pdf()
+        return super().get(request, *args, **kwargs)
+
+    def export_pdf(self):
+        # Pega as datas de filtro
+        data_inicial = self.request.GET.get('dataInicial')
+        data_final = self.request.GET.get('dataFinal')
+
+        # Filtra o queryset com as datas fornecidas
+        queryset = self.get_queryset()
+        if data_inicial and data_final:
+            try:
+                data_inicial = datetime.strptime(data_inicial, '%Y-%m-%d').date()
+                data_final = datetime.strptime(data_final, '%Y-%m-%d').date()
+                queryset = queryset.filter(data__range=(data_inicial, data_final))
+            except ValueError:
+                pass  # Ignora erros de formato de data
+
+        # Renderiza o template HTML com os dados filtrados
+        template = get_template('relatorio_gesipe_pdf.html')
+        context = {
+            'object_list': queryset,  # Dados filtrados para o PDF
+            'dataInicial': data_inicial,
+            'dataFinal': data_final,
+            'setor': 'Administrativo',
+        }
+        html = template.render(context)
+
+        # Gera e retorna o PDF
+        response = HttpResponse(content_type="application/pdf")
+        response["Content-Disposition"] = "attachment; filename='relatorio_gesipe_adm.pdf'"
+        HTML(string=html).write_pdf(response)
+        return response
 
 
 #GESIPE SGA
