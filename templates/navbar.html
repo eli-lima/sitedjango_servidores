@@ -101,9 +101,21 @@
                         <ion-icon name="home"></ion-icon>
                         <a href="/">Inicio</a>
                     </div>
-                    <div class="flex space-x-12 block rounded-md py-3 text-5xl font-medium {% if request.path == gesipe_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">
-                        <ion-icon name="document-text"></ion-icon>
-                        <a href="{{ gesipe_url }}" >Gesipe</a>
+                    <div class="flex flex-col block rounded-md py-3 text-5xl font-medium text-gray-300">
+                        <div id="toggle-collapse" class="space-x-12 flex">
+                            <ion-icon name="document-text"></ion-icon>
+                            <button >Gesipe</button>
+                            <ion-icon id="toggle-icon" name="chevron-forward"></ion-icon>
+                        </div>
+                            <!-- Conteúdo do Collapse -->
+                            <div id="collapse-content" class="flex flex-col justify-start max-h-0 py-0 px-0 overflow-hidden transition-all duration-300 space-y-8">
+                                <div class="pt-2 pl-24 justify-start {% if request.path == gesipe_url %}bg-gray-900 text-white{% else %}text-gray-300 {% endif %}">
+                                    <a class="bg-gray-800" href="{{ gesipe_url }}">Administrativo</a>
+                                </div>
+                                <div class="pl-24 justify-start {% if request.path == gesipe_sga_url %}bg-gray-900 text-white{% else %}text-gray-300 {% endif %}">
+                                    <a href="{{ gesipe_sga_url }}">SGA</a>
+                                </div>
+                            </div>
                     </div>
                     <div class="flex space-x-12 block rounded-md py-3 text-5xl font-medium {% if request.path == ajuda_custo_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">
                         <ion-icon name="time"></ion-icon>
@@ -113,13 +125,14 @@
                         <ion-icon name="people"></ion-icon>
                         <a href="{{ servidor_url }}">Recursos Humanos</a>
                     </div>
+
+
                     {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups %}
                     <div class="flex space-x-12 block rounded-md py-3 text-5xl font-medium {% if request.path == estatistica_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">
                         <ion-icon name="stats-chart"></ion-icon>
                         <a href="{{ estatistica_url }}">Estatísticas</a>
                     </div>
                     {% endif %}
-
 
 
 
@@ -218,4 +231,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
+</script>
+
+
+<!--script para o colapse do navbar mobile-->
+
+<script>
+    // Seleciona os elementos
+    const toggleButton = document.getElementById('toggle-collapse');
+    const collapseContent = document.getElementById('collapse-content');
+    const toggleIcon = document.getElementById('toggle-icon');
+
+    // Adiciona o evento de clique no botão
+    toggleButton.addEventListener('click', () => {
+        // Verifica se o conteúdo está aberto
+        const isOpen = !collapseContent.classList.contains('max-h-0');
+
+        // Alterna as classes para abrir ou fechar
+        collapseContent.classList.toggle('max-h-0', isOpen);
+        collapseContent.classList.toggle('py-0', isOpen);
+        collapseContent.classList.toggle('max-h-44', !isOpen);
+        collapseContent.classList.toggle('py-4', !isOpen);
+
+        // Alterna o ícone Ionic
+        toggleIcon.setAttribute('name', isOpen ? 'chevron-forward' : 'chevron-down');
+    });
 </script>
