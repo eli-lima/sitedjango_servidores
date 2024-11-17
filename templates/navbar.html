@@ -39,6 +39,10 @@
                             <a href="{{ ajuda_custo_url }}" class="rounded-md mx-0 px-3 py-2 text-lg font-medium {% if request.path == ajuda_custo_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">Ajuda de Custo</a>
                             {% url 'servidor:recursos_humanos' as servidor_url %}
                             <a href="{{ servidor_url }}" class="rounded-md px-3 py-2 text-lg font-medium {% if request.path == servidor_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">Recursos Humanos</a>
+                            {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups %}
+                            {% url 'seappb:estatistica' as estatistica_url %}
+                            <a href="{{ estatistica_url }}" class="rounded-md px-3 py-2 text-lg font-medium {% if request.path == estatistica_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">Estatísticas</a>
+                            {% endif %}
                         </div>
                         {% endif %}
                     </div>
@@ -109,6 +113,12 @@
                         <ion-icon name="people"></ion-icon>
                         <a href="{{ servidor_url }}">Recursos Humanos</a>
                     </div>
+                    {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups %}
+                    <div class="flex space-x-12 block rounded-md py-3 text-5xl font-medium {% if request.path == estatistica_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">
+                        <ion-icon name="stats-chart"></ion-icon>
+                        <a href="{{ estatistica_url }}">Estatísticas</a>
+                    </div>
+                    {% endif %}
 
 
 

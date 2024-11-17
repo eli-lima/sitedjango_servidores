@@ -19,6 +19,7 @@ from django.db.models import Sum
 from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.db.models import Count
+from django.contrib.auth.mixins import UserPassesTestMixin
 
 import os
 
@@ -243,15 +244,20 @@ class CustomLoginView(HideNavMixin, LoginView):
         messages.error(self.request, 'Erro no login. Verifique suas credenciais e tente novamente.')
         return super().form_invalid(form)
 
-#adicionar novas listas ao menu de pesquisar
+class Estatisticas(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
+    template_name = "estatisticas.html"
 
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     context[
-    #         'outro_modelo_list'] = OutroModelo.objects.all()  # Adicione outros conjuntos de consultas conforme necessário
-    #     context[
-    #         'terceiro_modelo_list'] = TerceiroModelo.objects.all()  # Adicione outros conjuntos de consultas conforme necessário
-    #     return context
+    def test_func(self):
+        user = self.request.user
+        # Define os grupos permitidos
+        grupos_permitidos = ['Administrador', 'GerGesipe']
+        # Retorna True se o usuário pertence a pelo menos um dos grupos
+        return user.groups.filter(name__in=grupos_permitidos).exists()
 
+        # Levanta exceção em caso de falta de permissão
+
+    def handle_no_permission(self):
+        messages.error(self.request, "Você não tem permissão para acessar esta página.")
+        return render(self.request, '403.html', status=403)  # Substitua '404.html' pelo nome do seu template
 
 
