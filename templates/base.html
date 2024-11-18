@@ -82,7 +82,7 @@
     {% endif %}
 
     {% if messages %}
-    <div class="fixed top-20 pl-8 left-0 right-0 flex justify-start lg:w-1/2 w-full  z-50 opacity-75">
+    <div class="fixed top-20 pr-8 flex justify-end w-full z-50 opacity-75">
         {% for message in messages %}
             {% if message.tags == 'error' %}
                 <div class="font-semibold w-full alert alert-danger">
