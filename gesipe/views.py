@@ -1145,3 +1145,65 @@ class RelatorioGesipeSga(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
         return super().get(request, *args, **kwargs)
 
+
+
+class GesipeSgaLote(LoginRequiredMixin, View):
+    form_class = UploadFileForm
+    template_name = 'sga/gesipe_sga_lote.html'
+
+    def get(self, request, *args, **kwargs):
+        form = self.form_class()
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST, request.FILES)
+
+        if form.is_valid():
+            arquivo_excel = request.FILES['arquivo_excel']
+
+            # Carregar a planilha com valores calculados em vez de fórmulas
+            wb = openpyxl.load_workbook(arquivo_excel, data_only=True)
+            sheet = wb['Planilha']  # Nome correto da aba
+
+            try:
+                for row in sheet.iter_rows(min_row=4, values_only=True):
+                    if not any(row):  # Ignorar linhas em branco
+                        continue
+
+                    # Extrair o valor da data
+                    data = row[0]  # Supondo que a data está na primeira coluna
+
+                    # Converter a data para o formato 'YYYY-MM-DD' se necessário
+                    if isinstance(data, str):  # Se a data estiver como string
+                        try:
+                            data = datetime.strptime(data,
+                                                     '%d/%m/%Y').date()  # Converter de DD/MM/YYYY para objeto date
+                        except ValueError:
+                            messages.error(request, f'O formato de data "{data}" é inválido. Use o formato DD/MM/YYYY.')
+                            return render(request, self.template_name, {'form': form})
+
+                    # Excluir todos os registros existentes com a mesma data
+                    Gesipe_Sga.objects.filter(data=data).delete()
+
+                    # Criar um novo registro
+                    Gesipe_Sga.objects.create(
+                        data=data,
+                        agendamentos_entradas=0 if row[1] is None else row[1],
+                        comunicacoes_presos=0 if row[2] is None else row[2],
+                        comunicacoes_servidores=0 if row[3] is None else row[3],
+                        comunicacoes_setores=0 if row[4] is None else row[4],
+                        comunicacoes_judiciais_externas=0 if row[5] is None else row[5],
+                        om_grupos=0 if row[6] is None else row[6],
+                        om_unidades=0 if row[7] is None else row[7],
+                        data_edicao=timezone.now(),  # Define a data de edição
+                        usuario=request.user  # Assumindo que você quer armazenar o usuário que fez a alteração
+                    )
+
+                messages.success(request, 'Dados importados com sucesso!')
+            except Exception as e:
+                messages.error(request, f'Ocorreu um erro ao processar o arquivo: {e}')
+                return render(request, self.template_name, {'form': form})
+
+            return redirect('gesipe:gesipe_sga_lote')
+
+        return render(request, self.template_name, {'form': form})
