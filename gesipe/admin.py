@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Gesipe_adm
+from .models import Gesipe_adm, Gesipe_Sga
 
 # Register your models here.
 
