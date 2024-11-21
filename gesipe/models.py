@@ -45,4 +45,24 @@ class Gesipe_adm(models.Model):
         super(Gesipe_adm, self).save(*args, **kwargs)
 
     def __str__(self):
-        return self.data.strftime("%d/%m/%Y")
+        return f"{self.usuario} - {self.data.strftime('%d/%m/%Y')}"
+
+class Gesipe_Sga(models.Model):
+    data = models.DateField(default=timezone.now)
+    agendamentos_entradas = models.IntegerField(default=0, blank=True)
+    comunicacoes_presos = models.IntegerField(default=0, blank=True)
+    comunicacoes_servidores = models.IntegerField(default=0, blank=True)
+    comunicacoes_setores = models.IntegerField(default=0, blank=True)
+    comunicacoes_judiciais_externas = models.IntegerField(default=0, blank=True)
+    om_grupos = models.IntegerField(default=0, blank=True)
+    om_unidades = models.IntegerField(default=0, blank=True)
+    data_edicao = models.DateTimeField(default=timezone.now)
+    usuario = models.ForeignKey('seappb.Usuario', on_delete=models.CASCADE, related_name='edicoes_sga')
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['data']),
+        ]
+
+    def __str__(self):
+        return f"{self.usuario} - {self.data.strftime('%d/%m/%Y')}"

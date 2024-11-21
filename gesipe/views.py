@@ -1,12 +1,12 @@
 from django.shortcuts import render, redirect
-from .models import Gesipe_adm
+from .models import Gesipe_adm, Gesipe_Sga
 from django.views.generic.edit import FormView, UpdateView, CreateView, View
 from django.utils.timezone import now
-from .forms import GesipeAdmForm, UploadFileForm
+from .forms import GesipeAdmForm, UploadFileForm, GesipeSgaForm
 from django.views.generic import ListView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
-from django.db.models import Q, Sum  # Para pesquisas com OR lógico
+from django.db.models import Q, Sum, F  # Para pesquisas com OR lógico
 from django.utils import timezone
 from django.contrib import messages
 from django.urls import reverse, reverse_lazy
@@ -66,6 +66,39 @@ def export_pdf(request):
     response["Content-Disposition"] = "attachment; filename='relatorio_gesipe_adm.pdf'"
     HTML(string=html).write_pdf(response)
     return response
+
+
+def export_pdf_sga_detalhado(request, setor):
+    # Pega as datas de filtro do request recebido
+    data_inicial = request.GET.get('dataInicial')
+    data_final = request.GET.get('dataFinal')
+
+    # Filtra o queryset com as datas fornecidas
+    queryset = RelatorioGesipeSga().get_queryset()  # Chama o queryset da view manualmente, se necessário
+    if data_inicial and data_final:
+        try:
+            data_inicial = datetime.strptime(data_inicial, '%Y-%m-%d').date()
+            data_final = datetime.strptime(data_final, '%Y-%m-%d').date()
+            queryset = queryset.filter(data__range=(data_inicial, data_final))
+        except ValueError:
+            pass  # Ignora erros de formato de data
+
+    # Renderiza o template HTML com os dados filtrados
+    template = get_template('sga/relatorio_gesipe_sga_pdf_detalhado.html')
+    context = {
+        'object_list': queryset,  # Dados filtrados para o PDF
+        'dataInicial': data_inicial,
+        'dataFinal': data_final,
+        'setor': setor,
+    }
+    html = template.render(context)
+
+    # Gera e retorna o PDF
+    response = HttpResponse(content_type="application/pdf")
+    response["Content-Disposition"] = "attachment; filename='relatorio_gesipe_sga_detalhado.pdf'"
+    HTML(string=html).write_pdf(response)
+    return response
+
 
 
 class GesipeArmaria(LoginRequiredMixin, UserPassesTestMixin, ListView):
@@ -801,4 +834,314 @@ class GesipeSga(LoginRequiredMixin, ListView):
                 continue
         return None
 
+
+# Gesipe SGA
+
+
+
+
+class GesipeSga(LoginRequiredMixin, ListView):
+    template_name = "sga/gesipe_sga.html"
+    model = Gesipe_Sga
+    paginate_by = 20
+    ordering = ['-data']
+
+    def get_queryset(self):
+        query = self.request.GET.get('query', '')
+        queryset = super().get_queryset()
+
+        if query:
+            # Tentar interpretar 'query' como data nos formatos DD/MM/YYYY, DD-MM-YYYY ou YYYY-MM-DD
+            data_pesquisa = self.parse_data(query)
+            if data_pesquisa:
+                queryset = queryset.filter(data=data_pesquisa)
+            else:
+                # Pesquisa normal por outros campos se não for data
+                queryset = queryset.filter(
+                    Q(usuario__username__icontains=query) |
+                    Q(total__icontains=query)
+                )
+
+        return queryset
+
+    def post(self, request, *args, **kwargs):
+        data_pesquisa = request.POST.get('data_pesquisa')
+
+        if data_pesquisa:
+            # Tentar interpretar a data nos formatos permitidos
+            data_pesquisa = self.parse_data(data_pesquisa)
+            if not data_pesquisa:
+                return JsonResponse({'error': 'Data inválida'}, status=400)
+
+            if Gesipe_Sga.objects.filter(data=data_pesquisa).exists():
+                existing_record = Gesipe_Sga.objects.get(data=data_pesquisa)
+                edit_url = reverse('gesipe:gesipe_sga_edit', kwargs={'pk': existing_record.pk})
+                return JsonResponse({'exists': True, 'url': edit_url})
+            else:
+                create_url = reverse('gesipe:gesipe_sga_add')
+                return JsonResponse({'exists': False, 'url': create_url})
+
+        return JsonResponse({'error': 'Data não fornecida'}, status=400)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['query'] = self.request.GET.get('query', '')
+
+        # Total de movimentações Gesipe SGA
+        context['total_mov_sga'] = Gesipe_Sga.objects.count()
+
+        # Obtendo dados gerais para o gráfico de linha
+        daily_totals = (
+            Gesipe_Sga.objects.values('data')
+            .annotate(
+                total=(
+                    Sum(
+                        F('agendamentos_entradas') +
+                        F('comunicacoes_presos') +
+                        F('comunicacoes_servidores') +
+                        F('comunicacoes_setores') +
+                        F('comunicacoes_judiciais_externas') +
+                        F('om_grupos') +
+                        F('om_unidades')
+                    )
+                )
+            )
+            .order_by('data')
+        )
+
+        # Separar labels e valores para o gráfico de linha
+        line_labels = [entry['data'].strftime("%d/%m/%Y") for entry in daily_totals]
+        line_values = [entry['total'] for entry in daily_totals]
+
+        context['line_labels'] = line_labels
+        context['line_values'] = line_values
+
+        # Lógica de paginação
+        page_obj = context['page_obj']
+        paginator = page_obj.paginator
+        page_range = paginator.page_range
+
+        if page_obj.number > 3:
+            start = page_obj.number - 2
+        else:
+            start = 1
+
+        if page_obj.number < paginator.num_pages - 2:
+            end = page_obj.number + 2
+        else:
+            end = paginator.num_pages
+
+        context['page_range'] = range(start, end + 1)
+
+        # Obtendo os dados para o gráfico de barra SGA
+        current_year = timezone.now().year
+        monthly_totals_sga_barra = []
+
+        for month in range(1, 13):
+            monthly_total = (
+                    Gesipe_Sga.objects.filter(data__year=current_year, data__month=month)
+                    .aggregate(
+                        total=Sum(
+                            F('agendamentos_entradas') +
+                            F('comunicacoes_presos') +
+                            F('comunicacoes_servidores') +
+                            F('comunicacoes_setores') +
+                            F('comunicacoes_judiciais_externas') +
+                            F('om_grupos') +
+                            F('om_unidades')
+                        )
+                    )['total']
+                    or 0
+            )
+            monthly_totals_sga_barra.append(monthly_total)
+
+
+        # Labels dos meses
+        meses_em_portugues = {
+            1: "Janeiro",
+            2: "Fevereiro",
+            3: "Março",
+            4: "Abril",
+            5: "Maio",
+            6: "Junho",
+            7: "Julho",
+            8: "Agosto",
+            9: "Setembro",
+            10: "Outubro",
+            11: "Novembro",
+            12: "Dezembro",
+        }
+        labels_meses = [meses_em_portugues[month] for month in range(1, 13)]
+
+        # Passando os dados para o template
+        context['labels_mensais'] = labels_meses
+        context['values_mensais'] = monthly_totals_sga_barra
+
+        # Obtendo os dados para o gráfico de pizza administrativo
+        total_values = Gesipe_Sga.objects.aggregate(
+            total_agendamentos_entradas=Sum('agendamentos_entradas'),
+            total_comunicacoes_presos=Sum('comunicacoes_presos'),
+            total_comunicacoes_servidores=Sum('comunicacoes_servidores'),
+            total_comunicacoes_setores=Sum('comunicacoes_setores'),
+            total_comunicacoes_judiciais_externas=Sum('comunicacoes_judiciais_externas'),
+            total_om_grupos=Sum('om_grupos'),
+            total_om_unidades=Sum('om_unidades'),
+        )
+
+        pie_labels_sga = [
+            'Agendamentos Entradas',
+            'Comunicações Presos',
+            'Comunicações Servidores',
+            'Comunicações Setores',
+            'Comunicações Judiciais e Externas',
+            'Ordens de Missão Grupos',
+            'Ordens de Missão unidades',
+        ]
+        pie_values_sga = [
+            total_values['total_agendamentos_entradas'] or 0,
+            total_values['total_comunicacoes_presos'] or 0,
+            total_values['total_comunicacoes_servidores'] or 0,
+            total_values['total_comunicacoes_setores'] or 0,
+            total_values['total_comunicacoes_judiciais_externas'] or 0,
+            total_values['total_om_grupos'] or 0,
+            total_values['total_om_unidades'] or 0,
+        ]
+
+        context['pie_labels_sga'] = pie_labels_sga
+        context['pie_values_sga'] = pie_values_sga
+
+        return context
+
+    def parse_data(self, date_str):
+        """
+        Tenta fazer o parsing de uma string de data nos formatos DD/MM/YYYY, DD-MM-YYYY e YYYY-MM-DD.
+        Retorna a data no formato 'datetime.date' se válido, senão retorna None.
+        """
+        date_formats = ["%d/%m/%Y", "%d-%m-%Y", "%Y-%m-%d"]
+
+        for fmt in date_formats:
+            try:
+                return datetime.strptime(date_str, fmt).date()
+            except ValueError:
+                continue
+        return None
+
+
+class GesipeSgaAdd(LoginRequiredMixin, CreateView):
+    model = Gesipe_Sga
+    form_class = GesipeSgaForm
+    template_name = 'sga/gesipe_sga_add.html'
+    success_url = reverse_lazy('gesipe:gesipe_sga_add')
+
+    def form_valid(self, form):
+        # Se o formulário passar pela validação, salva o novo registro
+
+        dados_sga = form.save(commit=False)
+        dados_sga.usuario = self.request.user  # Atribui o usuário atual
+        dados_sga.data_edicao = timezone.now()  # Define a data de edição
+        dados_sga.save()
+        messages.success(self.request, 'Dados adicionados com sucesso!')
+        return redirect(self.success_url)
+
+
+class GesipeSgaEdit(LoginRequiredMixin, UpdateView):
+    model = Gesipe_Sga
+    form_class = GesipeSgaForm
+    template_name = 'sga/gesipe_sga_edit.html'
+    success_url = reverse_lazy('gesipe:gesipe_sga_add')  # Redirecionar para a página de sucesso
+
+    def get_form_kwargs(self):
+        """Passa o formato correto da data para o formulário."""
+        kwargs = super().get_form_kwargs()
+        if self.object:
+            # Ajusta o valor da data para o formato 'yyyy-mm-dd'
+            kwargs['initial'] = {
+                'data': self.object.data.strftime('%Y-%m-%d'),
+            }
+        return kwargs
+
+    def form_valid(self, form):
+        if self.request.POST.get('action') == 'delete':
+            # Lida com a exclusão do registro
+            self.object.delete()
+            messages.error(self.request, 'Registro excluído com sucesso!')
+            return redirect(self.success_url)
+
+        # Atualiza os dados do registro
+        dados_sga = form.save(commit=False)
+        dados_sga.data_edicao = timezone.now()  # Atualiza a data de edição
+        dados_sga.save()
+
+        messages.success(self.request, 'Dados atualizados com sucesso!')
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['formatted_date'] = self.object.data.strftime('%d/%m/%Y')
+        return context
+
+
+class RelatorioGesipeSga(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    model = Gesipe_Sga
+    template_name = "sga/relatorio_gesipe_sga.html"
+    paginate_by = 20
+    ordering = ['-data']
+
+    def test_func(self):
+        user = self.request.user
+        grupos_permitidos = ['Administrador', 'GerGesipe', 'ServGesipeSga']
+        return user.groups.filter(name__in=grupos_permitidos).exists()
+
+    def handle_no_permission(self):
+        messages.error(self.request, "Você não tem permissão para acessar esta página.")
+        return render(self.request, '403.html', status=403)
+
+    def get_queryset(self, request=None):
+        queryset = super().get_queryset()
+
+        # Se o request for passado, filtra o queryset com base nas datas
+        if request:
+            data_inicial = request.GET.get('dataInicial')
+            data_final = request.GET.get('dataFinal')
+            if data_inicial and data_final:
+                try:
+                    data_inicial = datetime.strptime(data_inicial, '%Y-%m-%d').date()
+                    data_final = datetime.strptime(data_final, '%Y-%m-%d').date()
+                    queryset = queryset.filter(data__range=(data_inicial, data_final))
+                except ValueError:
+                    pass  # Ignora erros de formato de data
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['dataInicial'] = self.request.GET.get('dataInicial', '')
+        context['dataFinal'] = self.request.GET.get('dataFinal', '')
+
+        page_obj = context['page_obj']
+        paginator = page_obj.paginator
+        page_range = paginator.page_range
+
+        # Limite de páginas
+        if page_obj.number > 3:
+            start = page_obj.number - 2
+        else:
+            start = 1
+
+        if page_obj.number < paginator.num_pages - 2:
+            end = page_obj.number + 2
+        else:
+            end = paginator.num_pages
+
+        context['page_range'] = range(start, end + 1)
+
+        return context
+
+    def get(self, request, *args, **kwargs):
+        action = request.GET.get('action')
+        setor = "Sga"
+        if action == 'export_pdf_sga_detalhado':
+            return export_pdf_sga_detalhado(request, setor)
+
+        return super().get(request, *args, **kwargs)
 

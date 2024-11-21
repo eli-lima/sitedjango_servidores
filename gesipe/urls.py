@@ -3,7 +3,9 @@
 from django.urls import path, include
 from .views import (Gesipe, GesipeAdm, GesipeAdmEdit,
                     GesipeAdmLote, GesipeArmaria,
-                    GesipeSga, RelatorioGesipeAdm)
+                    GesipeSga, RelatorioGesipeAdm,
+                    RelatorioGesipeSga, GesipeSgaAdd, GesipeSgaEdit
+                    )
 
 
 app_name = 'gesipe'
@@ -17,6 +19,9 @@ urlpatterns = [
     path('gesipe_sga/', GesipeSga.as_view(), name='gesipe_sga'),
     path('relatorio_gesipe_adm', RelatorioGesipeAdm.as_view(), name='relatorio_gesipe_adm'),
     path('relatorio_gesipe_adm/export_pdf/', RelatorioGesipeAdm.as_view(), name='relatorio_gesipe_adm_export_pdf'),
+    path('gesipe_sga_add/', GesipeSgaAdd.as_view(), name='gesipe_sga_add'),
+    path('gesipe_sga/edit/<int:pk>', GesipeSgaEdit.as_view(), name='gesipe_sga_edit'),
+    path('relatorio_gesipe_sga', RelatorioGesipeSga.as_view(), name='relatorio_gesipe_sga'),
 
 
 

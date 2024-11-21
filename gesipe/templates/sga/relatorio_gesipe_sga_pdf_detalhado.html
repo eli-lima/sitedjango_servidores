@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Relatório Gesipe {{ setor }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            font-size: 8px;
+        }
+        table {
+            width: 100%;
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: center;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 15px; /* Margem superior e inferior de 10px e centralização */
+        }
+        table tr:nth-child(even) {
+            background: #f8f8f8;
+        }
+        table thead th {
+            color: #ffffff;
+            background: #2f4961;
+        }
+
+        footer {
+        margin-top: 20px;
+        }
+
+        /* Estilo para centralizar e ajustar a imagem */
+        .logo {
+            width: 600px; /* Ajuste o tamanho conforme necessário */
+            height: 40px;
+            display: block;
+            margin-bottom: 30px; /* Margem superior e inferior de 20px e centralização */
+        }
+        .flex-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            padding: 0;
+            margin: 0;
+        }
+
+    </style>
+</head>
+<body>
+
+<div>
+    <img src="https://i.imgur.com/4t5U2gL.png" alt="Logo-seap" class="logo">
+    <h1>Relatório Gesipe {{ setor }}</h1>
+    {% if dataInicial and dataFinal %}
+        <p>Período: {{ dataInicial }} a {{ dataFinal }}</p>
+    {% endif %}
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Data</th>
+            <th>Agendamentos Entradas</th>
+            <th>Comunicações - Presos</th>
+            <th>Comunicações - Servidores</th>
+            <th>Comunicações - Setores</th>
+            <th>Comunicações - Judiciais e Externas</th>
+            <th>Ordens de Missão - Grupos</th>
+            <th>Ordens de Missão - Unidades</th>
+            <th>Usuário</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        {% for data in object_list %}
+        <tr>
+            <td>{{ data.data|date:"d/m/Y" }}</td>
+            <td>{{ data.agendamentos_entradas }}</td>
+            <td>{{ data.comunicacoes_presos }}</td>
+            <td>{{ data.comunicacoes_servidores }}</td>
+            <td>{{ data.comunicacoes_setores }}</td>
+            <td>{{ data.comunicacoes_judiciais_externas }}</td>
+            <td>{{ data.om_grupos }}</td>
+            <td>{{ data.om_unidades }}</td>
+            <td>{{ data.usuario }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="8">Nenhum dado encontrado</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+<footer id="myFooter">
+    <div class="flex-container">
+        <img src="https://i.imgur.com/4t5U2gL.png" alt="Logo-seap" class="logo">
+    </div>
+</footer>
+
+</body>
+</html>

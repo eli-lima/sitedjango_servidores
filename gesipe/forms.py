@@ -1,5 +1,5 @@
 from django import forms
-from .models import Gesipe_adm
+from .models import Gesipe_adm, Gesipe_Sga
 from django.forms.widgets import DateInput
 
 
@@ -56,3 +56,39 @@ class GesipeAdmForm(forms.ModelForm):
             'os_grupos': 'Ordens de Serviço (Grupos)',
             'os_diversos': 'Ordens de Serviço (Diversos)',
         }
+
+
+class GesipeSgaForm(forms.ModelForm):
+    class Meta:
+        model = Gesipe_Sga
+        fields = [
+            'data', 'agendamentos_entradas', 'comunicacoes_presos', 'comunicacoes_servidores',
+            'comunicacoes_setores', 'comunicacoes_judiciais_externas', 'om_grupos',
+            'om_unidades'
+        ]
+        widgets = {
+            'data': forms.DateInput( attrs={
+                'class': 'form-control lg:text-base text-xl lg:text-base text-xl', 'placeholder': 'Selecione a data', 'type': 'date'}),
+            'agendamentos_entradas': forms.NumberInput(attrs={'class': 'form-control lg:text-base text-xl', 'placeholder': '0'}),
+            'comunicacoes_presos': forms.NumberInput(attrs={'class': 'form-control lg:text-base text-xl', 'placeholder': '0'}),
+            'comunicacoes_servidores': forms.NumberInput(attrs={'class': 'form-control lg:text-base text-xl', 'placeholder': '0'}),
+            'comunicacoes_setores': forms.NumberInput(attrs={'class': 'form-control lg:text-base text-xl', 'placeholder': '0'}),
+            'comunicacoes_judiciais_externas': forms.NumberInput(attrs={'class': 'form-control lg:text-base text-xl', 'placeholder': '0'}),
+            'om_grupos': forms.NumberInput(attrs={'class': 'form-control lg:text-base text-xl', 'placeholder': '0'}),
+            'om_unidades': forms.NumberInput(attrs={'class': 'form-control lg:text-base text-xl', 'placeholder': '0'}),
+
+        }
+
+        # Adicionando labels personalizados
+        labels = {
+            'data': 'Data',
+            'agendamentos_entradas': 'Agendamentos Entradas',
+            'comunicacoes_presos': 'Comunicações - Presos',
+            'comunicacoes_servidores': 'Comunicações - Servidores',
+            'comunicacoes_setores': 'Comunicações - Setores',
+            'comunicacoes_judiciais_externas': 'Comunicações - Judiciais e Externas',
+            'om_grupos': 'Ordens de Missão - Grupos',
+            'om_unidades': 'Ordens de Missão - Unidades',
+
+        }
+
