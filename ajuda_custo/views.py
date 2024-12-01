@@ -72,6 +72,7 @@ def upload_excel_rx2(request):
 
     return render(request, 'upload_excel_rx2.html', {'form': form})
 
+
 def status_task(request, task_id):
     task = AsyncResult(task_id)
 
