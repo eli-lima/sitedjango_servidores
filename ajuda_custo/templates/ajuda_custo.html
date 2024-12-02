@@ -226,7 +226,7 @@ Ajuda de Custo
     <!-- Relatorio Rx2 -->
     <div class="h-auto w-[450px] xl:h-auto xl:w-auto flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
         <div class="mb-8">
-          <h3 class="xl:text-2xl text-4xl font-semibold ">Relatorio Rx2</h3>
+          <h3 class="xl:text-2xl text-4xl font-semibold ">Relatorio Rx2 e Outras Ferramentas</h3>
           <p class="mt-4 text-gray-600">Introduza relatorio Do Sistema RX-2</p>
         </div>
         <div class="mb-8">
@@ -250,7 +250,8 @@ Ajuda de Custo
 
 <!--tela Usuario Padrao-->
 
-{% if 'Padrao' in user_groups %}
+
+{% if 'Padrao' in user_groups or 'ServGesipe' or 'GerRh' in user_groups %}
 
 <div class="pt-36 xl:pt-24 xl:px-4 xl:mx-4 mx-3 grid grid-cols-1 gap-8 xl:grid-cols-4 mb-4">
 
