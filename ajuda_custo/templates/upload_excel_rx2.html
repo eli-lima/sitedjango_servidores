@@ -10,7 +10,7 @@ Ajuda de Custo
 <div class="flex flex-col items-center pt-36">
     <div class="pb-32 text-4xl font-bold">
         <h3>
-            Carregar Relatorio RX-2
+            Ferramentas e Utilitarios
         </h3>
     </div>
 
@@ -18,12 +18,60 @@ Ajuda de Custo
 
 
 
-    <form class="flex items-center" method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button class="btn btn-primary" type="submit">Upload</button>
-    </form>
 
+
+    <div class="flex flex-col w-full lg:flex-row space-x-4 pt-10 px-8 space-y-4">
+        <!-- Relatorio Rx2 -->
+        <div class="h-auto w-[450px] xl:h-auto xl:w-auto flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+            <div class="mb-8">
+              <h3 class="xl:text-2xl text-4xl font-semibold ">Relatorio Rx2</h3>
+              <p class="mt-4 text-gray-600">Introduza relatorio Do Sistema RX-2</p>
+            </div>
+            <div class="mb-8">
+              <span class="text-xl font-medium text-gray-600"></span>
+              <span class="text-3xl font-extrabold "></span>
+
+            </div>
+
+            <form class="flex items-center" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button class="btn btn-primary" type="submit">Upload</button>
+            </form>
+        </div>
+        <!-- Verificacao Carga horaria -->
+        <div class="h-auto w-[450px] xl:h-auto xl:w-auto flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+            <div class="mb-8">
+              <h3 class="xl:text-2xl text-4xl font-semibold ">Verificação Carga horária</h3>
+              <p class="mt-4 text-gray-600">Verificar se Carga Horária de Servidores Utrapassa 192 Horas</p>
+            </div>
+            <div class="mb-8">
+              <span class="text-xl font-medium text-gray-600"></span>
+              <span class="text-3xl font-extrabold "></span>
+
+            </div>
+
+            <a href="{% url 'ajuda_custo:verificar_carga_horaria' %}" class="block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md  font-medium bg-gray-600">
+              Verificar:
+            </a>
+        </div>
+        <!-- relacao faltante -->
+        <div class="h-auto w-[450px] xl:h-auto xl:w-auto flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+            <div class="mb-8">
+              <h3 class="xl:text-2xl text-4xl font-semibold ">Relátorio de Conferencia</h3>
+              <p class="mt-4 text-gray-600">Verificação Nominal de Lista Com Servidores</p>
+            </div>
+            <div class="mb-8">
+              <span class="text-xl font-medium text-gray-600"></span>
+              <span class="text-3xl font-extrabold "></span>
+
+            </div>
+
+            <a href="{% url 'ajuda_custo:upload_excel_rx2' %}" class="block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md  font-medium bg-gray-600">
+              Abrir Tabela:
+            </a>
+        </div>
+    </div>
 
 </div>
 

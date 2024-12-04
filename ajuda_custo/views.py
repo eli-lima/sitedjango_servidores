@@ -1057,8 +1057,134 @@ class HorasLimite(LoginRequiredMixin, UserPassesTestMixin, FormView ):
         context['query'] = query
         return context
 
+
 def excluir_limite(request, pk):
     limite = get_object_or_404(LimiteAjudaCusto, pk=pk)
     limite.delete()
     messages.success(request, 'Limite de horas excluído com sucesso!')
     return redirect('ajuda_custo:horas_limite')
+
+
+class VerificarCargaHoraria(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    model = Ajuda_Custo
+    template_name = "verificar_carga_horaria.html"
+    context_object_name = "dados"
+    paginate_by = 50  # Paginação
+
+    def test_func(self):
+        user = self.request.user
+        grupos_permitidos = ["Administrador", "GerGesipe"]
+        return user.groups.filter(name__in=grupos_permitidos).exists()
+
+    def handle_no_permission(self):
+        messages.error(self.request, "Você não tem permissão para acessar esta página.")
+        return render(self.request, "403.html", status=403)
+
+    def get_queryset(self):
+        # Obter o mês, ano e termo de busca
+        mes = self.request.GET.get("mes")
+        ano = self.request.GET.get("ano")
+        query = self.request.GET.get("query", "").strip()  # Remover espaços extras
+
+        # Filtro inicial: por mês e ano
+        queryset = Ajuda_Custo.objects.all()
+
+        if mes and ano:
+            queryset = queryset.filter(data__year=ano, data__month=mes)
+
+        # Filtro adicional: por nome
+        if query:
+            queryset = queryset.filter(nome__icontains=query)
+
+        # Ordenar explicitamente por nome ou outro campo relevante
+        return queryset.order_by("nome")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Obter parâmetros do filtro
+        mes = self.request.GET.get("mes")
+        ano = self.request.GET.get("ano")
+        query = self.request.GET.get("query", "").strip()
+
+        today = now().date()
+
+        if not mes:
+            mes = today.month
+        if not ano:
+            ano = today.year
+
+        # Dados agregados por servidor
+        dados_ajuda_custo = (
+            Ajuda_Custo.objects.filter(data__year=ano, data__month=mes)
+            .values("matricula", "nome")
+            .annotate(
+                total_horas=Sum(
+                    Case(
+                        When(carga_horaria="12 horas", then=12),
+                        When(carga_horaria="24 horas", then=24),
+                        default=0,
+                        output_field=IntegerField(),
+                    )
+                )
+            )
+        )
+
+        # Filtro por nome (query)
+        if query:
+            dados_ajuda_custo = dados_ajuda_custo.filter(nome__icontains=query)
+
+        # Lógica de limites, erros e ordenação (como antes)
+        dados_com_limites = []
+        total_erros = 0
+        for ajuda in dados_ajuda_custo:
+            matricula = ajuda["matricula"]
+            limite = (
+                LimiteAjudaCusto.objects.filter(servidor__matricula=matricula)
+                .values("limite_horas")
+                .first()
+            )
+            ajuda["limite_horas"] = limite["limite_horas"] if limite else None
+
+            # Determinar se há erro
+            erro = False
+            if ajuda["total_horas"] > 192 or (
+                    ajuda["limite_horas"] is not None
+                    and ajuda["total_horas"] > ajuda["limite_horas"]
+            ):
+                erro = True
+                total_erros += 1
+            ajuda["erro"] = erro
+
+            # Adicionar prioridade de ordenação
+            if ajuda["total_horas"] > 192:
+                prioridade = 1
+            elif ajuda["limite_horas"] is not None:
+                prioridade = 2
+            else:
+                prioridade = 3
+
+            ajuda["prioridade"] = prioridade
+            dados_com_limites.append(ajuda)
+
+        # Ordenar por prioridade e erro
+        dados_com_limites.sort(key=lambda x: (x["prioridade"], not x["erro"]))
+
+        # Mapeamento de meses
+        meses_nomes = {
+            1: "Janeiro", 2: "Fevereiro", 3: "Março", 4: "Abril", 5: "Maio",
+            6: "Junho", 7: "Julho", 8: "Agosto", 9: "Setembro", 10: "Outubro",
+            11: "Novembro", 12: "Dezembro"
+        }
+
+        context["dados"] = dados_com_limites
+        context["mes"] = int(mes)
+        context["ano"] = int(ano)
+        context["query"] = query  # Adicionar o termo de busca ao contexto
+        context["meses"] = [(num, nome) for num, nome in meses_nomes.items()]
+        context["anos"] = range(today.year - 5, today.year + 1)  # Últimos 5 anos
+        context["mes_atual_nome"] = meses_nomes[int(mes)]
+        context["total_erros"] = total_erros
+
+        return context
+
