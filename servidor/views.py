@@ -21,6 +21,7 @@ from celery.result import AsyncResult
 
 #deletar documentos
 
+
 def documento_delete(request, documento_id):
     documento = get_object_or_404(Documento, id=documento_id)
 
@@ -85,6 +86,7 @@ def export_to_pdf(request):
         print(f"Error in export_to_pdf view: {e}")
         return HttpResponse('Erro ao gerar PDF', status=500)
 
+
 def pdf_wait(request):
     task_id = request.GET.get('task_id')
     print(f"Página de espera carregada com task_id: {task_id}")
@@ -106,6 +108,7 @@ def check_task_status(request):
     else:
         print(f"Status da tarefa: {task.state}")
         return JsonResponse({'status': task.state})
+
 
 class RecursosHumanosPage(LoginRequiredMixin, ListView):
     model = Servidor
@@ -230,7 +233,6 @@ class CriarServidorView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     def form_invalid(self, form):
         messages.error(self.request, 'Erro no Cadastro, Confira os Dados e Tente Novamente.')
         return self.render_to_response(self.get_context_data(form=form))
-
 
 
 class ServidorEdit(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
