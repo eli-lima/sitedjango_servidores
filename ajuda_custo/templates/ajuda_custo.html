@@ -10,7 +10,7 @@ Ajuda de Custo
 <!--tela administrador-->
 {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups %}
 
-<div class="flex px-4 flex-col xl:pt-16 pt-36">
+<div class="flex px-4 flex-col">
     <div class="mb-0">
       <form method="GET" class="flex space-x-4 items-center">
         <!-- Campo para selecionar o mês -->
@@ -253,7 +253,7 @@ Ajuda de Custo
 
 {% if 'Padrao' in user_groups or 'ServGesipe' in user_groups or 'GerRh' in user_groups %}
 
-<div class="pt-36 xl:pt-24 xl:px-4 xl:mx-4 mx-3 grid grid-cols-1 gap-8 xl:grid-cols-4 mb-4">
+<div class="xl:px-4 xl:mx-4 mx-3 grid grid-cols-1 gap-8 xl:grid-cols-4 mb-4">
 
    <!-- adicionar ajuda de Custo -->
     <div class="rounded-lg shadow-lg h-72 p-6 transform hover:scale-105 transition duration-300 flex flex-col">

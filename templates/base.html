@@ -81,8 +81,10 @@
 
     {% endif %}
 
-     {% if messages %}
-    <div class="relative top-20 right-4 flex flex-col items-end space-y-2">
+    <!--    configurar mensagens-->
+
+    {% if messages %}
+    <div class="pt-2 flex flex-col items-end space-y-2">
         {% for message in messages %}
              {% if message.tags == 'error' %}
                 <div class="font-semibold alert alert-danger">
@@ -100,7 +102,7 @@
     {% endblock %}
 
 
-<!--    configurar mensagens-->
+
 
 
 
