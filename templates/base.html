@@ -81,8 +81,8 @@
 
     {% endif %}
 
-    {% if messages %}
-    <div class="fixed top-20 right-4 z-50 flex flex-col items-end space-y-2">
+     {% if messages %}
+    <div class="relative top-20 right-4 flex flex-col items-end space-y-2">
         {% for message in messages %}
              {% if message.tags == 'error' %}
                 <div class="font-semibold alert alert-danger">
