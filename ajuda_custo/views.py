@@ -1000,14 +1000,20 @@ class HorasLimite(LoginRequiredMixin, UserPassesTestMixin, FormView):
         if 'servidor' in request.POST:
             form = LimiteAjudaCustoForm(request.POST)
             if form.is_valid():
+                print("Formulário LimiteAjudaCustoForm é válido")
                 return self.form_individual_valid(form)
             else:
+                print("Formulário LimiteAjudaCustoForm não é válido")
+                print("Erros do Formulário LimiteAjudaCustoForm:", form.errors)
                 return self.form_invalid(form)
         else:
             form = CotaAjudaCustoForm(request.POST)
             if form.is_valid():
+                print("Formulário CotaAjudaCustoForm é válido")
                 return self.form_gerencia_valid(form)
             else:
+                print("Formulário CotaAjudaCustoForm não é válido")
+                print("Erros do Formulário CotaAjudaCustoForm:", form.errors)
                 return self.form_invalid(form)
 
     def form_individual_valid(self, form):
