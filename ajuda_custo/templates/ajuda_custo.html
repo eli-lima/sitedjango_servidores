@@ -8,59 +8,42 @@ Ajuda de Custo
 {% block content %}
 
 <!--tela administrador-->
-{% if 'Administrador' in user_groups or 'GerGesipe' in user_groups or 'Gerente' in user_groups %}
+{% if 'Administrador' in user_groups or 'GerGesipe' in user_groups %}
 
-<div class="flex flex-col">
-    <div class="w-auto justify-center flex xl:flex-row flex-col">
-
-        <div class="mx-4 mt-6 py-3 bg-gray-600 text-white w-1/4 self-center items-center shadow-xl rounded-2xl">
-            <div class="flex justify-center items-center h-full px-4">
-                <h3 class="font-bold xl:text-xl text-lg">
-
-                    {% if unidade_gerente %}
-                        Gerente - {{ unidade_gerente }}
-                    {% else %}
-                        Gesipe
-                    {% endif %}
-                </h3>
-
-            </div>
-        </div>
-        <div class="mx-4 py-4 flex justify-around">
-
-          <form method="GET" class="flex space-x-4 items-center">
-            <!-- Campo para selecionar o mês -->
-            <div class="flex flex-col w-56 xl:w-auto mr-4">
-              <label for="mes" class="xl:text-base text-xl font-semibold text-gray-700">Selecione o Mês</label>
-              <select id="mes" name="mes" class="xl:text-base text-xl mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                {% for numero, nome in meses.items %}
-                  <option class="" value="{{ numero }}" {% if mes_selecionado == numero %}selected{% endif %}>{{ nome }}</option>
-                {% endfor %}
-              </select>
-            </div>
-
-            <!-- Campo para selecionar o ano -->
-            <div class="flex flex-col w-56 xl:w-auto mr-4">
-              <label for="ano" class="xl:text-base text-xl font-semibold text-gray-700">Selecione o Ano</label>
-              <select id="ano" name="ano" class="xl:text-base text-xl mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                {% for ano in anos %}
-                  <option value="{{ ano }}" {% if ano_selecionado == ano %}selected{% endif %}>{{ ano }}</option>
-                {% endfor %}
-              </select>
-            </div>
-
-            <!-- Botão de submissão -->
-            <div class="flex flex-col justify-end">
-              <button type="submit" class="mt-4 px-4 py-2 bg-blue-500 text-white xl:text-base text-xl font-semibold rounded-md hover:bg-blue-700">Filtrar</button>
-            </div>
-          </form>
-
-
+<div class="flex px-4 flex-col">
+    <div class="mb-0">
+      <form method="GET" class="flex space-x-4 items-center">
+        <!-- Campo para selecionar o mês -->
+        <div class="flex flex-col w-56 xl:w-auto mr-4">
+          <label for="mes" class="xl:text-base text-xl font-semibold text-gray-700">Selecione o Mês</label>
+          <select id="mes" name="mes" class="xl:text-base text-xl mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+            {% for numero, nome in meses.items %}
+              <option class="" value="{{ numero }}" {% if mes_selecionado == numero %}selected{% endif %}>{{ nome }}</option>
+            {% endfor %}
+          </select>
         </div>
 
+        <!-- Campo para selecionar o ano -->
+        <div class="flex flex-col w-56 xl:w-auto mr-4">
+          <label for="ano" class="xl:text-base text-xl font-semibold text-gray-700">Selecione o Ano</label>
+          <select id="ano" name="ano" class="xl:text-base text-xl mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+            {% for ano in anos %}
+              <option value="{{ ano }}" {% if ano_selecionado == ano %}selected{% endif %}>{{ ano }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Botão de submissão -->
+        <div class="flex flex-col justify-end">
+          <button type="submit" class="mt-4 px-4 py-2 bg-blue-500 text-white xl:text-base text-xl font-semibold rounded-md hover:bg-blue-700">Filtrar</button>
+        </div>
+      </form>
     </div>
 
+
+
 </div>
+
 
 
 <div class="flex flex-col">
@@ -187,10 +170,7 @@ Ajuda de Custo
 
 </div>
 
-{% endif %}
 
-
-{% if 'Administrador' in user_groups or 'GerGesipe' in user_groups %}
 
 <div class="xl:pt-4 pt-4 pb-4 grid gap-x-6 gap-y-6 grid-cols-2 xl:grid-cols-4 justify-items-center px-4">
 
@@ -233,7 +213,7 @@ Ajuda de Custo
     <!-- Limite de horas -->
     <div class="h-auto w-[450px] xl:h-auto xl:w-auto flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
         <div class="mb-8">
-          <h3 class="xl:text-2xl text-4xl font-semibold ">Carga Horaria Servidor</h3>
+          <h3 class="xl:text-2xl text-4xl font-semibold ">Limites Horas Servidor</h3>
           <p class="mt-4 text-gray-600">Estipular a Carga Horaria Mensal de Servidor</p>
         </div>
 
@@ -271,7 +251,7 @@ Ajuda de Custo
 <!--tela Usuario Padrao-->
 
 
-{% if 'Padrao' in user_groups or 'ServRh' in user_groups or 'ServGesipe' in user_groups %}
+{% if 'Padrao' in user_groups or 'ServGesipe' in user_groups or 'GerRh' in user_groups %}
 
 <div class="xl:px-4 xl:mx-4 mx-3 grid grid-cols-1 gap-8 xl:grid-cols-4 mb-4">
 
@@ -290,61 +270,17 @@ Ajuda de Custo
 
 
 
-
 </div>
 
 
 {% endif %}
-
-<!--tela Usuario Padrao-->
-
-
-{% if 'Gerente' in user_groups %}
-
-<div class="pt-4 xl:px-4 xl:mx-4 mx-3 grid grid-cols-1 gap-8 xl:grid-cols-4 mb-4">
-
-    <!-- adicionar ajuda de Custo -->
-    <div class="h-auto w-[450px] xl:h-auto xl:w-auto flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
-        <div class="mb-8">
-          <h3 class="xl:text-2xl text-4xl font-semibold ">Ajuda De Custo Operacional</h3>
-          <p class="mt-4 text-gray-600">Marque suas datas individuais aqui. </p>
-        </div>
-        <div class="mb-8">
-          <span class="text-xl font-medium text-gray-600"></span>
-          <span class="text-3xl font-extrabold "></span>
-
-        </div>
-
-        <a href="{% url 'ajuda_custo:adicionar' %}" class="block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md  font-medium bg-gray-600">
-          Adicionar Datas:
-        </a>
-    </div>
-
-    <!-- Limite de horas -->
-    <div class="h-auto w-[450px] xl:h-auto xl:w-auto flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
-        <div class="mb-8">
-          <h3 class="xl:text-2xl text-4xl font-semibold ">Carga Horaria Servidor</h3>
-          <p class="mt-4 text-gray-600">Estipular a Carga Horaria Mensal de Servidor</p>
-        </div>
-
-
-        <a href="{% url 'ajuda_custo:cargahoraria_gerente' %}" class="block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md  font-medium bg-gray-600">
-          Adicionar Informaçoes:
-        </a>
-    </div>
-
-</div>
-
-
-{% endif %}
-
 
 
 
 
 <!--tabela com ajuda de custo-->
 
-<div class="mb-12 flex px-4 xl:px-12 justify-start w-full pt-4">
+<div class="mb-12 flex px-4 xl:px-12 justify-start w-full">
     <div class="bg-white shadow-lg rounded-lg w-full">
         <div class="p-6 rounded-t-lg">
             <div>
@@ -468,13 +404,13 @@ Ajuda de Custo
 <script>
     // Dados do gráfico de barra para Ajuda de Custo
     var ctx = document.getElementById('chart-bar-ajuda-custo').getContext('2d');
-    var barLabels = {{ labels_mensais|safe }};  // Labels dos meses com ano
+    var barLabels = {{ labels_mensais|safe }};  // Labels dos meses
     var barValues = {{ values_mensais|safe }};  // Quantidade mensal de Ajuda de Custo
 
     var myBarChart = new Chart(ctx, {
         type: 'bar', // Tipo de gráfico: barra
         data: {
-            labels: barLabels, // Nomes dos meses (Janeiro 2024, Fevereiro 2024, etc.)
+            labels: barLabels, // Nomes dos meses (Janeiro, Fevereiro, etc.)
             datasets: [{
                 label: 'Total de Ajuda de Custo',
                 data: barValues, // Valores mensais calculados no backend
@@ -500,26 +436,7 @@ Ajuda de Custo
             }
         }
     });
-
-    // Adicione um evento para atualizar o gráfico com base no filtro aplicado
-    document.getElementById('filtro-form').addEventListener('submit', function(event) {
-        event.preventDefault(); // Previne o envio do formulário
-        var selectedYear = document.getElementById('ano-selecionado').value;
-        var selectedMonth = document.getElementById('mes-selecionado').value;
-
-        // Atualize os valores das labels e dados do gráfico
-        // Assumindo que você faça uma requisição AJAX para buscar os novos dados
-        fetch(`/api/get-bar-data?year=${selectedYear}&month=${selectedMonth}`)
-            .then(response => response.json())
-            .then(data => {
-                myBarChart.data.labels = data.labels_mensais;
-                myBarChart.data.datasets[0].data = data.values_mensais;
-                myBarChart.update();
-            });
-    });
 </script>
-
-
 
 
 <!--grafico Pizza majorado x normal-->

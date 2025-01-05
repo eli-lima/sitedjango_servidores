@@ -2,11 +2,6 @@
 <html>
 <head>
     <title>Confirmação de Datas Marcadas</title>
-    <style>
-        .error-message {
-            color: red;
-        }
-    </style>
 </head>
 <body>
     <h1>Confirmação de Datas Marcadas</h1>
@@ -30,14 +25,6 @@
             {% endfor %}
         </tbody>
     </table>
-    {% if error_messages %}
-    <h2 class="error-message">Erros ao Marcar Datas</h2>
-    <ul>
-        {% for error in error_messages %}
-        <li class="error-message">{{ error }}</li>
-        {% endfor %}
-    </ul>
-    {% endif %}
     <p>Atenciosamente,</p>
     <p>Gesipe - Secretaria de Administraçao Penitenciária da Paraíba</p>
 </body>
