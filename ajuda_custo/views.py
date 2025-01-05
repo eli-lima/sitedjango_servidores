@@ -38,9 +38,7 @@ from seappb.models import Unidade
 from .utils import (get_intervalo_mes, calcular_horas_por_unidade, get_limites_horas_por_unidade, \
         calcular_horas_a_adicionar_por_unidade, verificar_limites, get_servidor, get_registros_mes,
                     build_context)
-import logging
 
-logger = logging.getLogger(__name__)
 
 
 
@@ -450,8 +448,6 @@ def excel_detalhado(request):
 
 
 
-
-
 class AjudaCusto(LoginRequiredMixin, ListView):
     model = Ajuda_Custo
     template_name = "ajuda_custo.html"
@@ -460,48 +456,56 @@ class AjudaCusto(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         user = self.request.user
+        print("Usuário:", user)
 
         # Verificação dos grupos de usuário
-        try:
-            if user.groups.filter(name__in=['Administrador', 'GerGesipe']).exists():
-                # Acesso completo para Administradores e GerGesipe
-                queryset = Ajuda_Custo.objects.all().order_by('id')
-            elif user.groups.filter(name='Gerente').exists():
-                # Acesso limitado à unidade do gestor
+        if user.groups.filter(name__in=['Administrador', 'GerGesipe']).exists():
+            # Acesso completo para Administradores e GerGesipe
+            queryset = Ajuda_Custo.objects.all()
+            print("Usuário é Administrador ou GerGesipe")
+        elif user.groups.filter(name='Gerente').exists():
+            # Acesso limitado à unidade do gestor
+            try:
                 unidade_gestor = user.cotaajudacusto_set.first().unidade
-                if unidade_gestor:
-                    queryset = Ajuda_Custo.objects.filter(unidade=unidade_gestor)
-                else:
-                    queryset = Ajuda_Custo.objects.none()
-            else:
-                # Acesso limitado ao próprio usuário
-                queryset = Ajuda_Custo.objects.filter(matricula=user.matricula)
+                print("Unidade do gestor:", unidade_gestor)
+                queryset = Ajuda_Custo.objects.filter(unidade=unidade_gestor)
+            except AttributeError:
+                # Caso o gestor não tenha uma unidade atribuída
+                print("Gestor não tem unidade atribuída")
+                queryset = Ajuda_Custo.objects.none()
+        else:
+            # Acesso limitado ao próprio usuário
+            print("Usuário tem acesso limitado à própria matrícula")
+            queryset = Ajuda_Custo.objects.filter(matricula=user.matricula)
 
-            # Captura os valores de ano e mês do formulário de filtro
-            ano_selecionado = self.request.GET.get('ano', timezone.now().year)
-            mes_selecionado = self.request.GET.get('mes', timezone.now().month)
+        # Captura os valores de ano e mês do formulário de filtro
+        ano_selecionado = self.request.GET.get('ano', timezone.now().year)
+        mes_selecionado = self.request.GET.get('mes', timezone.now().month)
+        print("Ano selecionado:", ano_selecionado)
+        print("Mês selecionado:", mes_selecionado)
 
-            # Certifique-se de converter para int
-            ano_selecionado = int(ano_selecionado)
-            mes_selecionado = int(mes_selecionado)
+        # Certifique-se de converter para int
+        ano_selecionado = int(ano_selecionado)
+        mes_selecionado = int(mes_selecionado)
 
-            # Filtrar por ano e mês
-            queryset = queryset.filter(data__year=ano_selecionado, data__month=mes_selecionado)
+        # Filtrar por ano e mês
+        queryset = queryset.filter(data__year=ano_selecionado, data__month=mes_selecionado)
+        print("QuerySet após filtro de ano e mês:", queryset)
 
-            # Filtrar por data (mês atual)
-            today = now().date()
-            first_day_of_month = today.replace(day=1)
-            last_day_of_month = (first_day_of_month + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+        # Filtrar por data (mês atual)
+        today = now().date()
+        first_day_of_month = today.replace(day=1)
+        last_day_of_month = (first_day_of_month + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+        print("Primeiro dia do mês:", first_day_of_month)
+        print("Último dia do mês:", last_day_of_month)
 
-            # Aplicar filtro de data
-            data_inicial = first_day_of_month
-            data_final = last_day_of_month
-            queryset = queryset.filter(data__range=[data_inicial, data_final])
+        # Aplicar filtro de data
+        data_inicial = first_day_of_month
+        data_final = last_day_of_month
+        queryset = queryset.filter(data__range=[data_inicial, data_final])
+        print("QuerySet após filtro de data:", queryset)
 
-            return queryset.order_by('nome')
-        except Exception as e:
-            logger.error(f"Erro ao gerar o queryset: {e}")
-            return Ajuda_Custo.objects.none()
+        return queryset.order_by('nome')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -537,6 +541,7 @@ class AjudaCusto(LoginRequiredMixin, ListView):
         # Captura os valores de ano e mês enviados pelo formulário de filtro
         ano_selecionado = self.request.GET.get('ano', timezone.now().year)
         mes_selecionado = self.request.GET.get('mes', timezone.now().month)
+        print("Ano e mês selecionados no contexto:", ano_selecionado, mes_selecionado)
 
         # Certifique-se de converter para `int` para usá-los em consultas e lógica
         ano_selecionado = int(ano_selecionado)
