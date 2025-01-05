@@ -6,7 +6,7 @@ from servidor.models import Servidor
 import locale
 from django.utils.translation import gettext as _
 
-locale.setlocale(locale.LC_TIME, 'pt_BR.UTF-8')
+
 
 
 def get_servidor(request):
