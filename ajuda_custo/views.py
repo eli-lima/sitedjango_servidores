@@ -932,8 +932,6 @@ class AdminCadastrar(LoginRequiredMixin, UserPassesTestMixin, FormView):
         return super().form_invalid(form)
 
 
-
-
 class HorasLimite(LoginRequiredMixin, UserPassesTestMixin, FormView):
     template_name = 'horas_limite.html'
     success_url = reverse_lazy('ajuda_custo:horas_limite')
