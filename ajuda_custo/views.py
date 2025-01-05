@@ -460,7 +460,7 @@ class AjudaCusto(LoginRequiredMixin, ListView):
         # Verificação dos grupos de usuário
         if user.groups.filter(name__in=['Administrador', 'GerGesipe']).exists():
             # Acesso completo para Administradores e GerGesipe
-            queryset = Ajuda_Custo.objects.all()
+            queryset = Ajuda_Custo.objects.all().order_by('id')
         elif user.groups.filter(name='Gerente').exists():
             # Acesso limitado à unidade do gestor
             try:
