@@ -188,7 +188,9 @@ class CotaAjudaCustoForm(forms.ModelForm):
             'cota_ajudacusto': 'Cota de Ajuda de Custo (em dias)',
         }
 
+
 #carregar relatorio rx2
+
 
 class UploadExcelRx2Form(forms.Form):
     file = forms.FileField(label='Selecione o arquivo Excel')
