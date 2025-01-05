@@ -972,15 +972,10 @@ class HorasLimite(LoginRequiredMixin, UserPassesTestMixin, FormView):
         page_obj_cargas = paginator_cargas.get_page(page_number_cargas)
 
         # Paginação para CotaAjudaCusto (aba Gerências)
-        filtros_cota = Q()
-        if query:
-            filtros_cota &= Q(gestor__username__icontains=query) | Q(gestor__first_name__icontains=query) | Q(
-                gestor__last_name__icontains=query)
-        if unidade:
-            filtros_cota &= Q(unidade__nome=unidade)
 
-        cotas = CotaAjudaCusto.objects.filter(filtros_cota)
-        paginator_cotas = Paginator(cotas, 10)
+
+        cotas = CotaAjudaCusto.objects.all().order_by('unidade')
+        paginator_cotas = Paginator(cotas, 100)
         page_number_cotas = self.request.GET.get('page_cotas')
         page_obj_cotas = paginator_cotas.get_page(page_number_cotas)
 

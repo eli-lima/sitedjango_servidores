@@ -228,18 +228,7 @@ Ajuda De Custo Horas Limite
       <!-- tabela com cotas de ajuda de custo -->
       <div class="mb-12 pt-4 flex flex-col xl:px-20 px-4 justify-start w-full">
         <div class="bg-white shadow-lg rounded-lg w-full">
-          <form method="GET" class="flex justify-end mb-4">
-            <div class="flex items-center space-x-4 pt-4 pr-4">
-              <select class="form-control" name="unidade">
-                <option value="">Unidade...</option>
-                {% for unidade in unidades %}
-                <option value="{{ unidade }}" {% if request.GET.unidade == unidade %}selected{% endif %}>{{ unidade }}</option>
-                {% endfor %}
-              </select>
-              <input type="text" name="query" class="form-control w-72 form-control mr-2" placeholder="Pesquisar por gestor..." value="{{ query }}">
-              <button type="submit" class="btn btn-primary">Pesquisar</button>
-            </div>
-          </form>
+
           <table class="min-w-full bg-white divide-y divide-gray-200">
             <thead class="bg-gray-100">
               <tr>
