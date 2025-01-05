@@ -1036,18 +1036,25 @@ class HorasLimite(LoginRequiredMixin, UserPassesTestMixin, FormView):
         return redirect(self.success_url)
 
     def form_gerencia_valid(self, form):
-        gestor = form.cleaned_data['gestor']
-        unidade = form.cleaned_data['unidade']
-        cota_ajudacusto = form.cleaned_data['cota_ajudacusto']
+        try:
+            gestor = form.cleaned_data['gestor']
+            unidade = form.cleaned_data['unidade']
+            cota_ajudacusto = form.cleaned_data['cota_ajudacusto']
 
-        CotaAjudaCusto.objects.update_or_create(
-            gestor=gestor,
-            unidade=unidade,
-            defaults={'cota_ajudacusto': cota_ajudacusto}
-        )
+            print(f"Gestor: {gestor}, Unidade: {unidade}, Cota: {cota_ajudacusto}")
 
-        messages.success(self.request, 'Cota de ajuda de custo atualizada com sucesso!')
-        return redirect(self.success_url)
+            CotaAjudaCusto.objects.update_or_create(
+                gestor=gestor,
+                unidade=unidade,
+                defaults={'cota_ajudacusto': cota_ajudacusto}
+            )
+
+            messages.success(self.request, 'Cota de ajuda de custo atualizada com sucesso!')
+            return redirect(self.success_url)
+        except Exception as e:
+            print(f"Erro ao atualizar/ajudar CotaAjudaCusto: {e}")
+            messages.error(self.request, f"Erro ao atualizar/ajudar CotaAjudaCusto: {e}")
+            return self.form_invalid(form)
 
 
 class CargaHorariaGerente(LoginRequiredMixin, UserPassesTestMixin, FormView):
