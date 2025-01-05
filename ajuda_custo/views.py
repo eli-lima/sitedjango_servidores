@@ -932,6 +932,16 @@ class AdminCadastrar(LoginRequiredMixin, UserPassesTestMixin, FormView):
         return super().form_invalid(form)
 
 
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.core.paginator import Paginator
+from django.shortcuts import render, redirect
+from django.urls import reverse_lazy
+from django.views.generic.edit import FormView
+from django.contrib import messages
+from django.db.models import Q
+from .forms import LimiteAjudaCustoForm, CotaAjudaCustoForm
+from .models import LimiteAjudaCusto, CotaAjudaCusto, Unidade
+
 class HorasLimite(LoginRequiredMixin, UserPassesTestMixin, FormView):
     template_name = 'horas_limite.html'
     success_url = reverse_lazy('ajuda_custo:horas_limite')
@@ -966,23 +976,26 @@ class HorasLimite(LoginRequiredMixin, UserPassesTestMixin, FormView):
         if unidade:
             filtros_cargas &= Q(unidade__nome=unidade)
 
-        cargas = LimiteAjudaCusto.objects.filter(filtros_cargas)
+        cargas = LimiteAjudaCusto.objects.filter(filtros_cargas).order_by('id')
         paginator_cargas = Paginator(cargas, 10)
         page_number_cargas = self.request.GET.get('page_cargas')
         page_obj_cargas = paginator_cargas.get_page(page_number_cargas)
 
+        print("Page Obj Cargas:", page_obj_cargas)
+
         # Paginação para CotaAjudaCusto (aba Gerências)
         filtros_cota = Q()
         if query:
-            filtros_cota &= Q(gestor__username__icontains=query) | Q(gestor__first_name__icontains=query) | Q(
-                gestor__last_name__icontains=query)
+            filtros_cota &= Q(gestor__username__icontains=query) | Q(gestor__first_name__icontains=query) | Q(gestor__last_name__icontains=query)
         if unidade:
             filtros_cota &= Q(unidade__nome=unidade)
 
-        cotas = CotaAjudaCusto.objects.filter(filtros_cota)
+        cotas = CotaAjudaCusto.objects.filter(filtros_cota).order_by('id')
         paginator_cotas = Paginator(cotas, 10)
         page_number_cotas = self.request.GET.get('page_cotas')
         page_obj_cotas = paginator_cotas.get_page(page_number_cotas)
+
+        print("Page Obj Cotas:", page_obj_cotas)
 
         # Adiciona os dados ao contexto
         context.update({
