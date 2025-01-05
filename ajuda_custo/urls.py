@@ -9,8 +9,6 @@ from .views import AjudaCusto, AjudaCustoAdicionar, RelatorioAjudaCusto, exporta
 from .htmx_views import ajuda_custo_list
 
 
-
-
 app_name = 'ajuda_custo'
 
 urlpatterns = [

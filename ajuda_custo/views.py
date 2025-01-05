@@ -932,16 +932,6 @@ class AdminCadastrar(LoginRequiredMixin, UserPassesTestMixin, FormView):
         return super().form_invalid(form)
 
 
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.core.paginator import Paginator
-from django.shortcuts import render, redirect
-from django.urls import reverse_lazy
-from django.views.generic.edit import FormView
-from django.contrib import messages
-from django.db.models import Q
-from .forms import LimiteAjudaCustoForm, CotaAjudaCustoForm
-from .models import LimiteAjudaCusto, CotaAjudaCusto, Unidade
-
 class HorasLimite(LoginRequiredMixin, UserPassesTestMixin, FormView):
     template_name = 'horas_limite.html'
     success_url = reverse_lazy('ajuda_custo:horas_limite')
@@ -949,7 +939,9 @@ class HorasLimite(LoginRequiredMixin, UserPassesTestMixin, FormView):
     def test_func(self):
         user = self.request.user
         grupos_permitidos = ['Administrador', 'GerGesipe']
-        return user.groups.filter(name__in=grupos_permitidos).exists()
+        has_permission = user.groups.filter(name__in=grupos_permitidos).exists()
+        print(f"Usuário: {user}, Grupos: {user.groups.all()}, Permissão: {has_permission}")
+        return has_permission
 
     def handle_no_permission(self):
         messages.error(self.request, "Você não tem permissão para acessar esta página.")
@@ -980,7 +972,6 @@ class HorasLimite(LoginRequiredMixin, UserPassesTestMixin, FormView):
         paginator_cargas = Paginator(cargas, 10)
         page_number_cargas = self.request.GET.get('page_cargas')
         page_obj_cargas = paginator_cargas.get_page(page_number_cargas)
-
         print("Page Obj Cargas:", page_obj_cargas)
 
         # Paginação para CotaAjudaCusto (aba Gerências)
@@ -994,7 +985,6 @@ class HorasLimite(LoginRequiredMixin, UserPassesTestMixin, FormView):
         paginator_cotas = Paginator(cotas, 10)
         page_number_cotas = self.request.GET.get('page_cotas')
         page_obj_cotas = paginator_cotas.get_page(page_number_cotas)
-
         print("Page Obj Cotas:", page_obj_cotas)
 
         # Adiciona os dados ao contexto
@@ -1062,6 +1052,7 @@ class HorasLimite(LoginRequiredMixin, UserPassesTestMixin, FormView):
         return redirect(self.success_url)
 
 
+
 class CargaHorariaGerente(LoginRequiredMixin, UserPassesTestMixin, FormView):
     model = LimiteAjudaCusto
     form_class = LimiteAjudaCustoForm
@@ -1072,7 +1063,7 @@ class CargaHorariaGerente(LoginRequiredMixin, UserPassesTestMixin, FormView):
     def test_func(self):
         user = self.request.user
         # Define os grupos permitidos
-        grupos_permitidos = ['Administrador', 'Gerente']
+        grupos_permitidos = ['Administrador', 'Gerente', 'GerGesipe']
         return user.groups.filter(name__in=grupos_permitidos).exists()
 
     def handle_no_permission(self):
