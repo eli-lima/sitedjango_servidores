@@ -469,6 +469,7 @@ class AjudaCusto(LoginRequiredMixin, ListView):
                 unidade_gestor = user.cotaajudacusto_set.first().unidade
                 print("Unidade do gestor:", unidade_gestor)
                 queryset = Ajuda_Custo.objects.filter(unidade=unidade_gestor)
+                print("QuerySet para Gerente:", queryset)
             except AttributeError:
                 # Caso o gestor não tenha uma unidade atribuída
                 print("Gestor não tem unidade atribuída")
@@ -515,6 +516,10 @@ class AjudaCusto(LoginRequiredMixin, ListView):
         paginator = page_obj.paginator
         page_range = paginator.page_range
 
+        print("Page Obj:", page_obj)
+        print("Paginator:", paginator)
+        print("Page Range:", page_range)
+
         # Lógica para limitar a exibição das páginas
         if page_obj.number > 3:
             start = page_obj.number - 2
@@ -527,6 +532,7 @@ class AjudaCusto(LoginRequiredMixin, ListView):
             end = paginator.num_pages
 
         context['page_range'] = range(start, end + 1)
+        print("Page Range Context:", context['page_range'])
 
         # Dicionário com os nomes dos meses
         meses = {
