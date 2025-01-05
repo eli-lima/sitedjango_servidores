@@ -7,384 +7,117 @@ Ajuda De Custo Horas Limite
 {% endblock %}
 
 {% block content %}
+<div class="mx-10 flex justify-center">
+    <div class="flex flex-col bg-white w-full rounded-3xl shadow-lg mb-4 mx-10 px-8">
+        <h1 class="text-center py-8 font-bold text-4xl">Preencha os Dados do Servidor:</h1>
+        <form id="mainForm" class="flex flex-col justify-center" method="POST">
+            {% csrf_token %}
 
+            <div class="flex flex-row justify-center pb-4 border-b-2 gap-x-8">
 
-<div class="flex flex-col">
-  <div class="text-center">
-    <h2 class="text-3xl font-bold text-gray-800 dark:text-white md:text-4xl xl:text-5xl">
-      Atribuir Carga Horária
-    </h2>
-    <p class="mx-auto mt-6 text-gray-700 dark:text-gray-300 md:w-3/4 lg:w-3/5">
-      Estipule a Carga Horária mensal de cada servidor individualmente e das Gerências.
-    </p>
+                <!-- menu servidor -->
+                <div class="">
+                    {{ form.servidor|as_crispy_field }}
+                </div>
 
-    <!-- Tabs -->
-    <div
-      role="tablist"
-      aria-label="tabs"
-      class="relative mx-24 mt-12 grid h-12 w-auto grid-cols-3 items-center gap-x-1 overflow-hidden rounded-full border border-gray-200 bg-gray-100 px-[3px] text-gray-600 dark:border-gray-700 dark:border-opacity-60 dark:bg-darker dark:text-gray-300 dark:shadow-none sm:w-max"
-    >
-      <div class="tab-indicator absolute h-10 rounded-full bg-white shadow-md transition-[left] duration-500 dark:bg-gray-800"></div>
-      <button
-        role="tab"
-        aria-selected="true"
-        aria-controls="panel-0"
-        tabindex="0"
-        title="tab item"
-        class="tab relative block rounded-full py-2.5 px-4 hover:text-primary dark:hover:text-primaryLight"
-      >
-        <span class="m-auto block w-max text-sm font-medium tracking-wider">Individual</span>
-      </button>
-      <button
-        role="tab"
-        aria-selected="false"
-        aria-controls="panel-1"
-        tabindex="-1"
-        title="tab item"
-        class="tab relative block rounded-full py-2.5 px-4 hover:text-primary dark:hover:text-primaryLight"
-      >
-        <span class="m-auto block w-max text-sm font-medium tracking-wider">Gerências</span>
-      </button>
-      <button
-        role="tab"
-        aria-selected="false"
-        aria-controls="panel-2"
-        tabindex="-1"
-        title="tab item"
-        class="tab relative block rounded-full py-2.5 px-4 hover:text-primary dark:hover:text-primaryLight"
-      >
-        <span class="m-auto block w-max text-sm font-medium tracking-wider">Resumo</span>
-      </button>
-    </div>
-  </div>
+                <!-- menu carga horaria -->
+                <div class="">
+                    {{ form.limite_horas|as_crispy_field }}
 
-  <div class="mt-8">
-    <!-- Painel Individual -->
-    <div
-      id="panel-0"
-      class="panel visible opacity-100 scale-100 transition-all duration-300"
-    >
-      <div class="my-4 xl:mx-24 mx-20 text-center">
-        <h3 class="xl:text-xl text-4xl font-semibold text-gray-800 dark:text-white">Carga Horária Individual</h3>
-      </div>
-
-      <form id="mainForm" class="flex flex-col" method="POST">
-        {% csrf_token %}
-
-
-        <div class="ml-4 flex flex-row justify-start space-x-4 items-end py-4 border-b-2 px-4">
-
-            <!-- menu servidor -->
-            <div class="text-3xl xl:text-lg">
-                {{ form.servidor|as_crispy_field }}
-            </div>
-
-            <!-- menu carga horaria -->
-            <div class="text-3xl xl:text-lg">
-                {{ form.limite_horas|as_crispy_field }}
-
-            </div>
-            <!-- menu unidade -->
-            <div class="text-3xl xl:text-lg">
-                {{ form.unidade|as_crispy_field }}
-
-            </div>
+                </div>
 <!--                    botao enviar-->
-            <div class="flex justify-center items-center py-3">
-                <button type="submit" class="btn btn-success text-2xl xl:text-lg" >Confirmar</button>
+                <div class="flex justify-center items-center">
+                    <button type="submit" class="btn btn-success" >Confirmar</button>
+                </div>
+
             </div>
 
-        </div>
-
-      </form>
-      <!--tabela com horas limite-->
-
-        <div class="mb-12 pt-4 flex flex-col xl:px-20 px-4 justify-start w-full">
-            <div class="bg-white shadow-lg rounded-lg w-full">
-                <form method="GET" class="flex justify-end mb-4">
-                    <div class="flex items-center space-x-4 pt-4 pr-4">
-
-                        <select class="form-control" name="unidade">
-                            <option value="">Unidade...</option>
-                            {% for unidade in unidades %}
-                            <option value="{{ unidade }}" {% if request.GET.unidade == unidade %}selected{% endif %}>{{ unidade }}</option>
-                            {% endfor %}
-                        </select>
-                        <input type="text" name="query" class="form-control w-72 form-control mr-2" placeholder="Pesquisar por nome ou matrícula..." value="{{ query }}">
-                        <button type="submit" class="btn btn-primary">Pesquisar</button>
-                    </div>
-                </form>
-                <table class="min-w-full bg-white divide-y divide-gray-200">
-                    <thead class="bg-gray-100">
-                        <tr>
-                            <th class="px-6 py-3 font-medium text-gray-500 uppercase tracking-wider">Matrícula</th>
-                            <th class="px-6 py-3 font-medium text-gray-500 uppercase tracking-wider">Nome</th>
-                            <th class="px-6 py-3 font-medium text-gray-500 uppercase tracking-wider">Unidade</th>
-                            <th class="px-6 py-3 font-medium text-gray-500 uppercase tracking-wider">Carga Horária</th>
-                            <th class="px-6 py-3 font-medium text-gray-500 uppercase tracking-wider">Excluir</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        {% for carga in carga_horaria %}
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ carga.servidor.matricula }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ carga.servidor.nome }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ carga.unidade }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ carga.limite_horas }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <form method="POST" action="{% url 'ajuda_custo:excluir_limite' carga.pk %}">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-danger w-10 h-8">
-                                        <ion-icon name="trash"></ion-icon>
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="4" class="px-6 py-4 text-center text-gray-500">Nenhum servidor encontrado</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            <!-- Paginação -->
-        <div class="p-6 bg-gray-100 rounded-b-lg">
-          <nav aria-label="Page navigation">
-            <ul class="inline-flex items-center -space-x-px">
-              <!-- Página anterior -->
-              {% if page_obj_cargas.has_previous %}
-              <li>
-                <a href="?page_cargas=1&query={{ query }}&unidade={{ unidade }}" class="px-3 py-2 ml-0 text-sm font-medium text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100">Primeira</a>
-              </li>
-              <li>
-                <a href="?page_cargas={{ page_obj_cargas.previous_page_number }}&query={{ query }}&unidade={{ unidade }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">Anterior</a>
-              </li>
-              {% endif %}
-
-              <!-- Páginas intermediárias -->
-              {% for p in page_obj_cargas.paginator.page_range %}
-              {% if p == page_obj_cargas.number %}
-              <li>
-                <span class="px-3 py-2 text-sm font-medium text-white bg-blue-500 border border-gray-300">{{ p }}</span>
-              </li>
-              {% else %}
-              <li>
-                <a href="?page_cargas={{ p }}&query={{ query }}&unidade={{ unidade }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">{{ p }}</a>
-              </li>
-              {% endif %}
-              {% endfor %}
-
-              <!-- Página seguinte -->
-              {% if page_obj_cargas.has_next %}
-              <li>
-                <a href="?page_cargas={{ page_obj_cargas.next_page_number }}&query={{ query }}&unidade={{ unidade }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">Próxima</a>
-              </li>
-              <li>
-                <a href="?page_cargas={{ page_obj_cargas.paginator.num_pages }}&query={{ query }}&unidade={{ unidade }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100">Última</a>
-              </li>
-              {% endif %}
-            </ul>
-          </nav>
-        </div>
-
-        </div>
+        </form>
     </div>
-
-    <!-- Painel Gerências -->
-    <div id="panel-1" class="panel hidden scale-90 transition-all duration-300">
-      <div class="my-4 xl:mx-24 mx-20 text-center">
-        <h3 class="xl:text-xl text-4xl font-semibold text-gray-800 dark:text-white">Carga Horária por Gerências</h3>
-      </div>
-
-      <form id="cotaAjudaCustoForm" class="flex flex-col" method="POST">
-        {% csrf_token %}
-
-
-        <div class="ml-4 flex flex-row justify-start space-x-4 items-end py-4 border-b-2 px-4">
-
-          <!-- menu gestor -->
-          <div class="text-3xl xl:text-lg">
-            {{ form_gerencia.gestor|as_crispy_field }}
-          </div>
-
-          <!-- menu unidade -->
-          <div class="text-3xl xl:text-lg">
-            {{ form_gerencia.unidade|as_crispy_field }}
-          </div>
-
-          <!-- menu cota de ajuda de custo -->
-          <div class="text-3xl xl:text-lg">
-            {{ form_gerencia.cota_ajudacusto|as_crispy_field }}
-          </div>
-
-          <!-- botao enviar -->
-          <div class="flex justify-center items-center py-3">
-            <button type="submit" class="btn btn-success text-2xl xl:text-lg">Confirmar</button>
-          </div>
-        </div>
-      </form>
-
-      <!-- tabela com cotas de ajuda de custo -->
-      <div class="mb-12 pt-4 flex flex-col xl:px-20 px-4 justify-start w-full">
-        <div class="bg-white shadow-lg rounded-lg w-full">
-          <form method="GET" class="flex justify-end mb-4">
-            <div class="flex items-center space-x-4 pt-4 pr-4">
-              <select class="form-control" name="unidade">
-                <option value="">Unidade...</option>
-                {% for unidade in unidades %}
-                <option value="{{ unidade }}" {% if request.GET.unidade == unidade %}selected{% endif %}>{{ unidade }}</option>
-                {% endfor %}
-              </select>
-              <input type="text" name="query" class="form-control w-72 form-control mr-2" placeholder="Pesquisar por gestor..." value="{{ query }}">
-              <button type="submit" class="btn btn-primary">Pesquisar</button>
-            </div>
-          </form>
-          <table class="min-w-full bg-white divide-y divide-gray-200">
-            <thead class="bg-gray-100">
-              <tr>
-                <th class="px-6 py-3 font-medium text-gray-500 uppercase tracking-wider">Gestor</th>
-                <th class="px-6 py-3 font-medium text-gray-500 uppercase tracking-wider">Unidade</th>
-                <th class="px-6 py-3 font-medium text-gray-500 uppercase tracking-wider">Cota de Ajuda de Custo (dias)</th>
-                <th class="px-6 py-3 font-medium text-gray-500 uppercase tracking-wider">Carga Horária Total (horas)</th>
-                <th class="px-6 py-3 font-medium text-gray-500 uppercase tracking-wider">Carga Horária Disponível (horas)</th>
-                <th class="px-6 py-3 font-medium text-gray-500 uppercase tracking-wider">Excluir</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              {% for cota in cota_horaria %}
-              <tr>
-                <td class="px-6 py-4 whitespace-nowrap">{{ cota.gestor }}</td>
-                <td class="px-6 py-4 whitespace-nowrap">{{ cota.unidade }}</td>
-                <td class="px-6 py-4 whitespace-nowrap">{{ cota.cota_ajudacusto }}</td>
-                <td class="px-6 py-4 whitespace-nowrap">{{ cota.carga_horaria_total }}</td>
-                <td class="px-6 py-4 whitespace-nowrap">{{ cota.carga_horaria_disponivel }}</td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <form method="POST" action="{% url 'ajuda_custo:excluir_cota' cota.pk %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger w-10 h-8">
-                      <ion-icon name="trash"></ion-icon>
-                    </button>
-                  </form>
-                </td>
-              </tr>
-              {% empty %}
-              <tr>
-                <td colspan="6" class="px-6 py-4 text-center text-gray-500">Nenhuma cota de ajuda de custo encontrada</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-        <!-- Paginação -->
-        <div class="p-6 bg-gray-100 rounded-b-lg">
-          <nav aria-label="Page navigation">
-            <ul class="inline-flex items-center -space-x-px">
-              <!-- Página anterior -->
-              {% if page_obj_cotas.has_previous %}
-              <li>
-                <a href="?page_cotas=1&query={{ query }}&unidade={{ unidade }}" class="px-3 py-2 ml-0 text-sm font-medium text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100">Primeira</a>
-              </li>
-              <li>
-                <a href="?page_cotas={{ page_obj_cotas.previous_page_number }}&query={{ query }}&unidade={{ unidade }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">Anterior</a>
-              </li>
-              {% endif %}
-
-              <!-- Páginas intermediárias -->
-              {% for p in page_obj_cotas.paginator.page_range %}
-              {% if p == page_obj_cotas.number %}
-              <li>
-                <span class="px-3 py-2 text-sm font-medium text-white bg-blue-500 border border-gray-300">{{ p }}</span>
-              </li>
-              {% else %}
-              <li>
-                <a href="?page_cotas={{ p }}&query={{ query }}&unidade={{ unidade }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">{{ p }}</a>
-              </li>
-              {% endif %}
-              {% endfor %}
-
-              <!-- Página seguinte -->
-              {% if page_obj_cotas.has_next %}
-              <li>
-                <a href="?page_cotas={{ page_obj_cotas.next_page_number }}&query={{ query }}&unidade={{ unidade }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">Próxima</a>
-              </li>
-              <li>
-                <a href="?page_cotas={{ page_obj_cotas.paginator.num_pages }}&query={{ query }}&unidade={{ unidade }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100">Última</a>
-              </li>
-              {% endif %}
-            </ul>
-          </nav>
-        </div>
-
-      </div>
-    </div>
-
-
-
-    <!-- Painel Resumo -->
-    <div
-      id="panel-2"
-      class="panel hidden scale-90 transition-all duration-300"
-    >
-      <h3 class="text-xl font-semibold text-gray-800 dark:text-white">Resumo das Cargas Horárias</h3>
-      <p class="mt-4 text-gray-700 dark:text-gray-300">
-        Aqui está o resumo das cargas horárias atribuídas.
-      </p>
-      <!-- Conteúdo do resumo -->
-      <div class="mt-4">
-        <p class="text-gray-700 dark:text-gray-300">Total de horas atribuídas: <span class="font-semibold">80 horas</span></p>
-        <p class="text-gray-700 dark:text-gray-300">Média por servidor: <span class="font-semibold">40 horas</span></p>
-        <p class="text-gray-700 dark:text-gray-300">Média por gerência: <span class="font-semibold">20 horas</span></p>
-      </div>
-    </div>
-  </div>
 </div>
 
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-      // Seleciona o botão ativo (com aria-selected="true") e o indicador
-      const activeTab = document.querySelector('.tab[aria-selected="true"]');
-      const indicator = document.querySelector('.tab-indicator');
+<!--tabela com horas limite-->
 
-      // Ajusta a posição e a largura do indicador no carregamento
-      if (activeTab) {
-        indicator.style.left = `${activeTab.offsetLeft}px`;
-        indicator.style.width = `${activeTab.offsetWidth}px`;
-      }
+<div class="mb-12 pt-4 flex flex-col px-20 justify-start w-full">
+    <div class="bg-white shadow-lg rounded-lg w-full">
+        <form method="GET" class="flex justify-end mb-4">
+            <div class="flex items-center space-x-4 pt-4 pr-4">
 
-      // Seleciona todos os botões de tab e adiciona evento de clique
-      document.querySelectorAll('.tab').forEach((tab, index) => {
-        tab.addEventListener('click', () => {
-          // Move o indicador para o botão clicado
-          indicator.style.left = `${tab.offsetLeft}px`;
-          indicator.style.width = `${tab.offsetWidth}px`;
+                <input type="text" name="query" class="form-control w-72 form-control mr-2" placeholder="Pesquisar por nome ou matrícula..." value="{{ query }}">
+                <button type="submit" class="btn btn-primary">Pesquisar</button>
+            </div>
+        </form>
+        <table class="min-w-full bg-white divide-y divide-gray-200">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Matrícula</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Carga Horária</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Excluir</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for carga in carga_horaria %}
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">{{ carga.servidor.matricula }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">{{ carga.servidor.nome }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">{{ carga.limite_horas }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <form method="POST" action="{% url 'ajuda_custo:excluir_limite' carga.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger w-10 h-8">
+                                <ion-icon name="trash"></ion-icon>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="px-6 py-4 text-center text-gray-500">Nenhum servidor encontrado</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <!-- Paginação -->
+    <div class="p-6 bg-gray-100 rounded-b-lg">
+        <nav aria-label="Page navigation">
+            <ul class="inline-flex items-center -space-x-px">
+                {% if page_obj.has_previous %}
+                <li>
+                    <a href="?page=1&query={{ query }}" class="px-3 py-2 ml-0 text-sm font-medium text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100">Primeira</a>
+                </li>
+                <li>
+                    <a href="?page={{ page_obj.previous_page_number }}&query={{ query }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">Anterior</a>
+                </li>
+                {% endif %}
 
-          // Define o botão clicado como ativo
-          document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', 'false'));
-          tab.setAttribute('aria-selected', 'true');
+                {% for p in page_obj.paginator.page_range %}
+                {% if p == page_obj.number %}
+                <li>
+                    <span class="px-3 py-2 text-sm font-medium text-white bg-blue-500 border border-gray-300">{{ p }}</span>
+                </li>
+                {% else %}
+                <li>
+                    <a href="?page={{ p }}&query={{ query }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">{{ p }}</a>
+                </li>
+                {% endif %}
+                {% endfor %}
 
-          // Mostra o painel correspondente e esconde os demais
-          document.querySelectorAll('.panel').forEach((panel, i) => {
-            if (i === index) {
-              panel.style.display = 'block';  // Torna o painel visível
-            } else {
-              panel.style.display = 'none';   // Esconde o painel
-            }
-          });
-        });
-      });
+                {% if page_obj.has_next %}
+                <li>
+                    <a href="?page={{ page_obj.next_page_number }}&query={{ query }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">Próxima</a>
+                </li>
+                <li>
+                    <a href="?page={{ page_obj.paginator.num_pages }}&query={{ query }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100">Última</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
 
-      // Atualiza o indicador ao redimensionar a janela
-      window.addEventListener('resize', () => {
-        const activeTab = document.querySelector('.tab[aria-selected="true"]');
-        if (activeTab) {
-          indicator.style.left = `${activeTab.offsetLeft}px`;
-          indicator.style.width = `${activeTab.offsetWidth}px`;
-        }
-      });
-    });
+</div>
 
-</script>
 
 
 

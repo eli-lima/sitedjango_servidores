@@ -932,26 +932,7 @@ class AdminCadastrar(LoginRequiredMixin, UserPassesTestMixin, FormView):
         return super().form_invalid(form)
 
 
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.core.paginator import Paginator
-from django.shortcuts import render, redirect
-from django.urls import reverse_lazy
-from django.views.generic.edit import FormView
-from django.contrib import messages
-from django.db.models import Q
-from .forms import LimiteAjudaCustoForm, CotaAjudaCustoForm
-from .models import LimiteAjudaCusto, CotaAjudaCusto, Unidade
 
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.views.generic import FormView
-from django.urls import reverse_lazy
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from django.db.models import Q
-from django.core.paginator import Paginator
-
-from .forms import LimiteAjudaCustoForm, CotaAjudaCustoForm
-from .models import LimiteAjudaCusto, CotaAjudaCusto, Unidade
 
 class HorasLimite(LoginRequiredMixin, UserPassesTestMixin, FormView):
     template_name = 'horas_limite.html'
@@ -960,9 +941,7 @@ class HorasLimite(LoginRequiredMixin, UserPassesTestMixin, FormView):
     def test_func(self):
         user = self.request.user
         grupos_permitidos = ['Administrador', 'GerGesipe']
-        has_permission = user.groups.filter(name__in=grupos_permitidos).exists()
-        print(f"Usuário: {user}, Grupos: {user.groups.all()}, Permissão: {has_permission}")
-        return has_permission
+        return user.groups.filter(name__in=grupos_permitidos).exists()
 
     def handle_no_permission(self):
         messages.error(self.request, "Você não tem permissão para acessar esta página.")
@@ -979,57 +958,48 @@ class HorasLimite(LoginRequiredMixin, UserPassesTestMixin, FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        try:
-            query = self.request.GET.get('query', '')
-            unidade = self.request.GET.get('unidade', '')
-            print(f"Query: {query}, Unidade: {unidade}")
+        query = self.request.GET.get('query', '')
+        unidade = self.request.GET.get('unidade', '')
 
-            # Paginação para LimiteAjudaCusto (aba Individual)
-            filtros_cargas = Q()
-            if query:
-                filtros_cargas &= Q(servidor__nome__icontains=query) | Q(servidor__matricula__icontains=query)
-            if unidade:
-                filtros_cargas &= Q(unidade__nome=unidade)
+        # Paginação para LimiteAjudaCusto (aba Individual)
+        filtros_cargas = Q()
+        if query:
+            filtros_cargas &= Q(servidor__nome__icontains=query) | Q(servidor__matricula__icontains=query)
+        if unidade:
+            filtros_cargas &= Q(unidade__nome=unidade)
 
-            cargas = LimiteAjudaCusto.objects.filter(filtros_cargas).order_by('id')
-            paginator_cargas = Paginator(cargas, 10)
-            page_number_cargas = self.request.GET.get('page_cargas')
-            page_obj_cargas = paginator_cargas.get_page(page_number_cargas)
-            print("Page Obj Cargas:", page_obj_cargas)
+        cargas = LimiteAjudaCusto.objects.filter(filtros_cargas)
+        paginator_cargas = Paginator(cargas, 10)
+        page_number_cargas = self.request.GET.get('page_cargas')
+        page_obj_cargas = paginator_cargas.get_page(page_number_cargas)
 
-            # Paginação para CotaAjudaCusto (aba Gerências)
-            filtros_cota = Q()
-            if query:
-                filtros_cota &= Q(gestor__username__icontains=query) | Q(gestor__first_name__icontains=query) | Q(gestor__last_name__icontains=query)
-            if unidade:
-                filtros_cota &= Q(unidade__nome=unidade)
+        # Paginação para CotaAjudaCusto (aba Gerências)
+        filtros_cota = Q()
+        if query:
+            filtros_cota &= Q(gestor__username__icontains=query) | Q(gestor__first_name__icontains=query) | Q(
+                gestor__last_name__icontains=query)
+        if unidade:
+            filtros_cota &= Q(unidade__nome=unidade)
 
-            cotas = CotaAjudaCusto.objects.filter(filtros_cota).order_by('id')
-            paginator_cotas = Paginator(cotas, 10)
-            page_number_cotas = self.request.GET.get('page_cotas')
-            page_obj_cotas = paginator_cotas.get_page(page_number_cotas)
-            print("Page Obj Cotas:", page_obj_cotas)
+        cotas = CotaAjudaCusto.objects.filter(filtros_cota)
+        paginator_cotas = Paginator(cotas, 10)
+        page_number_cotas = self.request.GET.get('page_cotas')
+        page_obj_cotas = paginator_cotas.get_page(page_number_cotas)
 
-            # Adiciona os dados ao contexto
-            context.update({
-                'unidades': Unidade.objects.values_list('nome', flat=True),
-                'carga_horaria': page_obj_cargas,
-                'cota_horaria': page_obj_cotas,
-                'page_obj_cargas': page_obj_cargas,
-                'page_obj_cotas': page_obj_cotas,
-                'query': query,
-                'unidade': unidade,
-            })
+        # Adiciona os dados ao contexto
+        context.update({
+            'unidades': Unidade.objects.values_list('nome', flat=True),
+            'carga_horaria': page_obj_cargas,
+            'cota_horaria': page_obj_cotas,
+            'page_obj_cargas': page_obj_cargas,
+            'page_obj_cotas': page_obj_cotas,
+            'query': query,
+            'unidade': unidade,
+        })
 
-            # Adiciona os formulários para carga horária individual e por gerências
-            context['form_individual'] = LimiteAjudaCustoForm()
-            context['form_gerencia'] = CotaAjudaCustoForm()
-            print("Context:", context)
-
-        except Exception as e:
-            print(f"Erro ao gerar o contexto: {e}")
-            messages.error(self.request, f"Erro ao carregar a página: {e}")
-            context['erro'] = str(e)
+        # Adiciona os formulários para carga horária individual e por gerências
+        context['form_individual'] = LimiteAjudaCustoForm()
+        context['form_gerencia'] = CotaAjudaCustoForm()
 
         return context
 
