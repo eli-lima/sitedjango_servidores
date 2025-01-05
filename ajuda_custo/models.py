@@ -1,10 +1,9 @@
 from django.db import models
 from django.utils import timezone
-import os
-from datetime import datetime
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
-
+from django.conf import settings
+from seappb.models import Unidade
 
 # Create your models here.
 
@@ -33,9 +32,6 @@ class DataMajorada(models.Model):
 #cadastrar unidades
 
 
-
-
-
 CARGA_HORARIA = [
         ('12 horas', '12 Horas'),
         ('24 horas', '24 Horas'),
@@ -52,9 +48,6 @@ class Ajuda_Custo(models.Model):
     majorado = models.BooleanField(default=False)
     folha_assinada = models.FileField(upload_to=upload_to_ajuda_custo, blank=True,
                                       null=True)  # Campo de upload com pasta dinâmica
-
-
-
 
     def __str__(self):
         return f"{self.nome} - {self.data.strftime('%d/%m/%Y')}"
@@ -76,8 +69,39 @@ def atualizar_majorado_ao_remover(sender, instance, **kwargs):
 
 class LimiteAjudaCusto(models.Model):
     servidor = models.ForeignKey('servidor.Servidor', on_delete=models.CASCADE)
+    unidade = models.ForeignKey('seappb.Unidade', default=1, on_delete=models.CASCADE)  # Adiciona a unidade
     limite_horas = models.IntegerField()  # Limite de horas mensais para o servidor
 
     def __str__(self):
         return f"{self.servidor.nome} - {self.limite_horas} horas/mês"
 
+
+class CotaAjudaCusto(models.Model):
+    gestor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    unidade = models.ForeignKey(Unidade, on_delete=models.CASCADE)
+    cota_ajudacusto = models.PositiveIntegerField()  # Em dias
+    carga_horaria_total = models.PositiveIntegerField(editable=False, default=0)  # Em horas
+    carga_horaria_disponivel = models.PositiveIntegerField(editable=False, default=0)
+
+    def save(self, *args, **kwargs):
+        # Certifica-se de que somente um gerente por unidade por vez
+        # Substitui o antigo se um novo for adicionado
+        existing_cota = CotaAjudaCusto.objects.filter(unidade=self.unidade).exclude(pk=self.pk).first()
+        if existing_cota:
+            existing_cota.delete()
+
+        # Converte a cota mensal para horas
+        self.carga_horaria_total = self.cota_ajudacusto * 24
+        # Inicialmente, a carga disponível será igual à total (ou recalculada se já tiver distribuições)
+        if self.pk:
+            distribuidas = LimiteAjudaCusto.objects.filter(unidade=self.unidade).aggregate(
+                total_distribuido=models.Sum('limite_horas')
+            )['total_distribuido'] or 0
+            self.carga_horaria_disponivel = self.carga_horaria_total - distribuidas
+        else:
+            self.carga_horaria_disponivel = self.carga_horaria_total
+
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.gestor} - {self.unidade} - Cota: {self.cota_ajudacusto} dias ({self.carga_horaria_total} horas)"

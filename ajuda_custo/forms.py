@@ -1,6 +1,6 @@
 # forms.py
 from django import forms
-from .models import Ajuda_Custo, LimiteAjudaCusto
+from .models import Ajuda_Custo, LimiteAjudaCusto, CotaAjudaCusto
 import datetime
 from seappb.models import Unidade
 from django.core.exceptions import ValidationError
@@ -146,21 +146,49 @@ class AdminDatasForm(forms.Form):
 class LimiteAjudaCustoForm(forms.ModelForm):
     class Meta:
         model = LimiteAjudaCusto
-        fields = ['servidor', 'limite_horas']
+        fields = ['servidor', 'unidade', 'limite_horas']  # Inclua o campo unidade
 
         # Defina os widgets para adicionar o placeholder
         widgets = {
             'limite_horas': forms.NumberInput(attrs={'placeholder': 'Digite o limite em horas'}),
             'servidor': forms.Select(attrs={'placeholder': 'Selecione o servidor'}),
+            'unidade': forms.Select(attrs={'placeholder': 'Selecione a unidade'})  # Adicione o widget para unidade
         }
 
     def __init__(self, *args, **kwargs):
         super(LimiteAjudaCustoForm, self).__init__(*args, **kwargs)
         # Ordena a lista de servidores por nome
         self.fields['servidor'].queryset = self.fields['servidor'].queryset.order_by('nome')
+        # Ordena a lista de unidades por nome
+        self.fields['unidade'].queryset = self.fields['unidade'].queryset.order_by('nome')
 
+
+class GerenteAjudaCustoForm(forms.ModelForm):
+    class Meta:
+        model = LimiteAjudaCusto
+        fields = ['servidor', 'unidade', 'limite_horas']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['unidade'].disabled = True
+
+
+class CotaAjudaCustoForm(forms.ModelForm):
+    class Meta:
+        model = CotaAjudaCusto
+        fields = ['gestor', 'unidade', 'cota_ajudacusto']
+        widgets = {
+            'gestor': forms.Select(attrs={'class': 'form-control'}),
+            'unidade': forms.Select(attrs={'class': 'form-control'}),
+            'cota_ajudacusto': forms.NumberInput(attrs={'class': 'form-control'}),
+        }
+        labels = {
+            'gestor': 'Gestor',
+            'unidade': 'Unidade',
+            'cota_ajudacusto': 'Cota de Ajuda de Custo (em dias)',
+        }
+
+#carregar relatorio rx2
 
 class UploadExcelRx2Form(forms.Form):
     file = forms.FileField(label='Selecione o arquivo Excel')
-
-
