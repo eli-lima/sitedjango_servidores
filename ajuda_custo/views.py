@@ -959,40 +959,49 @@ class HorasLimite(LoginRequiredMixin, UserPassesTestMixin, FormView):
         query = self.request.GET.get('query', '')
         unidade = self.request.GET.get('unidade', '')
 
-        # Paginação para LimiteAjudaCusto (aba Individual)
-        filtros_cargas = Q()
-        if query:
-            filtros_cargas &= Q(servidor__nome__icontains=query) | Q(servidor__matricula__icontains=query)
-        if unidade:
-            filtros_cargas &= Q(unidade__nome=unidade)
+        try:
+            # Paginação para LimiteAjudaCusto (aba Individual)
+            filtros_cargas = Q()
+            if query:
+                filtros_cargas &= Q(servidor__nome__icontains=query) | Q(servidor__matricula__icontains=query)
+            if unidade:
+                filtros_cargas &= Q(unidade__nome=unidade)
 
-        cargas = LimiteAjudaCusto.objects.filter(filtros_cargas)
-        paginator_cargas = Paginator(cargas, 10)
-        page_number_cargas = self.request.GET.get('page_cargas')
-        page_obj_cargas = paginator_cargas.get_page(page_number_cargas)
+            cargas = LimiteAjudaCusto.objects.filter(filtros_cargas)
+            paginator_cargas = Paginator(cargas, 10)
+            page_number_cargas = self.request.GET.get('page_cargas')
+            page_obj_cargas = paginator_cargas.get_page(page_number_cargas)
+            print("Page Obj Cargas:", page_obj_cargas)
 
-        # Paginação para CotaAjudaCusto (aba Gerências)
+            # Paginação para CotaAjudaCusto (aba Gerências)
+            cotas = CotaAjudaCusto.objects.all().order_by('unidade')
+            paginator_cotas = Paginator(cotas, 100)
+            page_number_cotas = self.request.GET.get('page_cotas')
+            page_obj_cotas = paginator_cotas.get_page(page_number_cotas)
+            print("Page Obj Cotas:", page_obj_cotas)
 
+            # Adiciona os dados ao contexto
+            context.update({
+                'unidades': Unidade.objects.values_list('nome', flat=True),
+                'carga_horaria': page_obj_cargas,
+                'cota_horaria': page_obj_cotas,
+                'page_obj_cargas': page_obj_cargas,
+                'page_obj_cotas': page_obj_cotas,
+                'query': query,
+                'unidade': unidade,
+            })
+            print("Contexto gerado:", context)
 
-        cotas = CotaAjudaCusto.objects.all().order_by('unidade')
-        paginator_cotas = Paginator(cotas, 100)
-        page_number_cotas = self.request.GET.get('page_cotas')
-        page_obj_cotas = paginator_cotas.get_page(page_number_cotas)
+            # Adiciona os formulários para carga horária individual e por gerências
+            context['form_individual'] = LimiteAjudaCustoForm()
+            context['form_gerencia'] = CotaAjudaCustoForm()
 
-        # Adiciona os dados ao contexto
-        context.update({
-            'unidades': Unidade.objects.values_list('nome', flat=True),
-            'carga_horaria': page_obj_cargas,
-            'cota_horaria': page_obj_cotas,
-            'page_obj_cargas': page_obj_cargas,
-            'page_obj_cotas': page_obj_cotas,
-            'query': query,
-            'unidade': unidade,
-        })
-
-        # Adiciona os formulários para carga horária individual e por gerências
-        context['form_individual'] = LimiteAjudaCustoForm()
-        context['form_gerencia'] = CotaAjudaCustoForm()
+        except Exception as e:
+            print(f"Erro ao gerar o contexto: {e}")
+            import traceback
+            print(traceback.format_exc())
+            messages.error(self.request, f"Erro ao carregar a página: {e}")
+            context['erro'] = str(e)
 
         return context
 
