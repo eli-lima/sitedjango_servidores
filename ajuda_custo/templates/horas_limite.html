@@ -191,7 +191,119 @@ Ajuda De Custo Horas Limite
         </div>
     </div>
 
+    <!-- Painel Gerências -->
+    <div id="panel-1" class="panel hidden scale-90 transition-all duration-300">
+      <div class="my-4 xl:mx-24 mx-20 text-center">
+        <h3 class="xl:text-xl text-4xl font-semibold text-gray-800 dark:text-white">Carga Horária por Gerências</h3>
+      </div>
 
+      <form id="cotaAjudaCustoForm" class="flex flex-col" method="POST">
+        {% csrf_token %}
+
+
+        <div class="ml-4 flex flex-row justify-start space-x-4 items-end py-4 border-b-2 px-4">
+
+          <!-- menu gestor -->
+          <div class="text-3xl xl:text-lg">
+            {{ form_gerencia.gestor|as_crispy_field }}
+          </div>
+
+          <!-- menu unidade -->
+          <div class="text-3xl xl:text-lg">
+            {{ form_gerencia.unidade|as_crispy_field }}
+          </div>
+
+          <!-- menu cota de ajuda de custo -->
+          <div class="text-3xl xl:text-lg">
+            {{ form_gerencia.cota_ajudacusto|as_crispy_field }}
+          </div>
+
+          <!-- botao enviar -->
+          <div class="flex justify-center items-center py-3">
+            <button type="submit" class="btn btn-success text-2xl xl:text-lg">Confirmar</button>
+          </div>
+        </div>
+      </form>
+
+      <!-- tabela com cotas de ajuda de custo -->
+      <div class="mb-12 pt-4 flex flex-col xl:px-20 px-4 justify-start w-full">
+        <div class="bg-white shadow-lg rounded-lg w-full">
+          <form method="GET" class="flex justify-end mb-4">
+            <div class="flex items-center space-x-4 pt-4 pr-4">
+              <select class="form-control" name="unidade">
+                <option value="">Unidade...</option>
+                {% for unidade in unidades %}
+                <option value="{{ unidade }}" {% if request.GET.unidade == unidade %}selected{% endif %}>{{ unidade }}</option>
+                {% endfor %}
+              </select>
+              <input type="text" name="query" class="form-control w-72 form-control mr-2" placeholder="Pesquisar por gestor..." value="{{ query }}">
+              <button type="submit" class="btn btn-primary">Pesquisar</button>
+            </div>
+          </form>
+
+        </div>
+        <!-- Paginação -->
+        <div class="p-6 bg-gray-100 rounded-b-lg">
+          <nav aria-label="Page navigation">
+            <ul class="inline-flex items-center -space-x-px">
+              <!-- Página anterior -->
+              {% if page_obj_cotas.has_previous %}
+              <li>
+                <a href="?page_cotas=1&query={{ query }}&unidade={{ unidade }}" class="px-3 py-2 ml-0 text-sm font-medium text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100">Primeira</a>
+              </li>
+              <li>
+                <a href="?page_cotas={{ page_obj_cotas.previous_page_number }}&query={{ query }}&unidade={{ unidade }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">Anterior</a>
+              </li>
+              {% endif %}
+
+              <!-- Páginas intermediárias -->
+              {% for p in page_obj_cotas.paginator.page_range %}
+              {% if p == page_obj_cotas.number %}
+              <li>
+                <span class="px-3 py-2 text-sm font-medium text-white bg-blue-500 border border-gray-300">{{ p }}</span>
+              </li>
+              {% else %}
+              <li>
+                <a href="?page_cotas={{ p }}&query={{ query }}&unidade={{ unidade }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">{{ p }}</a>
+              </li>
+              {% endif %}
+              {% endfor %}
+
+              <!-- Página seguinte -->
+              {% if page_obj_cotas.has_next %}
+              <li>
+                <a href="?page_cotas={{ page_obj_cotas.next_page_number }}&query={{ query }}&unidade={{ unidade }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">Próxima</a>
+              </li>
+              <li>
+                <a href="?page_cotas={{ page_obj_cotas.paginator.num_pages }}&query={{ query }}&unidade={{ unidade }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100">Última</a>
+              </li>
+              {% endif %}
+            </ul>
+          </nav>
+        </div>
+
+      </div>
+    </div>
+
+
+
+    <!-- Painel Resumo -->
+    <div
+      id="panel-2"
+      class="panel hidden scale-90 transition-all duration-300"
+    >
+      <h3 class="text-xl font-semibold text-gray-800 dark:text-white">Resumo das Cargas Horárias</h3>
+      <p class="mt-4 text-gray-700 dark:text-gray-300">
+        Aqui está o resumo das cargas horárias atribuídas.
+      </p>
+      <!-- Conteúdo do resumo -->
+      <div class="mt-4">
+        <p class="text-gray-700 dark:text-gray-300">Total de horas atribuídas: <span class="font-semibold">80 horas</span></p>
+        <p class="text-gray-700 dark:text-gray-300">Média por servidor: <span class="font-semibold">40 horas</span></p>
+        <p class="text-gray-700 dark:text-gray-300">Média por gerência: <span class="font-semibold">20 horas</span></p>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
