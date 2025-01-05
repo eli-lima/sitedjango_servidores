@@ -26,7 +26,7 @@ urlpatterns = [
     path('upload-excel_rx2/', upload_excel_rx2, name='upload_excel_rx2'),
     path('status_task/<str:task_id>/', status_task, name='status_task'),
     path('verificar_carga_horaria/', VerificarCargaHoraria.as_view(), name='verificar_carga_horaria'),
-path('cargahoraria_gerente/', CargaHorariaGerente.as_view(), name='cargahoraria_gerente'),
+    path('cargahoraria_gerente/', CargaHorariaGerente.as_view(), name='cargahoraria_gerente'),
 ]
 
 htmx_urlpatterns = [
