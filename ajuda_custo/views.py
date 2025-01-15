@@ -365,6 +365,7 @@ def excel_detalhado(request):
     data_inicial = request.GET.get('dataInicial')
     data_final = request.GET.get('dataFinal')
     unidade = request.GET.get('unidade')
+    carga_horaria = request.GET.get('carga_horaria')
 
 
     # Converte as datas em objetos datetime, se fornecidas
@@ -378,6 +379,9 @@ def excel_detalhado(request):
 
     if unidade:
         queryset = queryset.filter(unidade=unidade)
+
+    if carga_horaria:
+        queryset = queryset.filter(carga_horaria=carga_horaria)
 
     if data_inicial and data_final:
         queryset = queryset.filter(data__range=[data_inicial, data_final])
@@ -571,6 +575,7 @@ class RelatorioAjudaCusto(LoginRequiredMixin, UserPassesTestMixin, ListView):
     context_object_name = 'datas'
     paginate_by = 50  # Quantidade de registros por página
 
+
     def test_func(self):
         user = self.request.user
         grupos_permitidos = ['Administrador', 'GerGesipe']
@@ -614,6 +619,11 @@ class RelatorioAjudaCusto(LoginRequiredMixin, UserPassesTestMixin, ListView):
         if unidade:
             queryset = queryset.filter(unidade=unidade)
 
+        #filtro por carga horaria
+        carga_horaria = self.request.GET.get('carga_horaria')
+        if carga_horaria:
+            queryset = queryset.filter(carga_horaria=carga_horaria)
+
 
         # Aplicar filtro de data apenas se as datas forem válidas
         if data_inicial and data_final:
@@ -624,7 +634,6 @@ class RelatorioAjudaCusto(LoginRequiredMixin, UserPassesTestMixin, ListView):
             queryset = queryset.filter(data__lte=data_final)
 
         return queryset.order_by('nome')
-
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -666,6 +675,7 @@ class RelatorioAjudaCusto(LoginRequiredMixin, UserPassesTestMixin, ListView):
         context['dataFinal'] = data_final.strftime('%Y-%m-%d') if data_final else ''
         # Ajuste aqui: mudando 'unidade' para 'unidades'
         context['unidades'] = Ajuda_Custo.objects.values_list('unidade', flat=True).distinct()
+        context['carga_horarias'] = Ajuda_Custo.objects.values_list('carga_horaria', flat=True).distinct()
 
         return context
 
@@ -679,6 +689,7 @@ class RelatorioAjudaCusto(LoginRequiredMixin, UserPassesTestMixin, ListView):
             queryset = self.get_queryset()
             return criar_arquivo_zip(request, queryset)
         return super().get(request, *args, **kwargs)
+
 
 
 class AjudaCustoAdicionar(LoginRequiredMixin, FormView):

@@ -205,9 +205,15 @@ class Paginaperfil(LoginRequiredMixin, UpdateView):
             file_buffer = ContentFile(buffer.getvalue())
             form.instance.foto_perfil.save(foto_perfil.name, file_buffer)
 
-
-
         return super().form_valid(form)
+
+    def get_form(self):
+        form = super().get_form()
+        form.fields['email'].widget.attrs['readonly'] = True
+        form.fields['email'].widget.attrs['style'] = 'background-color: #f0f0f0;' # Fundo cinza
+        form.fields['matricula'].widget.attrs['readonly'] = True
+        form.fields['matricula'].widget.attrs['style'] = 'background-color: #f0f0f0;'  # Fundo cinza
+        return form
 
     def get_success_url(self):
         return reverse('seappb:homepage')

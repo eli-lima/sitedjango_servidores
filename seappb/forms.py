@@ -5,7 +5,7 @@ from django import forms
 
 class CriarContaForm(UserCreationForm):
     nome_completo = forms.CharField(max_length=200, required=True)
-    email = forms.EmailField()
+    email = forms.EmailField(required=True)
     foto_perfil = forms.ImageField(required=True)
     matricula = forms.IntegerField(required=True)
 

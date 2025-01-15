@@ -35,7 +35,7 @@ def user_directory_path(instance, filename):
 class Usuario(AbstractUser):
     nome_completo = models.CharField(max_length=200, blank=False)
     foto_perfil = models.ImageField(upload_to=user_directory_path, blank=True, null=True)
-    matricula = models.IntegerField(null=True, blank=True)
+    matricula = models.IntegerField(blank=True, unique=True)
     setor = models.ForeignKey('Setor', on_delete=models.CASCADE, null=True, blank=True)
 
     # Remover os campos first_name e last_name

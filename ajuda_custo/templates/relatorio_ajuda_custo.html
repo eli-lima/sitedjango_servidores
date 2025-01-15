@@ -45,6 +45,12 @@ Ajuda de Custo
                                 <option value="{{ unidade }}" {% if request.GET.unidade == unidade %}selected{% endif %}>{{ unidade }}</option>
                                 {% endfor %}
                             </select>
+                            <select class="form-control w-2/6 ml-2" name="carga_horaria">
+                                <option value="">Carga Horária...</option>
+                                {% for carga_horaria in carga_horarias %}
+                                <option value="{{ carga_horaria }}" {% if request.GET.carga_horaria == carga_horaria %}selected{% endif %}>{{ carga_horaria }}</option>
+                                {% endfor %}
+                            </select>
                             <input class="form-input w-full sm:w-auto sm:ml-2 p-1.5 rounded-md border-1 border-gray-600" type="date" name="dataInicial" id="dataInicial" value="{{ dataInicial }}">
                             <input class="form-input w-full sm:w-auto sm:ml-2 p-1.5 rounded-md border-1 border-gray-600" type="date" name="dataFinal" id="dataFinal" value="{{ dataFinal }}">
                             <input type="text" name="query" id="searchInput" class="form-input w-full sm:w-auto sm:ml-2 p-1.5 rounded-md border-1 border-gray-600" placeholder="Pesquisar..." value="{{ query }}">
