@@ -42,6 +42,9 @@ class Usuario(AbstractUser):
     first_name = None
     last_name = None
 
+    # Garantir que o e-mail seja único
+    email = models.EmailField(unique=True)  # Adicionando o unique=True para garantir unicidade
+
     def save(self, *args, **kwargs):
         # Converte o nome completo para maiúsculas
         if self.nome_completo:
