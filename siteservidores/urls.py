@@ -26,6 +26,7 @@ urlpatterns = [
     path('gesipe/', include('gesipe.urls', namespace='gesipe')),
     path('ajuda_custo/', include('ajuda_custo.urls', namespace='ajuda_custo')),
     path('servidor/', include('servidor.urls', namespace='servidor')),
+    path('copen/', include('copen.urls', namespace='copen')),
 ]
 
 
