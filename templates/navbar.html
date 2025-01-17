@@ -26,12 +26,13 @@
                             <a href="/" class="rounded-md px-3 py-2 text-lg font-medium {% if request.path == '/' %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}" aria-current="page">Inicio</a>
                             {% url 'gesipe:gesipe' as gesipe_url %}
                             {% url 'gesipe:gesipe_sga' as gesipe_sga_url %}
+                            {% url 'copen:copen' as copen_url %}
                             <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" class="dropdown-toggle rounded-md px-3 py-2 text-lg font-medium {% if request.path == gesipe_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">Gesipe</a>
                             <div class="dropdown bg-gray-800">
                               <ul class="dropdown-menu bg-gray-800 py-2 ">
                                 <li><a class="dropdown-item {% if request.path == gesipe_url %}bg-gray-900 text-white hover:bg-gray-700{% else %}bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}" href="{{ gesipe_url }}">Administrativo</a></li>
                                 <li><a class="dropdown-item {% if request.path == gesipe_sga_url %}bg-gray-900 text-white hover:bg-gray-700{% else %}bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}" href="{{ gesipe_sga_url }}">SGA</a></li>
-
+                                <li><a class="dropdown-item {% if request.path == copen_url %}bg-gray-900 text-white hover:bg-gray-700{% else %}bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}" href="{{ copen_url }}">COPEN</a></li>
                               </ul>
                             </div>
 
@@ -114,6 +115,9 @@
                                 </div>
                                 <div class="pl-24 justify-start {% if request.path == gesipe_sga_url %}bg-gray-900 text-white{% else %}text-gray-300 {% endif %}">
                                     <a href="{{ gesipe_sga_url }}">SGA</a>
+                                </div>
+                                <div class="pl-24 justify-start {% if request.path == copen_url %}bg-gray-900 text-white{% else %}text-gray-300 {% endif %}">
+                                    <a href="{{ copen_url }}">COPEN</a>
                                 </div>
                             </div>
                     </div>

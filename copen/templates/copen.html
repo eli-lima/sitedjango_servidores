@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block titulo %}
+Copen
+{% endblock %}
+
+
+{% block content %}
+
+<!--tela administrador-->
+{% if 'Administrador' in user_groups or 'GerCopen' in user_groups or 'Gerente' in user_groups %}
+
+<div class="flex flex-col items-center">
+
+    <div class="flex justify-center items-center h-full px-4 py-8">
+        <h3 class="font-bold xl:text-xl text-lg">
+
+            COPEN - Centro De Operações Penitenciárias
+        </h3>
+    </div>
+
+
+    <!--cards incluir dados-->
+    <div class="flex flex-row w-full px-4 space-x-3">
+    <!-- atendimentos -->
+        <!-- Card com ícone como fundo -->
+        <div class="h-auto w-1/4 flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300 bg-white overflow-hidden">
+              <!-- Ícone como fundo -->
+              <span class="absolute flex justify-center items-center text-gray-400 text-[150px] bottom-[70px] right-[110px] opacity-50">
+                <i class="bi bi-headset"></i>
+              </span>
+
+          <!-- Conteúdo do card -->
+          <div class="mb-8 z-10">
+            <h3 class="xl:text-2xl text-4xl font-semibold">Atendimentos</h3>
+            <p class="mt-4 text-gray-800 font-medium z-10">Dados sobre: atendimento, localização e identificação de indivíduos.</p>
+          </div>
+
+          <div class="relative mb-8 flex flex-col items-center relative z-10">
+            <span class="text-red-600 absolute"></span>
+            <span class="text-3xl font-extrabold"></span>
+          </div>
+
+          <a href="#" class="z-10 block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md font-medium bg-gray-600">
+            Incluir Atendimento:
+          </a>
+        </div>
+
+        <!-- apreensoes -->
+        <div class="h-auto w-1/4 flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+            <div class="mb-8">
+              <h3 class="xl:text-2xl text-4xl font-semibold ">Apreensões</h3>
+              <p class="mt-4 text-gray-600">Dados sobre apreensões realizadas no sistema penitenciário paraibano.  </p>
+            </div>
+            <div class="mb-8">
+              <span class="text-xl font-medium text-gray-600"></span>
+              <span class="text-3xl font-extrabold "></span>
+
+            </div>
+
+            <a href="informações" class="block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md  font-medium bg-gray-600">
+              Incluir :
+            </a>
+        </div>
+        <!-- ocorrencias -->
+        <div class="h-auto w-1/4 flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+            <div class="mb-8">
+              <h3 class="xl:text-2xl text-4xl font-semibold ">Ocorrências</h3>
+              <p class="mt-4 text-gray-600">Dados sobre: atendimento, Localização e identificação e indivíduos.  </p>
+            </div>
+            <div class="mb-8">
+              <span class="text-xl font-medium text-gray-600"></span>
+              <span class="text-3xl font-extrabold "></span>
+
+            </div>
+
+            <a href="#" class="block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md  font-medium bg-gray-600">
+              Incluir Atendimento:
+            </a>
+        </div>
+        <!-- Custodias -->
+        <div class="h-auto w-1/4 flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+            <div class="mb-8">
+              <h3 class="xl:text-2xl text-4xl font-semibold ">Custódias</h3>
+              <p class="mt-4 text-gray-600">Dados sobre: atendimento, Localização e identificação e indivíduos.  </p>
+            </div>
+            <div class="mb-8">
+              <span class="text-xl font-medium text-gray-600"></span>
+              <span class="text-3xl font-extrabold "></span>
+
+            </div>
+
+            <a href="#" class="block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md  font-medium bg-gray-600">
+              Incluir Atendimento:
+            </a>
+        </div>
+    </div>
+
+
+</div>
+
+{% endif %}
+
+
+
+
+
+{% endblock %}

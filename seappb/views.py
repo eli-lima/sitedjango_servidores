@@ -237,8 +237,6 @@ class Criarconta(HideNavMixin, FormView):
         return super().form_valid(form)
 
 
-
-
 class CustomLoginView(HideNavMixin, LoginView):
     template_name = 'login.html'
 
@@ -249,6 +247,16 @@ class CustomLoginView(HideNavMixin, LoginView):
     def form_invalid(self, form):
         messages.error(self.request, 'Erro no login. Verifique suas credenciais e tente novamente.')
         return super().form_invalid(form)
+
+    def get_success_url(self):
+        user = self.request.user
+        if user.groups.filter(Q(name='Administrador') | Q(name='Gergesipe')).exists():
+            return reverse('seappb:homepage')
+        elif user.groups.filter(name='Padrao').exists():
+            return reverse('ajuda_custo:ajuda_custo')
+        else:
+            return reverse('seappb:homepage')  # Redirecionamento padrão
+
 
 class Estatisticas(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
     template_name = "estatisticas.html"

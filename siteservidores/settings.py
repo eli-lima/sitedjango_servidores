@@ -81,6 +81,7 @@ INSTALLED_APPS = [
     'crispy_bootstrap5',
     'cloudinary_storage',
     'cloudinary',
+    'copen'
 ]
 
 MIDDLEWARE = [
@@ -260,3 +261,9 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'gesipeseappb@gmail.com'
 EMAIL_HOST_PASSWORD = 'dfpl ygsq hthl ohyi'
+
+
+# Define o tempo de expiração da sessão em segundos (60 minutos = 3600 segundos)
+SESSION_COOKIE_AGE = 10800  # 1 hora
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Fecha a sessão ao fechar o navegador
+SESSION_SAVE_EVERY_REQUEST = True  # Renova o tempo de sessão a cada requisição

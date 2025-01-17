@@ -453,7 +453,13 @@ class RelatorioRh(LoginRequiredMixin, ListView):
         context['page_range'] = range(start, end + 1)
         context['generos'] = Servidor.objects.values_list('genero', flat=True).distinct()
         context['cargos'] = Servidor.objects.values_list('cargo', flat=True).distinct()
-        context['cargos_comissionado'] = [cargo for cargo in Servidor.objects.values_list('cargo_comissionado', flat=True).distinct()]
+        context['cargos_comissionado'] = (
+            Servidor.objects.exclude(cargo_comissionado__isnull=True)
+            .exclude(cargo_comissionado__exact='')
+            .values_list('cargo_comissionado', flat=True)
+            .distinct()
+            .order_by('cargo_comissionado')
+        )
         return context
 
 
