@@ -27,6 +27,7 @@ urlpatterns = [
     path('ajuda_custo/', include('ajuda_custo.urls', namespace='ajuda_custo')),
     path('servidor/', include('servidor.urls', namespace='servidor')),
     path('copen/', include('copen.urls', namespace='copen')),
+    path('chained/', include('smart_selects.urls')),
 ]
 
 
