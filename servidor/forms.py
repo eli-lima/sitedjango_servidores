@@ -25,7 +25,7 @@ class ServidorForm(forms.ModelForm):
             'cargo': forms.TextInput(attrs={'class': 'form-control'}),
             'cargo_comissionado': forms.TextInput(attrs={'class': 'form-control'}),
             'simb_cargo_comissionado': forms.TextInput(attrs={'class': 'form-control'}),
-            'local_trabalho': forms.TextInput(attrs={'class': 'form-control'}),
+            'local_trabalho': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Selecione a unidade'}),  # Adicione o widget para unidade
             'lotacao': forms.TextInput(attrs={'class': 'form-control'}),
             'telefone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '(XX) XXXXX-XXXX'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),

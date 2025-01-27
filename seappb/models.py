@@ -1,12 +1,58 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.text import slugify
+from django.core.validators import RegexValidator
+import requests
 
 # Create your models here.
 
 
+# Lista estática de cidades como fallback
+CIDADES_FALLBACK = [
+    ("João Pessoa", "João Pessoa"),
+    ("Campina Grande", "Campina Grande"),
+    ("Patos", "Patos"),
+    ("Santa Rita", "Santa Rita"),
+    ("Bayeux", "Bayeux"),
+]
+
+def get_cidades_paraiba():
+    """Consulta a API para obter as cidades da Paraíba, com fallback."""
+    url = 'https://brasilapi.com.br/api/ibge/municipios/v1/PB'
+    try:
+        response = requests.get(url, timeout=10)  # Define um timeout para evitar travamentos
+        if response.status_code == 200:
+            cidades_data = response.json()
+            return [(cidade['nome'], cidade['nome']) for cidade in cidades_data]
+    except requests.exceptions.RequestException as e:
+        print(f"Erro ao buscar cidades da Paraíba: {e}")
+
+    # Retorna a lista estática como fallback
+    return CIDADES_FALLBACK
+
+
 class Unidade(models.Model):
     nome = models.CharField(max_length=100)
+    pais = models.CharField(max_length=255, default='BRASIL')
+    estado = models.CharField(max_length=255, default='PARAIBA')
+    cidade = models.CharField(
+        max_length=255,
+        choices=get_cidades_paraiba()  # Carrega as cidades dinamicamente com fallback
+    )
+    cep = models.CharField(
+        max_length=9,
+        null=True,
+        validators=[
+            RegexValidator(
+                regex=r'^\d{5}-\d{3}$',
+                message="O CEP deve estar no formato 12345-678",
+            )
+        ]
+    )
+    rua = models.CharField(max_length=255)
+    numero = models.CharField(max_length=8)
+    complemento = models.CharField(max_length=255)
+    reisp = models.IntegerField(choices=[(1, 'REISP 1'), (2, 'REISP 2'), (3, 'REISP 3'), (4, 'REISP 4')])
 
     def __str__(self):
         return self.nome
