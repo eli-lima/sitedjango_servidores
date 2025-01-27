@@ -56,7 +56,7 @@ class Unidade(models.Model):
     rua = models.CharField(max_length=255, blank=True, null=True)
     numero = models.CharField(max_length=8, blank=True, null=True)
     complemento = models.CharField(max_length=255, blank=True, null=True)
-    reisp = models.IntegerField(choices=[(1, 'REISP 1'), (2, 'REISP 2'), (3, 'REISP 3'), (4, 'REISP 4')], blank=True, null=True)
+    reisp = models.IntegerField(choices=[(1, '1° REISP'), (2, '2° REISP'), (3, '3° REISP'), (4, '4° REISP'), (5, '5° REISP')])
 
     def __str__(self):
         return self.nome
