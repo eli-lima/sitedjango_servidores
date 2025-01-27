@@ -3,6 +3,9 @@ from django.utils.deconstruct import deconstructible
 import os
 from django.utils import timezone
 from django.conf import settings  # Importa as configurações do Django
+from seappb.models import Unidade
+
+
 # Create your models here.
 #classe para salvar a foto individualmente
 
@@ -48,7 +51,7 @@ class Servidor(models.Model):
     cargo = models.CharField(max_length=100)  # Cargo ou função
     cargo_comissionado = models.CharField(max_length=100, blank=True, null=True)
     simb_cargo_comissionado = models.CharField(max_length=30, blank=True, null=True) #Exemplo csp-1 csp-2
-    local_trabalho = models.CharField(max_length=100, blank=False)
+    local_trabalho = models.ForeignKey(Unidade, on_delete=models.CASCADE)
     genero = models.CharField( max_length=1, choices=GENEROS,)
     lotacao = models.CharField(max_length=50, blank=True, null=True)  # Setor onde o servidor trabalha
     data_admissao = models.DateField(blank=True, null=True)  # Data de admissão
