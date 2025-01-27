@@ -16,6 +16,7 @@ class ServidorForm(forms.ModelForm):
 
         widgets = {
             'data_nascimento': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}, format='%Y-%m-%d'),
+            'observacao': forms.TextInput(),
             'data_admissao': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}, format='%Y-%m-%d'),
             'regime': forms.Select(attrs={'class': 'form-control'}),
             'status': forms.Select(attrs={'class': 'form-control'}),
@@ -37,6 +38,7 @@ class ServidorForm(forms.ModelForm):
             'matricula': 'Matrícula',
             'nome': 'Nome Completo',
             'data_nascimento': 'Data de Nascimento',
+            'observacao': "Observação",
             'cargo': 'Cargo',
             'cargo_comissionado': 'Cargo Comissionado',
             'simb_cargo_comissionado': 'Símbolo',
