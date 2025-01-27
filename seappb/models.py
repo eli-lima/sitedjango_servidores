@@ -37,7 +37,9 @@ class Unidade(models.Model):
     estado = models.CharField(max_length=255, default='PARAIBA')
     cidade = models.CharField(
         max_length=255,
-        choices=get_cidades_paraiba()  # Carrega as cidades dinamicamente com fallback
+        choices=get_cidades_paraiba(),
+        blank=True,
+        null=True# Carrega as cidades dinamicamente com fallback
     )
     cep = models.CharField(
         max_length=9,
@@ -46,13 +48,15 @@ class Unidade(models.Model):
             RegexValidator(
                 regex=r'^\d{5}-\d{3}$',
                 message="O CEP deve estar no formato 12345-678",
+
             )
-        ]
+        ],
+        default='58000-000'
     )
-    rua = models.CharField(max_length=255)
-    numero = models.CharField(max_length=8)
-    complemento = models.CharField(max_length=255)
-    reisp = models.IntegerField(choices=[(1, 'REISP 1'), (2, 'REISP 2'), (3, 'REISP 3'), (4, 'REISP 4')])
+    rua = models.CharField(max_length=255, blank=True, null=True)
+    numero = models.CharField(max_length=8, blank=True, null=True)
+    complemento = models.CharField(max_length=255, blank=True, null=True)
+    reisp = models.IntegerField(choices=[(1, 'REISP 1'), (2, 'REISP 2'), (3, 'REISP 3'), (4, 'REISP 4')], blank=True, null=True)
 
     def __str__(self):
         return self.nome

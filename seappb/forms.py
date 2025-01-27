@@ -1,5 +1,5 @@
 from django.contrib.auth.forms import UserCreationForm
-from .models import Usuario, Setor
+from .models import Usuario, Setor, Unidade
 from django import forms
 
 
@@ -22,3 +22,41 @@ class CriarContaForm(UserCreationForm):
 
 
 
+class UnidadeForm(forms.ModelForm):
+    class Meta:
+        model = Unidade
+        fields = [
+            'nome', 'pais', 'estado', 'cidade', 'cep', 'rua', 'numero', 'complemento', 'reisp'
+        ]
+
+        widgets = {
+            'nome': forms.TextInput(attrs={'class': 'form-control'}),
+            'pais': forms.TextInput(attrs={'class': 'form-control'}),
+            'estado': forms.TextInput(attrs={'class': 'form-control'}),
+            'cidade': forms.Select(attrs={'class': 'form-control'}),
+            'cep': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '00000-000'}),
+            'rua': forms.TextInput(attrs={'class': 'form-control'}),
+            'numero': forms.TextInput(attrs={'class': 'form-control'}),
+            'complemento': forms.TextInput(attrs={'class': 'form-control'}),
+            'reisp': forms.Select(attrs={'class': 'form-control'}),
+        }
+
+        labels = {
+            'nome': 'Nome da Unidade',
+            'pais': 'País',
+            'estado': 'Estado',
+            'cidade': 'Cidade',
+            'cep': 'CEP',
+            'rua': 'Rua',
+            'numero': 'Número',
+            'complemento': 'Complemento',
+            'reisp': 'REISP',
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(UnidadeForm, self).__init__(*args, **kwargs)
+
+        # Preencher o campo 'cidade' com as cidades da Paraíba dinamicamente
+        # self.fields['cidade'].choices = get_cidades_paraiba()
+        # Se necessário, ordene a lista de cidades ou reisp
+        # self.fields['reisp'].queryset = self.fields['reisp'].queryset.order_by('nome')
