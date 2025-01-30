@@ -8,7 +8,7 @@ class ServidorForm(forms.ModelForm):
     class Meta:
         model = Servidor
         fields = [
-            'matricula', 'nome', 'data_nascimento', 'cargo', 'cargo_comissionado',
+            'matricula', 'nome', 'data_nascimento', 'observacao', 'disposicao', 'cargo', 'cargo_comissionado',
             'simb_cargo_comissionado', 'local_trabalho', 'genero', 'lotacao',
             'data_admissao', 'telefone', 'email', 'endereco', 'foto_servidor',
             'regime', 'status'
@@ -17,6 +17,7 @@ class ServidorForm(forms.ModelForm):
         widgets = {
             'data_nascimento': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}, format='%Y-%m-%d'),
             'observacao': forms.TextInput(),
+            'disposicao': forms.TextInput(attrs={'class': 'form-control'}),
             'data_admissao': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}, format='%Y-%m-%d'),
             'regime': forms.Select(attrs={'class': 'form-control'}),
             'status': forms.Select(attrs={'class': 'form-control'}),
@@ -39,6 +40,7 @@ class ServidorForm(forms.ModelForm):
             'nome': 'Nome Completo',
             'data_nascimento': 'Data de Nascimento',
             'observacao': "Observação",
+            'disposicao': "Disposição",
             'cargo': 'Cargo',
             'cargo_comissionado': 'Cargo Comissionado',
             'simb_cargo_comissionado': 'Símbolo',

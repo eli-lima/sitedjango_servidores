@@ -49,6 +49,7 @@ class Servidor(models.Model):
     nome = models.CharField(max_length=100, blank=False)  # Nome completo do servidor
     data_nascimento = models.DateField(blank=True, null=True)  # Data de nascimento
     observacao = models.TextField(blank=True, null=True)  # observacao
+    disposicao = models.CharField(max_length=100, blank=True, null=True)
     cargo = models.CharField(max_length=100)  # Cargo ou função
     cargo_comissionado = models.CharField(max_length=100, blank=True, null=True)
     simb_cargo_comissionado = models.CharField(max_length=30, blank=True, null=True) #Exemplo csp-1 csp-2

@@ -7,7 +7,19 @@ class SetorAdmin(admin.ModelAdmin):
     list_display = ('id', 'nome')
 
 admin.site.register(Setor, SetorAdmin)
-admin.site.register(Unidade)
+@admin.register(Unidade)
+class UnidadeAdmin(admin.ModelAdmin):
+    # Definir quais campos aparecerão na listagem de Ajuda_Custo
+    list_display = ('nome', 'cidade', 'reisp')
+    #
+    # Definir os campos que podem ser pesquisados (campo de pesquisa no topo da lista)
+    search_fields = ('nome', 'reisp', 'cidade')
+    #
+    # Adicionar filtros laterais
+    list_filter = ('reisp', 'nome')
+
+    # Habilitar a ordenação por nome
+    ordering = ('nome',)
 
 # Registrar Usuario com customizações
 class UsuarioAdmin(UserAdmin):
