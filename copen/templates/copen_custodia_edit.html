@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% load static %}
+
+{% block titulo %}
+Copen - Editar Custodia
+{% endblock %}
+
+
+
+{% block content %}
+    <div class="flex flex-col pt-4">
+
+        <div class="flex flex-col ítems-end">
+            <h1 class="text-center text-3xl pb-5 font-mono">Finalizar ou Excluir Custódia:</h1>
+        </div>
+        <div class="mx-4 shadow rounded shadow-md border border-2 border-secondary">
+
+            <div class="flex justify-center space-x-4 w-full pb-8 pt-4">
+<!--                nome do interno-->
+                <div class="w-2/6">
+                    <label class="form-label">Interno:</label>
+                    <span class="form-control-plaintext rounded bg-gray-200 px-2">{{ form.instance.interno.nome }}</span>
+                </div>
+<!--                pronturario-->
+                <div class="w-auto">
+                    <label class="form-label">Prontuário:</label>
+                    <span class="form-control-plaintext rounded bg-gray-200 px-2">{{ form.instance.interno.prontuario }}</span>
+                </div>
+
+            </div>
+            <div class="flex justify-center space-x-4 w-full pb-8 pt-4">
+<!--            unidade hospitalar-->
+                <div class="w-1/3">
+                    <label class="form-label">Unidade Hospitalar:</label>
+                    <span class="form-control-plaintext rounded bg-gray-200 px-2">{{ form.instance.unidade_hospitalar }}</span>
+                </div>
+<!--                unidade solicitante-->
+                <div class="w-1/3">
+                    <label class="form-label">Unidade Solicitante:</label>
+                    <span class="form-control-plaintext rounded bg-gray-200 px-2">{{ form.instance.unidade_solicitante }}</span>
+                </div>
+                <div class="w-1/6">
+                    <label class="form-label">Responsável:</label>
+                    <span class="form-control-plaintext rounded bg-gray-200 px-2">{{ form.instance.responsavel }}</span>
+                </div>
+
+
+            </div>
+            <div class="flex justify-center space-x-4 w-full pb-2 pt-4">
+                <div class="w-auto">
+                    <label class="form-label">Data de Entrada:</label>
+                    <span class="form-control-plaintext rounded bg-gray-200 px-2">{{ form.instance.data_entrada }}</span>
+                </div>
+
+            </div>
+            <div class="flex justify-center space-x-4 w-full pb-8 pt-4">
+               <div class="w-auto">
+                    <h3 class="text-center font-semibold pb-2">Editar Data de Saída</h3>
+                        <form class="pb-8" method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            {{ form.data_saida }}
+                            <div class="pt-4 text-center">
+                                <button type="submit" class="btn btn-primary">Salvar</button>
+                            </div>
+                        </form>
+
+
+               </div>
+
+
+            </div>
+        </div>
+
+
+    </div>
+
+
+
+
+
+
+
+
+
+{% endblock %}

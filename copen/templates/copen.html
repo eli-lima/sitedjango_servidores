@@ -20,11 +20,131 @@ Copen
     </div>
 
 
+
+<div class="flex flex-col w-full mb-6">
+  <div class=" flex justify-evenly flex-wrap">
+    <div class=" py-2 px-2 w-1/2 xl:w-1/5">
+          <!-- Card 1 -->
+
+    <div class="ml-4 flex-auto h-44 w-auto shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
+        <div class="flex flex-row justify-between items-center h-full px-4">
+            <div class="flex flex-col justify-between h-full py-10">
+                <div class="pb-4">
+                    <h3 class="font-bold text-size uppercase xl:text-base text-lg">Atendimentos do Mês</h3>
+                </div>
+                <div>
+                    <p class="px-2 bg-gray-600 rounded text-white font-semibold xl:text-base text-lg">{{ atendimento_mes }}</p>
+                </div>
+            </div>
+            <div class="bg-green-600 rounded-full h-20 min-w-20 flex items-center justify-center">
+                <i class="fs-1 bi bi-calendar-fill text-white"></i>
+            </div>
+
+        </div>
+    </div>
+
+    </div>
+
+    <div class="py-2 px-2 w-1/2 xl:w-1/5">
+          <!-- Card 2 -->
+
+        <div class="mr-4 xl:mr-0 flex-auto h-44 shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
+            <div class="flex flex-row justify-between items-center h-full px-4">
+                <div class="flex flex-col justify-between h-full py-10">
+                    <div class="pb-4">
+                        <h3 class="font-bold text-size uppercase xl:text-base text-lg">Apreensões do Mês</h3>
+                    </div>
+                    <div>
+                        <p class="px-2 bg-gray-600 rounded text-white font-semibold xl:text-base text-lg">{{ apreensao_mes }}</p>
+                    </div>
+                </div>
+                <div class="bg-red-600 rounded-full h-20 min-w-20 flex items-center justify-center">
+                    <i class="fs-1 bi bi-calendar-x-fill text-white"></i>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <div class="py-2 px-2 w-1/2 xl:w-1/5">
+          <!-- Card 3 -->
+
+        <div class="mr-4 xl:mr-0 flex-auto h-44 shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
+            <div class="flex flex-row justify-between items-center h-full px-4">
+                <div class="flex flex-col justify-between h-full py-10">
+                    <div class="pb-4">
+                        <h3 class="font-bold text-size uppercase xl:text-base text-lg">Ocorrencias do Mês</h3>
+                    </div>
+                    <div>
+                        <p class="px-2 bg-gray-600 rounded text-white font-semibold xl:text-base text-lg">{{ ocorrencia_mes }}</p>
+                    </div>
+                </div>
+                <div class="bg-red-600 rounded-full h-20 min-w-20 flex items-center justify-center">
+                    <i class="fs-1 bi bi-calendar-x-fill text-white"></i>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <div class=" py-2 px-2 w-1/2 xl:w-1/5">
+          <!-- Card 4 -->
+
+        <div class="mr-4 xl:mr-0 flex-auto h-44 shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
+            <div class="flex flex-row justify-between items-center h-full px-4">
+                <div class="flex flex-col justify-between h-full py-10">
+                    <div class="pb-4">
+                        <h3 class="font-bold text-size uppercase xl:text-base text-lg">Custódias Ativas</h3>
+                    </div>
+                    <div>
+                        <p class="px-2 bg-gray-600 rounded text-white font-semibold xl:text-base text-lg">{{ custodias_ativas }}</p>
+                    </div>
+                </div>
+                <div class="bg-red-600 rounded-full h-20 min-w-20 flex items-center justify-center">
+                    <i class="fs-1 bi bi-calendar-x-fill text-white"></i>
+                </div>
+
+            </div>
+        </div>
+
+
+    </div>
+    <div class=" py-2 px-2 w-1/2 xl:w-1/5">
+          <!-- Card 5 -->
+
+        <div class="mr-4 xl:mr-0 flex-auto h-44 shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
+            <div class="flex flex-row justify-between items-center h-full px-4">
+                <div class="flex flex-col justify-between h-full py-10">
+                    <div class="pb-4">
+                        <h3 class="font-bold text-size uppercase xl:text-base text-lg">Cumprimentos de Mandado do Mês</h3>
+                    </div>
+                    <div>
+                        <p class="px-2 bg-gray-600 rounded text-white font-semibold xl:text-base text-lg">{{ mp_mes }}</p>
+                    </div>
+                </div>
+                <div class="bg-red-600 rounded-full h-20 min-w-20 flex items-center justify-center">
+                    <i class="fs-1 bi bi-calendar-x-fill text-white"></i>
+                </div>
+
+            </div>
+        </div>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
     <!--cards incluir dados-->
-    <div class="flex flex-row w-full px-4 space-x-3">
+    <div class="flex flex-row w-full px-4 space-x-8 pb-4">
     <!-- atendimentos -->
         <!-- Card com ícone como fundo -->
-        <div class="h-auto w-1/4 flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300 bg-white overflow-hidden">
+        <div class="h-auto w-1/3 flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300 bg-white overflow-hidden">
               <!-- Ícone como fundo -->
               <span class="absolute flex justify-center items-center text-gray-400 text-[150px] bottom-[70px] right-[110px] opacity-50">
                 <i class="bi bi-headset"></i>
@@ -41,13 +161,13 @@ Copen
             <span class="text-3xl font-extrabold"></span>
           </div>
 
-          <a href="#" class="z-10 block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md font-medium bg-gray-600">
+          <a href="{% url 'copen:atendimento' %}" class="z-10 block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md font-medium bg-gray-600">
             Incluir Atendimento:
           </a>
         </div>
 
         <!-- apreensoes -->
-        <div class="h-auto w-1/4 flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+        <div class="h-auto w-1/3 flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
             <div class="mb-8">
               <h3 class="xl:text-2xl text-4xl font-semibold ">Apreensões</h3>
               <p class="mt-4 text-gray-600">Dados sobre apreensões realizadas no sistema penitenciário paraibano.  </p>
@@ -58,12 +178,12 @@ Copen
 
             </div>
 
-            <a href="informações" class="block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md  font-medium bg-gray-600">
-              Incluir :
+            <a href="{% url 'copen:apreensao_add' %}" class="block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md  font-medium bg-gray-600">
+              Acessar
             </a>
         </div>
         <!-- ocorrencias -->
-        <div class="h-auto w-1/4 flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+        <div class="h-auto w-1/3 flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
             <div class="mb-8">
               <h3 class="xl:text-2xl text-4xl font-semibold ">Ocorrências</h3>
               <p class="mt-4 text-gray-600">Dados sobre: atendimento, Localização e identificação e indivíduos.  </p>
@@ -74,12 +194,14 @@ Copen
 
             </div>
 
-            <a href="#" class="block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md  font-medium bg-gray-600">
+            <a href="{% url 'copen:ocorrencia' %}" class="block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md  font-medium bg-gray-600">
               Incluir Atendimento:
             </a>
         </div>
+    </div>
+    <div class="flex flex-row w-full px-4 space-x-8">
         <!-- Custodias -->
-        <div class="h-auto w-1/4 flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+        <div class="h-auto w-1/3 flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
             <div class="mb-8">
               <h3 class="xl:text-2xl text-4xl font-semibold ">Custódias</h3>
               <p class="mt-4 text-gray-600">Dados sobre: atendimento, Localização e identificação e indivíduos.  </p>
@@ -90,18 +212,285 @@ Copen
 
             </div>
 
-            <a href="#" class="block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md  font-medium bg-gray-600">
-              Incluir Atendimento:
+            <a href="{% url 'copen:custodia_add' %}" class="block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md  font-medium bg-gray-600">
+              Incluir:
             </a>
         </div>
+        <!-- Mandados de Prisão -->
+        <div class="h-auto w-1/3 flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+            <div class="mb-8">
+              <h3 class="xl:text-2xl text-4xl font-semibold ">Mandados De Prisão</h3>
+              <p class="mt-4 text-gray-600">Cumprimento de Mandados de Prisão em Unidades Prisionais.  </p>
+            </div>
+            <div class="mb-8">
+              <span class="text-xl font-medium text-gray-600"></span>
+              <span class="text-3xl font-extrabold "></span>
+
+            </div>
+
+            <a href="{% url 'copen:mp_add' %}" class="block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md  font-medium bg-gray-600">
+              Incluir:
+            </a>
+        </div>
+        <!-- Consulta internos -->
+        <div class="h-auto w-1/3 flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+            <div class="mb-8">
+              <h3 class="xl:text-2xl text-4xl font-semibold ">Consulta INFOPEN</h3>
+              <p class="mt-4 text-gray-600">Consulta e localização Rápida de indivíduos no INFOPEN.  </p>
+            </div>
+            <div class="mb-8">
+              <span class="text-xl font-medium text-gray-600"></span>
+              <span class="text-3xl font-extrabold "></span>
+
+            </div>
+
+            <a href="{% url 'interno:interno' %}" class="block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md  font-medium bg-gray-600">
+              Consultar:
+            </a>
+        </div>
+    </div>
+
+</div>
+
+<!--campos Apreensoes-->
+
+<div class="pt-4 flex flex-row px-4 xl:px-12 justify-start w-full xl:h-auto h-96">
+<!-- Gráfico de barra custodias-->
+    <div class=" w-3/4 mr-4 bg-white border border-gray-200 rounded-lg shadow-xl px-4 py-4">
+        <div class="flex items-center justify-between pb-4 mb-4 border-b border-gray-200">
+            <div>
+                <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Quantidade Total Mensal</h3>
+                <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">Apreensões</span>
+            </div>
+
+        </div>
+        <div class="">
+            <canvas id="chart-bar-apreensao" width="800" height="200"></canvas>
+        </div>
+    </div>
+
+<!--    GRAFICO natureza Apreensoes-->
+    <div class="w-1/4 flex flex-col items-stretch rounded-lg shadow-lg pr-4">
+        <div class="border-b border-gray-200 pb-4 mb-4 p-4">
+            <h3 class="text-base font-semibold text-gray-500 dark:text-gray-400">Natureza das Apreensões:</h3>
+
+        </div>
+
+
+        <div class="h-[280px] xl:p-4 p-1">
+            <canvas id="pizza-apreensao" width="200" height="100"></canvas>
+        </div>
+
     </div>
 
 
 </div>
 
+
+<!--tabela com custodias ativas-->
+
+<div class="w-full mb-12 pt-8 flex justify-start px-4">
+    <div class="bg-white shadow-lg rounded-lg w-full">
+        <div class="p-6 rounded-t-lg">
+            <div class="flex flex-row justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-center">Custódias em Andamento</h1>
+                </div>
+                <div>
+                    <a href="{% url 'servidor:relatorio_rh' %}" class="inline-flex items-center p-2 text-xs font-medium uppercase rounded-lg text-primary-700 sm:text-sm hover:bg-gray-100 dark:text-primary-500 dark:hover:bg-gray-700">
+                        Dados Completos
+                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+                <form method="GET">
+                    <div class="mt-4 px-0 flex flex-row justify-between w-full">
+                        <div class="flex space-x-4 items-center">
+
+                        </div>
+                        <div>
+                            <input type="text" name="query" id="searchInput" class="form-input w-full sm:w-auto sm:ml-4 p-1.5 rounded-md border-2 border-gray-600" placeholder="Pesquisar..." value="{{ query }}">
+                            <button type="submit" class="hidden"></button>
+                        </div>
+                    </div>
+                </form>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white divide-y divide-gray-200">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prontuário</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unidade Origem</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Responsável Pela Custódia</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data de Entrada:</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for custodia in lista_custodias_ativas %}
+                    <tr class="clickable-row" data-href="{% url 'copen:custodia_edit' custodia.id %}">
+                        <td class="px-6 py-4 whitespace-nowrap">{{ custodia.interno.nome }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ custodia.interno.prontuario }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ custodia.unidade_hospitalar }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ custodia.responsavel }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ custodia.data_entrada |date:"d/m/Y" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="px-6 py-4 text-center text-gray-500">Nenhum servidor encontrado</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Paginação -->
+        <div class="p-6 bg-gray-100 rounded-b-lg">
+            <nav aria-label="Page navigation">
+                <ul class="inline-flex items-center -space-x-px">
+                    {% if page_obj.has_previous %}
+                    <li>
+                        <a href="?page=1&query={{ request.GET.query }}" class="px-3 py-2 ml-0 text-sm font-medium text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100">Primeira</a>
+                    </li>
+                    <li>
+                        <a href="?page={{ page_obj.previous_page_number }}&query={{ request.GET.query }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">Anterior</a>
+                    </li>
+                    {% endif %}
+
+                    {% for p in page_range %}
+                    {% if p == page_obj.number %}
+                    <li>
+                        <span class="px-3 py-2 text-sm font-medium text-white bg-blue-500 border border-gray-300">{{ p }}</span>
+                    </li>
+                    {% else %}
+                    <li>
+                        <a href="?page={{ p }}&query={{ request.GET.query }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">{{ p }}</a>
+                    </li>
+                    {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li>
+                        <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">Próxima</a>
+                    </li>
+                    <li>
+                        <a href="?page={{ page_obj.paginator.num_pages }}&query={{ request.GET.query }}&cargo={{ request.GET.cargo }}&local_trabalho={{ request.GET.local_trabalho }}&cargo_comissionado={{ request.GET.cargo_comissionado }}&status={{ request.GET.status }}&genero={{ request.GET.genero }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100">Última</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
 {% endif %}
 
 
+
+
+
+<!--scripts-->
+
+<script>
+    // Dados do gráfico de barra para Apreensoes
+    var ctx = document.getElementById('chart-bar-apreensao').getContext('2d');
+    var barLabels = {{ monthly_labels_apreensao|safe }};  // Labels dos meses com ano
+    var barValues = {{ monthly_totals_apreensao|safe }};  // Quantidade mensal de Apreensoes
+
+    var myBarChart = new Chart(ctx, {
+        type: 'bar', // Tipo de gráfico: barra
+        data: {
+            labels: barLabels, // Nomes dos meses (Janeiro 2024, Fevereiro 2024, etc.)
+            datasets: [{
+                label: 'Total de Apreensões',
+                data: barValues, // Valores mensais calculados no backend
+                backgroundColor: 'rgba(210, 0, 0, 1)', // Cor de fundo das barras (vermelho)
+                borderColor: 'rgba(210, 0, 0, 1)', // Cor da borda das barras (vermelho)
+                borderWidth: 2, // Largura da borda das barras
+                borderRadius: 4 // Arredondamento das bordas das barras
+            }]
+        },
+        options: {
+            scales: {
+                x: {
+                    grid: {
+                        display: false // Oculta a grade no eixo X
+                    }
+                },
+                y: {
+                    beginAtZero: true, // Começa o eixo Y no zero
+                    grid: {
+                        display: false // Oculta a grade no eixo Y
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+
+
+
+<!--grafico Pizza aprensao-->
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var ctx = document.getElementById('pizza-apreensao').getContext('2d');
+        var myPieChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: {{ pie_labels_apreensao|safe }},  // Ex.: []
+                datasets: [{
+                    label: 'Distribuição de Ajuda de Custo',
+                    data: {{ pie_values_apreensao|safe }},  // Ex.: [50, 30] - dados dinâmicos
+                    backgroundColor: [
+                        'rgba(54, 162, 35, 1)',  // verde para Ajuda Normal
+                        'rgba(255, 69, 58, 1)'   // Vermelho para Ajuda Majorada
+                    ],
+                    borderColor: [
+                        'rgba(54, 162, 35, 1)',  // Verde
+                        'rgba(255, 69, 58, 1)'   // Vermelho
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return tooltipItem.label + ': ' + tooltipItem.raw;
+                            }
+                        }
+                    },
+                    datalabels: {
+                        display: true,
+                        color: '#ffffff',
+                        font: {
+                            weight: 'bold',
+                            size: 14
+                        },
+                        formatter: (value) => {
+                            return `${value}`;  // Exibe o valor numérico de cada segmento
+                        }
+                    }
+                },
+                cutout: '50%'  // Ajusta a espessura do gráfico tipo donut, caso esteja usando um gráfico de donut
+            }
+        });
+    });
+</script>
 
 
 

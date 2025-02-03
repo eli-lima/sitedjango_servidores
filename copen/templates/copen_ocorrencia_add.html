@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% load static %}
+
+{% block titulo %}
+Copen - Ocorrencia
+{% endblock %}
+
+
+
+{% block content %}
+
+    <div class="flex flex-col pt-4">
+
+        <div class="flex flex-col ítems-end">
+            <h1 class="text-center text-3xl pb-5 font-mono">Incluir Ocorrência:</h1>
+        </div>
+
+
+
+
+        <form class="mx-4 shadow rounded shadow-md border border-2 border-secondary" method="post" action="{% url 'copen:ocorrencia' %}">
+        {% csrf_token %}
+
+
+
+        <div class="flex justify-center space-x-4 w-full pb-8 pt-4">
+            <!-- Data -->
+            <div class="w-auto">
+                <label class="form-label">Data:</label>
+                {{form.data}}
+            </div>
+
+            <!-- Descrição -->
+            <div class="w-auto">
+                <label class="form-label">Descrição:</label>
+                {{form.descricao}}
+            </div>
+
+            <!-- Tipo -->
+            <div class="w-auto">
+                <label class="form-label">Tipo:</label>
+                {{form.tipo}}
+            </div>
+        </div>
+
+        <div class="flex justify-center space-x-4 w-full pb-8 pt-4 mx-4">
+
+            <!-- Unidade -->
+            <div class="w-2/6">
+                <label class="form-label">Unidade:</label>
+                {{form.unidade}}
+
+            </div>
+        </div>
+        <div class="flex justify-center space-x-4 w-full pt-4 mx-4">
+            <h3 class="text-2xl font-semibold">Nome dos Envolvidos ser houver:</h3>
+        </div>
+        <div class="flex justify-center space-x-4 w-full pb-4 pt-4 mx-4">
+
+            <!-- Servidor -->
+            <div class="w-2/6 self.end">
+                <label class="form-label">Servidor:</label>
+                {{form.servidor}}
+            </div>
+
+            <!-- Outros -->
+            <div class="w-2/6">
+                <label class="form-label">Outros:</label>
+                {{form.outros}}
+            </div>
+        </div>
+
+        <div class="flex justify-center space-x-4 w-full pt-4 mx-4">
+            <h3 class="text-2xl font-semibold">Nome do interno ser houver</h3>
+        </div>
+        <div class="flex justify-center space-x-4 w-full pb-4 pt-4 mx-4">
+
+            <!-- Buscar Interno -->
+            <div class="w-auto">
+               <label class="form-label">Nome do Interno:</label>
+               {{form.interno_nome}}</div>
+
+            <!-- Contêiner para os resultados -->
+            <div id="autocomplete-results" class="mt-3"></div>
+
+            <!-- Indicador de carregamento -->
+            <div id="autocomplete-loading" style="display: none;">Carregando...</div>
+
+            <!-- Campo não editável para exibir o interno selecionado -->
+            <div class="w-2/6">
+                <label for="id_interno" class="form-label">Interno Selecionado:</label>
+                <input type="text" name="interno" id="id_interno" class="form-control" readonly placeholder="Selecione o interno na tabela abaixo">
+            </div>
+            <!-- Campo oculto para enviar o ID do interno -->
+            <input type="hidden" name="interno_id" id="interno-id">
+
+        </div>
+
+        <div class="flex justify-center space-x-4 w-full pb-2 pt-2 mx-4">
+
+            <!-- Observação -->
+            <div class="mb-3">
+                <label class="form-label">Observação:</label>
+               {{form.observacao}}
+            </div>
+        </div>
+
+
+        <div class="flex justify-center space-x-4 w-full pb-2 pt-2 mx-4">
+            <button type="submit" class="btn btn-primary mt-3">Salvar</button>
+        </div>
+        </form>
+    </div>
+
+<script>
+        function setInterno(id, nome) {
+        // Preenche o campo não editável com o nome do interno
+        document.getElementById('id_interno').value = nome;
+
+        // Preenche ou cria o campo oculto para o ID do interno
+        const hiddenField = document.getElementById('interno-id');
+        if (!hiddenField) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'interno_id';  // Importante: o name deve ser interno_id
+            input.id = 'interno-id';
+            input.value = id;
+            document.querySelector('form').appendChild(input);
+        } else {
+            hiddenField.value = id;
+        }
+
+        // Limpa os resultados da tabela
+        document.getElementById('autocomplete-results').innerHTML = '';
+    }
+
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const today = new Date().toISOString().split('T')[0]; // Obtém a data atual no formato YYYY-MM-DD
+        const dateField = document.getElementById('id_data');
+        if (dateField && !dateField.value) { // Preenche apenas se o campo estiver vazio
+            dateField.value = today;
+        }
+    });
+</script>
+
+
+
+{% endblock %}

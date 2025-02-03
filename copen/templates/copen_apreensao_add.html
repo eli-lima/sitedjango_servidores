@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% load static %}
+
+{% block titulo %}
+Copen - Apreensao
+{% endblock %}
+
+
+
+{% block content %}
+    <div class="flex flex-col pt-4">
+        <div class="flex flex-col ítems-end">
+            <h1 class="text-center text-3xl pb-5 font-mono">Cadastro de Apreensão</h1>
+        </div>
+
+
+
+        <form class="mx-4 shadow rounded shadow-md border border-2 border-secondary" method="post" action="{% url 'copen:apreensao_add' %}">
+            {% csrf_token %}
+
+            <div class="flex justify-center space-x-4 w-full pb-8 pt-4">
+                <!-- Campo Data -->
+                <div class="w-auto">
+                    <label for="id_data" class="form-label">Data:</label>
+                    <input type="date" name="data" id="id_data" class="form-control" required>
+                    {% if form.data.errors %}
+                            <ul class="text-danger">
+                                {% for error in form.data.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                </div>
+                <!-- Campo unidade -->
+                <div class="w-auto">
+                    <label class="form-label">Unidade:</label>
+                    {{form.unidade}}
+                    {% if form.unidade.errors %}
+                            <ul class="text-danger">
+                                {% for error in form.unidade.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+
+                </div>
+                <!-- Campo Natureza -->
+                <div class="w-auto">
+                    <label class="form-label">Natureza da Apreensão:</label>
+                    {{form.natureza}}
+                    {% if form.natureza.errors %}
+                        <ul class="text-danger">
+                            {% for error in form.natureza.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+
+                </div>
+            </div>
+            <div class="flex justify-center space-x-4 w-full pb-8">
+
+
+
+                <!-- Campo Objeto -->
+                <div class="w-auto">
+                    <label for="id_objeto" class="form-label">Objeto:</label>
+                    <select name="objeto" id="id_objeto" class="form-control">
+                        <option value="">Selecione a Natureza Primeiro</option>
+                        {% if form.objeto.errors %}
+                        <ul class="text-danger">
+                            {% for error in form.objeto.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                    </select>
+                </div>
+
+
+                <!-- Outros Campos -->
+                <div class="w-auto">
+                    <label class="form-label">Quantidade:</label>
+                    {{form.quantidade}}
+                    <ul class="text-danger">
+                        {% for error in form.objeto.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <div class="flex justify-center space-x-4 w-full pb-8 mx-6">
+
+                <div class="w-2/4">
+                    <label for="id_descricao" class="form-label">Descrição:</label>
+                    <textarea name="descricao" id="id_descricao" class="form-control" rows="3" required></textarea>
+                </div>
+
+                <div class="w-1/4">
+                    <label for="id_observacao" class="form-label">Observação:</label>
+                    <textarea name="observacao" id="id_observacao" class="form-control" rows="3"></textarea>
+                </div>
+
+            </div>
+
+            <div class="flex justify-center space-x-4 w-full pb-8">
+                <button type="submit" class="btn btn-primary">Salvar</button>
+            </div>
+        </form>
+    </div>
+
+
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const today = new Date().toISOString().split('T')[0]; // Obtém a data atual no formato YYYY-MM-DD
+        const dateField = document.getElementById('id_data');
+        if (dateField && !dateField.value) { // Preenche apenas se o campo estiver vazio
+            dateField.value = today;
+        }
+    });
+</script>
+{% endblock %}
+

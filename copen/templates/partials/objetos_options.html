@@ -1,0 +1,6 @@
+<option value="">Selecione o Objeto</option>
+{% for objeto in objetos %}
+    <option value="{{ objeto.id }}">{{ objeto.nome }}</option>
+{% empty %}
+    <option value="">Nenhum objeto encontrado</option>
+{% endfor %}

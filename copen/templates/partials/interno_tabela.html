@@ -1,0 +1,24 @@
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Prontuário</th>
+            <th>Nome da Mãe</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for interno in internos %}
+            <tr
+                style="cursor: pointer;"
+                onclick="setInterno('{{ interno.id }}', '{{ interno.nome }}', '{{ interno.nome_mae }}')"> <!-- Passa ID e Nome -->
+                <td>{{ interno.prontuario }}</td>
+                <td>{{ interno.nome }}</td>
+                <td>{{ interno.nome_mae }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="3" class="text-center">Nenhum interno encontrado.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
