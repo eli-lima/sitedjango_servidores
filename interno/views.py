@@ -57,15 +57,7 @@ class Internos(LoginRequiredMixin, ListView):
 
         return queryset.order_by('-prontuario')
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
 
-
-
-
-
-        # Construir o restante do contexto com os filtros aplicados
-        return context
 
 
 

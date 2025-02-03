@@ -25,7 +25,7 @@ def interno_list(request):
         )
 
     # Ordenar e limitar resultados
-    queryset = queryset.order_by('-data_extracao')[:50]
+    queryset = queryset.order_by('prontuario')[:50]
 
     return render(request, 'partials/interno_partial.html', {
         'datas': queryset
