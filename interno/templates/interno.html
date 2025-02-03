@@ -10,25 +10,96 @@ Internos
 
 <!--tabela com internos-->
 
-testar pagina
+<div class="mb-12 flex px-4 xl:px-12 justify-start w-full pt-4">
+    <div class="bg-white shadow-lg rounded-lg w-full">
+        <div class="p-6 rounded-t-lg">
+            <div>
+               <div class="flex items-center justify-between pb-4 mb-4 border-b border-gray-200">
+                    <div>
+                        <h3 class="xl:text-base text-2xl font-normal text-gray-500 dark:text-gray-400 pb-2">Relatório</h3>
+                        <span class="xl:text-2xl text-5xl font-bold leading-none text-gray-900 dark:text-white">Internos</span>
+                    </div>
+                   {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups %}
+                    <a href="{% url 'interno:relatorio_interno' %}" class="inline-flex items-center p-2 text-2xl xl:text-xl font-bold uppercase rounded-lg text-primary-700 hover:bg-gray-100 dark:text-primary-500 dark:hover:bg-gray-700">
+                        Dados Completos
+                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </a>
+                   {% endif %}
+               </div>
+            </div>
+
+                <form method="GET" onsubmit="return false;">
+                    <div class="mt-4 px-0 flex flex-row justify-between w-full">
+                        <div class="flex flex-row">
+                            <!-- Campo CPF -->
+                            <input
+                                class="form-input w-full sm:w-auto sm:ml-4 p-1.5 rounded-md border-1 border-gray-600"
+                                type="text"
+                                name="cpf"
+                                id="cpf"
+                                value="{{ request.GET.cpf }}"
+                                placeholder="CPF..."
+                                hx-get="{% url 'interno:interno_list' %}"
+                                hx-trigger="keyup delay:500ms"
+                                hx-target="#content2"
+                                hx-include="[name='cpf'], [name='nome_mae'], [name='query']"
+                            />
+
+                            <!-- Campo Nome da Mãe -->
+                            <input
+                                class="form-input w-full sm:w-auto sm:ml-4 p-1.5 rounded-md border-1 border-gray-600"
+                                type="text"
+                                name="nome_mae"
+                                id="nome_mae"
+                                value="{{ request.GET.nome_mae }}"
+                                placeholder="Nome da Mãe..."
+                                hx-get="{% url 'interno:interno_list' %}"
+                                hx-trigger="keyup delay:500ms"
+                                hx-target="#content2"
+                                hx-include="[name='cpf'], [name='nome_mae'], [name='query']"
+                            />
+
+                            <!-- Campo Pesquisa Geral -->
+                            <input
+                                type="text"
+                                name="query"
+                                class="form-input w-full sm:w-auto sm:ml-4 p-1.5 rounded-md border-1 border-gray-600"
+                                placeholder="Pesquisar..."
+                                value="{{ request.GET.query }}"
+                                hx-get="{% url 'interno:interno_list' %}"
+                                hx-trigger="keyup delay:500ms"
+                                hx-target="#content2"
+                                hx-include="[name='cpf'], [name='nome_mae'], [name='query']"
+                            />
+                        </div>
+                    </div>
+                </form>
 
 
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white divide-y divide-gray-200">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="px-6 py-3 text-left xl:text-base text-xl font-medium text-gray-500 uppercase tracking-wider">Prontuario</th>
+                        <th class="px-6 py-3 text-left xl:text-base text-xl font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+                        <th class="px-6 py-3 text-left xl:text-base text-xl font-medium text-gray-500 uppercase tracking-wider">Unidade</th>
+                        <th class="px-6 py-3 xl:text-base text-xl font-medium text-gray-500 uppercase tracking-wider">Nome da Mãe</th>
+                        <th class="px-6 py-3 text-left xl:text-base text-xl font-medium text-gray-500 uppercase tracking-wider">Cpf</th>
+                    </tr>
+                </thead>
+                <tbody id="content2" class="bg-white divide-y divide-gray-200">
+                    {% include "partials/interno_partial.html" %}
+                </tbody>
+            </table>
+        </div>
 
 
+    </div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+</div>
 
 
 

@@ -51,36 +51,15 @@ class Internos(LoginRequiredMixin, UserPassesTestMixin, ListView):
         return render(self.request, '403.html', status=403)
 
     def get_queryset(self):
-        query = self.request.GET.get('query', '')
+
 
         queryset = Interno.objects.all()
 
-        if query:
-            queryset = queryset.filter(
-                Q(nome__icontains=query)
-            )
-
-        # #filtro por unidade:
-        #
-        unidade = self.request.GET.get('unidade')
-        if unidade:
-            queryset = queryset.filter(unidade=unidade)
-
-        cpf = self.request.GET.get('cpf')
-        if cpf:
-            queryset = queryset.filter(cpf=cpf)
-
-        nome_mae = self.request.GET.get('nome_mae')
-        if nome_mae:
-            queryset = queryset.filter(
-                Q(nome__icontains=query)
-            )
 
         return queryset.order_by('-prontuario')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
 
 
         return context
