@@ -37,7 +37,7 @@ def upload_pdfs(request):
 
 class Internos(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = Interno
-    template_name = "Interno.html"
+    template_name = "interno.html"
     context_object_name = 'datas'
     paginate_by = 50  # Quantidade de registros por página
 
