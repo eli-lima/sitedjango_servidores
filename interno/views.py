@@ -47,11 +47,11 @@ class Internos(LoginRequiredMixin, ListView):
         # Verificação dos grupos de usuário
         if user.groups.filter(name__in=['Administrador', 'Copen']).exists():
             # Acesso completo para Administradores e GerGesipe
-            queryset = Interno.objects.all()
+            queryset = Interno.objects.all().order_by('prontuario')
             print(queryset)
         else:
 
-            queryset = Interno.objects.filter(None)
+            queryset = Interno.objects.none()
 
 
 
