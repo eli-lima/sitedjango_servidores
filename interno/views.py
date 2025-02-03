@@ -48,16 +48,9 @@ class Internos(LoginRequiredMixin, ListView):
         if user.groups.filter(name__in=['Administrador', 'Copen']).exists():
             # Acesso completo para Administradores e GerGesipe
             queryset = Interno.objects.all()
-        # elif user.groups.filter(name='Gerente').exists():
-        #     # Acesso limitado à unidade do gestor
-        #     try:
-        #         unidade_gestor = user.cotaajudacusto_set.first().unidade
-        #         queryset = Ajuda_Custo.objects.filter(unidade=unidade_gestor)
-        #     except AttributeError:
-        #         # Caso o gestor não tenha uma unidade atribuída
-        #         queryset = Ajuda_Custo.objects.none()
+            print(queryset)
         else:
-            # Acesso limitado ao próprio usuário
+
             queryset = Interno.objects.filter(None)
 
 
