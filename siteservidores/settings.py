@@ -74,6 +74,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'smart_selects',
+    'multiupload',
     'seappb',
     'gesipe',
     'servidor',
@@ -82,7 +83,8 @@ INSTALLED_APPS = [
     'crispy_bootstrap5',
     'cloudinary_storage',
     'cloudinary',
-    'copen'
+    'copen',
+    'interno'
 ]
 
 MIDDLEWARE = [
