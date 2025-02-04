@@ -7,56 +7,66 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.views.generic import ListView
 from django.db.models import Q
-
+import tempfile
+import os
 
 def upload_pdfs(request):
+    print("📢 Iniciando upload de PDFs...")
+
     if request.method == 'POST':
-        print("📥 Recebendo requisição POST para upload de PDFs...")  # Debug
+        print("📥 Método POST detectado.")
 
         form = UploadPDFForm(request.POST, request.FILES)
         if form.is_valid():
-            print("✅ Formulário válido!")  # Debug
-
+            print("✅ Formulário válido.")
             arquivos = request.FILES.getlist('arquivos')
-            print(f"📂 Número de arquivos recebidos: {len(arquivos)}")  # Debug
+
+            print(f"📂 {len(arquivos)} arquivos recebidos.")
 
             for arquivo in arquivos:
-                print(f"🔹 Processando arquivo: {arquivo.name}")  # Debug
-
                 try:
-                    # Criando instância no banco
-                    arquivo_model = ArquivoUpload.objects.create(arquivo=arquivo)
-                    print(f"💾 Arquivo salvo no banco: {arquivo_model.arquivo.path}")  # Debug
+                    print(f"📄 Processando arquivo: {arquivo.name}")
 
-                    # Extraindo dados do PDF
-                    dados = extrair_dados_pdf(arquivo_model.arquivo.path)
-                    print(f"📄 Dados extraídos: {dados}")  # Debug
+                    # Criar um arquivo temporário para processar o PDF
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
+                        for chunk in arquivo.chunks():
+                            temp_file.write(chunk)
+                        temp_file_path = temp_file.name
 
-                    # Salvando os dados processados
+                    print(f"📝 Arquivo salvo temporariamente em: {temp_file_path}")
+
+                    # Processar o arquivo PDF
+                    print("🔍 Extraindo dados do PDF...")
+                    dados = extrair_dados_pdf(temp_file_path)
+                    print(f"📊 Dados extraídos: {dados}")
+
+                    print("💾 Salvando dados no banco de dados...")
                     salvar_dados(dados)
-                    print("✅ Dados salvos com sucesso!")  # Debug
+                    print("✅ Dados salvos com sucesso.")
 
-                    # Marcando como processado
-                    arquivo_model.processado = True
-                    arquivo_model.save()
-                    print("🔄 Arquivo marcado como processado.")  # Debug
+                    # Remover o arquivo temporário
+                    os.remove(temp_file_path)
+                    print(f"🗑️ Arquivo temporário removido: {temp_file_path}")
 
                 except Exception as e:
-                    print(f"❌ Erro ao processar o arquivo {arquivo.name}: {e}")  # Debug
+                    print(f"❌ Erro ao processar {arquivo.name}: {e}")
                     messages.error(request, f"Erro ao processar {arquivo.name}: {e}")
                     return redirect('interno:upload_interno')
 
             messages.success(request, 'Arquivos processados com sucesso!')
+            print("🎉 Todos os arquivos foram processados com sucesso.")
             return redirect('interno:upload_interno')
 
         else:
-            print("❌ Formulário inválido:", form.errors)  # Debug
+            print("❌ Formulário inválido.")
+            messages.error(request, "Erro no formulário. Verifique os arquivos e tente novamente.")
 
     else:
-        print("📄 Acessando página de upload.")  # Debug
+        print("🔄 Método GET detectado. Exibindo formulário.")
         form = UploadPDFForm()
 
     return render(request, 'upload_interno.html', {'form': form})
+
 
 
 class Internos(LoginRequiredMixin, UserPassesTestMixin, ListView):
