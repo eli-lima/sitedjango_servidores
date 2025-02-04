@@ -207,7 +207,6 @@ class CriarServidorView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
         servidor.nome = servidor.nome.upper()
         servidor.cargo = servidor.cargo.upper()
         servidor.cargo_comissionado = servidor.cargo_comissionado.upper() if servidor.cargo_comissionado else None
-        servidor.local_trabalho = servidor.local_trabalho.upper() if servidor.local_trabalho else None
         servidor.lotacao = servidor.lotacao.upper() if servidor.lotacao else None
         servidor.genero = servidor.genero.upper()
         servidor.regime = servidor.regime.upper()
@@ -257,7 +256,6 @@ class ServidorEdit(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         servidor.nome = servidor.nome.upper()
         servidor.cargo = servidor.cargo.upper()
         servidor.cargo_comissionado = servidor.cargo_comissionado.upper() if servidor.cargo_comissionado else None
-        servidor.local_trabalho = servidor.local_trabalho.upper() if servidor.local_trabalho else None
         servidor.lotacao = servidor.lotacao.upper() if servidor.lotacao else None
         servidor.genero = servidor.genero.upper()
         servidor.regime = servidor.regime.upper()
