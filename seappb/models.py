@@ -60,9 +60,6 @@ class Unidade(models.Model):
     def __str__(self):
         return self.nome
 
-    def save(self, *args, **kwargs):
-        print(f"Salvando unidade: {self.nome}, Cidade: {self.cidade}, CEP: {self.cep}")
-        super(Unidade, self).save(*args, **kwargs)
 
 
 class Setor(models.Model):

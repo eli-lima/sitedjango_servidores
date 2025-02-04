@@ -21,11 +21,34 @@ from django.contrib.auth.models import Group
 from django.db.models import Count
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.db.models import Q
+from django.http import JsonResponse
+from .forms import UnidadeForm
 
 
 import os
 
 # Create your views here.
+def adicionar_unidade(request):
+    if request.method == "POST":
+        form = UnidadeForm(request.POST)
+
+        if form.is_valid():
+            try:
+                unidade = form.save()
+                print(f"✅ Unidade salva: {unidade}")
+                return JsonResponse({"status": "success", "message": "Unidade cadastrada com sucesso!"})
+            except Exception as e:
+                print(f"❌ ERRO AO SALVAR: {e}")
+                return JsonResponse({"status": "error", "message": str(e)}, status=500)
+        else:
+            print(f"⚠️ FORMULÁRIO INVÁLIDO: {form.errors}")
+            return JsonResponse({"status": "error", "message": form.errors}, status=400)
+
+    form = UnidadeForm()
+    return render(request, "adicionar_unidade.html", {"form": form})
+
+
+
 
 
 def custom_403(request, exception):

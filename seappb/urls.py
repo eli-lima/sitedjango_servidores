@@ -2,7 +2,7 @@
 
 from django.urls import path, reverse_lazy
 from .views import Homepage, PesquisarSite, Paginaperfil, Criarconta, \
-    CustomLoginView, Estatisticas
+    CustomLoginView, Estatisticas, adicionar_unidade
 from django.contrib.auth import views as auth_view
 
 app_name = 'seappb'
@@ -16,4 +16,5 @@ urlpatterns = [
     path('criarconta/', Criarconta.as_view(), name='criarconta'),
     path('mudarsenha/', auth_view.PasswordChangeView.as_view(template_name='editarperfil.html',success_url=reverse_lazy('seappb:homepage')), name='mudarsenha'),
     path('estatistica/', Estatisticas.as_view(), name='estatistica'),
+    path("adicionar-unidade/", adicionar_unidade, name="adicionar_unidade"),
 ]
