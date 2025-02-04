@@ -56,7 +56,3 @@ class UnidadeForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(UnidadeForm, self).__init__(*args, **kwargs)
 
-        # Preencher o campo 'cidade' com as cidades da Paraíba dinamicamente
-        # self.fields['cidade'].choices = get_cidades_paraiba()
-        # Se necessário, ordene a lista de cidades ou reisp
-        # self.fields['reisp'].queryset = self.fields['reisp'].queryset.order_by('nome')

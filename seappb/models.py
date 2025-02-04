@@ -38,8 +38,7 @@ class Unidade(models.Model):
     cidade = models.CharField(
         max_length=255,
         choices=get_cidades_paraiba(),
-        blank=True,
-        null=True# Carrega as cidades dinamicamente com fallback
+        blank=True, null=True# Carrega as cidades dinamicamente com fallback
     )
     cep = models.CharField(
         max_length=9,
@@ -49,7 +48,7 @@ class Unidade(models.Model):
                 regex=r'^\d{5}-\d{3}$',
                 message="O CEP deve estar no formato 12345-678",
 
-            )
+            ),
         ],
         default='58000-000'
     )
@@ -67,6 +66,7 @@ class Setor(models.Model):
 
     def __str__(self):
         return self.nome
+
 
 
 # Criar Usuario
