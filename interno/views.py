@@ -11,21 +11,21 @@ import tempfile
 import os
 
 def upload_pdfs(request):
-
+    print("📢 Iniciando upload de PDFs...")
 
     if request.method == 'POST':
-
+        print("📥 Método POST detectado.")
 
         form = UploadPDFForm(request.POST, request.FILES)
         if form.is_valid():
-
+            print("✅ Formulário válido.")
             arquivos = request.FILES.getlist('arquivos')
 
-
+            print(f"📂 {len(arquivos)} arquivos recebidos.")
 
             for arquivo in arquivos:
                 try:
-
+                    print(f"📄 Processando arquivo: {arquivo.name}")
 
                     # Criar um arquivo temporário para processar o PDF
                     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
@@ -33,23 +33,23 @@ def upload_pdfs(request):
                             temp_file.write(chunk)
                         temp_file_path = temp_file.name
 
-
+                    print(f"📝 Arquivo salvo temporariamente em: {temp_file_path}")
 
                     # Processar o arquivo PDF
-
+                    print("🔍 Extraindo dados do PDF...")
                     dados = extrair_dados_pdf(temp_file_path)
+                    print(f"📊 Dados extraídos: {dados}")
 
-
-
+                    print("💾 Salvando dados no banco de dados...")
                     salvar_dados(dados)
-
+                    print("✅ Dados salvos com sucesso.")
 
                     # Remover o arquivo temporário
                     os.remove(temp_file_path)
-
+                    print(f"🗑️ Arquivo temporário removido: {temp_file_path}")
 
                 except Exception as e:
-
+                    print(f"❌ Erro ao processar {arquivo.name}: {e}")
                     messages.error(request, f"Erro ao processar {arquivo.name}: {e}")
                     return redirect('interno:upload_interno')
 
@@ -58,11 +58,11 @@ def upload_pdfs(request):
             return redirect('interno:upload_interno')
 
         else:
-
+            print("❌ Formulário inválido.")
             messages.error(request, "Erro no formulário. Verifique os arquivos e tente novamente.")
 
     else:
-
+        print("🔄 Método GET detectado. Exibindo formulário.")
         form = UploadPDFForm()
 
     return render(request, 'upload_interno.html', {'form': form})
