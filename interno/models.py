@@ -6,7 +6,7 @@ from django.db import models
 class Interno(models.Model):
     prontuario = models.IntegerField( unique=True)
     nome = models.CharField(max_length=255, db_index=True)
-    cpf = models.CharField(max_length=14, blank=True, null=True)
+    cpf = models.CharField(max_length=100, blank=True, null=True)
     nome_mae = models.CharField(max_length=255, blank=True, null=True)
     unidade = models.CharField(max_length=255, blank=True, null=True)
     status = models.CharField(max_length=50, blank=True, null=True)
