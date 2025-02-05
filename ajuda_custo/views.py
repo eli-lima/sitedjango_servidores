@@ -50,31 +50,25 @@ from .utils import (get_intervalo_mes, calcular_horas_por_unidade, get_limites_h
 
 def upload_excel_rx2(request):
     if request.method == 'POST':
-
         form = UploadExcelRx2Form(request.POST, request.FILES)
         if form.is_valid():
-
             excel_file = request.FILES['file']
             try:
                 # Upload para o Cloudinary
-
                 upload_result = cloudinary.uploader.upload(excel_file, resource_type="raw")
                 cloudinary_url = upload_result['url']
 
                 # Envia a tarefa de processamento para o Celery
                 task = process_excel_file.delay(cloudinary_url)
 
-
                 # Informa o usuário e redireciona para a página de status
                 messages.success(request, "Arquivo enviado para o Cloudinary e processamento iniciado.")
                 return redirect('ajuda_custo:status_task', task_id=task.id)
 
             except Exception as e:
-
                 messages.error(request, f"Erro ao fazer upload no Cloudinary: {str(e)}")
                 return redirect('ajuda_custo:upload_excel_rx2')
     else:
-
         form = UploadExcelRx2Form()
 
     return render(request, 'upload_excel_rx2.html', {'form': form})
