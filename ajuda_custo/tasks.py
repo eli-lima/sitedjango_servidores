@@ -23,6 +23,8 @@ def process_batch(df_batch):
     matriculas_datas = [(re.sub(r'\D', '', str(row['Matrícula'])).lstrip('0'), parser.parse(str(row['Data'])).date())
                         for row in df_batch if row['Matrícula']]
 
+    print(f'matriculas banco de dados: {matriculas_datas}')
+
     # Consulta única para verificar registros existentes no banco
     registros_existentes = Ajuda_Custo.objects.filter(
         matricula__in=[md[0] for md in matriculas_datas],
