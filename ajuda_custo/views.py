@@ -674,8 +674,8 @@ class RelatorioAjudaCusto(LoginRequiredMixin, UserPassesTestMixin, ListView):
         context['dataInicial'] = data_inicial.strftime('%Y-%m-%d') if data_inicial else ''
         context['dataFinal'] = data_final.strftime('%Y-%m-%d') if data_final else ''
         # Ajuste aqui: mudando 'unidade' para 'unidades'
-        context['unidades'] = Ajuda_Custo.objects.values_list('unidade', flat=True).distinct()
-        context['unidades'] = Ajuda_Custo.objects.values_list('unidade', flat=True).distinct().order_by('nome')
+        context['unidades'] = Ajuda_Custo.objects.values_list('unidade', flat=True).distinct().order_by('unidade')
+        context['carga_horarias'] = Ajuda_Custo.objects.values_list('carga_horaria', flat=True).distinct()
 
         return context
 
