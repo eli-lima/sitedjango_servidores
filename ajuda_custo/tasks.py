@@ -95,6 +95,7 @@ def process_batch(df_batch):
 
         # Verificar se a soma da carga horária do mês excede 192 horas
         horas_mes_atual = horas_por_servidor[(servidor.matricula, mes_ano)] + carga_horaria
+        print(f'horas do mes atual: {horas_mes_atual}')
 
         if horas_mes_atual > 192:
             erros.append(
@@ -103,6 +104,7 @@ def process_batch(df_batch):
 
         # Atualiza o dicionário com as horas acumuladas
         horas_por_servidor[(servidor.matricula, mes_ano)] = horas_mes_atual
+        print(f'dicionarios horas por servidor: {horas_por_servidor}')
 
         majorado = DataMajorada.objects.filter(data=data_completa).exists()
 
