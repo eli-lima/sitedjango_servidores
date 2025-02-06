@@ -14,6 +14,7 @@ from collections import defaultdict
 def process_batch(df_batch):
     registros_inseridos = False
     ajuda_custos_para_inserir = []
+    horas_por_servidor = defaultdict(int)  # Dicionário para armazenar as horas acumuladas por servidor e mês
     datas_processadas = set()
     erros = []  # Lista para armazenar as informações sobre falhas
 
@@ -63,6 +64,38 @@ def process_batch(df_batch):
             continue
 
         datas_processadas.add((servidor.matricula, data_completa))
+
+        # Extraindo mês e ano da data
+        mes_ano = (data_completa.year, data_completa.month)
+
+        # Verificar se a soma da carga horária do mês excede 192 horas
+        horas_mes_atual = horas_por_servidor[(servidor.matricula, mes_ano)]
+
+        # Obter registros do banco para o mês
+        registros_mes_atual = Ajuda_Custo.objects.filter(
+            matricula=servidor.matricula,
+            data__year=mes_ano[0],
+            data__month=mes_ano[1]
+        )
+
+        # Calcular horas do banco de dados
+        for registro in registros_mes_atual:
+            carga_horaria_passado = registro.carga_horaria.strip()  # Acessa o campo 'carga_horaria'
+            if carga_horaria_passado == "12 horas":
+                horas_mes_atual += 12
+            elif carga_horaria_passado == "24 horas":
+                horas_mes_atual += 24
+
+        horas_mes_atual += carga_horaria
+
+        if horas_mes_atual > 192:
+
+            erros.append(f"Limite mensal de 192 horas excedido para o servidor {nome} no mês {data_completa.strftime('%m/%Y')}.")
+
+            continue
+
+        # Atualiza o dicionário com as horas acumuladas
+        horas_por_servidor[(servidor.matricula, mes_ano)] = horas_mes_atual
 
         majorado = DataMajorada.objects.filter(data=data_completa).exists()
 
