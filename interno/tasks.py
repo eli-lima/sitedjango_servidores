@@ -22,11 +22,13 @@ def process_batch_internos(df_batch):
     print(f"📌 Processando lote de {len(df_batch)} registros...")
 
     for row in df_batch:
+        # Converte os valores para string e remove espaços em branco
         prontuario = str(row.get('prontuario', '')).strip()
-        nome = row.get('nome', '').strip()
-        cpf = row.get('cpf', '').strip()
+        nome = str(row.get('nome', '')).strip()
+        cpf = str(row.get('cpf', '')).strip()
         data_extracao = row.get('data_extracao', timezone.now()) if pd.notna(row.get('data_extracao', None)) else timezone.now()
 
+        # Verifica se os campos obrigatórios estão preenchidos
         if not prontuario or not nome:
             erro_msg = f"❌ Erro: Prontuário ou Nome inválido. Linha: {row}"
             erros.append(erro_msg)
