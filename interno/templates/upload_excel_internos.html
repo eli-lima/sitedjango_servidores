@@ -6,12 +6,12 @@ upload internos
 
 
 {% block content %}
-<div class="container">
+<div class="flex flex-col justify-center">
     <h2>Importar Internos</h2>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit">Enviar</button>
+        <button class="btn btn-primary" type="submit">Enviar</button>
     </form>
 
     {% if messages %}
