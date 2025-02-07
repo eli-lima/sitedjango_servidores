@@ -12,21 +12,46 @@ from .tasks import process_excel_internos
 from celery.result import AsyncResult
 import cloudinary.uploader
 
+
 def upload_excel_internos(request):
+    print("Função upload_excel_internos chamada")  # Verifica se a função está sendo chamada
+
     if request.method == 'POST':
+        print("Método POST detectado")  # Confirma que o método POST está sendo recebido
         form = UploadExcelInternosForm(request.POST, request.FILES)
+
         if form.is_valid():
-            excel_file = request.FILES['file']
-            try:
-                upload_result = cloudinary.uploader.upload(excel_file, resource_type="raw")
-                cloudinary_url = upload_result['url']
-                task = process_excel_internos.delay(cloudinary_url)
-                messages.success(request, "Arquivo enviado e processamento iniciado.")
-                return redirect('internos:status_task_internos', task_id=task.id)
-            except Exception as e:
-                messages.error(request, f"Erro ao fazer upload: {str(e)}")
+            print("Formulário válido")  # Confirma que o formulário foi validado corretamente
+
+            if 'file' in request.FILES:
+                excel_file = request.FILES['file']
+                print(f"Arquivo recebido: {excel_file.name}")  # Mostra o nome do arquivo enviado
+
+                try:
+                    upload_result = cloudinary.uploader.upload(excel_file, resource_type="raw")
+                    cloudinary_url = upload_result['url']
+                    print(f"Arquivo enviado para Cloudinary: {cloudinary_url}")  # URL do arquivo enviado
+
+                    task = process_excel_internos.delay(cloudinary_url)
+                    print(f"Tarefa Celery iniciada: {task.id}")  # ID da tarefa Celery
+
+                    messages.success(request, "Arquivo enviado e processamento iniciado.")
+                    return redirect('internos:status_task_internos', task_id=task.id)
+
+                except Exception as e:
+                    print(f"Erro ao fazer upload: {e}")  # Captura qualquer erro no upload
+                    messages.error(request, f"Erro ao fazer upload: {str(e)}")
+            else:
+                print("Nenhum arquivo recebido no request.FILES")  # Indica se nenhum arquivo foi enviado
+
+        else:
+            print("Formulário inválido")  # Indica se o formulário falhou na validação
+            print(form.errors)  # Mostra os erros do formulário para depuração
+
     else:
-        form = UploadExcelInternosForm()
+        print("Método GET recebido")  # Confirma que a página foi carregada via GET
+
+    form = UploadExcelInternosForm()
     return render(request, 'upload_excel_internos.html', {'form': form})
 
 
