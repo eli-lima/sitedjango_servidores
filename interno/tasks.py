@@ -6,6 +6,8 @@ import requests
 from collections import defaultdict
 from .models import Interno
 from celery import shared_task
+from django.utils import timezone
+from django.db import transaction
 
 
 
@@ -13,45 +15,67 @@ from celery import shared_task
 
 @shared_task
 def process_batch_internos(df_batch):
-    registros_inseridos = False
-    internos_para_inserir = []
+    novos_registros = []
+    atualizacoes = []
     erros = []
 
-    print(f"📌 Processando lote de {len(df_batch)} registros...")  # Print para depuração
+    print(f"📌 Processando lote de {len(df_batch)} registros...")
 
     for row in df_batch:
-        nome = row.get('Nome', '').strip()
-        cpf = row.get('CPF', '').strip()
-        data_nascimento = row.get('Data de Nascimento', '').strip()
-        unidade = row.get('Unidade', '').strip()
+        prontuario = str(row.get('prontuario', '')).strip()
+        nome = row.get('nome', '').strip()
+        cpf = row.get('cpg', '').strip()
+        data_extracao = row.get['data_extracao'] if pd.notna(row['data_extracao']) else timezone.now(),
 
-        print(f"🔍 Nome: {nome}, CPF: {cpf}, Data: {data_nascimento}, Unidade: {unidade}")  # Dados da linha
-
-        if not nome or not cpf:
-            erro_msg = f"❌ Erro: Nome ou CPF inválido. Linha: {row}"
+        if not prontuario or not nome:
+            erro_msg = f"❌ Erro: Prontuário ou Nome inválido. Linha: {row}"
             erros.append(erro_msg)
             print(erro_msg)
             continue
 
-        if Interno.objects.filter(cpf=cpf).exists():
-            erro_msg = f"⚠️ Erro: Interno com CPF {cpf} já existe."
+        try:
+            # Verifica se o prontuário já existe no banco
+            interno_existente = Interno.objects.filter(prontuario=prontuario).first()
+
+            if interno_existente:
+                # Atualiza os campos se houver alterações
+                if (interno_existente.nome != nome or
+                    interno_existente.cpf != cpf or
+                    interno_existente.data_extracao != data_extracao):
+                    interno_existente.nome = nome
+                    interno_existente.cpf = cpf
+                    interno_existente.data_extracao = data_extracao
+                    atualizacoes.append(interno_existente)
+            else:
+                # Cria um novo registro
+                novos_registros.append(Interno(
+                    prontuario=prontuario,
+                    nome=nome,
+                    cpf=cpf,
+                    data_extracao=data_extracao,
+                ))
+
+        except Exception as e:
+            erro_msg = f"🔥 Erro ao processar registro {prontuario}: {str(e)}"
             erros.append(erro_msg)
             print(erro_msg)
-            continue
 
-        internos_para_inserir.append(Interno(nome=nome, cpf=cpf, data_nascimento=data_nascimento, unidade=unidade))
-
+    # Insere novos registros e atualiza os existentes
     try:
-        if internos_para_inserir:
-            Interno.objects.bulk_create(internos_para_inserir)
-            registros_inseridos = True
-            print(f"✅ {len(internos_para_inserir)} registros inseridos com sucesso.")
+        with transaction.atomic():
+            if novos_registros:
+                Interno.objects.bulk_create(novos_registros)
+                print(f"✅ {len(novos_registros)} novos registros inseridos.")
+            if atualizacoes:
+                Interno.objects.bulk_update(atualizacoes, ['nome', 'cpf', 'data_extracao'])
+                print(f"✅ {len(atualizacoes)} registros atualizados.")
     except Exception as e:
-        erro_msg = f"🔥 Erro ao inserir registros: {str(e)}"
+        erro_msg = f"🔥 Erro ao salvar registros: {str(e)}"
         erros.append(erro_msg)
         print(erro_msg)
 
     return erros
+
 
 
 @shared_task(bind=True)
@@ -81,4 +105,5 @@ def process_excel_internos(self, cloudinary_url):
         erro_msg = f"🔥 Erro geral no processamento: {str(e)}"
         print(erro_msg)
         return {'status': 'falha', 'mensagem': erro_msg}
+
 
