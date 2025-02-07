@@ -7,6 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.views.generic import ListView
 from django.db.models import Q
+from .tasks import process_excel_internos
 
 from celery.result import AsyncResult
 import cloudinary.uploader
