@@ -81,3 +81,4 @@ def process_excel_internos(self, cloudinary_url):
         erro_msg = f"🔥 Erro geral no processamento: {str(e)}"
         print(erro_msg)
         return {'status': 'falha', 'mensagem': erro_msg}
+

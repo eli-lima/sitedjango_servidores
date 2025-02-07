@@ -49,76 +49,51 @@ from .utils import (get_intervalo_mes, calcular_horas_por_unidade, get_limites_h
 
 
 def upload_excel_rx2(request):
-    print("📌 Função upload_excel_rx2 chamada")  # Confirma que a função foi acionada
-
     if request.method == 'POST':
-        print("✅ Método POST detectado")  # Confirma que o POST foi recebido
         form = UploadExcelRx2Form(request.POST, request.FILES)
-
         if form.is_valid():
-            print("✅ Formulário válido")  # Confirma que o formulário passou na validação
+            excel_file = request.FILES['file']
+            try:
+                # Upload para o Cloudinary
+                upload_result = cloudinary.uploader.upload(excel_file, resource_type="raw")
+                cloudinary_url = upload_result['url']
 
-            if 'arquivo' in request.FILES:
-                excel_file = request.FILES['arquivo']
-                print(f"📂 Arquivo recebido: {excel_file.name}")  # Mostra o nome do arquivo enviado
+                # Envia a tarefa de processamento para o Celery
+                task = process_excel_file.delay(cloudinary_url)
 
-                try:
-                    # Upload para o Cloudinary
-                    print("⏳ Iniciando upload para Cloudinary...")
-                    upload_result = cloudinary.uploader.upload(excel_file, resource_type="raw")
-                    cloudinary_url = upload_result['url']
-                    print(f"✅ Upload concluído! URL do arquivo: {cloudinary_url}")
+                # Informa o usuário e redireciona para a página de status
+                messages.success(request, "Arquivo enviado para o Cloudinary e processamento iniciado.")
+                return redirect('ajuda_custo:status_task', task_id=task.id)
 
-                    # Envia a tarefa para o Celery
-                    print("⏳ Iniciando tarefa Celery...")
-                    task = process_excel_file.delay(cloudinary_url)
-                    print(f"✅ Tarefa Celery iniciada com ID: {task.id}")
-
-                    messages.success(request, "Arquivo enviado para o Cloudinary e processamento iniciado.")
-                    return redirect('ajuda_custo:status_task', task_id=task.id)
-
-                except Exception as e:
-                    print(f"❌ Erro no upload para Cloudinary: {e}")  # Log do erro
-                    messages.error(request, f"Erro ao fazer upload no Cloudinary: {str(e)}")
-                    return redirect('ajuda_custo:upload_excel_rx2')
-
-            else:
-                print("❌ Nenhum arquivo encontrado em request.FILES")  # Caso o arquivo não esteja presente
-                messages.error(request, "Nenhum arquivo enviado.")
+            except Exception as e:
+                messages.error(request, f"Erro ao fazer upload no Cloudinary: {str(e)}")
                 return redirect('ajuda_custo:upload_excel_rx2')
-
-        else:
-            print("❌ Formulário inválido!")
-            print(form.errors)  # Exibe os erros do formulário
-            messages.error(request, "Erro no formulário.")
-            return redirect('ajuda_custo:upload_excel_rx2')
-
     else:
-        print("📌 Método GET detectado - Exibindo formulário")
         form = UploadExcelRx2Form()
 
     return render(request, 'upload_excel_rx2.html', {'form': form})
 
 
 def status_task(request, task_id):
-    print(f"📌 Consultando status da tarefa: {task_id}")
     task = AsyncResult(task_id)
 
+
+    # Verifica se a tarefa está pendente
     if task.state == 'PENDING':
-        status = "⏳ Processamento pendente..."
+        status = "Processamento pendente..."
+    # Verifica se a tarefa foi concluída com sucesso
     elif task.state == 'SUCCESS':
         result = task.result
-        print(f"✅ Tarefa concluída! Resultado: {result}")
-
-        if result.get('status') == 'sucesso':
-            status = "✅ Processamento concluído com sucesso!"
+        if result['status'] == 'sucesso':
+            status = "Processamento concluído com sucesso!"
         else:
-            status = f"⚠️ Erros encontrados: {', '.join(result.get('erros', []))}"
+            status = f"Erros encontrados: {', '.join(result['erros'])}"
+    # Verifica se houve falha na tarefa
     elif task.state == 'FAILURE':
-        print(f"❌ Falha na tarefa: {task.result}")
-        status = f"❌ Falha no processamento: {task.result}"
+        status = f"Falha no processamento: {task.result}"
+    # Para outros estados
     else:
-        status = f"⏳ Processamento em andamento... Status: {task.state}"
+        status = f"Processamento em andamento... Status: {task.state}"
 
     return render(request, 'status_task.html', {'status': status})
 

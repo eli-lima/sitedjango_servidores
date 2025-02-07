@@ -33,6 +33,15 @@ def upload_excel_internos(request):
                     upload_result = cloudinary.uploader.upload(excel_file, resource_type="raw")
                     cloudinary_url = upload_result['url']
                     print(f"Arquivo enviado para Cloudinary: {cloudinary_url}")
+
+                    # Chama a task de processamento
+                    print("Enviando task para processamento...")
+                    task = process_excel_internos.delay(cloudinary_url)
+                    print(f"Task ID: {task.id}")
+
+                    messages.success(request, "Arquivo enviado para processamento. Aguarde a conclusão.")
+                    return redirect('interno:status_task_internos', task_id=task.id)
+
                 except Exception as e:
                     print(f"Erro ao fazer upload para Cloudinary: {e}")
                     messages.error(request, f"Erro no upload: {str(e)}")
@@ -40,10 +49,14 @@ def upload_excel_internos(request):
 
             else:
                 print("Nenhum arquivo recebido no request.FILES")  # Indica se nenhum arquivo foi enviado
+                messages.error(request, "Nenhum arquivo foi enviado.")
+                return redirect('interno:upload_excel_internos')
 
         else:
             print("Formulário inválido")  # Indica se o formulário falhou na validação
             print(form.errors)  # Mostra os erros do formulário para depuração
+            messages.error(request, "Formulário inválido. Verifique os dados enviados.")
+            return redirect('interno:upload_excel_internos')
 
     else:
         print("Método GET recebido")  # Confirma que a página foi carregada via GET
@@ -64,6 +77,7 @@ def status_task_internos(request, task_id):
     else:
         status = f"Em andamento... Status: {task.state}"
     return render(request, 'status_task_internos.html', {'status': status})
+
 
 
 
