@@ -1,71 +1,46 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from .forms import UploadPDFForm
+from .forms import UploadPDFForm, UploadExcelInternosForm
 from .models import ArquivoUpload, Interno
 from .utils import extrair_dados_pdf, salvar_dados
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.views.generic import ListView
 from django.db.models import Q
-import tempfile
-import os
 
-def upload_pdfs(request):
-    print("📢 Iniciando upload de PDFs...")
+from celery.result import AsyncResult
+import cloudinary.uploader
 
+def upload_excel_internos(request):
     if request.method == 'POST':
-        print("📥 Método POST detectado.")
-
-        form = UploadPDFForm(request.POST, request.FILES)
+        form = UploadExcelInternosForm(request.POST, request.FILES)
         if form.is_valid():
-            print("✅ Formulário válido.")
-            arquivos = request.FILES.getlist('arquivos')
-
-            print(f"📂 {len(arquivos)} arquivos recebidos.")
-
-            for arquivo in arquivos:
-                try:
-                    print(f"📄 Processando arquivo: {arquivo.name}")
-
-                    # Criar um arquivo temporário para processar o PDF
-                    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
-                        for chunk in arquivo.chunks():
-                            temp_file.write(chunk)
-                        temp_file_path = temp_file.name
-
-                    print(f"📝 Arquivo salvo temporariamente em: {temp_file_path}")
-
-                    # Processar o arquivo PDF
-                    print("🔍 Extraindo dados do PDF...")
-                    dados = extrair_dados_pdf(temp_file_path)
-                    print(f"📊 Dados extraídos: {dados}")
-
-                    print("💾 Salvando dados no banco de dados...")
-                    salvar_dados(dados)
-                    print("✅ Dados salvos com sucesso.")
-
-                    # Remover o arquivo temporário
-                    os.remove(temp_file_path)
-                    print(f"🗑️ Arquivo temporário removido: {temp_file_path}")
-
-                except Exception as e:
-                    print(f"❌ Erro ao processar {arquivo.name}: {e}")
-                    messages.error(request, f"Erro ao processar {arquivo.name}: {e}")
-                    return redirect('interno:upload_interno')
-
-            messages.success(request, 'Arquivos processados com sucesso!')
-            print("🎉 Todos os arquivos foram processados com sucesso.")
-            return redirect('interno:upload_interno')
-
-        else:
-            print("❌ Formulário inválido.")
-            messages.error(request, "Erro no formulário. Verifique os arquivos e tente novamente.")
-
+            excel_file = request.FILES['file']
+            try:
+                upload_result = cloudinary.uploader.upload(excel_file, resource_type="raw")
+                cloudinary_url = upload_result['url']
+                task = process_excel_internos.delay(cloudinary_url)
+                messages.success(request, "Arquivo enviado e processamento iniciado.")
+                return redirect('internos:status_task_internos', task_id=task.id)
+            except Exception as e:
+                messages.error(request, f"Erro ao fazer upload: {str(e)}")
     else:
-        print("🔄 Método GET detectado. Exibindo formulário.")
-        form = UploadPDFForm()
+        form = UploadExcelInternosForm()
+    return render(request, 'upload_excel_internos.html', {'form': form})
 
-    return render(request, 'upload_interno.html', {'form': form})
+
+def status_task_internos(request, task_id):
+    task = AsyncResult(task_id)
+    if task.state == 'PENDING':
+        status = "Processamento pendente..."
+    elif task.state == 'SUCCESS':
+        result = task.result
+        status = "Concluído com sucesso!" if result['status'] == 'sucesso' else f"Erros: {', '.join(result['erros'])}"
+    elif task.state == 'FAILURE':
+        status = f"Falha no processamento: {task.result}"
+    else:
+        status = f"Em andamento... Status: {task.state}"
+    return render(request, 'status_task_internos.html', {'status': status})
 
 
 

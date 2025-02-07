@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="pt-48 flex justify-center">
+    <div class="flex flex-col items-center">
+      <h1 class="text-xl font-bold">Status da Importação de Internos</h1>
+      <div id="status" class="mt-4">
+          {{ status }}
+      </div>
+      <a href="{% url 'interno:upload_excel_internos' %}" class="mt-4 text-blue-500 underline">Voltar ao Upload</a>
+    </div>
+  </div>
+
+<script>
+    function recarregarPagina() {
+        var statusElement = document.getElementById('status');
+        if (statusElement && statusElement.innerText.includes("pendente")) {
+            location.reload();
+        } else {
+            clearInterval(reloadInterval);
+        }
+    }
+
+    var reloadInterval = setInterval(recarregarPagina, 20000);
+</script>
+
+{% endblock %}

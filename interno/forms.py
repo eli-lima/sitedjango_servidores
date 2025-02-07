@@ -26,3 +26,7 @@ class UploadPDFForm(forms.Form):
         label="Selecione os PDFs para upload",
         required=True
     )
+
+
+class UploadExcelInternosForm(forms.Form):
+    arquivo = forms.FileField(label="Upload de Planilha (.xlsx)")
