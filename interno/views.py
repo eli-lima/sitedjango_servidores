@@ -29,19 +29,15 @@ def upload_excel_internos(request):
                 print(f"Arquivo recebido: {excel_file.name}")  # Mostra o nome do arquivo enviado
 
                 try:
+                    print("Iniciando upload para Cloudinary...")
                     upload_result = cloudinary.uploader.upload(excel_file, resource_type="raw")
                     cloudinary_url = upload_result['url']
-                    print(f"Arquivo enviado para Cloudinary: {cloudinary_url}")  # URL do arquivo enviado
-
-                    task = process_excel_internos.delay(cloudinary_url)
-                    print(f"Tarefa Celery iniciada: {task.id}")  # ID da tarefa Celery
-
-                    messages.success(request, "Arquivo enviado e processamento iniciado.")
-                    return redirect('internos:status_task_internos', task_id=task.id)
-
+                    print(f"Arquivo enviado para Cloudinary: {cloudinary_url}")
                 except Exception as e:
-                    print(f"Erro ao fazer upload: {e}")  # Captura qualquer erro no upload
-                    messages.error(request, f"Erro ao fazer upload: {str(e)}")
+                    print(f"Erro ao fazer upload para Cloudinary: {e}")
+                    messages.error(request, f"Erro no upload: {str(e)}")
+                    return redirect('interno:upload_excel_internos')
+
             else:
                 print("Nenhum arquivo recebido no request.FILES")  # Indica se nenhum arquivo foi enviado
 
