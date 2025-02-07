@@ -24,8 +24,8 @@ def process_batch_internos(df_batch):
     for row in df_batch:
         prontuario = str(row.get('prontuario', '')).strip()
         nome = row.get('nome', '').strip()
-        cpf = row.get('cpg', '').strip()
-        data_extracao = row.get['data_extracao'] if pd.notna(row['data_extracao']) else timezone.now(),
+        cpf = row.get('cpf', '').strip()
+        data_extracao = row.get('data_extracao', timezone.now()) if pd.notna(row.get('data_extracao', None)) else timezone.now()
 
         if not prontuario or not nome:
             erro_msg = f"❌ Erro: Prontuário ou Nome inválido. Linha: {row}"
