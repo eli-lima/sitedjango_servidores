@@ -25,7 +25,7 @@ def upload_excel_internos(request):
             print("Formulário válido")  # Confirma que o formulário foi validado corretamente
 
             if 'arquivo' in request.FILES:
-                excel_file = request.FILES['file']
+                excel_file = request.FILES['arquivo']
                 print(f"Arquivo recebido: {excel_file.name}")  # Mostra o nome do arquivo enviado
 
                 try:
