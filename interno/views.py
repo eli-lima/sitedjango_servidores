@@ -19,6 +19,7 @@ def upload_excel_internos(request):
     if request.method == 'POST':
         print("Método POST detectado")  # Confirma que o método POST está sendo recebido
         form = UploadExcelInternosForm(request.POST, request.FILES)
+        print(f"request.FILES: {request.FILES}")
 
         if form.is_valid():
             print("Formulário válido")  # Confirma que o formulário foi validado corretamente
