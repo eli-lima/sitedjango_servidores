@@ -8,7 +8,7 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from django.views.generic import ListView
 from django.db.models import Q
 from .tasks import process_excel_internos
-
+import traceback
 from celery.result import AsyncResult
 import cloudinary.uploader
 
@@ -42,10 +42,13 @@ def upload_excel_internos(request):
                     messages.success(request, "Arquivo enviado para processamento. Aguarde a conclusão.")
                     return redirect('interno:status_task_internos', task_id=task.id)
 
+
                 except Exception as e:
-                    print(f"Erro ao fazer upload para Cloudinary: {e}")
-                    messages.error(request, f"Erro no upload: {str(e)}")
+                    erro_msg = f"Erro ao fazer upload: {str(e)}\n{traceback.format_exc()}"
+                    print(erro_msg)
+                    messages.error(request, erro_msg)
                     return redirect('interno:upload_excel_internos')
+
 
             else:
                 print("Nenhum arquivo recebido no request.FILES")  # Indica se nenhum arquivo foi enviado
@@ -65,8 +68,6 @@ def upload_excel_internos(request):
     return render(request, 'upload_excel_internos.html', {'form': form})
 
 
-from celery.result import AsyncResult
-
 def status_task_internos(request, task_id):
     task = AsyncResult(task_id)
     novos_inseridos = 0
@@ -78,10 +79,10 @@ def status_task_internos(request, task_id):
         result = task.result
         status = "Concluído com sucesso!" if result['status'] == 'sucesso' else f"Erros: {', '.join(result['erros'])}"
 
-        # Se a task foi bem-sucedida, pega os valores de novos inseridos e atualizados
+        # Corrigido: Pegando os valores corretos do dicionário result
         if result['status'] == 'sucesso':
-            novos_inseridos = result.get('novos_inseridos', 0)
-            atualizados = result.get('atualizados', 0)
+            novos_inseridos = result.get('total_novos', 0)
+            atualizados = result.get('total_atualizados', 0)
 
     elif task.state == 'FAILURE':
         status = f"Falha no processamento: {task.result}"
@@ -93,6 +94,7 @@ def status_task_internos(request, task_id):
         'novos_inseridos': novos_inseridos if task.state == 'SUCCESS' else None,
         'atualizados': atualizados if task.state == 'SUCCESS' else None,
     })
+
 
 
 
