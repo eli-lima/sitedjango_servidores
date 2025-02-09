@@ -1,6 +1,3 @@
-from django.shortcuts import render, redirect
-from django.contrib import messages
-
 import pandas as pd
 import requests
 from collections import defaultdict
@@ -8,6 +5,7 @@ from .models import Interno
 from celery import shared_task
 from django.utils import timezone
 from django.db import transaction
+import traceback
 
 
 
@@ -18,6 +16,11 @@ def process_batch_internos(df_batch):
     novos_registros = []
     atualizacoes = []
     erros = []
+    csv_log = "log_atualizacoes.csv"
+
+    log_entries = []  # Lista para armazenar logs
+
+
 
     print(f"📌 Processando lote de {len(df_batch)} registros...")
 
@@ -40,26 +43,50 @@ def process_batch_internos(df_batch):
 
         try:
             # Verifica se o prontuário já existe no banco
-            interno_existente = Interno.objects.filter(prontuario=prontuario).first()
+            interno = Interno.objects.filter(prontuario=prontuario).first()
 
-            if interno_existente:
+            if interno:
                 # Verifica se algum dos outros campos foi alterado em relação ao que está no banco
-                if (interno_existente.nome != nome or
-                        interno_existente.cpf != cpf or
-                        interno_existente.nome_mae != nome_mae or
-                        interno_existente.unidade != unidade or
-                        interno_existente.status != status):
-                    # Atualiza apenas os campos que mudaram
-                    interno_existente.nome = nome
-                    interno_existente.cpf = cpf
-                    interno_existente.nome_mae = nome_mae
-                    interno_existente.unidade = unidade
-                    interno_existente.status = status
+                print(f"🔄 Interno encontrado: {interno}")
+                # Comparar campos para ver se há mudanças
+                alterado = False
+                campos_modificados = []
 
-                    # Se algum campo mudou, ATUALIZA data_extracao com a que veio da planilha
-                    interno_existente.data_extracao = data_extracao
+                if interno.nome != nome:
+                    interno.nome = nome
+                    campos_modificados.append("nome")
+                    alterado = True
 
-                    atualizacoes.append(interno_existente)
+                if interno.cpf != cpf:
+                    interno.cpf = cpf
+                    campos_modificados.append("cpf")
+                    alterado = True
+
+                if interno.nome_mae != nome_mae:
+                    interno.nome_mae = nome_mae
+                    campos_modificados.append("nome_mae")
+                    alterado = True
+
+                if interno.unidade != unidade:
+                    interno.unidade = unidade
+                    campos_modificados.append("unidade")
+                    alterado = True
+
+                if interno.status != status:
+                    interno.status = status
+                    campos_modificados.append("status")
+                    alterado = True
+
+                # Só atualiza a `data_extracao` se algum outro campo mudou
+                if alterado:
+                    interno.data_extracao = data_extracao
+                    campos_modificados.append("data_extracao")
+
+                    atualizacoes.append(interno)
+                    # Criar log
+                    log_entries.append(
+                        [prontuario, ", ".join(campos_modificados), str(timezone.now())])
+
 
             else:
                 # Cria um novo registro com a data de extração da planilha
@@ -72,6 +99,10 @@ def process_batch_internos(df_batch):
                     status=status,
                     data_extracao=data_extracao,  # Usa a data de extração da planilha para novos registros
                 ))
+                # Criar log de novo registro
+                log_entries.append([prontuario, "Novo Registro", str(timezone.now())])
+
+
 
         except Exception as e:
             erro_msg = f"🔥 Erro ao processar registro {prontuario}: {str(e)}"
@@ -92,7 +123,16 @@ def process_batch_internos(df_batch):
         erros.append(erro_msg)
         print(erro_msg)
 
+    # Salvar log em CSV
+    print(f"📝 Salvando log em CSV no arquivo {csv_log}")
+    log_df = pd.DataFrame(log_entries, columns=["Prontuario", "Campos Modificados", "Data"])
+    log_df.to_csv(csv_log, mode="a", header=False, index=False)
+
+    print("✅ Atualização concluída!")
+
     return erros
+
+
 
 
 
@@ -120,8 +160,10 @@ def process_excel_internos(self, cloudinary_url):
 
         return {'status': 'sucesso' if not erros_totais else 'erro', 'erros': erros_totais}
     except Exception as e:
-        erro_msg = f"🔥 Erro geral no processamento: {str(e)}"
-        print(erro_msg)
+        # Captura o erro e inclui o traceback completo
+        erro_msg = f"🔥 Erro geral no processamento: {str(e)}\n{traceback.format_exc()}"
+        print(erro_msg)  # Aqui você imprime o erro no log de execução
         return {'status': 'falha', 'mensagem': erro_msg}
+
 
 
