@@ -10,15 +10,10 @@
           {{ status }}
       </div>
 
-      <!-- Seção de loading com spinner e barra de progresso -->
+      <!-- Seção de loading com spinner -->
       <div id="loading-section" class="mt-4 flex flex-col items-center {% if status not in 'Pendente, Em andamento' %}hidden{% endif %}">
         <!-- Spinner -->
         <div class="loader mb-4"></div>
-
-        <!-- Barra de progresso -->
-        <div class="w-64 bg-gray-200 rounded-full overflow-hidden">
-          <div id="progress-bar" class="h-4 bg-blue-500 animate-progress"></div>
-        </div>
       </div>
 
       <!-- Seção de Resultados (Aparece apenas se a task foi concluída) -->
@@ -45,10 +40,8 @@
 
             if (novoStatus.includes("pendente") || novoStatus.includes("Em andamento")) {
                 document.getElementById('loading-section').classList.remove('hidden');
-                document.getElementById('progress-bar').classList.remove('hidden');
             } else {
                 document.getElementById('loading-section').classList.add('hidden');
-                document.getElementById('progress-bar').classList.add('hidden');
 
                 // Exibe a seção de resultados se for concluído com sucesso
                 if (novoStatus.includes("Concluído com sucesso")) {
@@ -67,22 +60,16 @@
   </script>
 
   <style>
-    @keyframes progress {
-      0% { width: 0%; }
-      100% { width: 100%; }
-    }
-    .animate-progress {
-      animation: progress 2s linear infinite;
-    }
     /* Spinner */
     .loader {
       width: 80px;
       height: 80px;
-      border: 4px solid rgba(0, 0, 255, 0.3);
-      border-top-color: blue;
+      border: 8px solid rgba(210, 162, 102, 0.3); /* Cor mais clara e borda mais grossa */
+      border-top-color: #d2a266; /* Cor mais forte para a parte que gira */
       border-radius: 50%;
       animation: spin 1s linear infinite;
     }
+
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
