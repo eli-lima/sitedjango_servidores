@@ -39,7 +39,7 @@ def upload_excel_internos(request):
                     task = process_excel_internos.delay(cloudinary_url)
                     print(f"Task ID: {task.id}")
 
-                    messages.success(request, "Arquivo enviado para processamento. Aguarde a conclusão.")
+
                     return redirect('interno:status_task_internos', task_id=task.id)
 
 
