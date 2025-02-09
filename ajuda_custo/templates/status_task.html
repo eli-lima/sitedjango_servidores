@@ -2,32 +2,46 @@
 
 {% block content %}
   <div class="pt-48 flex justify-center">
-    <div class="flex flex-col">
-      <h1>Status do Processamento</h1>
-      <div id="status">
+    <div class="flex flex-col items-center">
+      <h1 class="text-2xl font-bold mb-4">Status do Processamento</h1>
+      <div id="status" class="text-center">
           {{ status }}
+      </div>
+      <!-- Barra de Progresso -->
+      <div id="progress-bar" class="mt-4 w-64 bg-gray-200 rounded-full hidden">
+        <div class="h-4 bg-blue-500 rounded-full animate-progress"></div>
       </div>
     </div>
   </div>
 
-
-<script>
+  <script>
     // Função para recarregar a página
     function recarregarPagina() {
         var statusElement = document.getElementById('status');
+        var progressBarElement = document.getElementById('progress-bar');
+
         if (statusElement && statusElement.innerText === "Processamento pendente...") {
+            // Mostra a barra de progresso
+            progressBarElement.classList.remove('hidden');
             location.reload();  // Recarrega a página
         } else {
-            clearInterval(reloadInterval);  // Para de recarregar a página
+            // Esconde a barra de progresso e para de recarregar a página
+            progressBarElement.classList.add('hidden');
+            clearInterval(reloadInterval);
         }
     }
 
-    // Define o intervalo para recarregar a página a cada 5 segundos (5000 milissegundos)
+    // Define o intervalo para recarregar a página a cada 20 segundos (20000 milissegundos)
     var reloadInterval = setInterval(recarregarPagina, 20000);
-</script>
+  </script>
 
-
-
-
+  <style>
+    @keyframes progress {
+      0% { width: 0%; }
+      100% { width: 100%; }
+    }
+    .animate-progress {
+      animation: progress 2s linear infinite;
+    }
+  </style>
 {% endblock %}
-
