@@ -214,7 +214,7 @@ class RelatorioInterno(LoginRequiredMixin, UserPassesTestMixin, ListView):
         context['query'] = self.request.GET.get('query', '')
 
         # # Ajuste aqui: mudando 'unidade' para 'unidades'
-        context['unidades'] = Interno.objects.values_list('unidade', flat=True).distinct().order_by('-unidade')
+        context['unidades'] = Interno.objects.values_list('unidade', flat=True).distinct().order_by('unidade')
 
         context['status'] = Interno.objects.values_list('status', flat=True).distinct()
 
