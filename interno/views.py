@@ -208,7 +208,7 @@ class RelatorioInterno(LoginRequiredMixin, UserPassesTestMixin, ListView):
         # # Ajuste aqui: mudando 'unidade' para 'unidades'
         context['unidades'] = Interno.objects.values_list('unidade', flat=True).distinct().order_by('-unidade')
 
-        # context['carga_horarias'] = Ajuda_Custo.objects.values_list('carga_horaria', flat=True).distinct()
+
 
         return context
 
