@@ -11,7 +11,7 @@
       </div>
 
       <!-- Seção de loading com spinner e barra de progresso -->
-      <div id="loading-section" class="mt-4 flex flex-col items-center hidden">
+      <div id="loading-section" class="mt-4 flex flex-col items-center {% if status not in 'Pendente, Em andamento' %}hidden{% endif %}">
         <!-- Spinner -->
         <div class="loader mb-4"></div>
 
@@ -20,17 +20,26 @@
           <div id="progress-bar" class="h-4 bg-blue-500 animate-progress"></div>
         </div>
       </div>
+
+      <!-- Seção de Resultados (Aparece apenas se a task foi concluída) -->
+      <div id="result-section" class="mt-6 text-center {% if status != 'Concluído com sucesso!' %}hidden{% endif %}">
+        <p class="text-green-600 font-semibold">✅ Novos Internos Inseridos: <span id="novos-inseridos">{{ novos_inseridos }}</span></p>
+        <p class="text-blue-600 font-semibold">🔄 Internos Atualizados: <span id="atualizados">{{ atualizados }}</span></p>
+      </div>
     </div>
   </div>
 
   <script>
     function atualizarStatus() {
-        fetch(window.location.href)  // Faz uma requisição para a própria página
+        fetch(window.location.href)
         .then(response => response.text())
         .then(html => {
             let parser = new DOMParser();
             let doc = parser.parseFromString(html, 'text/html');
+
             let novoStatus = doc.getElementById('status').innerText.trim();
+            let novosInseridos = doc.getElementById('novos-inseridos') ? doc.getElementById('novos-inseridos').innerText.trim() : "0";
+            let atualizados = doc.getElementById('atualizados') ? doc.getElementById('atualizados').innerText.trim() : "0";
 
             document.getElementById('status').innerText = novoStatus;
 
@@ -40,6 +49,14 @@
             } else {
                 document.getElementById('loading-section').classList.add('hidden');
                 document.getElementById('progress-bar').classList.add('hidden');
+
+                // Exibe a seção de resultados se for concluído com sucesso
+                if (novoStatus.includes("Concluído com sucesso")) {
+                    document.getElementById('result-section').classList.remove('hidden');
+                    document.getElementById('novos-inseridos').innerText = novosInseridos;
+                    document.getElementById('atualizados').innerText = atualizados;
+                }
+
                 clearInterval(statusInterval);
             }
         });

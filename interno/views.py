@@ -65,18 +65,35 @@ def upload_excel_internos(request):
     return render(request, 'upload_excel_internos.html', {'form': form})
 
 
+from celery.result import AsyncResult
+
 def status_task_internos(request, task_id):
     task = AsyncResult(task_id)
+    novos_inseridos = 0
+    atualizados = 0
+
     if task.state == 'PENDING':
         status = "Processamento pendente..."
     elif task.state == 'SUCCESS':
         result = task.result
         status = "Concluído com sucesso!" if result['status'] == 'sucesso' else f"Erros: {', '.join(result['erros'])}"
+
+        # Se a task foi bem-sucedida, pega os valores de novos inseridos e atualizados
+        if result['status'] == 'sucesso':
+            novos_inseridos = result.get('novos_inseridos', 0)
+            atualizados = result.get('atualizados', 0)
+
     elif task.state == 'FAILURE':
         status = f"Falha no processamento: {task.result}"
     else:
         status = f"Em andamento... Status: {task.state}"
-    return render(request, 'status_task_internos.html', {'status': status})
+
+    return render(request, 'status_task_internos.html', {
+        'status': status,
+        'novos_inseridos': novos_inseridos if task.state == 'SUCCESS' else None,
+        'atualizados': atualizados if task.state == 'SUCCESS' else None,
+    })
+
 
 
 
