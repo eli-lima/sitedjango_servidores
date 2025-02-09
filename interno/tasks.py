@@ -1,6 +1,5 @@
 import pandas as pd
 import requests
-from collections import defaultdict
 from .models import Interno
 from celery import shared_task
 from django.utils import timezone
