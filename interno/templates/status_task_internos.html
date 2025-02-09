@@ -3,25 +3,70 @@
 {% block content %}
   <div class="pt-48 flex justify-center">
     <div class="flex flex-col items-center">
-      <h1 class="text-xl font-bold">Status da Importação de Internos</h1>
-      <div id="status" class="mt-4">
+      <h1 class="text-2xl font-bold mb-4">Status do Processamento</h1>
+
+      <!-- Status do processamento -->
+      <div id="status" class="text-center text-lg font-semibold">
           {{ status }}
       </div>
-      <a href="{% url 'interno:upload_excel_internos' %}" class="mt-4 text-blue-500 underline">Voltar ao Upload</a>
+
+      <!-- Spinner e Barra de Progresso -->
+      <div id="loading-section" class="mt-4 flex flex-col items-center hidden">
+        <!-- Spinner -->
+        <div class="loader mb-4"></div>
+
+        <!-- Barra de progresso -->
+        <div class="w-64 bg-gray-200 rounded-full">
+          <div id="progress-bar" class="h-4 bg-blue-500 rounded-full animate-progress"></div>
+        </div>
+      </div>
     </div>
   </div>
 
-<script>
-    function recarregarPagina() {
-        var statusElement = document.getElementById('status');
-        if (statusElement && statusElement.innerText.includes("pendente")) {
-            location.reload();
-        } else {
-            clearInterval(reloadInterval);
-        }
+  <script>
+    function atualizarStatus() {
+        fetch(window.location.href)  // Faz uma requisição para a própria página
+        .then(response => response.text())
+        .then(html => {
+            let parser = new DOMParser();
+            let doc = parser.parseFromString(html, 'text/html');
+            let novoStatus = doc.getElementById('status').innerText.trim();
+
+            document.getElementById('status').innerText = novoStatus;
+
+            if (novoStatus.includes("pendente")) {
+                document.getElementById('loading-section').classList.remove('hidden');
+            } else {
+                document.getElementById('loading-section').classList.add('hidden');
+                clearInterval(statusInterval);
+            }
+        });
     }
 
-    var reloadInterval = setInterval(recarregarPagina, 20000);
-</script>
+    // Atualiza o status a cada 5 segundos
+    var statusInterval = setInterval(atualizarStatus, 5000);
+  </script>
 
+  <style>
+    @keyframes progress {
+      0% { width: 0%; }
+      100% { width: 100%; }
+    }
+    .animate-progress {
+      animation: progress 2s linear infinite;
+    }
+    /* Spinner */
+    .loader {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(0, 0, 255, 0.3);
+      border-top-color: blue;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
 {% endblock %}
