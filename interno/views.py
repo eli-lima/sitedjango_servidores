@@ -163,16 +163,20 @@ class RelatorioInterno(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
         # #filtro por status:
         #
-        status = self.request.GET.get('status')
-        if status:
-            queryset = queryset.filter(status=status)
+        stat = self.request.GET.get('stat')
+        if stat:
+            queryset = queryset.filter(status=stat)
 
-
-        # #filtro por unidade:
-        #
+        # Filtro por unidade
         unidade = self.request.GET.get('unidade')
+
         if unidade:
-            queryset = queryset.filter(unidade=unidade)
+            if unidade == "Sem unidade":
+                # Se "Sem unidade" for selecionado, filtra os registros com unidade igual a None
+                queryset = queryset.filter(unidade__isnull=True)
+            else:
+                # Caso contrário, filtra pelos valores de unidade específicos
+                queryset = queryset.filter(unidade=unidade)
 
         cpf = self.request.GET.get('cpf')
         if cpf:
@@ -214,9 +218,13 @@ class RelatorioInterno(LoginRequiredMixin, UserPassesTestMixin, ListView):
         context['query'] = self.request.GET.get('query', '')
 
         # # Ajuste aqui: mudando 'unidade' para 'unidades'
-        context['unidades'] = Interno.objects.values_list('unidade', flat=True).distinct().order_by('unidade')
+        unidades = Interno.objects.values_list('unidade', flat=True).distinct().order_by('unidade')
+        # Substituindo 'None' por "Sem unidade"
+        unidades = ['Sem unidade' if unidade is None else unidade for unidade in unidades]
+
+
+        context['unidades'] = unidades
 
         context['status'] = Interno.objects.values_list('status', flat=True).distinct()
 
         return context
-

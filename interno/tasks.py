@@ -26,7 +26,13 @@ def process_batch_internos(df_batch):
         nome = str(row.get('nome', '')).strip()
         cpf = str(row.get('cpf', '')).strip()
         nome_mae = str(row.get('nome_mae', '')).strip()
-        unidade = str(row.get('unidade', '')).strip()
+        # Tratando a unidade para garantir que valores 'NaN' sejam tratados corretamente
+        unidade = row.get('unidade', '')  # Atribui valor vazio se não encontrar o campo
+        if pd.isna(unidade) or unidade == 'nan':  # Verifica se é NaN ou 'nan'
+            unidade = ''  # Substitui por string vazia
+
+        else:
+            unidade = str(unidade).strip()  # Converte para string e remove espaços, caso contrário
         status = str(row.get('status', '')).strip()
         data_extracao = row.get('data_extracao')
         if not data_extracao or pd.isna(data_extracao):
