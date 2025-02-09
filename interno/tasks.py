@@ -26,6 +26,9 @@ def process_batch_internos(df_batch):
         prontuario = str(row.get('prontuario', '')).strip()
         nome = str(row.get('nome', '')).strip()
         cpf = str(row.get('cpf', '')).strip()
+        nome_mae = str(row.get('nome_mae', '')).strip()
+        unidade = str(row.get('unidade', '')).strip()
+        status = str(row.get('status', '')).strip()
         data_extracao = row.get('data_extracao', timezone.now()) if pd.notna(row.get('data_extracao', None)) else timezone.now()
 
         # Verifica se os campos obrigatórios estão preenchidos
@@ -40,21 +43,34 @@ def process_batch_internos(df_batch):
             interno_existente = Interno.objects.filter(prontuario=prontuario).first()
 
             if interno_existente:
-                # Atualiza os campos se houver alterações
+                # Verifica se algum dos outros campos foi alterado em relação ao que está no banco
                 if (interno_existente.nome != nome or
-                    interno_existente.cpf != cpf or
-                    interno_existente.data_extracao != data_extracao):
+                        interno_existente.cpf != cpf or
+                        interno_existente.nome_mae != nome_mae or
+                        interno_existente.unidade != unidade or
+                        interno_existente.status != status):
+                    # Atualiza apenas os campos que mudaram
                     interno_existente.nome = nome
                     interno_existente.cpf = cpf
+                    interno_existente.nome_mae = nome_mae
+                    interno_existente.unidade = unidade
+                    interno_existente.status = status
+
+                    # Se algum campo mudou, ATUALIZA data_extracao com a que veio da planilha
                     interno_existente.data_extracao = data_extracao
+
                     atualizacoes.append(interno_existente)
+
             else:
-                # Cria um novo registro
+                # Cria um novo registro com a data de extração da planilha
                 novos_registros.append(Interno(
                     prontuario=prontuario,
                     nome=nome,
                     cpf=cpf,
-                    data_extracao=data_extracao,
+                    nome_mae=nome_mae,
+                    unidade=unidade,
+                    status=status,
+                    data_extracao=data_extracao,  # Usa a data de extração da planilha para novos registros
                 ))
 
         except Exception as e:
