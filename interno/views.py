@@ -136,12 +136,12 @@ class Internos(LoginRequiredMixin, UserPassesTestMixin, ListView):
 class RelatorioInterno(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = Interno
     template_name = "relatorio_interno.html"
-    context_object_name = 'datas'
+    context_object_name = 'internos'
     paginate_by = 50  # Quantidade de registros por página
 
     def test_func(self):
         user = self.request.user
-        grupos_permitidos = ['Administrador', 'Copen']
+        grupos_permitidos = ['Administrador', 'Copen', 'GerGesipe']
         return user.groups.filter(name__in=grupos_permitidos).exists()
 
     def handle_no_permission(self):
@@ -161,6 +161,13 @@ class RelatorioInterno(LoginRequiredMixin, UserPassesTestMixin, ListView):
                 Q(nome__icontains=query)
             )
 
+        # #filtro por status:
+        #
+        status = self.request.GET.get('status')
+        if status:
+            queryset = queryset.filter(status=status)
+
+
         # #filtro por unidade:
         #
         unidade = self.request.GET.get('unidade')
@@ -176,6 +183,7 @@ class RelatorioInterno(LoginRequiredMixin, UserPassesTestMixin, ListView):
             queryset = queryset.filter(
                 Q(nome__icontains=query)
             )
+
 
         return queryset.order_by('-prontuario')
 
@@ -208,7 +216,7 @@ class RelatorioInterno(LoginRequiredMixin, UserPassesTestMixin, ListView):
         # # Ajuste aqui: mudando 'unidade' para 'unidades'
         context['unidades'] = Interno.objects.values_list('unidade', flat=True).distinct().order_by('-unidade')
 
-
+        context['status'] = Interno.objects.values_list('status', flat=True).distinct()
 
         return context
 
