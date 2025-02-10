@@ -18,6 +18,7 @@ from django.http import JsonResponse, FileResponse, HttpResponse, HttpResponseRe
 import os
 from django.conf import settings
 from celery.result import AsyncResult
+from seappb.models import Unidade
 
 #deletar documentos
 
@@ -152,11 +153,16 @@ class RecursosHumanosPage(LoginRequiredMixin, ListView):
             context['genero_outros']
         ]
 
-        # Adicionar o gráfico de barras horizontal com efetivo por unidade
-        efetivo_por_unidade = Servidor.objects.filter(cargo='POLICIAL PENAL').values('local_trabalho').annotate(
-            total=Count('id')).order_by('-total')
 
-        context['bar_labels'] = [item['local_trabalho'] for item in efetivo_por_unidade]
+        # Adicionar o gráfico de barras horizontal com efetivo por unidade
+        efetivo_por_unidade = (
+            Servidor.objects.filter(cargo='POLICIAL PENAL')
+            .values('local_trabalho__nome')
+            .annotate(total=Count('id'))
+            .order_by('-total')
+        )
+
+        context['bar_labels'] = [item['local_trabalho__nome'] for item in efetivo_por_unidade]
         context['bar_values'] = [item['total'] for item in efetivo_por_unidade]
 
 
@@ -371,14 +377,14 @@ class ServidorLote(LoginRequiredMixin, UserPassesTestMixin, View):
                             'observacao': row[4] if row[4] else None,
                             'simb_cargo_comissionado': row[5] if row[5] else None,
                             'lotacao': str(row[6]).upper() if row[6] else None,
-                            'local_trabalho': row[17] if row[17] else None,
+                            'local_trabalho': Unidade.objects.filter(id=row[17]).first() or Unidade.objects.get(id=1),
                             'regime': str(row[8]).upper() if row[8] else 'NAO INFORMADO',
                             'data_admissao': row[9],
                             'disposicao': str(row[10]).upper() if row[10] else None,
                             'status': status,
                             'data_nascimento': row[13],
                             'telefone': str(row[14]).upper() if row[14] else None,
-                            'email': str(row[15]).upper() if row[15] else None,
+                            'email': str(row[16]).upper() if row[16] else None,
 
                         }
                     )

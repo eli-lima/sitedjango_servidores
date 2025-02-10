@@ -10,7 +10,7 @@ upload internos
     <div class="text-2xl py-8">
         <h2>Importar Internos</h2>
     </div>
-    <form method="post" action="{% url 'interno:upload_internos' %}" enctype="multipart/form-data">
+    <form method="post" action="{% url 'interno:upload_interno' %}" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.as_p }}
         <div class="flex flex-col justify-items-center items-center pt-8">
