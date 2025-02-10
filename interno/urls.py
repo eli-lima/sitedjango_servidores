@@ -9,7 +9,7 @@ app_name = 'interno'
 
 urlpatterns = [
     path('', Internos.as_view(), name='interno'),
-    path('upload-interno/', upload_excel_internos, name='upload_excel_internos'),
+    path('upload-interno/', upload_excel_internos, name='upload_internos'),
     path('status/<str:task_id>/', status_task_internos, name='status_task_internos'),
     path('relatorio_interno/', RelatorioInterno.as_view(), name='relatorio_interno'),
 ]

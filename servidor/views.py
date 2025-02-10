@@ -371,7 +371,7 @@ class ServidorLote(LoginRequiredMixin, UserPassesTestMixin, View):
                             'observacao': row[4] if row[4] else None,
                             'simb_cargo_comissionado': row[5] if row[5] else None,
                             'lotacao': str(row[6]).upper() if row[6] else None,
-                            'local_trabalho': str(row[17]).upper() if row[17] else None,
+                            'local_trabalho': row[17] if row[17] else None,
                             'regime': str(row[8]).upper() if row[8] else 'NAO INFORMADO',
                             'data_admissao': row[9],
                             'disposicao': str(row[10]).upper() if row[10] else None,
