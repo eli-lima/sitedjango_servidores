@@ -363,22 +363,23 @@ class ServidorLote(LoginRequiredMixin, UserPassesTestMixin, View):
 
                     # Atualiza ou cria um novo registro com base na matrícula
                     Servidor.objects.update_or_create(
-                        matricula=str(row[1]),  # Usando matrícula como critério de identificação
+                        matricula=str(row[0]),  # Usando matrícula como critério de identificação
                         defaults={
-                            'nome': str(row[2]).upper() if row[2] else 'NAO INFORMADO',
-                            'cargo': str(row[3]).upper() if row[3] else 'NAO INFORMADO',
-                            'local_trabalho': str(row[4]).upper() if row[4] else None,
-                            'cargo_comissionado': row[5].upper() if row[5] else None,
-                            'simb_cargo_comissionado': row[6] if row[6] else None,
-                            'lotacao': str(row[7]).upper() if row[7] else None,
-                            'genero': str(row[8]).upper() if row[8] else 'Outro',
-                            'regime': str(row[9]).upper() if row[9] else 'NAO INFORMADO',
-                            'data_admissao': row[10],
+                            'nome': str(row[1]).upper() if row[1] else 'NAO INFORMADO',
+                            'cargo': str(row[2]).upper() if row[2] else 'NAO INFORMADO',
+                            'cargo_comissionado': row[3].upper() if row[3] else None,
+                            'observacao': row[4] if row[4] else None,
+                            'simb_cargo_comissionado': row[5] if row[5] else None,
+                            'lotacao': str(row[6]).upper() if row[6] else None,
+                            'local_trabalho': str(row[17]).upper() if row[17] else None,
+                            'regime': str(row[8]).upper() if row[8] else 'NAO INFORMADO',
+                            'data_admissao': row[9],
+                            'disposicao': str(row[10]).upper() if row[10] else None,
                             'status': status,
                             'data_nascimento': row[13],
                             'telefone': str(row[14]).upper() if row[14] else None,
                             'email': str(row[15]).upper() if row[15] else None,
-                            'foto_servidor': None
+
                         }
                     )
 
