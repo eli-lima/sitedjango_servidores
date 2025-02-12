@@ -21,6 +21,8 @@ def user_group(request):
             user_role = 'Gerente'
         elif 'ServGesipe' in user_groups:
             user_role = 'Gesipe'
+        elif 'Copen' in user_groups:
+            user_role = 'Copen'
         else:
             user_role = 'Usuário Padrão'
 
