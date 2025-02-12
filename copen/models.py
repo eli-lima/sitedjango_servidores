@@ -8,6 +8,14 @@ from servidor.models import Servidor
 
 #models atendimentos
 
+
+class StatusPreso(models.Model):
+    nome = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.nome
+
+
 class Atendimento(models.Model):
     data = models.DateField(default=timezone.now)
     nome = models.CharField(max_length=255)
@@ -18,6 +26,7 @@ class Atendimento(models.Model):
     matricula = models.CharField(max_length=20, null=True, blank=True)
     instituicao = models.CharField(max_length=100, null=True, blank=True)
     unidade = models.ForeignKey(Unidade, on_delete=models.CASCADE, null=True, blank=True)
+    status_preso = models.ForeignKey(StatusPreso, on_delete=models.CASCADE, null=True, blank=True)
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     observacao = models.TextField(null=True, blank=True)
     data_edicao = models.DateTimeField(default=timezone.now)

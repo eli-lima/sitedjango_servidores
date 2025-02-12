@@ -153,7 +153,6 @@ class RecursosHumanosPage(LoginRequiredMixin, ListView):
             context['genero_outros']
         ]
 
-
         # Adicionar o gráfico de barras horizontal com efetivo por unidade
         efetivo_por_unidade = (
             Servidor.objects.filter(cargo='POLICIAL PENAL')
@@ -164,7 +163,6 @@ class RecursosHumanosPage(LoginRequiredMixin, ListView):
 
         context['bar_labels'] = [item['local_trabalho__nome'] for item in efetivo_por_unidade]
         context['bar_values'] = [item['total'] for item in efetivo_por_unidade]
-
 
         # Paginação personalizada
         page_obj = context['page_obj']

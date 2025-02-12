@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import (Ocorrencia, Apreensao, TipoOcorrencia,
                      Atendimento, Mp, TipoMp, Objeto,
-                     Natureza)
+                     Natureza, StatusPreso)
 
 # Register your models here.
 
@@ -14,3 +14,4 @@ admin.site.register(TipoMp)
 admin.site.register(Mp)
 admin.site.register(Objeto)
 admin.site.register(Natureza)
+admin.site.register(StatusPreso)

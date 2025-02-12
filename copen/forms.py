@@ -15,7 +15,8 @@ class AtendimentoForm(forms.ModelForm):
         model = Atendimento
         fields = [
             'data', 'servidor', 'outros', 'nome', 'localizado',
-            'matricula', 'instituicao', 'unidade', 'observacao'
+            'matricula', 'instituicao', 'unidade', 'observacao',
+            'status_preso'
         ]
         widgets = {
             'data': forms.DateInput(attrs={
@@ -41,6 +42,7 @@ class AtendimentoForm(forms.ModelForm):
                 'placeholder': 'Digite o nome da instituição'
             }),
             'unidade': forms.Select(attrs={'class': 'form-select'}),
+            'status_preso': forms.Select(attrs={'class': 'form-select'}),
             'observacao': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 3,
@@ -52,6 +54,7 @@ class AtendimentoForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['servidor'].empty_label = "Selecione um servidor"
         self.fields['unidade'].empty_label = "Selecione a Unidade ou Regime se Localizado..."
+        self.fields['status_preso'].empty_label = "Selecione o Status do Preso se Localizado..."
 
 
 
