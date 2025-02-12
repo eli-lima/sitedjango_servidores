@@ -95,10 +95,14 @@ class Homepage(LoginRequiredMixin, TemplateView):
         ]
 
         # Adicionar o gráfico de barras horizontal com efetivo por unidade
-        efetivo_por_unidade = Servidor.objects.filter(cargo='POLICIAL PENAL').values('local_trabalho').annotate(
-            total=Count('id')).order_by('-total')
+        efetivo_por_unidade = (
+            Servidor.objects.filter(cargo='POLICIAL PENAL')
+            .values('local_trabalho__nome')
+            .annotate(total=Count('id'))
+            .order_by('-total')
+        )
 
-        context['bar_labels'] = [item['local_trabalho'] for item in efetivo_por_unidade]
+        context['bar_labels'] = [item['local_trabalho__nome'] for item in efetivo_por_unidade]
         context['bar_values'] = [item['total'] for item in efetivo_por_unidade]
 
         # Obtendo os dados para o gráfico de barra administrativo
