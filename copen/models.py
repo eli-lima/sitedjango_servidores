@@ -11,9 +11,14 @@ from servidor.models import Servidor
 
 class StatusPreso(models.Model):
     nome = models.CharField(max_length=100)
+    ordem = models.IntegerField(default=0)  # Adiciona o campo 'ordem'
 
     def __str__(self):
         return self.nome
+
+    class Meta:
+        ordering = ['ordem']  # Ordena os itens pelo campo 'ordem'
+
 
 
 class Atendimento(models.Model):
