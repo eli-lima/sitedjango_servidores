@@ -139,7 +139,7 @@ HomePage SeapPB
 
 
                 <div>
-                    <canvas id="bar-lotacao" width="200" height="100"></canvas>
+                    <canvas id="chart-bar-unidade" width="200" height="100"></canvas>
                 </div>
 
             </div>
@@ -355,7 +355,7 @@ HomePage SeapPB
 
 <script>
     // Dados do gráfico de barra
-    var ctx = document.getElementById('chart-bar').getContext('2d');
+    var ctx = document.getElementById('chart-bar-unidade').getContext('2d');
     var barLabels = {{ bar_labels|safe }};  // Usando as labels do contexto
     var barValues = {{ bar_values|safe }};  // Usando os valores do contexto
 
