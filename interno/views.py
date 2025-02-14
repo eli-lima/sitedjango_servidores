@@ -116,20 +116,14 @@ class Internos(LoginRequiredMixin, UserPassesTestMixin, ListView):
         return render(self.request, '403.html', status=403)
 
     def get_queryset(self):
-
-
         queryset = Interno.objects.all()
-
 
         return queryset.order_by('-prontuario')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-
         return context
-
-
 
 
 
@@ -151,43 +145,41 @@ class RelatorioInterno(LoginRequiredMixin, UserPassesTestMixin, ListView):
     def get_queryset(self):
         query = self.request.GET.get('query', '')
 
-
-
-
         queryset = Interno.objects.all()
 
+        # Filtro geral por nome, se o campo 'query' for usado
         if query:
             queryset = queryset.filter(
                 Q(nome__icontains=query)
             )
 
-        # #filtro por status:
-        #
+        # Filtro por status
         stat = self.request.GET.get('stat')
         if stat:
             queryset = queryset.filter(status=stat)
 
         # Filtro por unidade
         unidade = self.request.GET.get('unidade')
-
         if unidade:
             if unidade == "Sem unidade":
-                # Se "Sem unidade" for selecionado, filtra os registros com unidade igual a None
                 queryset = queryset.filter(unidade__isnull=True)
             else:
-                # Caso contrário, filtra pelos valores de unidade específicos
                 queryset = queryset.filter(unidade=unidade)
 
+        # Filtro por CPF
         cpf = self.request.GET.get('cpf')
         if cpf:
-            queryset = queryset.filter(cpf=cpf)
+            queryset = queryset.filter(cpf__icontains=cpf)
 
+        # Filtro por nome da mãe
         nome_mae = self.request.GET.get('nome_mae')
         if nome_mae:
-            queryset = queryset.filter(
-                Q(nome__icontains=query)
-            )
+            queryset = queryset.filter(nome_mae__icontains=nome_mae)
 
+        # Filtro por prontuário
+        prontuario = self.request.GET.get('prontuario')
+        if prontuario:
+            queryset = queryset.filter(prontuario__icontains=prontuario)
 
         return queryset.order_by('-prontuario')
 
@@ -215,7 +207,15 @@ class RelatorioInterno(LoginRequiredMixin, UserPassesTestMixin, ListView):
         interno = Interno.objects.all()
         context['interno'] = interno
 
+
+        # manter campos preenchidos
         context['query'] = self.request.GET.get('query', '')
+        context['nome_mae'] = self.request.GET.get('nome_mae', '')
+        context['cpf'] = self.request.GET.get('cpf', '')
+        context['prontuario'] = self.request.GET.get('prontuario', '')
+
+
+
 
         # # Ajuste aqui: mudando 'unidade' para 'unidades'
         unidades = Interno.objects.values_list('unidade', flat=True).distinct().order_by('unidade')

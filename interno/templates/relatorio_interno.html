@@ -32,24 +32,28 @@ Relatorio Internos
 
 
 
-                        <div class="flex flex-row justify-end pt-4">
-                            <select class="form-control w-1/6 mr-2" name="stat">
-                                <option value="">Status...</option>
-                                {% for stat in status %}
-                                <option value="{{ stat }}" {% if request.GET.stat == stat %}selected{% endif %}>{{ stat }}</option>
-                                {% endfor %}
-                            </select>
-                            <select class="form-control" name="unidade">
-                                <option value="">Unidade...</option>
-                                {% for unidade in unidades %}
-                                <option value="{{ unidade }}" {% if request.GET.unidade == unidade %}selected{% endif %}>{{ unidade }}</option>
-                                {% endfor %}
-                            </select>
-
-                            <input class="form-input w-full sm:w-auto sm:ml-2 p-1.5 rounded-md border-1 border-gray-600" type="text" name="cpf" id="cpf" placeholder="CPF..." value="{{ cpf }}">
-                            <input class="form-input w-full sm:w-auto sm:ml-2 p-1.5 rounded-md border-1 border-gray-600" type="text" name="nome_mae" id="nome_mae" placeholder="Nome da Mãe..." value="{{ nome_mae }}">
-                            <input type="text" name="query" id="searchInput" class="form-input w-full sm:w-auto sm:ml-2 p-1.5 rounded-md border-1 border-gray-600" placeholder="Pesquisar..." value="{{ query }}">
-                            <button type="submit" name="action" value="search" id="searchButton" class="ml-2 btn btn-primary">Pesquisar</button>
+                        <div class="flex flex-col justify-center pt-4">
+                            <div class="flex flex-row justify-end pt-4">
+                                <select class="form-control w-1/6 mr-2" name="stat">
+                                    <option value="">Status...</option>
+                                    {% for stat in status %}
+                                    <option value="{{ stat }}" {% if request.GET.stat == stat %}selected{% endif %}>{{ stat }}</option>
+                                    {% endfor %}
+                                </select>
+                                <select class="form-control" name="unidade">
+                                    <option value="">Unidade...</option>
+                                    {% for unidade in unidades %}
+                                    <option value="{{ unidade }}" {% if request.GET.unidade == unidade %}selected{% endif %}>{{ unidade }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="flex flex-row justify-between pt-4 space-x-2">
+                                <input class="form-input w-full p-1.5 rounded-md border-1 border-gray-600" type="text" name="prontuario" id="prontuario" placeholder="Prontuario..." value="{{ cpf }}">
+                                <input class="form-input w-full p-1.5 rounded-md border-1 border-gray-600" type="text" name="cpf" id="cpf" placeholder="CPF..." value="{{ cpf }}">
+                                <input class="form-input w-full p-1.5 rounded-md border-1 border-gray-600" type="text" name="nome_mae" id="nome_mae" placeholder="Nome da Mãe..." value="{{ nome_mae  }}">
+                                <input type="text" name="query" id="searchInput" class="form-input w-full p-1.5 rounded-md border-1 border-gray-600" placeholder="Pesquisar..." value="{{ query }}">
+                                <button type="submit" name="action" value="search" id="searchButton" class="ml-2 btn btn-primary">Pesquisar</button>
+                            </div>
                         </div>
 
                 </form>

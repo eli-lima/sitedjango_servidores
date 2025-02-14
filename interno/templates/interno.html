@@ -1,11 +1,16 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block titulo %}
-Internos
+Ajuda de Custo
 {% endblock %}
 
 
 {% block content %}
+
+
+
+
+
 
 
 <!--tabela com internos-->
@@ -33,6 +38,19 @@ Internos
                 <form method="GET" onsubmit="return false;">
                     <div class="mt-4 px-0 flex flex-row justify-between w-full">
                         <div class="flex flex-row">
+                            <!-- Campo Prontuario -->
+                            <input
+                                class="form-input w-full sm:w-auto sm:ml-4 p-1.5 rounded-md border-1 border-gray-600"
+                                type="text"
+                                name="prontuario"
+                                id="prontuario"
+                                value="{{ request.GET.nome_mae }}"
+                                placeholder="Prontuario..."
+                                hx-get="{% url 'interno:interno_list' %}"
+                                hx-trigger="keyup delay:500ms"
+                                hx-target="#content2"
+                                hx-include="[name='prontuario'], [name='cpf'], [name='nome_mae'], [name='query']"
+                            />
                             <!-- Campo CPF -->
                             <input
                                 class="form-input w-full sm:w-auto sm:ml-4 p-1.5 rounded-md border-1 border-gray-600"
@@ -100,6 +118,158 @@ Internos
     </div>
 
 </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+    // Dados do gráfico de barra para Ajuda de Custo
+    var ctx = document.getElementById('chart-bar-ajuda-custo').getContext('2d');
+    var barLabels = {{ labels_mensais|safe }};  // Labels dos meses com ano
+    var barValues = {{ values_mensais|safe }};  // Quantidade mensal de Ajuda de Custo
+
+    var myBarChart = new Chart(ctx, {
+        type: 'bar', // Tipo de gráfico: barra
+        data: {
+            labels: barLabels, // Nomes dos meses (Janeiro 2024, Fevereiro 2024, etc.)
+            datasets: [{
+                label: 'Total de Ajuda de Custo',
+                data: barValues, // Valores mensais calculados no backend
+                backgroundColor: 'rgba(210, 0, 0, 1)', // Cor de fundo das barras (vermelho)
+                borderColor: 'rgba(210, 0, 0, 1)', // Cor da borda das barras (vermelho)
+                borderWidth: 2, // Largura da borda das barras
+                borderRadius: 4 // Arredondamento das bordas das barras
+            }]
+        },
+        options: {
+            scales: {
+                x: {
+                    grid: {
+                        display: false // Oculta a grade no eixo X
+                    }
+                },
+                y: {
+                    beginAtZero: true, // Começa o eixo Y no zero
+                    grid: {
+                        display: false // Oculta a grade no eixo Y
+                    }
+                }
+            }
+        }
+    });
+
+    // Adicione um evento para atualizar o gráfico com base no filtro aplicado
+    document.getElementById('filtro-form').addEventListener('submit', function(event) {
+        event.preventDefault(); // Previne o envio do formulário
+        var selectedYear = document.getElementById('ano-selecionado').value;
+        var selectedMonth = document.getElementById('mes-selecionado').value;
+
+        // Atualize os valores das labels e dados do gráfico
+        // Assumindo que você faça uma requisição AJAX para buscar os novos dados
+        fetch(`/api/get-bar-data?year=${selectedYear}&month=${selectedMonth}`)
+            .then(response => response.json())
+            .then(data => {
+                myBarChart.data.labels = data.labels_mensais;
+                myBarChart.data.datasets[0].data = data.values_mensais;
+                myBarChart.update();
+            });
+    });
+</script>
+
+
+
+
+<!--grafico Pizza majorado x normal-->
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var ctx = document.getElementById('majorado-pizza').getContext('2d');
+        var myPieChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: {{ pie_labels|safe }},  // Ex.: ['Ajuda Normal', 'Ajuda Majorada']
+                datasets: [{
+                    label: 'Distribuição de Ajuda de Custo',
+                    data: {{ pie_values|safe }},  // Ex.: [50, 30] - dados dinâmicos
+                    backgroundColor: [
+                        'rgba(54, 162, 35, 1)',  // verde para Ajuda Normal
+                        'rgba(255, 69, 58, 1)'   // Vermelho para Ajuda Majorada
+                    ],
+                    borderColor: [
+                        'rgba(54, 162, 35, 1)',  // Verde
+                        'rgba(255, 69, 58, 1)'   // Vermelho
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return tooltipItem.label + ': ' + tooltipItem.raw;
+                            }
+                        }
+                    },
+                    datalabels: {
+                        display: true,
+                        color: '#ffffff',
+                        font: {
+                            weight: 'bold',
+                            size: 14
+                        },
+                        formatter: (value) => {
+                            return `${value}`;  // Exibe o valor numérico de cada segmento
+                        }
+                    }
+                },
+                cutout: '50%'  // Ajusta a espessura do gráfico tipo donut, caso esteja usando um gráfico de donut
+            }
+        });
+    });
+</script>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const dataInicialField = document.getElementById('dataInicial');
+    const dataFinalField = document.getElementById('dataFinal');
+
+    // Verificar se os campos já têm valores (vindos do Django)
+    if (!dataInicialField.value) {
+        const now = new Date();
+        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+        dataInicialField.value = firstDay.toISOString().split('T')[0];  // Define apenas se estiver vazio
+    }
+
+    if (!dataFinalField.value) {
+        const now = new Date();
+        const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        dataFinalField.value = lastDay.toISOString().split('T')[0];  // Define apenas se estiver vazio
+    }
+});
+
+</script>
 
 
 
