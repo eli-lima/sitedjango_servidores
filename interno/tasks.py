@@ -5,6 +5,7 @@ from celery import shared_task
 from django.utils import timezone
 from django.db import transaction
 import traceback
+from datetime import datetime
 
 
 
@@ -37,6 +38,12 @@ def process_batch_internos(df_batch):
         data_extracao = row.get('data_extracao')
         if not data_extracao or pd.isna(data_extracao):
             data_extracao = timezone.now()
+        else:
+            try:
+                # Converte de "DD-MM-YYYY" para "YYYY-MM-DD"
+                data_extracao = datetime.strptime(data_extracao, "%d-%m-%Y").date()
+            except ValueError:
+                raise ValueError(f"Data inválida: {data_extracao}")
 
         if not prontuario or not nome:
             erro_msg = f"❌ Erro: Prontuário ou Nome inválido. Linha: {row}"

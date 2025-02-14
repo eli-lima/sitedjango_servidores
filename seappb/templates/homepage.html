@@ -355,35 +355,55 @@ HomePage SeapPB
 
 <script>
     // Dados do gráfico de barra
-    var ctx = document.getElementById('bar-lotacao').getContext('2d');
+    var ctx = document.getElementById('chart-bar').getContext('2d');
     var barLabels = {{ bar_labels|safe }};  // Usando as labels do contexto
     var barValues = {{ bar_values|safe }};  // Usando os valores do contexto
 
+    // Função para dividir rótulos longos em várias linhas
+    function splitLabel(label, length) {
+        if (label.length > length) {
+            return label.match(new RegExp(`.{1,${length}}`, 'g')); // Divide a cada 'length' caracteres
+        }
+        return [label]; // Retorna o rótulo como array para multi-linha
+    }
+
+    var multiLineLabels = barLabels.map(label => splitLabel(label, 15)); // Divide rótulos a cada 15 caracteres
+
     var myBarChart = new Chart(ctx, {
-        type: 'bar', // Tipo de gráfico: barra
+        type: 'bar',
         data: {
-            labels: barLabels,
+            labels: multiLineLabels,
             datasets: [{
                 label: 'Total de Servidores',
                 data: barValues,
-                backgroundColor: 'rgba(210, 0, 0, 1)', // Cor de fundo das barras
-                borderColor: 'rgba(210, 0, 0, 1)', // Cor da borda das barras
-                borderWidth: 2, // Largura da borda das barras
-                borderRadius: 4 // Arredondamento das bordas das barras
+                backgroundColor: 'rgba(210, 0, 0, 1)',
+                borderColor: 'rgba(210, 0, 0, 1)',
+                borderWidth: 2,
+                borderRadius: 4
             }]
         },
         options: {
             scales: {
                 x: {
                     grid: {
-                        display: false // Oculta a grade no eixo X
+                        display: false
+                    },
+                    ticks: {
+                        font: {
+                            size: 10 // Ajusta o tamanho da fonte
+                        }
                     }
                 },
                 y: {
-                    beginAtZero: true, // Começa o eixo Y no zero
+                    beginAtZero: true,
                     grid: {
-                        display: false // Oculta a grade no eixo Y
+                        display: false
                     }
+                }
+            },
+            layout: {
+                padding: {
+                    bottom: 40 // Adiciona espaço para rótulos multi-linha
                 }
             }
         }
