@@ -21,6 +21,20 @@ from django.db.models import Q
 
 
 # Create your views here.
+
+def filtrar_objetos_htmx(request):
+    natureza = request.GET.get('natureza')  # Obtém o ID da natureza
+    print(f'a natureza e:{natureza}')
+    if natureza:
+        # Filtra os objetos com base na natureza selecionada
+        objetos = Objeto.objects.filter(natureza=natureza)
+        print(objetos)
+    else:
+        # Caso não haja natureza selecionada, não retorna objetos
+        objetos = []
+
+    return render(request, 'partials/objetos_options.html', {'objetos': objetos})
+
 def buscar_interno(request):
     query = request.GET.get('interno_nome', '').strip()
 
