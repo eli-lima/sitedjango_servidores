@@ -16,22 +16,27 @@ from django.db.models import Count
 from django.contrib.auth.mixins import UserPassesTestMixin
 from .utils import calculate_bar_chart, calculate_pie_apreensao
 from datetime import date
+from django.db.models import Q
 
 
 
 # Create your views here.
-def filtrar_objetos_htmx(request):
-    natureza = request.GET.get('natureza')  # Obtém o ID da natureza
-    print(f'a natureza e:{natureza}')
-    if natureza:
-        # Filtra os objetos com base na natureza selecionada
-        objetos = Objeto.objects.filter(natureza=natureza)
-        print(objetos)
-    else:
-        # Caso não haja natureza selecionada, não retorna objetos
-        objetos = []
+def buscar_interno(request):
+    query = request.GET.get('interno_nome', '').strip()
 
-    return render(request, 'partials/objetos_options.html', {'objetos': objetos})
+    if len(query) < 3:  # Só busca se o termo tiver mais de 3 caracteres
+        internos = []
+    else:
+        # Busca pelo nome, CPF, prontuário ou nome da mãe
+        internos = Interno.objects.filter(
+            Q(nome__icontains=query) |
+            Q(cpf__icontains=query) |
+            Q(prontuario__icontains=query) |
+            Q(nome_mae__icontains=query)
+        ).order_by('nome')[:10]  # Limite de 10 resultados
+
+    return render(request, 'partials/interno_tabela.html', {'internos': internos})
+
 
 
 
