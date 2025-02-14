@@ -50,9 +50,8 @@ def buscar_interno(request):
 
 
 
-class Copen(LoginRequiredMixin, TemplateView):
+class Copen(LoginRequiredMixin, TemplateView, UserPassesTestMixin):
     template_name = "copen.html"
-
 
     def test_func(self):
         user = self.request.user
@@ -152,11 +151,6 @@ class Copen(LoginRequiredMixin, TemplateView):
         # Chamar a função para calcular os dados do gráfico
         monthly_totals_apreensao, monthly_labels_apreensao = calculate_bar_chart(apreensoes ,ano_atual, mes_atual)
 
-
-
-
-
-
         print(monthly_totals_apreensao)
         print(f'labels do meses: {monthly_labels_apreensao}')
         # Captura os valores de ano e mês enviados pelo formulário de filtro
@@ -189,19 +183,22 @@ class Copen(LoginRequiredMixin, TemplateView):
 
         # grafico pizza apreensao
 
-
-
         return context
 
 
-
-
-
-
-class ApreensaoAddView(LoginRequiredMixin, FormView):
+class ApreensaoAddView(LoginRequiredMixin, FormView, UserPassesTestMixin):
     form_class = ApreensaoForm
     template_name = 'copen_apreensao_add.html'
     success_url = reverse_lazy('copen:copen')
+
+    def test_func(self):
+        user = self.request.user
+        grupos_permitidos = ['Administrador', 'Copen', 'GerGesipe']
+        return user.groups.filter(name__in=grupos_permitidos).exists()
+
+    def handle_no_permission(self):
+        messages.error(self.request, "Você não tem permissão para acessar esta página.")
+        return render(self.request, '403.html', status=403)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -217,10 +214,19 @@ class ApreensaoAddView(LoginRequiredMixin, FormView):
         return redirect(self.success_url)
 
 
-class AtendimentoView(LoginRequiredMixin, FormView):
+class AtendimentoView(LoginRequiredMixin, FormView, UserPassesTestMixin):
     form_class = AtendimentoForm
     template_name = 'copen_atendimento_add.html'
     success_url = reverse_lazy('copen:copen')
+
+    def test_func(self):
+        user = self.request.user
+        grupos_permitidos = ['Administrador', 'Copen', 'GerGesipe']
+        return user.groups.filter(name__in=grupos_permitidos).exists()
+
+    def handle_no_permission(self):
+        messages.error(self.request, "Você não tem permissão para acessar esta página.")
+        return render(self.request, '403.html', status=403)
 
     def form_valid(self, form):
         atendimento = form.save(commit=False)
@@ -231,10 +237,19 @@ class AtendimentoView(LoginRequiredMixin, FormView):
         return redirect(self.success_url)
 
 
-class OcorrenciaView(FormView):
+class OcorrenciaView(FormView, LoginRequiredMixin, UserPassesTestMixin):
     form_class = OcorrenciaForm
     template_name = 'copen_ocorrencia_add.html'
     success_url = reverse_lazy('copen:copen')
+
+    def test_func(self):
+        user = self.request.user
+        grupos_permitidos = ['Administrador', 'Copen', 'GerGesipe']
+        return user.groups.filter(name__in=grupos_permitidos).exists()
+
+    def handle_no_permission(self):
+        messages.error(self.request, "Você não tem permissão para acessar esta página.")
+        return render(self.request, '403.html', status=403)
 
     def form_valid(self, form):
         # Captura o ID do interno enviado pelo campo oculto
@@ -286,10 +301,19 @@ class OcorrenciaView(FormView):
         return super().form_invalid(form)
 
 
-class CustodiaAddView(FormView):
+class CustodiaAddView(FormView, LoginRequiredMixin, UserPassesTestMixin):
     form_class = CustodiaForm
     template_name = 'copen_custodia_add.html'
     success_url = reverse_lazy('copen:copen')
+
+    def test_func(self):
+        user = self.request.user
+        grupos_permitidos = ['Administrador', 'Copen', 'GerGesipe']
+        return user.groups.filter(name__in=grupos_permitidos).exists()
+
+    def handle_no_permission(self):
+        messages.error(self.request, "Você não tem permissão para acessar esta página.")
+        return render(self.request, '403.html', status=403)
 
     def form_valid(self, form):
         # Captura o ID do interno enviado pelo campo oculto
@@ -329,11 +353,20 @@ class CustodiaAddView(FormView):
             return self.form_invalid(form)
 
 
-class CustodiaEditView(UpdateView):
+class CustodiaEditView(UpdateView, LoginRequiredMixin, UserPassesTestMixin):
     model = Custodia
     form_class = CustodiaEditForm
     template_name = 'copen_custodia_edit.html'
     success_url = reverse_lazy('copen:copen')
+
+    def test_func(self):
+        user = self.request.user
+        grupos_permitidos = ['Administrador', 'Copen', 'GerGesipe']
+        return user.groups.filter(name__in=grupos_permitidos).exists()
+
+    def handle_no_permission(self):
+        messages.error(self.request, "Você não tem permissão para acessar esta página.")
+        return render(self.request, '403.html', status=403)
 
     def form_valid(self, form):
         custodia = form.save(commit=False)
@@ -353,14 +386,21 @@ class CustodiaEditView(UpdateView):
         return super().form_invalid(form)
 
 
-
 # view mandado de prisao
 
-
-class MpAddView(FormView):
+class MpAddView(FormView, LoginRequiredMixin, UserPassesTestMixin):
     form_class = MpForm
     template_name = 'copen_mp_add.html'
     success_url = reverse_lazy('copen:copen')
+
+    def test_func(self):
+        user = self.request.user
+        grupos_permitidos = ['Administrador', 'Copen', 'GerGesipe']
+        return user.groups.filter(name__in=grupos_permitidos).exists()
+
+    def handle_no_permission(self):
+        messages.error(self.request, "Você não tem permissão para acessar esta página.")
+        return render(self.request, '403.html', status=403)
 
     def form_valid(self, form):
         # Captura o ID do interno enviado pelo campo oculto
