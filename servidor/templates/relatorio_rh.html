@@ -27,7 +27,12 @@ Servidores
                             </a>
                         </div>
                         <div class="col-span-3 grid grid-cols-5 gap-2 px-2">
-                            <input type="text" class="form-control col-span-2" name="local_trabalho" placeholder="Local de Trabalho..." value="{{ request.GET.local_trabalho }}">
+                            <select class="form-control" name="local_trabalho">
+                                <option value="">Unidade...</option>
+                                {% for local_trabalho in local_trabalhos %}
+                                <option value="{{ local_trabalho }}" {% if request.GET.local_trabalho == local_trabalho %}selected{% endif %}>{{ local_trabalho }}</option>
+                                {% endfor %}
+                            </select>
                             <select class="form-control" name="cargo">
                                 <option value="">Cargo...</option>
                                 {% for cargo in cargos %}

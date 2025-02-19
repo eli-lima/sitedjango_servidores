@@ -413,9 +413,12 @@ class RelatorioRh(LoginRequiredMixin, ListView):
         if cargo:
             queryset = queryset.filter(cargo=cargo)
 
-        local_trabalho = self.request.GET.get('local_trabalho')
-        if local_trabalho:
-            queryset = queryset.filter(local_trabalho__icontains=local_trabalho)
+        local_trabalho_nome = self.request.GET.get('local_trabalho')
+        if local_trabalho_nome:
+            # Encontre o ID correspondente ao nome
+            local_trabalho_id = Unidade.objects.get(nome=local_trabalho_nome).id
+            # Filtrar usando o ID
+            queryset = queryset.filter(local_trabalho=local_trabalho_id)
 
         cargo_comissionado = self.request.GET.get('cargo_comissionado')
 
@@ -456,6 +459,9 @@ class RelatorioRh(LoginRequiredMixin, ListView):
         context['page_range'] = range(start, end + 1)
         context['generos'] = Servidor.objects.values_list('genero', flat=True).distinct()
         context['cargos'] = Servidor.objects.values_list('cargo', flat=True).distinct()
+        context['local_trabalhos'] = (Servidor.objects.values_list('local_trabalho__nome', flat=True)
+                                      .distinct()
+                                      .order_by('local_trabalho__nome'))
         context['cargos_comissionado'] = (
             Servidor.objects.exclude(cargo_comissionado__isnull=True)
             .exclude(cargo_comissionado__exact='')
