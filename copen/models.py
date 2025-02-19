@@ -148,7 +148,7 @@ class Ocorrencia(models.Model):
     tipo = models.ForeignKey(TipoOcorrencia, on_delete=models.CASCADE)
     unidade = models.ForeignKey(Unidade, on_delete=models.CASCADE)
     interno = models.ForeignKey(Interno, on_delete=models.CASCADE)
-    servidor = models.ForeignKey(Servidor, on_delete=models.CASCADE)
+    servidor = models.ForeignKey(Servidor, on_delete=models.CASCADE, null=True, blank=True)
     outros = models.CharField(max_length=100, null=True, blank=True)
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     observacao = models.TextField(null=True, blank=True)
