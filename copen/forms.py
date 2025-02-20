@@ -56,6 +56,10 @@ class AtendimentoForm(forms.ModelForm):
         self.fields['unidade'].empty_label = "Selecione a Unidade ou Regime se Localizado..."
         self.fields['status_preso'].empty_label = "Selecione o Status do Preso se Localizado..."
 
+        # Ordena as unidades em ordem alfabética
+        self.fields['unidade'].queryset = self.fields['unidade'].queryset.order_by(
+            'nome')  # Substitua 'nome_da_unidade' pelo nome do campo de unidade
+
 
 
 
@@ -101,6 +105,13 @@ class ApreensaoForm(forms.ModelForm):
             'hx-trigger': 'change',
         })
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Ordena as unidades em ordem alfabética
+        self.fields['unidade'].queryset = self.fields['unidade'].queryset.order_by(
+            'nome')  # Substitua 'nome_da_unidade' pelo nome do campo de unidade
 
 
 class OcorrenciaForm(forms.ModelForm):
@@ -158,10 +169,12 @@ class OcorrenciaForm(forms.ModelForm):
         self.fields['servidor'].empty_label = "Selecione um servidor"  # Define o texto padrão
         self.fields['unidade'].empty_label = "Selecione uma Unidade"  # Define o texto padrão
 
+        # Ordena as unidades em ordem alfabética
+        self.fields['unidade'].queryset = self.fields['unidade'].queryset.order_by(
+            'nome')  # Substitua 'nome_da_unidade' pelo nome do campo de unidade
+
 
 #campos de custodia
-
-
 
 class CustodiaForm(forms.ModelForm):
     class Meta:
