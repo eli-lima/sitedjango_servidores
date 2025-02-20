@@ -438,21 +438,35 @@ Copen
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         var ctx = document.getElementById('pizza-apreensao').getContext('2d');
+
+        // Função para gerar cores aleatórias para cada segmento
+        function gerarCoresAleatorias(qtd) {
+            var cores = [];
+            for (var i = 0; i < qtd; i++) {
+                var r = Math.floor(Math.random() * 255);
+                var g = Math.floor(Math.random() * 255);
+                var b = Math.floor(Math.random() * 255);
+                cores.push(`rgba(${r}, ${g}, ${b}, 1)`);
+            }
+            return cores;
+        }
+
+        // Certifique-se de que `pie_labels_apreensao` e `pie_values_apreensao` sejam arrays válidos
+        var labels = {{ pie_labels_apreensao|safe }};  // Ex.: ['Natureza 1', 'Natureza 2', ...]
+        var data = {{ pie_values_apreensao|safe }};    // Ex.: [10, 20, 30, ...]
+
+        // Gerar as cores para cada item no gráfico
+        var backgroundColors = gerarCoresAleatorias(labels.length);
+
         var myPieChart = new Chart(ctx, {
             type: 'pie',
             data: {
-                labels: {{ pie_labels_apreensao|safe }},  // Ex.: []
+                labels: labels,
                 datasets: [{
                     label: 'Distribuição de Ajuda de Custo',
-                    data: {{ pie_values_apreensao|safe }},  // Ex.: [50, 30] - dados dinâmicos
-                    backgroundColor: [
-                        'rgba(54, 162, 35, 1)',  // verde para Ajuda Normal
-                        'rgba(255, 69, 58, 1)'   // Vermelho para Ajuda Majorada
-                    ],
-                    borderColor: [
-                        'rgba(54, 162, 35, 1)',  // Verde
-                        'rgba(255, 69, 58, 1)'   // Vermelho
-                    ],
+                    data: data,
+                    backgroundColor: backgroundColors,
+                    borderColor: backgroundColors,
                     borderWidth: 2
                 }]
             },
@@ -486,11 +500,12 @@ Copen
                         }
                     }
                 },
-                cutout: '50%'  // Ajusta a espessura do gráfico tipo donut, caso esteja usando um gráfico de donut
+                cutout: '50%'  // Remova se não quiser um gráfico de donut
             }
         });
     });
 </script>
+
 
 
 
