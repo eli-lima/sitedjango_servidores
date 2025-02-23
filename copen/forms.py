@@ -230,12 +230,19 @@ class CustodiaForm(forms.ModelForm):
 class CustodiaEditForm(forms.ModelForm):
     class Meta:
         model = Custodia
-        fields = ['data_saida']  # Inclui apenas o campo que será editado
+        fields = ['data_saida', 'responsavel', 'observacao',]  # Inclui apenas o campo que será editado
         widgets = {
             'data_saida': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'responsavel': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Nome do responsável'
+            }),
+            'observacao': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Adicione observações'
+            }),
         }
-
-
 #campos de mandado de prisao
 
 

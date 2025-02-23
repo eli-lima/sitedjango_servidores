@@ -57,10 +57,23 @@ Copen - Editar Custodia
             </div>
             <div class="flex justify-center space-x-4 w-full pb-8 pt-4">
                <div class="w-auto">
-                    <h3 class="text-center font-semibold pb-2">Editar Data de Saída</h3>
-                        <form class="pb-8" method="post" enctype="multipart/form-data">
+                    <h3 class="text-center font-semibold pb-2">Campos Editáveis</h3>
+                        <form class="pb-8 flex flex-col justify-center" method="post" enctype="multipart/form-data">
                             {% csrf_token %}
-                            {{ form.data_saida }}
+                            <div class="flex justify-center space-x-8 w-full pb-8 pt-4 mx-4">
+                                <div class="form-group">
+                                    <label class="form-label">Responsável:</label>
+                                    {{form.responsavel}}
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Data de Saída:</label>
+                                    {{ form.data_saida }}
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Observação:</label>
+                                    {{form.observacao }}
+                                </div>
+                            </div>
                             <div class="pt-4 text-center">
                                 <button type="submit" class="btn btn-primary">Salvar</button>
                             </div>
@@ -75,13 +88,6 @@ Copen - Editar Custodia
 
 
     </div>
-
-
-
-
-
-
-
 
 
 {% endblock %}
