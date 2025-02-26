@@ -52,8 +52,6 @@ def buscar_interno(request):
     return render(request, 'partials/interno_tabela.html', {'internos': internos})
 
 
-
-
 def buscar_interno(request):
     query = request.GET.get('interno_nome', '').strip()
     if len(query) < 3:  # Só busca se o termo tiver mais de 3 caracteres
@@ -277,8 +275,11 @@ class OcorrenciaView(FormView, LoginRequiredMixin, UserPassesTestMixin):
 
         try:
             # Verifica se o ID do interno é válido
-            interno = Interno.objects.get(id=interno_id)
-            print(f"Interno encontrado no banco de dados: {interno}")  # Debug: Interno encontrado
+            if interno_id:  # Verifica se o campo não está vazio
+                interno = Interno.objects.get(id=interno_id)
+                print(f"Interno encontrado no banco de dados: {interno}")  # Debug: Interno encontrado
+            else:
+                interno = None  # Define como None se o campo estiver vazio
 
             # Cria a ocorrência
             ocorrencia = form.save(commit=False)
@@ -287,7 +288,7 @@ class OcorrenciaView(FormView, LoginRequiredMixin, UserPassesTestMixin):
             ocorrencia.usuario = self.request.user
             print(f"Usuário associado à ocorrência: {self.request.user}")  # Debug: Usuário associado
 
-            ocorrencia.interno = interno  # Define o interno encontrado
+            ocorrencia.interno = interno  # Define o interno encontrado (ou None)
             print(f"Interno associado à ocorrência: {interno}")  # Debug: Interno associado
 
             ocorrencia.data_edicao = timezone.now()
