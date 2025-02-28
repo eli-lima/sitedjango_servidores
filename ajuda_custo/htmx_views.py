@@ -15,10 +15,20 @@ def ajuda_custo_list(request):
     data_inicial = parse_date(data_inicial) if data_inicial else None
     data_final = parse_date(data_final) if data_final else None
 
-    # Filtro básico com base na query de pesquisa
+    # Verificação dos grupos de usuário
     if user.groups.filter(name__in=['Administrador', 'GerGesipe']).exists():
+        # Acesso completo para Administradores e GerGesipe
         queryset = Ajuda_Custo.objects.all()
+    elif user.groups.filter(name='Gerente').exists():
+        # Acesso limitado à unidade do gestor
+        try:
+            unidade_gestor = user.cotaajudacusto_set.first().unidade
+            queryset = Ajuda_Custo.objects.filter(unidade=unidade_gestor)
+        except AttributeError:
+            # Caso o gestor não tenha uma unidade atribuída
+            queryset = Ajuda_Custo.objects.none()
     else:
+        # Acesso limitado ao próprio usuário
         queryset = Ajuda_Custo.objects.filter(matricula=user.matricula)
 
     # Aplica os filtros de data se fornecidos
