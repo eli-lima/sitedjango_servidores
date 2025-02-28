@@ -59,7 +59,8 @@ def export_to_pdf(request):
             servidores = servidores.filter(cargo=cargo)
         local_trabalho = request.GET.get('local_trabalho')
         if local_trabalho:
-            servidores = servidores.filter(local_trabalho__icontains=local_trabalho)
+            local_trabalho_id = Unidade.objects.get(nome=local_trabalho).id
+            servidores = servidores.filter(local_trabalho=local_trabalho_id)  # Filtrar pelo ID encontrado
         cargo_comissionado = request.GET.get('cargo_comissionado')
         if cargo_comissionado:
             servidores = servidores.filter(cargo_comissionado=cargo_comissionado)
