@@ -445,7 +445,6 @@ def excel_detalhado(request):
     return response
 
 
-
 class AjudaCusto(LoginRequiredMixin, ListView):
     model = Ajuda_Custo
     template_name = "ajuda_custo.html"
