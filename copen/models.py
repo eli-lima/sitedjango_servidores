@@ -154,6 +154,5 @@ class Ocorrencia(models.Model):
     observacao = models.TextField(null=True, blank=True)
     data_edicao = models.DateTimeField(default=timezone.now)
 
-
     def __str__(self):
         return f"{self.descricao} - {self.data.strftime('%d/%m/%Y')}"
