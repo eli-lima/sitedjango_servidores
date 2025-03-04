@@ -39,16 +39,11 @@ def process_batch(df_batch):
 
     for row in df_batch:
         matricula_raw = row['Matrícula']
-        if not matricula_raw:
+        if pd.isnull(matricula_raw):
             erros.append("Erro: Matrícula vazia encontrada.")
             continue
 
-        # Limpa a matrícula e converte para inteiro
-        try:
-            matricula = int(re.sub(r'\D', '', str(matricula_raw)).lstrip('0'))
-        except ValueError:
-            erros.append(f"Erro: Matrícula inválida '{matricula_raw}' para o servidor {row['Nome']}.")
-            continue
+        matricula = re.sub(r'\D', '', str(matricula_raw)).lstrip('0')
 
         unidade = row['Unidade']
         nome = row['Nome']
