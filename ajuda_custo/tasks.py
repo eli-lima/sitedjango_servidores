@@ -19,16 +19,41 @@ def process_batch(df_batch):
     datas_processadas = set()
     erros = []
 
-    # Pré-calcular as horas já registradas no banco de dados
-    servidores_no_lote = set(row['Matrícula'] for row in df_batch if row['Matrícula'])
-    meses_no_lote = set((parser.parse(str(row['Data'])).date().strftime('%Y-%m') for row in df_batch if row['Data']))
+    # Limpa e converte as matrículas para números inteiros
+    servidores_no_lote = set()
+    for row in df_batch:
+        matricula_raw = row['Matrícula']
+        if not matricula_raw:
+            continue
+        try:
+            # Remove caracteres não numéricos e converte para inteiro
+            matricula = int(re.sub(r'\D', '', str(matricula_raw)).lstrip('0'))
+            servidores_no_lote.add(matricula)
+        except ValueError:
+            erros.append(f"Erro: Matrícula inválida '{matricula_raw}'.")
+            continue
 
+    # Extrai os meses/anos do lote
+    meses_no_lote = set()
+    for row in df_batch:
+        data = row['Data']
+        if not data:
+            continue
+        try:
+            data_completa = parser.parse(str(data)).date()
+            meses_no_lote.add((data_completa.year, data_completa.month))
+        except ValueError:
+            erros.append(f"Erro: Data inválida '{data}'.")
+            continue
+
+    # Consulta ao banco de dados para obter as horas já registradas
     registros_banco = Ajuda_Custo.objects.filter(
         matricula__in=servidores_no_lote,
-        data__year__in=[datetime.strptime(mes, '%Y-%m').year for mes in meses_no_lote],
-        data__month__in=[datetime.strptime(mes, '%Y-%m').month for mes in meses_no_lote]
+        data__year__in=[ano for ano, mes in meses_no_lote],
+        data__month__in=[mes for ano, mes in meses_no_lote]
     )
 
+    # Pré-calcular as horas do banco de dados
     for registro in registros_banco:
         mes_ano = (registro.data.year, registro.data.month)
         carga_horaria_passado = registro.carga_horaria.strip()
@@ -37,13 +62,19 @@ def process_batch(df_batch):
         elif carga_horaria_passado == "24 horas":
             horas_por_servidor[(registro.matricula, mes_ano)] += 24
 
+    # Processa cada linha do lote
     for row in df_batch:
         matricula_raw = row['Matrícula']
-        if pd.isnull(matricula_raw):
+        if not matricula_raw:
             erros.append("Erro: Matrícula vazia encontrada.")
             continue
 
-        matricula = re.sub(r'\D', '', str(matricula_raw)).lstrip('0')
+        # Limpa a matrícula e converte para inteiro
+        try:
+            matricula = int(re.sub(r'\D', '', str(matricula_raw)).lstrip('0'))
+        except ValueError:
+            erros.append(f"Erro: Matrícula inválida '{matricula_raw}' para o servidor {row['Nome']}.")
+            continue
 
         unidade = row['Unidade']
         nome = row['Nome']
