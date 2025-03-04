@@ -15,22 +15,20 @@ from datetime import datetime
 def process_batch(df_batch):
     registros_inseridos = False
     ajuda_custos_para_inserir = []
-    horas_por_servidor = defaultdict(int)  # Dicionário para armazenar as horas acumuladas por servidor e mês
+    horas_por_servidor = defaultdict(int)
     datas_processadas = set()
-    erros = []  # Lista para armazenar as informações sobre falhas
+    erros = []
 
-    # Pré-calcular as horas já registradas no banco de dados para os servidores e meses relevantes
+    # Pré-calcular as horas já registradas no banco de dados
     servidores_no_lote = set(row['Matrícula'] for row in df_batch if row['Matrícula'])
     meses_no_lote = set((parser.parse(str(row['Data'])).date().strftime('%Y-%m') for row in df_batch if row['Data']))
 
-    # Consulta ao banco de dados para obter as horas já registradas
     registros_banco = Ajuda_Custo.objects.filter(
         matricula__in=servidores_no_lote,
         data__year__in=[datetime.strptime(mes, '%Y-%m').year for mes in meses_no_lote],
         data__month__in=[datetime.strptime(mes, '%Y-%m').month for mes in meses_no_lote]
     )
 
-    # Pré-calcular as horas do banco de dados
     for registro in registros_banco:
         mes_ano = (registro.data.year, registro.data.month)
         carga_horaria_passado = registro.carga_horaria.strip()
@@ -39,13 +37,19 @@ def process_batch(df_batch):
         elif carga_horaria_passado == "24 horas":
             horas_por_servidor[(registro.matricula, mes_ano)] += 24
 
-    for row in df_batch:  # Agora df_batch é uma lista de dicionários
+    for row in df_batch:
         matricula_raw = row['Matrícula']
         if not matricula_raw:
             erros.append("Erro: Matrícula vazia encontrada.")
             continue
 
-        matricula = re.sub(r'\D', '', str(matricula_raw)).lstrip('0')
+        # Limpa a matrícula e converte para inteiro
+        try:
+            matricula = int(re.sub(r'\D', '', str(matricula_raw)).lstrip('0'))
+        except ValueError:
+            erros.append(f"Erro: Matrícula inválida '{matricula_raw}' para o servidor {row['Nome']}.")
+            continue
+
         unidade = row['Unidade']
         nome = row['Nome']
         data = row['Data']
@@ -73,12 +77,10 @@ def process_batch(df_batch):
             erros.append(f"Erro: Data inválida {data} para o servidor {nome}.")
             continue
 
-        # Verificar se a data já foi processada neste lote
         if (servidor.matricula, data_completa) in datas_processadas:
             erros.append(f"Registro duplicado para o servidor {nome} na data {data_completa}.")
             continue
 
-        # Verificar no banco de dados se já existe um registro para a mesma matrícula e data
         registro_existente = Ajuda_Custo.objects.filter(matricula=servidor.matricula, data=data_completa).exists()
         if registro_existente:
             erros.append(f"Erro: Registro já existe para o servidor {nome} na data {data_completa}.")
@@ -86,18 +88,13 @@ def process_batch(df_batch):
 
         datas_processadas.add((servidor.matricula, data_completa))
 
-        # Extraindo mês e ano da data
         mes_ano = (data_completa.year, data_completa.month)
-
-        # Verificar se a soma da carga horária do mês excede 192 horas
         horas_mes_atual = horas_por_servidor.get((servidor.matricula, mes_ano), 0)
 
         if horas_mes_atual + carga_horaria > 192:
-            erros.append(
-                f"Limite mensal de 192 horas excedido para o servidor {nome} no mês {data_completa.strftime('%m/%Y')}.")
+            erros.append(f"Limite mensal de 192 horas excedido para o servidor {nome} no mês {data_completa.strftime('%m/%Y')}.")
             continue
 
-        # Atualiza o dicionário com as horas acumuladas
         horas_por_servidor[(servidor.matricula, mes_ano)] = horas_mes_atual + carga_horaria
 
         majorado = DataMajorada.objects.filter(data=data_completa).exists()
@@ -107,11 +104,10 @@ def process_batch(df_batch):
             nome=servidor.nome,
             data=data_completa,
             unidade=unidade,
-            carga_horaria=carga_horaria_raw,  # Armazena como texto original
+            carga_horaria=carga_horaria_raw,
             majorado=majorado
         ))
 
-        # Inserir dados em massa
     try:
         if ajuda_custos_para_inserir:
             Ajuda_Custo.objects.bulk_create(ajuda_custos_para_inserir)
@@ -129,7 +125,7 @@ def process_batch(df_batch):
         for erro in erros:
             print(erro)
 
-    return erros  # Retorna a lista de erros para feedback
+    return erros
 
 
 @shared_task(bind=True)
