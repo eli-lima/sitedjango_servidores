@@ -41,10 +41,12 @@ def calcular_horas_por_unidade(registros_mes):
             horas_por_unidade[unidade_nome] += carga_horaria
     return horas_por_unidade, horas_totais
 
+
 def get_limites_horas_por_unidade(servidor):
     limites = LimiteAjudaCusto.objects.filter(servidor=servidor)
     limites_horas_por_unidade = {limite.unidade.nome: limite.limite_horas for limite in limites}
     return limites_horas_por_unidade
+
 
 def calcular_horas_a_adicionar_por_unidade(unidades, cargas_horarias):
     horas_a_adicionar_por_unidade = {}
@@ -55,6 +57,7 @@ def calcular_horas_a_adicionar_por_unidade(unidades, cargas_horarias):
         else:
             horas_a_adicionar_por_unidade[unidade_nome] += horas_a_adicionar
     return horas_a_adicionar_por_unidade
+
 
 def verificar_limites(horas_totais, horas_a_adicionar_por_unidade, horas_por_unidade, limites_horas_por_unidade, request):
     horas_a_adicionar_total = sum(horas_a_adicionar_por_unidade.values())
