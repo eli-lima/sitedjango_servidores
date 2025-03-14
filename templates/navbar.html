@@ -34,18 +34,18 @@
                             {% url 'seappb:estatistica' as estatistica_url %}
 
                             <!-- Menu para todos-->
-                            <a href="/" class="rounded-md px-3 py-2 text-lg font-medium {% if request.path == '/' %}bg-yellow-700 text-white{% else %}text-gray-300 hover:bg-yellow-600 hover:text-white{% endif %}" aria-current="page">Inicio</a>
+                            <a href="/" class="rounded-md px-3 py-2 text-lg font-medium {% if request.path == '/' %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}" aria-current="page">Inicio</a>
                             <a href="{{ ajuda_custo_url }}" class="rounded-md mx-0 px-3 py-2 text-lg font-medium {% if request.path == ajuda_custo_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">Ajuda de Custo</a>
 
 <!--                            menu admin e Ger gesipe servgesipe e copen-->
                             {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups or 'ServGesipe' in user_groups or 'Copen' in user_groups %}
 
-                            <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" class="dropdown-toggle rounded-md px-3 py-2 text-lg font-medium {% if request.path == gesipe_url %}bg-yellow-900 text-white{% else %}text-gray-300 hover:bg-yellow-600 hover:text-white{% endif %}">Gesipe</a>
+                            <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" class="dropdown-toggle rounded-md px-3 py-2 text-lg font-medium {% if request.path == gesipe_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">Gesipe</a>
                             <div class="dropdown bg-yellow-900">
                               <ul class="dropdown-menu bg-yellow-900 py-2 ">
-                                <li><a class="dropdown-item {% if request.path == gesipe_url %}bg-yellow-900 text-white hover:bg-gray-700{% else %}bg-yellow-900 text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}" href="{{ gesipe_url }}">Administrativo</a></li>
-                                <li><a class="dropdown-item {% if request.path == gesipe_sga_url %}bg-yellow-900 text-white hover:bg-gray-700{% else %}bg-yellow-900 text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}" href="{{ gesipe_sga_url }}">SGA</a></li>
-                                <li><a class="dropdown-item {% if request.path == copen_url %}bg-yellow-900 text-white hover:bg-gray-700{% else %}bg-yellow-900 text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}" href="{{ copen_url }}">COPEN</a></li>
+                                <li><a class="dropdown-item {% if request.path == gesipe_url %}bg-gray-900 text-white hover:bg-gray-700{% else %}bg-yellow-900 text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}" href="{{ gesipe_url }}">Administrativo</a></li>
+                                <li><a class="dropdown-item {% if request.path == gesipe_sga_url %}bg-gray-900 text-white hover:bg-gray-700{% else %}bg-yellow-900 text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}" href="{{ gesipe_sga_url }}">SGA</a></li>
+                                <li><a class="dropdown-item {% if request.path == copen_url %}bg-gray-900 text-white hover:bg-gray-700{% else %}bg-yellow-900 text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}" href="{{ copen_url }}">COPEN</a></li>
 
                               </ul>
                             </div>
