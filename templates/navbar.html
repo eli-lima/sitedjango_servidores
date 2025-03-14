@@ -42,7 +42,7 @@
 
                             <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" class="dropdown-toggle rounded-md px-3 py-2 text-lg font-medium {% if request.path == gesipe_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">Gesipe</a>
                             <div class="dropdown bg-gray-900">
-                              <ul class="dropdown-menu bg-gray-900 py-2 ">
+                              <ul class="dropdown-menu py-2 ">
                                 <li><a class="dropdown-item {% if request.path == gesipe_url %}bg-gray-900 text-white hover:bg-gray-700{% else %}bg-gray-300 text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}" href="{{ gesipe_url }}">Administrativo</a></li>
                                 <li><a class="dropdown-item {% if request.path == gesipe_sga_url %}bg-gray-900 text-white hover:bg-gray-700{% else %}bg-gray-300 text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}" href="{{ gesipe_sga_url }}">SGA</a></li>
                                 <li><a class="dropdown-item {% if request.path == copen_url %}bg-gray-900 text-white hover:bg-gray-700{% else %}bg-gray-300 text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}" href="{{ copen_url }}">COPEN</a></li>
