@@ -65,7 +65,7 @@
                 <!-- Profile dropdown -->
                 {% if user.is_authenticated %}
                 <div class="absolute inset-y-0 right-0 flex items-center lg:static inset-auto ml-6 pr-0">
-                    <p class="hidden lg:block rounded-md pr-8 py-2 text-base font-medium text-white">V 1.2.3</p>
+                    <p class="hidden lg:block rounded-md pr-8 py-2 text-base font-medium text-white">V 1.8.4</p>
                 <!-- Nivel Usuario                    -->
                     <p class="hidden lg:block rounded-md pr-8 py-2 text-lg font-medium text-white">
                         <!-- Exibe o nome do grupo do usuário -->
@@ -115,6 +115,11 @@
                         <ion-icon name="home"></ion-icon>
                         <a href="/">Inicio</a>
                     </div>
+                    <div class="flex space-x-12 block rounded-md py-3 text-5xl font-medium {% if request.path == ajuda_custo_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">
+                        <ion-icon name="time"></ion-icon>
+                        <a href="{{ ajuda_custo_url }}" >Ajuda de Custo</a>
+                    </div>
+                     {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups or 'ServGesipe' in user_groups or 'Copen' in user_groups %}
                     <div class="flex flex-col block rounded-md py-3 text-5xl font-medium text-gray-300">
                         <div id="toggle-collapse" class="space-x-12 flex">
                             <ion-icon name="document-text"></ion-icon>
@@ -134,14 +139,18 @@
                                 </div>
                             </div>
                     </div>
-                    <div class="flex space-x-12 block rounded-md py-3 text-5xl font-medium {% if request.path == ajuda_custo_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">
-                        <ion-icon name="time"></ion-icon>
-                        <a href="{{ ajuda_custo_url }}" >Ajuda de Custo</a>
-                    </div>
+
                     <div class="flex space-x-12 block rounded-md py-3 text-5xl font-medium {% if request.path == servidor_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">
                         <ion-icon name="people"></ion-icon>
                         <a href="{{ servidor_url }}">Recursos Humanos</a>
                     </div>
+                    <div class="flex space-x-12 block rounded-md py-3 text-5xl font-medium {% if request.path == servidor_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">
+                        <ion-icon name="people"></ion-icon>
+                        <a href="{{ interno_url }}">População Carcerária</a>
+                    </div>
+
+
+                    {% endif %}
 
 
                     {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups %}
