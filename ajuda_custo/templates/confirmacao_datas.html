@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block titulo %}
+Ajuda de Custo Confirmação
+{% endblock %}
+
+
+{% block content %}
+
+
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+            text-align: left;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-success {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .btn-secondary {
+            background-color: #808080;
+            color: white;
+        }
+        .mt-4 {
+            margin-top: 16px;
+        }
+        .text-red-500 {
+            color: #f00;
+        }
+    </style>
+
+
+
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var countdown = 300;
+            var countdownElement = document.getElementById("countdown");
+
+            function updateCountdown() {
+                var minutes = Math.floor(countdown / 60);
+                var seconds = countdown % 60;
+                countdownElement.textContent = minutes + "m " + (seconds < 10 ? "0" : "") + seconds + "s ";
+
+                if (countdown > 0) {
+                    countdown--;
+                } else {
+                    countdownElement.textContent = "Código expirado";
+                }
+            }
+
+            setInterval(updateCountdown, 1000);
+        });
+    </script>
+
+    <div class="flex flex-col bg-gray-100 items-center py-8 font-semibold">
+        <div class="font-bold text-4xl lg:text-2xl pb-8">
+            <h1>Confirmação de Datas</h1>
+        </div>
+
+        <div class="flex flex-col mx-12">
+                <table class="min-w-full bg-white divide-y divide-gray-200">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xl lg:text-base font-semibold text-gray-900 uppercase tracking-wider">Matricula</th>
+                            <th class="px-6 py-3 text-left text-xl lg:text-base font-semibold text-gray-900 uppercase tracking-wider">Nome</th>
+                            <th class="px-6 py-3 text-left text-xl lg:text-base font-semibold text-gray-900 uppercase tracking-wider">Data</th>
+                            <th class="px-6 py-3 text-left text-xl lg:text-base font-semibold text-gray-900 uppercase tracking-wider">Unidade</th>
+                            <th class="px-6 py-3 text-left text-xl lg:text-base font-semibold text-gray-900 uppercase tracking-wider">Carga Horaria</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for instancia in ajuda_custo_instances %}
+                        <tr class="clickable-row">
+                            <td class="px-6 py-4 text-xl lg:text-base whitespace-nowrap">{{ matricula }}</td>
+                            <td class="px-6 py-4 text-xl lg:text-base whitespace-nowrap">{{ instancia.nome }}</td>
+                            <td class="px-6 py-4 text-xl lg:text-base whitespace-nowrap">{{ instancia.data|date:"d/m/Y"}}</td>
+                            <td class="px-6 py-4 text-xl lg:text-base whitespace-nowrap">{{ instancia.unidade }}</td>
+                            <td class="px-6 py-4 text-xl lg:text-base whitespace-nowrap">{{ instancia.carga_horaria }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="px-6 py-4 text-center text-gray-500">Nenhum servidor encontrado</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+
+            <form class="flex flex-col font-semibold items-center" method="POST" enctype="multipart/form-data">
+              {% csrf_token %}
+                <div class="flex justify-center items-center py-8 bg-gray-100">
+                  <div class="w-[40vw] rounded-[40px] overflow-hidden shadow-[0px_7px_22px_0px_rgba(0,0,0,0.1)]">
+                    <!-- Header -->
+                    <div class="bg-green-500 h-[60px] flex items-center justify-center">
+                      <h1 class="text-[23px] font-bold text-white">Código de Verificação</h1>
+                    </div>
+
+
+
+                        <!-- Content -->
+                        <div class="bg-white p-4 flex flex-col justify-around items-center h-[300px]">
+                          <p class="text-[20px] text-center text-gray-800 mb-6">Digite o Código de Verificação aqui:</p>
+
+                              <div class="w-[60%] mx-auto bg-gray-300 rounded-[40px] py-5 text-center text-[36px] font-bold tracking-widest shadow-[0px_7px_22px_0px_rgba(0,0,0,0.1)]">
+                                  <input
+                                    type="text"
+                                    id="codigo_verificacao"
+                                    name="codigo_verificacao"
+                                    class="bg-transparent w-full outline-none text-center text-[36px] font-bold tracking-widest"
+                                    placeholder="6 Caracteres">
+                              </div>
+
+                          <div class="text-[20px] text-center italic text-gray-800 opacity-30 mt-6">
+                            Seu Código de Verificação é valido por <div id="countdown" class="mt-4 font-bold">5m 00s</div>
+
+                          </div>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="bg-white h-[60px]"></div>
+                      </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="submit" name="confirmar" class="btn btn-success">Confirmar Datas</button>
+                        <button type="submit" name="reenviar_codigo" class="btn btn-secondary">Reenviar Código</button>
+                    </div>
+            </form>
+
+        {% if messages %}
+        <ul class="text-red-500 text-xl">
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const btnReenviarCodigo = document.getElementById("btn-reenviar-codigo");
+
+        btnReenviarCodigo.addEventListener("click", function () {
+            fetch("{% url 'ajuda_custo:reenviar_codigo' %}", {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}"
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert("Um novo código foi enviado para o seu e-mail.");
+                } else {
+                    alert("Houve um erro ao tentar reenviar o código. Tente novamente.");
+                }
+            })
+            .catch(error => {
+                console.error("Erro:", error);
+                alert("Erro ao reenviar o código. Verifique sua conexão.");
+            });
+        });
+    });
+</script>
+
+
+
+
+
+
+{% endblock %}
