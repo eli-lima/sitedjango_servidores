@@ -202,6 +202,6 @@ class FiltroRelatorioForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Obtém as unidades disponíveis no banco de dados
-        unidades = Ajuda_Custo.objects.values_list('unidade', flat=True).distinct()
+        unidades = Ajuda_Custo.objects.values_list('unidade', flat=True).distinct().order_by('unidade')
         # Define as opções do campo unidade
         self.fields['unidade'].choices = [("", "Selecione uma Unidade...")] + [(u, u) for u in unidades]
