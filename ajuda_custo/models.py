@@ -47,7 +47,8 @@ class Ajuda_Custo(models.Model):
     data_edicao = models.DateTimeField(default=timezone.now)
     majorado = models.BooleanField(default=False)
     folha_assinada = models.FileField(upload_to=upload_to_ajuda_custo, blank=True,
-                                      null=True)  # Campo de upload com pasta dinâmica
+                                          null=True)  # Campo de upload com pasta dinâmica
+    codigo_verificacao = models.CharField(max_length=6, blank=True, null=True)  # Novo campo
 
     def __str__(self):
         return f"{self.nome} - {self.data.strftime('%d/%m/%Y')}"
@@ -85,21 +86,20 @@ class CotaAjudaCusto(models.Model):
 
     def save(self, *args, **kwargs):
         # Certifica-se de que somente um gerente por unidade por vez
-        # Substitui o antigo se um novo for adicionado
         existing_cota = CotaAjudaCusto.objects.filter(unidade=self.unidade).exclude(pk=self.pk).first()
         if existing_cota:
             existing_cota.delete()
 
         # Converte a cota mensal para horas
         self.carga_horaria_total = self.cota_ajudacusto * 24
-        # Inicialmente, a carga disponível será igual à total (ou recalculada se já tiver distribuições)
-        if self.pk:
-            distribuidas = LimiteAjudaCusto.objects.filter(unidade=self.unidade).aggregate(
-                total_distribuido=models.Sum('limite_horas')
-            )['total_distribuido'] or 0
-            self.carga_horaria_disponivel = self.carga_horaria_total - distribuidas
-        else:
-            self.carga_horaria_disponivel = self.carga_horaria_total
+
+        # Recalcula as horas distribuídas
+        distribuidas = LimiteAjudaCusto.objects.filter(unidade=self.unidade).aggregate(
+            total_distribuido=Sum('limite_horas')
+        )['total_distribuido'] or 0
+
+        # Atualiza a carga horária disponível
+        self.carga_horaria_disponivel = self.carga_horaria_total - distribuidas
 
         super().save(*args, **kwargs)
 

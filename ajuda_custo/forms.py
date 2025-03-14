@@ -30,31 +30,31 @@ DIAS = [(str(day), str(day)) for day in range(1, 32)]
 def get_mes_field():
     return forms.ChoiceField(choices=MESES, required=True)
 
+
 def get_ano_field():
     return forms.ChoiceField(choices=ANOS, required=True)
+
 
 def get_unidade_choices():
     # Mova a lógica de consulta para uma função separada
     return [('', '--- Selecione uma unidade ---')] + [(u.nome, u.nome) for u in Unidade.objects.all().order_by('nome')]
 
-class AjudaCustoForm(forms.ModelForm):
-    unidade = forms.ChoiceField(choices=[], required=True)  # Inicialmente vazio
+
+
+class EnvioDatasForm(forms.ModelForm):
+    unidade = forms.ChoiceField(choices=[], required=True)
     dia = forms.ChoiceField(choices=DIAS, required=True)
     mes = get_mes_field()
     ano = get_ano_field()
-    folha_assinada = forms.FileField(required=True)  # Campo de upload para a folha assinada
 
     class Meta:
         model = Ajuda_Custo
-        fields = ['ano', 'dia', 'mes', 'unidade', 'carga_horaria', 'folha_assinada']
+        fields = ['ano', 'dia', 'mes', 'unidade', 'carga_horaria']
 
     def __init__(self, *args, **kwargs):
-        super(AjudaCustoForm, self).__init__(*args, **kwargs)
-
-        # Preencha as escolhas do campo unidade
+        super(EnvioDatasForm, self).__init__(*args, **kwargs)
         self.fields['unidade'].choices = get_unidade_choices()
 
-        # Aplicando classes e alterando labels dos campos personalizados
         self.fields['dia'].label = 'Dia'
         self.fields['dia'].widget.attrs.update({'class': 'form-control xl:text-base text-2xl'})
 
@@ -70,27 +70,12 @@ class AjudaCustoForm(forms.ModelForm):
         self.fields['carga_horaria'].label = 'Horas'
         self.fields['carga_horaria'].widget.attrs.update({'class': 'form-control xl:text-base text-2xl'})
 
-        self.fields['folha_assinada'].label = 'Folha Assinada'
-        self.fields['folha_assinada'].widget.attrs.update({'class': 'form-control xl:text-base text-2xl'})
-
-    def clean_folha_assinada(self):
-        folha_assinada = self.cleaned_data.get('folha_assinada')
-
-        # Se o arquivo for enviado, faça as verificações
-        if folha_assinada:
-            if folha_assinada.size > 10 * 1024 * 1024:
-                raise forms.ValidationError("O arquivo deve ter no máximo 10MB.")
-            if not folha_assinada.content_type in ['application/pdf', 'image/jpeg']:
-                raise forms.ValidationError("Apenas arquivos PDF ou JPG são permitidos.")
-        return folha_assinada
-
     def clean(self):
         cleaned_data = super().clean()
         dia = cleaned_data.get('dia')
         mes = cleaned_data.get('mes')
         ano = cleaned_data.get('ano')
 
-        # Combina o dia, mês e ano para formar uma data
         try:
             data = datetime.date(int(ano), int(mes), int(dia))
             cleaned_data['data'] = data
@@ -98,6 +83,10 @@ class AjudaCustoForm(forms.ModelForm):
             raise forms.ValidationError('Data inválida. Verifique o dia, mês e ano selecionados.')
 
         return cleaned_data
+
+
+class ConfirmacaoDatasForm(forms.Form):
+    codigo_verificacao = forms.CharField(max_length=6, label='Código de Verificação', required=False)
 
 
 class AdminDatasForm(forms.Form):
@@ -188,9 +177,31 @@ class CotaAjudaCustoForm(forms.ModelForm):
             'cota_ajudacusto': 'Cota de Ajuda de Custo (em dias)',
         }
 
-
 #carregar relatorio rx2
-
 
 class UploadExcelRx2Form(forms.Form):
     file = forms.FileField(label='Selecione o arquivo Excel')
+
+
+#envio de codigo para o email
+
+
+
+class VerificacaoForm(forms.Form):
+    codigo_verificacao = forms.CharField(max_length=8, required=True, label='Código de Verificação')
+
+
+class FiltroRelatorioForm(forms.Form):
+    unidade = forms.ChoiceField(
+        choices=[],  # As opções serão preenchidas no método __init__
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label="Unidade"
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Obtém as unidades disponíveis no banco de dados
+        unidades = Ajuda_Custo.objects.values_list('unidade', flat=True).distinct()
+        # Define as opções do campo unidade
+        self.fields['unidade'].choices = [("", "Selecione uma Unidade...")] + [(u, u) for u in unidades]

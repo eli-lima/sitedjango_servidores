@@ -31,20 +31,17 @@ Ajuda de Custo
                 <form method="GET">
 
                         <div class="flex flex-row space-x-4 justify-start">
-                            <a href="#"><button type="submit" name="action" value="export_excel" class="btn btn-success form-control">Excel Resumido</button></a>
-                            <a href="#"><button type="submit" name="action" value="excel_detalhado" class="btn btn-danger">Excel Detalhado</button></a>
-                            <a href="#"><button type="submit" name="action" value="arquivos_assinados" class="btn btn-warning">Arquivos Assinados</button></a>
-
-
+                            {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups %}
+                                <a href="#"><button type="submit" name="action" value="export_excel" class="btn btn-success form-control">Excel Resumido</button></a>
+                                <a href="#"><button type="submit" name="action" value="excel_detalhado" class="btn btn-danger">Excel Detalhado</button></a>
+                                <a href="#"><button type="submit" name="action" value="arquivos_assinados" class="btn btn-warning">Arquivos Assinados</button></a>
+                            {% endif %}
+                            <a href='#'><button type="submit" name="action" value="gerar_pdf" class="btn btn-primary">Gerar PDF</button></a>
                         </div>
 
                         <div class="flex flex-row justify-end pt-4">
-                            <select class="form-control" name="unidade">
-                                <option value="">Unidade...</option>
-                                {% for unidade in unidades %}
-                                <option value="{{ unidade }}" {% if request.GET.unidade == unidade %}selected{% endif %}>{{ unidade }}</option>
-                                {% endfor %}
-                            </select>
+                            <!-- Renderiza o campo unidade do formulário Django -->
+                            {{ form.unidade }}
                             <select class="form-control w-2/6 ml-2" name="carga_horaria">
                                 <option value="">Carga Horária...</option>
                                 {% for carga_horaria in carga_horarias %}
@@ -70,6 +67,7 @@ Ajuda de Custo
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unidade</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Carga Horaria</th>
+                        <th class="px-6 py-3 font-medium text-gray-500 uppercase tracking-wider">Excluir</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
@@ -80,6 +78,14 @@ Ajuda de Custo
                         <td class="px-6 py-4 whitespace-nowrap">{{ data.data|date:"d/m/Y"}}</td>
                         <td class="px-6 py-4 whitespace-nowrap">{{ data.unidade }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">{{ data.carga_horaria }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <form method="POST" action="{% url 'ajuda_custo:excluir_ajuda_custo' data.pk %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger w-10 h-8">
+                                    <ion-icon name="trash"></ion-icon>
+                                </button>
+                            </form>
+                        </td>
                     </tr>
                     {% empty %}
                     <tr>

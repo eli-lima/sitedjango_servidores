@@ -18,16 +18,32 @@ Criar Conta
     </nav>
 
     <header class="mt-28 lg:mt-0 showcase bg-gray-100 border-gray-600 border-b-8 flex justify-center items-center bg-no-repeat">
-        <div class="my-8 bg-white rounded-3xl w-full shadow-lg lg:w-1/2 md:py-24 py-12 z-10 text-center flex flex-col items-center">
+        <div class="mx-4 my-8 bg-white rounded-3xl w-full shadow-lg xl:w-1/2 md:py-24 py-12 z-10 text-center flex flex-col items-center">
             <div class="flex justify-center items-center h-full w-full">
                 <form method="post" class="md:w-full md:max-w-md px-4" enctype="multipart/form-data">
                     {% csrf_token %}
                     <fieldset class="form-group">
-                        <legend class="border-bottom mb-4 font-bold md:text-3xl">Crie uma Conta para continuar</legend>
-                        {{ form|crispy }}
+                        <legend class="border-bottom mb-4 font-bold xl:text-3xl text-3xl">Crie uma Conta para continuar</legend>
+
+                        {% for field in form %}
+                            <div class="mb-4 text-2xl xl:text-lg">
+                                <label class="block font-semibold mb-1">{{ field.label }}</label>
+                                {{ field }}
+
+                                {% if field.errors %}
+                                    <p class="text-red-500 text-sm mt-1">
+                                        {{ field.errors.0 }}
+                                    </p>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
                     </fieldset>
-                    <button class="bg-gray-900 py-1 my-2 px-3 w-full text-white md:text-lg rounded-md" type="submit">Criar Conta</button>
+
+                    <button class="bg-gray-900 py-1 my-2 px-3 w-full text-white md:text-lg rounded-md" type="submit">
+                        Criar Conta
+                    </button>
                 </form>
+
             </div>
             <small class="mt-4">
                 Já tem uma conta? <a href="{% url 'seappb:login' %}" class="text-blue-500">Clique aqui para fazer Login</a>

@@ -5,8 +5,76 @@ from django.contrib import messages
 from servidor.models import Servidor
 import locale
 from django.utils.translation import gettext as _
+import uuid
+from django.core.mail import send_mail
+from django.conf import settings
+from datetime import datetime, timedelta
+from django.utils.timezone import now
+from django.utils import timezone
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 
 
+def gerar_e_armazenar_codigo(request):
+    codigo = str(uuid.uuid4())[:6]
+    expiracao = timezone.now() + timezone.timedelta(minutes=5)  # Agora com timezone
+    print(f'codigo de verificacao {codigo} expira em {expiracao.isoformat()}')
+
+    # Armazenar como string ISO
+    request.session['codigo_verificacao'] = codigo
+    request.session['codigo_verificacao_expira'] = expiracao.isoformat()
+
+    enviar_email_verificacao(request.user.email, codigo)
+    return codigo, expiracao
+
+
+def enviar_email_verificacao(email, codigo):
+    assunto = 'Seu código de verificação'
+    mensagem_html = f"""
+    <html>
+        <body style="font-family: Arial, sans-serif; margin: 0; padding: 0;">
+            <div style="background-color: #f7f7f7; padding: 20px;">
+                <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+                    <div style="padding: 20px; text-align: center; background-color: #4CAF50; color: white; font-size: 24px;">
+                        Código de Verificação
+                    </div>
+                    <div style="padding: 20px;">
+                        <p style="font-size: 16px; line-height: 1.5; color: #333;">
+                            Olá,
+                        </p>
+                        <p style="font-size: 16px; line-height: 1.5; color: #333; text-align: center">
+                            Seu código de verificação é: <strong style="font-size: 22px;">{codigo}</strong>
+                        </p>
+                        <p style="font-size: 14px; color: #555; margin-top: 20px;">
+                            Este código é válido por 5 minutos. Caso você não tenha solicitado este código, por favor, ignore esta mensagem.
+                        </p>
+                    </div>
+                    <div style="padding: 20px; text-align: center; background-color: #f7f7f7; color: #888; font-size: 12px;">
+                        © {2025} SEAP. Todos os direitos reservados.
+                    </div>
+                </div>
+            </div>
+        </body>
+    </html>
+    """
+
+    send_mail(
+        subject=assunto,
+        message='',  # Deixe vazio, já que estamos usando HTML
+        from_email=settings.EMAIL_HOST_USER,
+        recipient_list=[email],
+        html_message=mensagem_html,  # Adiciona o conteúdo em HTML
+    )
+
+
+def verificar_codigo_expiracao(expira_em):
+    if not expira_em:
+        return False
+
+    # Converter a string ISO para datetime com timezone
+    expiracao = timezone.datetime.fromisoformat(expira_em)
+    # Comparar dois datetimes com timezone
+    return timezone.now() < expiracao
 
 
 def get_servidor(request):
@@ -21,7 +89,6 @@ def get_intervalo_mes(mes, ano):
     inicio_do_mes = datetime(ano, mes, 1)
     fim_do_mes = (inicio_do_mes + timedelta(days=31)).replace(day=1) - timedelta(days=1)
     return inicio_do_mes, fim_do_mes
-
 
 
 def get_registros_mes(servidor, inicio_do_mes, fim_do_mes):
@@ -41,7 +108,6 @@ def calcular_horas_por_unidade(registros_mes):
             horas_por_unidade[unidade_nome] += carga_horaria
     return horas_por_unidade, horas_totais
 
-
 def get_limites_horas_por_unidade(servidor):
     limites = LimiteAjudaCusto.objects.filter(servidor=servidor)
     limites_horas_por_unidade = {limite.unidade.nome: limite.limite_horas for limite in limites}
@@ -57,7 +123,6 @@ def calcular_horas_a_adicionar_por_unidade(unidades, cargas_horarias):
         else:
             horas_a_adicionar_por_unidade[unidade_nome] += horas_a_adicionar
     return horas_a_adicionar_por_unidade
-
 
 def verificar_limites(horas_totais, horas_a_adicionar_por_unidade, horas_por_unidade, limites_horas_por_unidade, request):
     horas_a_adicionar_total = sum(horas_a_adicionar_por_unidade.values())
@@ -76,6 +141,7 @@ def verificar_limites(horas_totais, horas_a_adicionar_por_unidade, horas_por_uni
     return True
 
 
+#funcoes graficos
 def get_filtered_data(user, mes_selecionado, ano_selecionado):
     unidade_gestor = user.cotaajudacusto_set.first().unidade if user.groups.filter(
         name='Gerente').exists() else None
@@ -95,41 +161,53 @@ def get_filtered_data(user, mes_selecionado, ano_selecionado):
         )
 
     else:
-        lista_mes_ajuda = Ajuda_Custo.objects.filter(matricula=user.matricula)
-        lista_mes_anterior = Ajuda_Custo.objects.filter(matricula=user.matricula)
+        lista_mes_ajuda = Ajuda_Custo.objects.filter(
+            matricula=user.matricula, data__year=ano_selecionado, data__month=mes_selecionado
+        )
+        lista_mes_anterior = Ajuda_Custo.objects.filter(
+            matricula=user.matricula, data__year=previous_year, data__month=previous_month
+        )
 
     return lista_mes_ajuda, lista_mes_anterior
 
 
-
-
-
 def calculate_bar_chart(user, selected_year, selected_month):
-    from datetime import datetime
-    from dateutil.relativedelta import relativedelta
-
+    # Verifica se o usuário é um gerente e obtém a unidade gerenciada
     unidade_gestor = user.cotaajudacusto_set.first().unidade if user.groups.filter(name='Gerente').exists() else None
 
     monthly_totals = []
     monthly_labels = []
+
     for i in range(12):
+        # Calcula a data para o mês atual da iteração
         date = datetime(year=selected_year, month=selected_month, day=1) - relativedelta(months=i)
-        query = Ajuda_Custo.objects.filter(data__year=date.year, data__month=date.month)
 
-        if unidade_gestor:
-            query = query.filter(unidade=unidade_gestor)
+        # Filtra os dados com base no tipo de usuário
+        if user.groups.filter(name__in=['Administrador', 'GerGesipe']).exists():
+            # Administrador ou GerGesipe: todos os dados
+            query = Ajuda_Custo.objects.filter(data__year=date.year, data__month=date.month)
+        elif user.groups.filter(name='Gerente').exists():
+            # Gerente: apenas os dados da unidade gerenciada
+            query = Ajuda_Custo.objects.filter(unidade=unidade_gestor, data__year=date.year, data__month=date.month)
+        else:
+            # Outros usuários: apenas os dados relacionados ao próprio usuário
+            query = Ajuda_Custo.objects.filter(matricula=user.matricula, data__year=date.year, data__month=date.month)
 
+        # Calcula o total de ajudas de custo para o mês
         ajudas_12h = query.filter(carga_horaria='12 horas').count()
         ajudas_24h = query.filter(carga_horaria='24 horas').count()
         monthly_total = ajudas_24h + (ajudas_12h / 2)
         monthly_totals.append(round(monthly_total, 2))
 
+        # Adiciona o rótulo no formato "Mês Ano"
         month_name = date.strftime("%B")
         translated_month_name = _(month_name.capitalize())
-        monthly_labels.append(f"{translated_month_name} {date.year}")  # Adiciona o rótulo no formato "Mês Ano"
+        monthly_labels.append(f"{translated_month_name} {date.year}")
 
+    # Inverte as listas para exibir do mais antigo para o mais recente
     monthly_totals.reverse()
     monthly_labels.reverse()
+
     return monthly_totals, monthly_labels
 
 
@@ -184,7 +262,35 @@ def add_context_data(context, lista_mes_ajuda, lista_mes_anterior, user, ano_sel
         context['unidade_gerente'] = None
 
 
+def datas_adicionar(dias, unidades, cargas_horarias, servidor, nome_servidor, mes, ano, request):
+    error_messages = []
+    ajuda_custo_instances = []
 
+
+    for dia, unidade_nome, carga_horaria in zip(dias, unidades, cargas_horarias):
+        try:
+            data_completa = datetime.strptime(f"{dia}/{mes}/{ano}", "%d/%m/%Y").date()
+            print(f"Processando data: {data_completa}")
+            horas_a_adicionar = int(carga_horaria.strip().replace(' horas', ''))
+
+
+            carga_horaria_final = f"{horas_a_adicionar} horas"
+            ajuda_custo = Ajuda_Custo(
+                matricula=servidor.matricula,
+                nome=nome_servidor,
+                data=data_completa,
+                unidade=unidade_nome.strip(),
+                carga_horaria=carga_horaria_final
+            )
+
+            ajuda_custo_instances.append(ajuda_custo)
+            print(f"informacao adicionada: {ajuda_custo}")
+
+        except Exception as e:
+            print(f"Erro ao processar data {dia.strip()}/{mes}/{ano}: {e}")
+            error_messages.append(f'Ocorreu um erro ao processar a data {dia.strip()}/{mes}/{ano}.')
+
+    return ajuda_custo_instances, error_messages
 
 
 def build_context(request, context, ano_selecionado, mes_selecionado):

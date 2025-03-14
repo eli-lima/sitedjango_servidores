@@ -64,8 +64,6 @@ class Unidade(models.Model):
         return self.nome
 
 
-
-
 class Setor(models.Model):
     nome = models.CharField(max_length=100)
 
@@ -73,9 +71,7 @@ class Setor(models.Model):
         return self.nome
 
 
-
 # Criar Usuario
-
 def user_directory_path(instance, filename):
     # Extrai a extensão do arquivo original
     ext = filename.split('.')[-1]
@@ -90,7 +86,7 @@ def user_directory_path(instance, filename):
 class Usuario(AbstractUser):
     nome_completo = models.CharField(max_length=200, blank=False)
     foto_perfil = models.ImageField(upload_to=user_directory_path, blank=True, null=True)
-    matricula = models.IntegerField(blank=True, unique=True)
+    matricula = models.CharField(max_length=20, unique=True, blank=False)
     setor = models.ForeignKey('Setor', on_delete=models.CASCADE, null=True, blank=True)
 
     # Remover os campos first_name e last_name

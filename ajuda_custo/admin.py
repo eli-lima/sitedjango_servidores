@@ -5,7 +5,7 @@ from .models import Ajuda_Custo, DataMajorada, LimiteAjudaCusto, CotaAjudaCusto
 @admin.register(Ajuda_Custo)
 class AjudaCustoAdmin(admin.ModelAdmin):
     # Definir quais campos aparecerão na listagem de Ajuda_Custo
-    list_display = ('nome', 'matricula', 'data', 'unidade', 'carga_horaria', 'majorado')
+    list_display = ('nome', 'matricula', 'data', 'unidade', 'carga_horaria', 'majorado', 'codigo_verificacao')
 
     # Definir os campos que podem ser pesquisados (campo de pesquisa no topo da lista)
     search_fields = ('nome', 'matricula', 'data')

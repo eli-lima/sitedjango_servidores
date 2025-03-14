@@ -2,11 +2,11 @@ from django.shortcuts import render, redirect, get_object_or_404, reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView, CreateView, FormView, ListView, View
 from .models import Ajuda_Custo, DataMajorada, LimiteAjudaCusto, CotaAjudaCusto
-from .forms import AjudaCustoForm, AdminDatasForm, LimiteAjudaCustoForm, UploadExcelRx2Form, CotaAjudaCustoForm
+from .forms import EnvioDatasForm, ConfirmacaoDatasForm, FiltroRelatorioForm, AdminDatasForm, LimiteAjudaCustoForm, UploadExcelRx2Form, CotaAjudaCustoForm
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.db.models import Q, Sum
-from openpyxl.styles import Alignment
+from django.contrib.auth.decorators import login_required
 from django.utils.dateparse import parse_date
 from django.http import HttpResponse
 from openpyxl import Workbook
@@ -17,14 +17,12 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 import zipfile
 from io import BytesIO
 import os
-from django.conf import settings
 import logging
 import requests
 import cloudinary.uploader
 from django.utils import timezone
 from django.http import JsonResponse
 from django.utils.timezone import now
-from datetime import datetime, timedelta
 from .tasks import process_batch
 from celery.result import AsyncResult  # Para lidar com o status da task
 from .tasks import process_excel_file  # Task Celery para processamento
@@ -37,12 +35,60 @@ from django.db import transaction
 from seappb.models import Unidade
 from .utils import (get_intervalo_mes, calcular_horas_por_unidade, get_limites_horas_por_unidade, \
         calcular_horas_a_adicionar_por_unidade, verificar_limites, get_servidor, get_registros_mes,
-                    build_context)
+                    build_context, datas_adicionar, gerar_e_armazenar_codigo, enviar_email_verificacao,
+                    verificar_codigo_expiracao)
 
 
+from datetime import datetime, timedelta
+from weasyprint import HTML
+import tempfile
 
 
 # Create your views here.
+
+#dados istribuir horas atualizar
+@transaction.atomic
+def distribuir_horas(request, unidade_id):
+    if request.method == 'POST':
+        horas = int(request.POST.get('horas'))
+        unidade = get_object_or_404(Unidade, id=unidade_id)
+        cota = CotaAjudaCusto.objects.filter(unidade=unidade).first()
+
+        if cota and cota.carga_horaria_disponivel >= horas:
+            LimiteAjudaCusto.objects.create(unidade=unidade, limite_horas=horas)
+            cota.carga_horaria_disponivel -= horas
+            cota.save()
+            return JsonResponse({'status': 'success', 'message': 'Horas distribuídas com sucesso.'})
+        else:
+            return JsonResponse({'status': 'error', 'message': 'Carga horária insuficiente.'}, status=400)
+
+
+#relatorio em pdf ajuda_custo
+def gerar_pdf_ajuda_custo(request, queryset):
+    # Renderiza o template HTML com os dados
+    html_string = render_to_string('relatorio_ajuda_custo_pdf.html', {
+        'ajudas_custo': queryset,
+    })
+
+    # Cria um arquivo HTML temporário
+    html = HTML(string=html_string, base_url=request.build_absolute_uri())
+
+    # Gera o PDF
+    pdf_file = tempfile.NamedTemporaryFile(delete=False)
+    html.write_pdf(target=pdf_file.name)
+
+    # Lê o conteúdo do arquivo PDF
+    pdf_file.seek(0)
+    pdf = pdf_file.read()
+    pdf_file.close()
+
+    # Retorna o PDF como uma resposta HTTP
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="relatorio_ajuda_custo.pdf"'
+    return response
+
+
+
 
 
 # upload relatorios do rx2
@@ -453,34 +499,26 @@ class AjudaCusto(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         user = self.request.user
-        print("Usuário:", user)
 
         # Verificação dos grupos de usuário
         if user.groups.filter(name__in=['Administrador', 'GerGesipe']).exists():
             # Acesso completo para Administradores e GerGesipe
             queryset = Ajuda_Custo.objects.all()
-            print("Usuário é Administrador ou GerGesipe")
         elif user.groups.filter(name='Gerente').exists():
             # Acesso limitado à unidade do gestor
             try:
                 unidade_gestor = user.cotaajudacusto_set.first().unidade
-                print("Unidade do gestor:", unidade_gestor)
                 queryset = Ajuda_Custo.objects.filter(unidade=unidade_gestor)
-                print("QuerySet para Gerente:", queryset)
             except AttributeError:
                 # Caso o gestor não tenha uma unidade atribuída
-                print("Gestor não tem unidade atribuída")
                 queryset = Ajuda_Custo.objects.none()
         else:
             # Acesso limitado ao próprio usuário
-            print("Usuário tem acesso limitado à própria matrícula")
             queryset = Ajuda_Custo.objects.filter(matricula=user.matricula)
 
         # Captura os valores de ano e mês do formulário de filtro
         ano_selecionado = self.request.GET.get('ano', timezone.now().year)
         mes_selecionado = self.request.GET.get('mes', timezone.now().month)
-        print("Ano selecionado:", ano_selecionado)
-        print("Mês selecionado:", mes_selecionado)
 
         # Certifique-se de converter para int
         ano_selecionado = int(ano_selecionado)
@@ -488,20 +526,17 @@ class AjudaCusto(LoginRequiredMixin, ListView):
 
         # Filtrar por ano e mês
         queryset = queryset.filter(data__year=ano_selecionado, data__month=mes_selecionado)
-        print("QuerySet após filtro de ano e mês:", queryset)
+
 
         # Filtrar por data (mês atual)
         today = now().date()
         first_day_of_month = today.replace(day=1)
         last_day_of_month = (first_day_of_month + timedelta(days=32)).replace(day=1) - timedelta(days=1)
-        print("Primeiro dia do mês:", first_day_of_month)
-        print("Último dia do mês:", last_day_of_month)
 
         # Aplicar filtro de data
         data_inicial = first_day_of_month
         data_final = last_day_of_month
         queryset = queryset.filter(data__range=[data_inicial, data_final])
-        print("QuerySet após filtro de data:", queryset)
 
         return queryset.order_by('nome')
 
@@ -512,10 +547,6 @@ class AjudaCusto(LoginRequiredMixin, ListView):
         page_obj = context['page_obj']
         paginator = page_obj.paginator
         page_range = paginator.page_range
-
-        print("Page Obj:", page_obj)
-        print("Paginator:", paginator)
-        print("Page Range:", page_range)
 
         # Lógica para limitar a exibição das páginas
         if page_obj.number > 3:
@@ -529,7 +560,6 @@ class AjudaCusto(LoginRequiredMixin, ListView):
             end = paginator.num_pages
 
         context['page_range'] = range(start, end + 1)
-        print("Page Range Context:", context['page_range'])
 
         # Dicionário com os nomes dos meses
         meses = {
@@ -544,7 +574,6 @@ class AjudaCusto(LoginRequiredMixin, ListView):
         # Captura os valores de ano e mês enviados pelo formulário de filtro
         ano_selecionado = self.request.GET.get('ano', timezone.now().year)
         mes_selecionado = self.request.GET.get('mes', timezone.now().month)
-        print("Ano e mês selecionados no contexto:", ano_selecionado, mes_selecionado)
 
         # Certifique-se de converter para `int` para usá-los em consultas e lógica
         ano_selecionado = int(ano_selecionado)
@@ -570,7 +599,7 @@ class RelatorioAjudaCusto(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
     def test_func(self):
         user = self.request.user
-        grupos_permitidos = ['Administrador', 'GerGesipe']
+        grupos_permitidos = ['Administrador', 'GerGesipe', 'Gerente']
         return user.groups.filter(name__in=grupos_permitidos).exists()
 
     def handle_no_permission(self):
@@ -600,24 +629,30 @@ class RelatorioAjudaCusto(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
         queryset = Ajuda_Custo.objects.all()
 
+        # Filtro por unidade do gerente (se o usuário for um gerente)
+        user = self.request.user
+        if user.groups.filter(name='Gerente').exists():
+            # Obtém a unidade gerenciada pelo gestor
+            cota_gerente = CotaAjudaCusto.objects.filter(gestor=user).first()
+            if cota_gerente:
+                queryset = queryset.filter(unidade=cota_gerente.unidade)
+
         if query:
             queryset = queryset.filter(
                 Q(nome__icontains=query) | Q(matricula__icontains=query)
             )
 
-        #filtro por unidade:
-
+        # Filtro por unidade (se fornecido)
         unidade = self.request.GET.get('unidade')
         if unidade:
-            queryset = queryset.filter(unidade=unidade)
+            queryset = queryset.filter(unidade=unidade)  # Filtra pelo nome da unidade
 
-        #filtro por carga horaria
+        # Filtro por carga horária
         carga_horaria = self.request.GET.get('carga_horaria')
         if carga_horaria:
             queryset = queryset.filter(carga_horaria=carga_horaria)
 
-
-        # Aplicar filtro de data apenas se as datas forem válidas
+        # Filtro por data
         if data_inicial and data_final:
             queryset = queryset.filter(data__range=[data_inicial, data_final])
         elif data_inicial:
@@ -630,23 +665,24 @@ class RelatorioAjudaCusto(LoginRequiredMixin, UserPassesTestMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # Paginação personalizada
-        page_obj = context['page_obj']
-        paginator = page_obj.paginator
-        page_range = paginator.page_range
+        # Cria o formulário de filtros
+        form = FiltroRelatorioForm(self.request.GET or None)
 
-        # Lógica para limitar a exibição das páginas
-        if page_obj.number > 3:
-            start = page_obj.number - 2
-        else:
-            start = 1
+        # Verifica se o usuário é um gerente
+        if self.request.user.groups.filter(name='Gerente').exists():
+            # Obtém a unidade gerenciada pelo gestor
+            cota_gerente = CotaAjudaCusto.objects.filter(gestor=self.request.user).first()
+            if cota_gerente:
+                # Define o valor inicial do campo unidade como a unidade do gerente
+                form.fields['unidade'].initial = cota_gerente.unidade
+                # Desabilita o campo unidade
+                form.fields['unidade'].disabled = True
 
-        if page_obj.number < paginator.num_pages - 2:
-            end = page_obj.number + 2
-        else:
-            end = paginator.num_pages
+        # Adiciona o formulário ao contexto
+        context['form'] = form
 
-        context['page_range'] = range(start, end + 1)
+        # Obtém os nomes dos grupos do usuário
+        context['user_groups'] = self.request.user.groups.values_list('name', flat=True)
 
         # Garantir que as datas estejam no formato correto (YYYY-MM-DD)
         today = now().date()
@@ -665,121 +701,233 @@ class RelatorioAjudaCusto(LoginRequiredMixin, UserPassesTestMixin, ListView):
         context['query'] = self.request.GET.get('query', '')
         context['dataInicial'] = data_inicial.strftime('%Y-%m-%d') if data_inicial else ''
         context['dataFinal'] = data_final.strftime('%Y-%m-%d') if data_final else ''
-        # Ajuste aqui: mudando 'unidade' para 'unidades'
-        context['unidades'] = Ajuda_Custo.objects.values_list('unidade', flat=True).distinct().order_by('unidade')
+        context['unidades'] = Ajuda_Custo.objects.values_list('unidade', flat=True).distinct().order_by('nome')
         context['carga_horarias'] = Ajuda_Custo.objects.values_list('carga_horaria', flat=True).distinct()
 
         return context
 
     def get(self, request, *args, **kwargs):
         action = request.GET.get('action')
+        queryset = self.get_queryset()
+
         if action == 'export_excel':
             return exportar_excel(request)
         elif action == 'excel_detalhado':
             return excel_detalhado(request)
         elif action == 'arquivos_assinados':
-            queryset = self.get_queryset()
             return criar_arquivo_zip(request, queryset)
+        elif action == 'gerar_pdf':
+            return gerar_pdf_ajuda_custo(request, queryset)
         return super().get(request, *args, **kwargs)
 
 
-
-class AjudaCustoAdicionar(LoginRequiredMixin, FormView):
-    model = Ajuda_Custo
-    form_class = AjudaCustoForm
+class EnvioDatasView(LoginRequiredMixin, FormView):
+    form_class = EnvioDatasForm
     template_name = 'ajuda_custo_add.html'
+    success_url = reverse_lazy('ajuda_custo:confirmacao_datas')
+
+    def form_valid(self, form):
+        request = self.request
+
+        mes = form.cleaned_data['mes']
+        ano = form.cleaned_data['ano']
+        dias = request.POST.getlist('dia')
+        unidades = request.POST.getlist('unidade')
+        cargas_horarias = request.POST.getlist('carga_horaria')
+
+
+        try:
+            servidor = get_servidor(request)
+            print(f"Servidor encontrado: {servidor}")
+
+
+            inicio_do_mes, fim_do_mes = get_intervalo_mes(int(mes), int(ano))
+            print(f"Início do mês: {inicio_do_mes}, Fim do mês: {fim_do_mes}")
+
+            registros_mes = get_registros_mes(servidor, inicio_do_mes, fim_do_mes)
+            print(f"Registros do mês encontrados: {registros_mes.count()}")
+
+            horas_por_unidade, horas_totais = calcular_horas_por_unidade(registros_mes)
+            print("Horas por unidade no mês:", horas_por_unidade)
+            print(f"Horas totais no mês: {horas_totais}")
+
+            limites_horas_por_unidade = get_limites_horas_por_unidade(servidor)
+            print("Limites de horas por unidade:", limites_horas_por_unidade)
+
+            horas_a_adicionar_por_unidade = calcular_horas_a_adicionar_por_unidade(unidades, cargas_horarias)
+            print("Horas a adicionar por unidade:", horas_a_adicionar_por_unidade)
+
+            if not verificar_limites(horas_totais, horas_a_adicionar_por_unidade, horas_por_unidade, limites_horas_por_unidade, request):
+                return self.form_invalid(form)
+
+            # Salvar dados na sessão para a próxima view
+            request.session['mes'] = mes
+            request.session['ano'] = ano
+            request.session['dias'] = dias
+            request.session['unidades'] = unidades
+            request.session['cargas_horarias'] = cargas_horarias
+
+            # Gerar e enviar código de verificação
+            codigo, expiracao = gerar_e_armazenar_codigo(request)
+            print(f"Código gerado: {codigo}, expira em: {expiracao}")
+
+
+            return redirect(self.success_url)
+
+        except Exception as e:
+            print(f"Erro interno: {e}")
+            messages.error(request, 'Ocorreu um erro interno. Tente novamente mais tarde.')
+            return self.form_invalid(form)
+
+
+@login_required
+def reenviar_codigo(request):
+    if request.method == "POST":
+        try:
+            # Gerar e enviar novo código usando a função centralizada
+            novo_codigo, expiracao = gerar_e_armazenar_codigo(request)
+            print(f"Novo código de verificação gerado: {novo_codigo}, expira em: {expiracao}")
+
+            return JsonResponse({
+                "success": True,
+                "message": "Novo código de verificação enviado com sucesso.",
+                "expiracao": expiracao.isoformat()  # Retornar o tempo de expiração
+            }, status=200)
+        except Exception as e:
+            print(f"Erro ao reenviar código: {e}")
+            return JsonResponse({"error": "Erro ao reenviar o código. Tente novamente mais tarde."}, status=500)
+
+    return JsonResponse({"error": "Método não permitido"}, status=405)
+
+
+class ConfirmacaoDatasView(LoginRequiredMixin, FormView):
+    form_class = ConfirmacaoDatasForm
+    template_name = 'confirmacao_datas.html'
     success_url = reverse_lazy('ajuda_custo:ajuda_custo')
 
     def post(self, request, *args, **kwargs):
         form = self.get_form()
-        from django.contrib import messages
+        print('codigo_verificacao')
+
+        # Lógica para reenviar código
+        if 'reenviar_codigo' in request.POST:
+            try:
+                response = reenviar_codigo(request)  # Chama a função reenviar_codigo
+                if response.status_code == 200:
+                    messages.info(request, 'Um novo código de verificação foi enviado para seu e-mail.')
+                else:
+                    messages.error(request, 'Ocorreu um erro ao tentar reenviar o código.')
+            except Exception as e:
+                print(f"Erro ao reenviar código: {e}")
+                messages.error(request, 'Ocorreu um erro ao tentar reenviar o código.')
+
+            return self.form_invalid(form)  # Mantém o formulário aberto para inserção do novo código
 
         if form.is_valid():
-            mes = request.POST.get('mes')
-            ano = request.POST.get('ano')
-            dias = request.POST.getlist('dia')
-            unidades = request.POST.getlist('unidade')
-            cargas_horarias = request.POST.getlist('carga_horaria')
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
 
+    def form_valid(self, form):
+        request = self.request
 
-            print("Dados recebidos do formulário:")
-            print(f"Mes: {mes}, Ano: {ano}, Dias: {dias}, Unidades: {unidades}, Cargas Horárias: {cargas_horarias}")
+        codigo_verificacao = form.cleaned_data['codigo_verificacao']
+        print(f"Código de verificação recebido: {codigo_verificacao}")
 
-            try:
-                servidor = get_servidor(request)
-                print(f"Servidor encontrado: {servidor}")
-                nome_servidor = servidor.nome
+        if not codigo_verificacao:
+            messages.error(request, 'Por favor, insira o código de verificação.')
+            print("Erro: Código de verificação não fornecido.")
+            return self.form_invalid(form)
 
-                inicio_do_mes, fim_do_mes = get_intervalo_mes(int(mes), int(ano))
-                print(f"Início do mês: {inicio_do_mes}, Fim do mês: {fim_do_mes}")
+        expira_em = request.session.get('codigo_verificacao_expira', '')
+        print(f"Código expira em: {expira_em}")
 
-                registros_mes = get_registros_mes(servidor, inicio_do_mes, fim_do_mes)
-                print(f"Registros do mês encontrados: {registros_mes.count()}")
+        if not verificar_codigo_expiracao(expira_em):
+            messages.error(request, 'O código de verificação expirou. Envie um novo código.')
+            print("Erro: Código de verificação expirou.")
+            return self.form_invalid(form)
 
-                horas_por_unidade, horas_totais = calcular_horas_por_unidade(registros_mes)
-                print("Horas por unidade no mês:", horas_por_unidade)
-                print(f"Horas totais no mês: {horas_totais}")
+        if codigo_verificacao != request.session.get('codigo_verificacao'):
+            messages.error(request, 'Código de verificação incorreto. Envie um novo código.')
+            print("Erro: Código de verificação incorreto.")
+            return self.form_invalid(form)
 
-                limites_horas_por_unidade = get_limites_horas_por_unidade(servidor)
-                print("Limites de horas por unidade:", limites_horas_por_unidade)
+        print("Código de verificação válido. Processando formulário...")
 
-                horas_a_adicionar_por_unidade = calcular_horas_a_adicionar_por_unidade(unidades, cargas_horarias)
-                print("Horas a adicionar por unidade:", horas_a_adicionar_por_unidade)
+        try:
+            mes = request.session['mes']
+            ano = request.session['ano']
+            dias = request.session['dias']
+            unidades = request.session['unidades']
+            cargas_horarias = request.session['cargas_horarias']
+            servidor = get_servidor(request)
+            print(f'os dias {dias,} os meses {mes}, as cargas horarias {cargas_horarias}, as unidades {unidades}')
 
-                if not verificar_limites(horas_totais, horas_a_adicionar_por_unidade, horas_por_unidade,
-                                         limites_horas_por_unidade, request):
-                    return self.form_invalid(form)
+            print(servidor)
+            nome_servidor = servidor.nome
 
-                ajuda_custo_instances, error_messages = self.processar_datas(dias, unidades, cargas_horarias, servidor,
-                                                                             nome_servidor, mes, ano, request)
-                self.exibir_mensagens(error_messages)
-                self.enviar_email(ajuda_custo_instances, error_messages)
+            # Processa as datas e salva os registros
+            ajuda_custo_instances, error_messages = self.processar_datas(dias, unidades, cargas_horarias, servidor,
+                                                                         nome_servidor, mes, ano, request)
+            self.exibir_mensagens(error_messages)
 
-                # Verificação e atualização da folha assinada
-                novo_arquivo = form.cleaned_data.get('folha_assinada')
-                if novo_arquivo:
-                    ano_int = int(ano)
-                    mes_int = int(mes)
-                    registros_existentes = Ajuda_Custo.objects.filter(
-                        matricula=servidor.matricula,
-                        data__year=ano_int,
-                        data__month=mes_int
-                    )
+            # Salva o código de verificação em cada instância de Ajuda_Custo
+            for ajuda_custo in ajuda_custo_instances:
+                ajuda_custo.codigo_verificacao = codigo_verificacao
+                ajuda_custo.save()
 
-                    if registros_existentes.exists():
-                        for registro in registros_existentes:
-                            arquivo_antigo = registro.folha_assinada
-                            if arquivo_antigo:
-                                try:
-                                    arquivo_antigo.delete(save=False)
-                                except Exception as e:
-                                    messages.error(self.request, f'Erro ao excluir o arquivo antigo: {e}')
+            self.enviar_email(ajuda_custo_instances, error_messages)
 
-                        primeiro_registro = registros_existentes.first()
-                        if primeiro_registro.folha_assinada != novo_arquivo:
-                            primeiro_registro.folha_assinada = novo_arquivo
-                            primeiro_registro.save()
+            return redirect(self.success_url)
 
-                        for registro in registros_existentes:
-                            registro.folha_assinada = primeiro_registro.folha_assinada
-                            try:
-                                registro.save()
-                            except Exception as e:
-                                messages.error(self.request, f'Erro ao salvar registro {registro.id}: {e}')
+        except Exception as e:
+            print(f"Erro interno: {e}")
+            messages.error(request, 'Ocorreu um erro interno. Tente novamente mais tarde.')
+            return self.form_invalid(form)
 
-                    return redirect(self.success_url)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        request = self.request
+        mes = request.session.get('mes')
+        ano = request.session.get('ano')
+        dias = request.session.get('dias', [])
+        unidades = request.session.get('unidades', [])
+        cargas_horarias = request.session.get('cargas_horarias', [])
+        servidor = get_object_or_404(Servidor, matricula=request.user.matricula)
+        nome_servidor = servidor.nome
+        matricula = servidor.matricula
 
-            except Exception as e:
-                print(f"Erro interno: {e}")
-                from django.contrib import messages
-                messages.error(request, 'Ocorreu um erro interno. Tente novamente mais tarde.')
-                return self.form_invalid(form)
+        print(request.session.keys())
+        print(dias)
+        print(request.session.get('unidades'))
+        print(cargas_horarias)
+        print(mes)
+        print(ano)
+        print(nome_servidor)
+        print(servidor)
 
-        return self.form_invalid(form)
+        context['matricula'] = matricula
+
+        context['datas'] = zip(dias, unidades, cargas_horarias) # Criar lista de tuplas return
+
+        ajuda_custo_instances, error_messages = datas_adicionar(
+            dias, unidades, cargas_horarias, servidor, nome_servidor, mes, ano, request
+        )
+
+        context['ajuda_custo_instances'] = ajuda_custo_instances
+        context['error_messages'] = error_messages
+        print(ajuda_custo_instances)
+
+        return context
+
+    def gerar_novo_codigo(self):
+        request = self.request
+        # Gerar e enviar código de verificação
+        codigo, expiracao = gerar_e_armazenar_codigo(request)
+        print(f"Código gerado: {codigo}, expira em: {expiracao}")
 
     @staticmethod
     def processar_datas(dias, unidades, cargas_horarias, servidor, nome_servidor, mes, ano, request):
-
         error_messages = []
         ajuda_custo_instances = []
 
@@ -792,7 +940,7 @@ class AjudaCustoAdicionar(LoginRequiredMixin, FormView):
                     print(f"Horas a adicionar: {horas_a_adicionar}")
 
                     if Ajuda_Custo.objects.filter(matricula=servidor.matricula, data=data_completa).exists():
-                        error_messages.append(f'O servidor já possui uma entrada para {dia}/{mes}/{ano}.')
+                        error_messages.append(f'O servidor já possui uma entrada para {dia.strip()}/{mes}/{ano}.')
                         print(f"Data duplicada detectada: {data_completa}")
                         continue
 
@@ -801,7 +949,7 @@ class AjudaCustoAdicionar(LoginRequiredMixin, FormView):
                         matricula=servidor.matricula,
                         nome=nome_servidor,
                         data=data_completa,
-                        unidade=unidade_nome,
+                        unidade=unidade_nome.strip(),
                         carga_horaria=carga_horaria_final,
                         majorado=DataMajorada.objects.filter(data=data_completa).exists()
                     )
@@ -810,32 +958,30 @@ class AjudaCustoAdicionar(LoginRequiredMixin, FormView):
                     print(f"Registro salvo: {ajuda_custo}")
 
                 except Exception as e:
-                    print(f"Erro ao processar data {dia}/{mes}/{ano}: {e}")
-                    error_messages.append(f'Ocorreu um erro ao processar a data {dia}/{mes}/{ano}.')
+                    print(f"Erro ao processar data {dia.strip()}/{mes}/{ano}: {e}")
+                    error_messages.append(f'Ocorreu um erro ao processar a data {dia.strip()}/{mes}/{ano}.')
 
         return ajuda_custo_instances, error_messages
 
     def exibir_mensagens(self, error_messages):
-
         for message in error_messages:
             messages.error(self.request, message)
         if not error_messages:
             messages.success(self.request, 'Datas adicionadas com sucesso!')
         else:
-            messages.warning(self.request,
-                             'Processamento concluído com algumas falhas. Verifique as mensagens de erro.')
+            messages.warning(self.request, 'Processamento concluído com algumas falhas. Verifique as mensagens de erro.')
 
     def enviar_email(self, ajuda_custo_instances, error_messages):
         email_destinatario = self.request.user.email
+        print(f"Enviando email para {email_destinatario}")
 
         assunto = 'Confirmação de Datas Marcadas'
-        contexto = {'ajuda_custo_list': ajuda_custo_instances, 'servidor': self.request.user.nome_completo,
-                    'matricula': self.request.user.matricula, 'error_messages': error_messages}
+        contexto = {'ajuda_custo_list': ajuda_custo_instances, 'servidor': self.request.user.nome_completo, 'matricula': self.request.user.matricula, 'error_messages': error_messages}
         corpo_email = render_to_string('email_datasmarcadas.html', contexto)
-        email = EmailMessage(assunto, corpo_email, settings.EMAIL_HOST_USER, [email_destinatario], )
+        email = EmailMessage(assunto, corpo_email, settings.EMAIL_HOST_USER, [email_destinatario])
         email.content_subtype = 'html'
         email.send()
-        print('email enviado com sucesso')
+        print('Email enviado com sucesso')
 
 
 class AdminCadastrar(LoginRequiredMixin, UserPassesTestMixin, FormView):
@@ -962,49 +1108,40 @@ class HorasLimite(LoginRequiredMixin, UserPassesTestMixin, FormView):
         query = self.request.GET.get('query', '')
         unidade = self.request.GET.get('unidade', '')
 
-        try:
-            # Paginação para LimiteAjudaCusto (aba Individual)
-            filtros_cargas = Q()
-            if query:
-                filtros_cargas &= Q(servidor__nome__icontains=query) | Q(servidor__matricula__icontains=query)
-            if unidade:
-                filtros_cargas &= Q(unidade__nome=unidade)
+        # Paginação para LimiteAjudaCusto (aba Individual)
+        filtros_cargas = Q()
+        if query:
+            filtros_cargas &= Q(servidor__nome__icontains=query) | Q(servidor__matricula__icontains=query)
+        if unidade:
+            filtros_cargas &= Q(unidade__nome=unidade)
 
-            cargas = LimiteAjudaCusto.objects.filter(filtros_cargas)
-            paginator_cargas = Paginator(cargas, 20)
-            page_number_cargas = self.request.GET.get('page_cargas')
-            page_obj_cargas = paginator_cargas.get_page(page_number_cargas)
-            print("Page Obj Cargas:", page_obj_cargas)
+        cargas = LimiteAjudaCusto.objects.filter(filtros_cargas).order_by('servidor')
 
-            # Paginação para CotaAjudaCusto (aba Gerências)
-            cotas = CotaAjudaCusto.objects.all().order_by('unidade')
-            paginator_cotas = Paginator(cotas, 100)
-            page_number_cotas = self.request.GET.get('page_cotas')
-            page_obj_cotas = paginator_cotas.get_page(page_number_cotas)
-            print("Page Obj Cotas:", page_obj_cotas)
+        paginator_cargas = Paginator(cargas, 20)
+        page_number_cargas = self.request.GET.get('page_cargas')
+        page_obj_cargas = paginator_cargas.get_page(page_number_cargas)
 
-            # Adiciona os dados ao contexto
-            context.update({
-                'unidades': Unidade.objects.values_list('nome', flat=True),
-                'carga_horaria': page_obj_cargas,
-                'cota_horaria': page_obj_cotas,
-                'page_obj_cargas': page_obj_cargas,
-                'page_obj_cotas': page_obj_cotas,
-                'query': query,
-                'unidade': unidade,
-            })
-            print("Contexto gerado:", context)
+        # Paginação para CotaAjudaCusto (aba Gerências)
 
-            # Adiciona os formulários para carga horária individual e por gerências
-            context['form_individual'] = LimiteAjudaCustoForm()
-            context['form_gerencia'] = CotaAjudaCustoForm()
+        cotas = CotaAjudaCusto.objects.all().order_by('unidade')
+        paginator_cotas = Paginator(cotas, 100)
+        page_number_cotas = self.request.GET.get('page_cotas')
+        page_obj_cotas = paginator_cotas.get_page(page_number_cotas)
 
-        except Exception as e:
-            print(f"Erro ao gerar o contexto: {e}")
-            import traceback
-            print(traceback.format_exc())
-            messages.error(self.request, f"Erro ao carregar a página: {e}")
-            context['erro'] = str(e)
+        # Adiciona os dados ao contexto
+        context.update({
+            'unidades': Unidade.objects.values_list('nome', flat=True).order_by('nome'),
+            'carga_horaria': page_obj_cargas,
+            'cota_horaria': page_obj_cotas,
+            'page_obj_cargas': page_obj_cargas,
+            'page_obj_cotas': page_obj_cotas,
+            'query': query,
+            'unidade': unidade,
+        })
+
+        # Adiciona os formulários para carga horária individual e por gerências
+        context['form_individual'] = LimiteAjudaCustoForm()
+        context['form_gerencia'] = CotaAjudaCustoForm()
 
         return context
 
@@ -1012,20 +1149,14 @@ class HorasLimite(LoginRequiredMixin, UserPassesTestMixin, FormView):
         if 'servidor' in request.POST:
             form = LimiteAjudaCustoForm(request.POST)
             if form.is_valid():
-                print("Formulário LimiteAjudaCustoForm é válido")
                 return self.form_individual_valid(form)
             else:
-                print("Formulário LimiteAjudaCustoForm não é válido")
-                print("Erros do Formulário LimiteAjudaCustoForm:", form.errors)
                 return self.form_invalid(form)
         else:
             form = CotaAjudaCustoForm(request.POST)
             if form.is_valid():
-                print("Formulário CotaAjudaCustoForm é válido")
                 return self.form_gerencia_valid(form)
             else:
-                print("Formulário CotaAjudaCustoForm não é válido")
-                print("Erros do Formulário CotaAjudaCustoForm:", form.errors)
                 return self.form_invalid(form)
 
     def form_individual_valid(self, form):
@@ -1048,25 +1179,18 @@ class HorasLimite(LoginRequiredMixin, UserPassesTestMixin, FormView):
         return redirect(self.success_url)
 
     def form_gerencia_valid(self, form):
-        try:
-            gestor = form.cleaned_data['gestor']
-            unidade = form.cleaned_data['unidade']
-            cota_ajudacusto = form.cleaned_data['cota_ajudacusto']
+        gestor = form.cleaned_data['gestor']
+        unidade = form.cleaned_data['unidade']
+        cota_ajudacusto = form.cleaned_data['cota_ajudacusto']
 
-            print(f"Gestor: {gestor}, Unidade: {unidade}, Cota: {cota_ajudacusto}")
+        CotaAjudaCusto.objects.update_or_create(
+            gestor=gestor,
+            unidade=unidade,
+            defaults={'cota_ajudacusto': cota_ajudacusto}
+        )
 
-            CotaAjudaCusto.objects.update_or_create(
-                gestor=gestor,
-                unidade=unidade,
-                defaults={'cota_ajudacusto': cota_ajudacusto}
-            )
-
-            messages.success(self.request, 'Cota de ajuda de custo atualizada com sucesso!')
-            return redirect(self.success_url)
-        except Exception as e:
-            print(f"Erro ao atualizar/ajudar CotaAjudaCusto: {e}")
-            messages.error(self.request, f"Erro ao atualizar/ajudar CotaAjudaCusto: {e}")
-            return self.form_invalid(form)
+        messages.success(self.request, 'Cota de ajuda de custo atualizada com sucesso!')
+        return redirect(self.success_url)
 
 
 class CargaHorariaGerente(LoginRequiredMixin, UserPassesTestMixin, FormView):
@@ -1079,7 +1203,7 @@ class CargaHorariaGerente(LoginRequiredMixin, UserPassesTestMixin, FormView):
     def test_func(self):
         user = self.request.user
         # Define os grupos permitidos
-        grupos_permitidos = ['Administrador', 'Gerente', 'GerGesipe']
+        grupos_permitidos = ['Administrador', 'Gerente']
         return user.groups.filter(name__in=grupos_permitidos).exists()
 
     def handle_no_permission(self):
@@ -1092,25 +1216,33 @@ class CargaHorariaGerente(LoginRequiredMixin, UserPassesTestMixin, FormView):
         limite_horas = form.cleaned_data['limite_horas']
         servidor = form.cleaned_data['servidor']
 
+        # Obtém a matrícula do gestor (usuário logado)
+        matricula_gestor = gestor.matricula
+
+        # Verifica se o servidor selecionado é o mesmo que o servidor do gestor
+        if str(servidor.matricula).strip() == str(matricula_gestor).strip():
+            messages.error(self.request, "Você não pode atribuir cota de horas para si mesmo.")
+            return self.form_invalid(form)
+
         # Verifica se a carga horária excede 192 horas
         if limite_horas > 192:
             messages.error(self.request, "A carga horária não pode ultrapassar 192 horas.")
             return self.form_invalid(form)
 
-        # Verifique a cota disponível do gerente
+        # Verifica a cota disponível do gerente
         cota = CotaAjudaCusto.objects.get(gestor=gestor, unidade=unidade)
         if limite_horas > cota.carga_horaria_disponivel:
             messages.error(self.request, f"Você não pode distribuir mais que {cota.carga_horaria_disponivel} horas.")
             return self.form_invalid(form)
 
-        # Atualize ou crie o limite de horas
+        # Atualiza ou cria o limite de horas
         LimiteAjudaCusto.objects.update_or_create(
             servidor=servidor,
             unidade=unidade,
             defaults={'limite_horas': limite_horas}
         )
 
-        # Atualize a cota disponível
+        # Atualiza a cota disponível
         cota.save()
 
         messages.success(self.request, 'Carga horária distribuída com sucesso!')
@@ -1118,20 +1250,20 @@ class CargaHorariaGerente(LoginRequiredMixin, UserPassesTestMixin, FormView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        # Adicione a unidade baseada no gestor
+        # Adiciona a unidade baseada no gestor
         kwargs['initial'] = {'unidade': self.request.user.cotaajudacusto_set.first().unidade}
         return kwargs
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
-        # Torne o campo unidade somente leitura
+        # Torna o campo unidade somente leitura
         form.fields['unidade'].disabled = True
         return form
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # Obtenha o valor da consulta de pesquisa, se houver
+        # Obtém o valor da consulta de pesquisa, se houver
         query = self.request.GET.get('query', '')
         unidade_nome = self.request.GET.get('unidade', '')
         context['cota_total'] = self.request.user.cotaajudacusto_set.first().carga_horaria_total
@@ -1152,8 +1284,7 @@ class CargaHorariaGerente(LoginRequiredMixin, UserPassesTestMixin, FormView):
                 filtros &= Q(pk__isnull=True)  # Retorna nenhum resultado
 
         # Filtra as cargas horárias com base no gestor logado
-        # Aqui você verifica que a unidade da cota do gestor seja a mesma que estamos buscando
-        cargas = LimiteAjudaCusto.objects.filter(filtros, unidade__cotaajudacusto__gestor=self.request.user)
+        cargas = LimiteAjudaCusto.objects.filter(filtros, unidade__cotaajudacusto__gestor=self.request.user).order_by('servidor')
 
         # Limita a carga horária máxima a 192 horas
         cargas = cargas.filter(limite_horas__lte=192)
@@ -1171,6 +1302,40 @@ class CargaHorariaGerente(LoginRequiredMixin, UserPassesTestMixin, FormView):
         context['unidade'] = unidade_nome
 
         return context
+
+
+#logicas de exclusao
+def excluir_ajuda_custo(request, pk):
+    ajuda_custo = get_object_or_404(Ajuda_Custo, pk=pk)
+    user = request.user
+
+    # Verifica se o usuário é Administrador ou GerGesipe (sem restrições)
+    if user.groups.filter(name__in=['Administrador', 'GerGesipe']).exists():
+        ajuda_custo.delete()
+        messages.success(request, 'Ajuda de custo excluída com sucesso!')
+        return redirect('ajuda_custo:relatorio_ajuda_custo')
+
+    # Verifica se o usuário é Gerente
+    elif user.groups.filter(name='Gerente').exists():
+        # Obtém a data atual
+        hoje = timezone.now().date()
+        data_ajuda = ajuda_custo.data
+
+        # Verifica se a ajuda de custo é do mês atual ou de um mês futuro
+        if (data_ajuda.year > hoje.year) or (data_ajuda.year == hoje.year and data_ajuda.month >= hoje.month):
+            ajuda_custo.delete()
+            messages.success(request, 'Ajuda de custo excluída com sucesso!')
+        else:
+            messages.error(request,
+                           'Você só pode excluir ajudas de custo do mês atual ou futuros. Para exclusões anteriores, entre em contato com o administrador.')
+
+        return redirect('ajuda_custo:relatorio_ajuda_custo')
+
+    # Caso o usuário não tenha permissão
+    else:
+        messages.error(request, 'Você não tem permissão para excluir ajudas de custo.')
+        return redirect('ajuda_custo:relatorio_ajuda_custo')
+
 
 
 def excluir_cota(request, pk):

@@ -1,24 +1,42 @@
 from django.contrib.auth.forms import UserCreationForm
-from .models import Usuario, Setor, Unidade
+from .models import Usuario, Unidade
 from django import forms
 
 
 class CriarContaForm(UserCreationForm):
-    nome_completo = forms.CharField(max_length=200, required=True)
-    email = forms.EmailField(required=True)
-    foto_perfil = forms.ImageField(required=True)
-    matricula = forms.IntegerField(required=True)
-
-    setor = forms.ModelChoiceField(
-        queryset=Setor.objects.all(),
-        required=False,
-        empty_label="Selecione um setor"
-    )
-
     class Meta:
         model = Usuario
         fields = ['username', 'nome_completo', 'email', 'foto_perfil', 'matricula', 'setor', 'password1', 'password2']
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'nome_completo': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'foto_perfil': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'matricula': forms.TextInput(attrs={'class': 'form-control'}),
+            'setor': forms.Select(attrs={'class': 'form-control'}),
 
+
+        }
+        labels = {
+            'username': 'Usuário',
+            'nome_completo': 'Nome Completo',
+            'email': 'Email',
+            'foto_perfil': 'Foto de Perfil',
+            'matricula': 'Matrícula',
+            'setor': 'Setor',
+            'password1': 'Senha Com Letras e Números',
+            'password2': 'Confirmar Senha',
+        }
+
+    # Definir o queryset para setores dentro do método __init__
+    def __init__(self, *args, **kwargs):
+        super(CriarContaForm, self).__init__(*args, **kwargs)
+        self.fields['setor'].empty_label = 'Selecione seu Setor...'
+        self.fields['username'].help_text = ''
+        self.fields['password1'].help_text = ''
+        self.fields['password2'].help_text = ''
+        self.fields['password1'].widget = forms.PasswordInput(attrs={'class': 'form-control'})
+        self.fields['password2'].widget = forms.PasswordInput(attrs={'class': 'form-control'})
 
 
 
