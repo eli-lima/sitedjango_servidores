@@ -568,7 +568,6 @@ class RelatorioAjudaCusto(LoginRequiredMixin, UserPassesTestMixin, ListView):
     context_object_name = 'datas'
     paginate_by = 50  # Quantidade de registros por página
 
-
     def test_func(self):
         user = self.request.user
         grupos_permitidos = ['Administrador', 'GerGesipe']
@@ -972,7 +971,7 @@ class HorasLimite(LoginRequiredMixin, UserPassesTestMixin, FormView):
                 filtros_cargas &= Q(unidade__nome=unidade)
 
             cargas = LimiteAjudaCusto.objects.filter(filtros_cargas)
-            paginator_cargas = Paginator(cargas, 10)
+            paginator_cargas = Paginator(cargas, 20)
             page_number_cargas = self.request.GET.get('page_cargas')
             page_obj_cargas = paginator_cargas.get_page(page_number_cargas)
             print("Page Obj Cargas:", page_obj_cargas)
@@ -1165,7 +1164,7 @@ class CargaHorariaGerente(LoginRequiredMixin, UserPassesTestMixin, FormView):
         page_obj = paginator.get_page(page_number)
 
         # Adiciona os dados ao contexto
-        context['unidades'] = Unidade.objects.values_list('nome', flat=True)
+        context['unidades'] = Unidade.objects.values_list('nome', flat=True).order_by('nome')
         context['carga_horaria'] = page_obj
         context['page_obj'] = page_obj
         context['query'] = query

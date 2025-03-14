@@ -52,22 +52,7 @@ def buscar_interno(request):
     return render(request, 'partials/interno_tabela.html', {'internos': internos})
 
 
-def buscar_interno(request):
-    query = request.GET.get('interno_nome', '').strip()
-    if len(query) < 3:  # Só busca se o termo tiver mais de 3 caracteres
-        internos = []
-    else:
-        internos = Interno.objects.filter(nome__icontains=query).order_by('nome')[:10]  # Limite de resultados
-
-
-
-    return render(request, 'partials/interno_tabela.html', {'internos': internos})
-
-
-
-
-
-class Copen(LoginRequiredMixin, TemplateView, UserPassesTestMixin):
+class Copen(UserPassesTestMixin, LoginRequiredMixin, TemplateView):
     template_name = "copen.html"
 
     def test_func(self):
@@ -203,7 +188,7 @@ class Copen(LoginRequiredMixin, TemplateView, UserPassesTestMixin):
         return context
 
 
-class ApreensaoAddView(LoginRequiredMixin, FormView, UserPassesTestMixin):
+class ApreensaoAddView(UserPassesTestMixin, LoginRequiredMixin, FormView):
     form_class = ApreensaoForm
     template_name = 'copen_apreensao_add.html'
     success_url = reverse_lazy('copen:copen')
@@ -231,7 +216,7 @@ class ApreensaoAddView(LoginRequiredMixin, FormView, UserPassesTestMixin):
         return redirect(self.success_url)
 
 
-class AtendimentoView(LoginRequiredMixin, FormView, UserPassesTestMixin):
+class AtendimentoView(UserPassesTestMixin, LoginRequiredMixin, FormView ):
     form_class = AtendimentoForm
     template_name = 'copen_atendimento_add.html'
     success_url = reverse_lazy('copen:copen')
@@ -254,7 +239,7 @@ class AtendimentoView(LoginRequiredMixin, FormView, UserPassesTestMixin):
         return redirect(self.success_url)
 
 
-class OcorrenciaView(FormView, LoginRequiredMixin, UserPassesTestMixin):
+class OcorrenciaView(UserPassesTestMixin, FormView, LoginRequiredMixin):
     form_class = OcorrenciaForm
     template_name = 'copen_ocorrencia_add.html'
     success_url = reverse_lazy('copen:copen')
@@ -321,7 +306,7 @@ class OcorrenciaView(FormView, LoginRequiredMixin, UserPassesTestMixin):
         return super().form_invalid(form)
 
 
-class CustodiaAddView(FormView, LoginRequiredMixin, UserPassesTestMixin):
+class CustodiaAddView(UserPassesTestMixin, FormView, LoginRequiredMixin):
     form_class = CustodiaForm
     template_name = 'copen_custodia_add.html'
     success_url = reverse_lazy('copen:copen')
@@ -373,7 +358,7 @@ class CustodiaAddView(FormView, LoginRequiredMixin, UserPassesTestMixin):
             return self.form_invalid(form)
 
 
-class CustodiaEditView(UpdateView, LoginRequiredMixin, UserPassesTestMixin):
+class CustodiaEditView(UserPassesTestMixin, UpdateView, LoginRequiredMixin):
     model = Custodia
     form_class = CustodiaEditForm
     template_name = 'copen_custodia_edit.html'
@@ -408,7 +393,7 @@ class CustodiaEditView(UpdateView, LoginRequiredMixin, UserPassesTestMixin):
 
 # view mandado de prisao
 
-class MpAddView(FormView, LoginRequiredMixin, UserPassesTestMixin):
+class MpAddView(UserPassesTestMixin, LoginRequiredMixin, FormView):
     form_class = MpForm
     template_name = 'copen_mp_add.html'
     success_url = reverse_lazy('copen:copen')

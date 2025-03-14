@@ -13,8 +13,10 @@ HomePage SeapPB
 
 
 
-
     <header class="showcaseborder-gray-600 flex flex-col gap-8 px-8 pb-8">
+
+         {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups or 'GerRh' in user_groups  or 'ServGesipe' in user_groups %}
+
 
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
 
@@ -93,22 +95,25 @@ HomePage SeapPB
                 </div>
             </div>
         </div>
-
+        {% endif %}
 <!--        carrosel testes-->
 
 
     <!-- Carrossel com autoplay e mudança automática a cada 10 segundos -->
-        <div id="carouselExampleControlsNoTouching" class="carousel slide" data-bs-touch="false" data-bs-interval="10000" data-bs-ride="carousel">
+        <div id="carouselExampleControlsNoTouching" class="carousel slide pt-4" data-bs-touch="false" data-bs-interval="10000" data-bs-ride="carousel">
           <div class="carousel-inner">
+
             <div class="carousel-item active">
-              <a href="{% url 'servidor:recursos_humanos' %}"><img src="{% static 'images/rh.png' %}" class="d-block w-full h-96" alt="..."></a>
-            </div>
-            <div class="carousel-item">
               <a href="{% url 'ajuda_custo:ajuda_custo' %}"><img src="{% static 'images/ajudacusto.png' %}" class="d-block w-full h-96 rounded-lg" alt="..."></a>
+            </div>
+            {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups or 'GerRh' in user_groups  or 'ServGesipe' in user_groups %}
+            <div class="carousel-item">
+              <a href="{% url 'servidor:recursos_humanos' %}"><img src="{% static 'images/rh.png' %}" class="d-block w-full h-96" alt="..."></a>
             </div>
             <div class="carousel-item">
               <a href="{% url 'gesipe:gesipe' %}"><img src="{% static 'images/gesipe.png' %}" class="d-block w-full h-96 rounded-lg" alt="..."></a>
             </div>
+            {% endif %}
           </div>
           <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControlsNoTouching" data-bs-slide="prev">
             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
@@ -123,13 +128,14 @@ HomePage SeapPB
 
     </header>
 
-
+    {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups or 'GerRh' in user_groups  or 'ServGesipe' in user_groups %}
     <section>
         <div class="grid grid-cols-2 xl:grid xl:grid-cols-4 pb-4 gap-4 mx-8 content-between">
 
             <!-- efetivo por unidade -->
 
-            {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups or 'GerRh' in user_groups %}
+
+
 
             <div class="col-span-2 xl:col-span-4 flex flex-col items-stretch rounded-lg shadow-lg p-6">
                 <div class="mb-2">
@@ -144,7 +150,7 @@ HomePage SeapPB
 
             </div>
 
-            {% endif %}
+
 
             <!-- genero pizza-->
 
@@ -284,7 +290,7 @@ HomePage SeapPB
         </div>
 
     </section>
-
+    {% endif %}
 
 
 

@@ -23,30 +23,43 @@
                     <div class="hidden ml-6 lg:block">
                         {% if user.is_authenticated %}
                         <div class="flex space-x-4">
-                            <a href="/" class="rounded-md px-3 py-2 text-lg font-medium {% if request.path == '/' %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}" aria-current="page">Inicio</a>
+                            <!--variaveis-->
+                            {% url 'ajuda_custo:ajuda_custo' as ajuda_custo_url %}
                             {% url 'gesipe:gesipe' as gesipe_url %}
                             {% url 'gesipe:gesipe_sga' as gesipe_sga_url %}
                             {% url 'copen:copen' as copen_url %}
-                            <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" class="dropdown-toggle rounded-md px-3 py-2 text-lg font-medium {% if request.path == gesipe_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">Gesipe</a>
-                            <div class="dropdown bg-gray-800">
-                              <ul class="dropdown-menu bg-gray-800 py-2 ">
-                                <li><a class="dropdown-item {% if request.path == gesipe_url %}bg-gray-900 text-white hover:bg-gray-700{% else %}bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}" href="{{ gesipe_url }}">Administrativo</a></li>
-                                <li><a class="dropdown-item {% if request.path == gesipe_sga_url %}bg-gray-900 text-white hover:bg-gray-700{% else %}bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}" href="{{ gesipe_sga_url }}">SGA</a></li>
-                                <li><a class="dropdown-item {% if request.path == copen_url %}bg-gray-900 text-white hover:bg-gray-700{% else %}bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}" href="{{ copen_url }}">COPEN</a></li>
+                            {% url 'CMTE:CMTE' as CMTE_url %}
+                            {% url 'servidor:recursos_humanos' as servidor_url %}
+                            {% url 'interno:interno' as interno_url %}
+                            {% url 'seappb:estatistica' as estatistica_url %}
+
+                            <!-- Menu para todos-->
+                            <a href="/" class="rounded-md px-3 py-2 text-lg font-medium {% if request.path == '/' %}bg-yellow-700 text-white{% else %}text-gray-300 hover:bg-yellow-600 hover:text-white{% endif %}" aria-current="page">Inicio</a>
+                            <a href="{{ ajuda_custo_url }}" class="rounded-md mx-0 px-3 py-2 text-lg font-medium {% if request.path == ajuda_custo_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">Ajuda de Custo</a>
+
+<!--                            menu admin e Ger gesipe servgesipe e copen-->
+                            {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups or 'ServGesipe' in user_groups or 'Copen' in user_groups %}
+
+                            <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" class="dropdown-toggle rounded-md px-3 py-2 text-lg font-medium {% if request.path == gesipe_url %}bg-yellow-900 text-white{% else %}text-gray-300 hover:bg-yellow-600 hover:text-white{% endif %}">Gesipe</a>
+                            <div class="dropdown bg-yellow-900">
+                              <ul class="dropdown-menu bg-yellow-900 py-2 ">
+                                <li><a class="dropdown-item {% if request.path == gesipe_url %}bg-yellow-900 text-white hover:bg-gray-700{% else %}bg-yellow-900 text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}" href="{{ gesipe_url }}">Administrativo</a></li>
+                                <li><a class="dropdown-item {% if request.path == gesipe_sga_url %}bg-yellow-900 text-white hover:bg-gray-700{% else %}bg-yellow-900 text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}" href="{{ gesipe_sga_url }}">SGA</a></li>
+                                <li><a class="dropdown-item {% if request.path == copen_url %}bg-yellow-900 text-white hover:bg-gray-700{% else %}bg-yellow-900 text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}" href="{{ copen_url }}">COPEN</a></li>
+
                               </ul>
                             </div>
 
-                            {% url 'ajuda_custo:ajuda_custo' as ajuda_custo_url %}
-                            <a href="{{ ajuda_custo_url }}" class="rounded-md mx-0 px-3 py-2 text-lg font-medium {% if request.path == ajuda_custo_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">Ajuda de Custo</a>
-                            {% url 'servidor:recursos_humanos' as servidor_url %}
                             <a href="{{ servidor_url }}" class="rounded-md px-3 py-2 text-lg font-medium {% if request.path == servidor_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">Recursos Humanos</a>
-                            {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups %}
-                            {% url 'seappb:estatistica' as estatistica_url %}
+
+                            {% endif %}
+                            {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups or 'GerGesipe' in user_groups %}
                             <a href="{{ estatistica_url }}" class="rounded-md px-3 py-2 text-lg font-medium {% if request.path == estatistica_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">Estatísticas</a>
                             {% endif %}
                         </div>
                         {% endif %}
                     </div>
+
                 </div>
 
                 <!-- Profile dropdown -->
@@ -65,16 +78,16 @@
                         <img class="h-16 lg:h-12 w-16 lg:w-12 rounded-full" src="{% if user.foto_perfil %}{{ user.foto_perfil.url }}{% else %}{% static 'images/default.jpg' %}{% endif %}" alt="Imagen Perfil">
                     </button>
 
-                    <!-- Profile dropdown menu -->
+                   <!-- Profile dropdown menu -->
 
-                    <div class="absolute right-0 z-10 mt-20 mr-10 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none hidden" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1" id="user-menu">
-                        <a href="{% url 'seappb:editarperfil' user.pk %}" class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-0">Seu Perfil</a>
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-1">Configurações</a>
+                    <div class="text-xl xl:text-sm absolute right-0 z-10 mt-20 mr-10 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none hidden" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1" id="user-menu">
+                        <a href="{% url 'seappb:editarperfil' user.pk %}" class="block px-4 py-2 text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-0">Seu Perfil</a>
+                        <a href="#" class="block px-4 py-2 text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-1">Configurações</a>
                         <!-- Formulário de logout -->
                         <form id="logout-form" action="{% url 'seappb:logout' %}" method="POST" style="display: none;">
                             {% csrf_token %}
                         </form>
-                        <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-2">Sair</a>
+                        <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="block px-4 py-2 text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-2">Sair</a>
                     </div>
                 </div>
                 {% endif %}

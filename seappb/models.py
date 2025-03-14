@@ -16,6 +16,7 @@ CIDADES_FALLBACK = [
     ("Bayeux", "Bayeux"),
 ]
 
+
 def get_cidades_paraiba():
     """Consulta a API para obter as cidades da Paraíba, com fallback."""
     url = 'https://brasilapi.com.br/api/ibge/municipios/v1/PB'
@@ -38,7 +39,7 @@ class Unidade(models.Model):
     cidade = models.CharField(
         max_length=255,
         choices=get_cidades_paraiba(),
-        blank=True, null=True# Carrega as cidades dinamicamente com fallback
+        blank=True, null=True
     )
     cep = models.CharField(
         max_length=9,
@@ -47,7 +48,6 @@ class Unidade(models.Model):
             RegexValidator(
                 regex=r'^\d{5}-\d{3}$',
                 message="O CEP deve estar no formato 12345-678",
-
             ),
         ],
         default='58000-000'
@@ -57,8 +57,12 @@ class Unidade(models.Model):
     complemento = models.CharField(max_length=255, blank=True, null=True)
     reisp = models.IntegerField(choices=[(1, '1° REISP'), (2, '2° REISP'), (3, '3° REISP'), (4, '4° REISP'), (5, '5° REISP')], blank=True, null=True)
 
+    class Meta:
+        ordering = ['nome']  # ✅ Garante que os registros sejam sempre ordenados pelo nome
+
     def __str__(self):
         return self.nome
+
 
 
 
