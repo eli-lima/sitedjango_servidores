@@ -42,7 +42,7 @@
 
                             <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" class="dropdown-toggle rounded-md px-3 py-2 text-lg font-medium {% if request.path == gesipe_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">Gesipe</a>
                             <div class="dropdown bg-gray-900">
-                              <ul class="dropdown-menu py-2 ">
+                              <ul class="dropdown-menu bg-gray-900 py-2 ">
                                 <li><a class="dropdown-item {% if request.path == gesipe_url %}bg-gray-900 text-white hover:bg-gray-700{% else %}bg-gray-300 text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}" href="{{ gesipe_url }}">Administrativo</a></li>
                                 <li><a class="dropdown-item {% if request.path == gesipe_sga_url %}bg-gray-900 text-white hover:bg-gray-700{% else %}bg-gray-300 text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}" href="{{ gesipe_sga_url }}">SGA</a></li>
                                 <li><a class="dropdown-item {% if request.path == copen_url %}bg-gray-900 text-white hover:bg-gray-700{% else %}bg-gray-300 text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}" href="{{ copen_url }}">COPEN</a></li>
@@ -80,7 +80,7 @@
 
                    <!-- Profile dropdown menu -->
 
-                    <div class="text-xl xl:text-sm absolute right-0 z-10 mt-20 mr-10 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none hidden" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1" id="user-menu">
+                    <div class="text-xl xl:text-sm absolute right-0 z-10 mt-20 mr-10 w-48 origin-top-right rounded-md bg-gray-800 py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none hidden" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1" id="user-menu">
                         <a href="{% url 'seappb:editarperfil' user.pk %}" class="block px-4 py-2 text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-0">Seu Perfil</a>
                         <a href="#" class="block px-4 py-2 text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-1">Configurações</a>
                         <!-- Formulário de logout -->
