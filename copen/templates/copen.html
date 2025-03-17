@@ -8,16 +8,22 @@ Copen
 {% block content %}
 
 <!--tela administrador-->
-{% if 'Administrador' in user_groups or 'Copen' in user_groups or 'GerGesipe' in user_groups %}
+{% if 'Administrador' in user_groups or 'GerCopen' in user_groups or 'GerGesipe' in user_groups %}
 
 <div class="flex flex-col items-center">
 
-    <div class="flex justify-center items-center h-full px-4 py-8">
-        <h3 class="font-bold xl:text-xl text-lg">
+    <div class="mx-4 mt-6 py-3 bg-gray-600 text-white w-2/4 self-center items-center shadow-xl rounded-2xl">
 
-            COPEN - Centro De Operações Penitenciárias
-        </h3>
+        <div class="flex justify-center items-center h-full px-4">
+            <h3 class="font-bold xl:text-xl text-lg">
+
+                COPEN - Centro De Operações Penitenciárias
+            </h3>
+
+        </div>
     </div>
+
+
 
 
 
@@ -26,22 +32,24 @@ Copen
     <div class=" py-2 px-2 w-1/2 xl:w-1/5">
           <!-- Card 1 -->
 
-    <div class="ml-4 flex-auto h-44 w-auto shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
-        <div class="flex flex-row justify-between items-center h-full px-4">
-            <div class="flex flex-col justify-between h-full py-10">
-                <div class="pb-4">
-                    <h3 class="font-bold text-size uppercase xl:text-base text-lg">Atendimentos do Mês</h3>
+        <div class="mr-4 xl:mr-0 flex-auto h-44 shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
+            <div class="flex flex-row justify-between items-center h-full px-4 relative"> <!-- Adicionei relative aqui -->
+                <!-- Contêiner dos textos com z-10 -->
+                <div class="z-10 flex flex-col justify-between h-full w-3/4 py-10">
+                    <div class="pb-4">
+                        <h3 class="font-bold text-size uppercase xl:text-base text-lg">Atendimentos do Mês</h3>
+                    </div>
+                    <div>
+                        <p class="px-2 bg-gray-600 rounded text-white font-semibold xl:text-base text-lg">{{atendimento_mes }}</p>
+                    </div>
                 </div>
-                <div>
-                    <p class="px-2 bg-gray-600 rounded text-white font-semibold xl:text-base text-lg">{{ atendimento_mes }}</p>
-                </div>
-            </div>
-            <div class="bg-green-600 rounded-full h-20 min-w-20 flex items-center justify-center">
-                <i class="fs-1 bi bi-calendar-fill text-white"></i>
-            </div>
 
+                <!-- Imagem com z-0 e posicionamento absoluto -->
+                <span class="z-0 absolute flex justify-center items-center text-gray-400 text-[150px] bottom-[10px] right-[10px]">
+                    <img src="{% static 'icons/copen/atendimento.png' %}" alt="add-grupo" class="w-28 h-28">
+                </span>
+            </div>
         </div>
-    </div>
 
     </div>
 
@@ -49,8 +57,9 @@ Copen
           <!-- Card 2 -->
 
         <div class="mr-4 xl:mr-0 flex-auto h-44 shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
-            <div class="flex flex-row justify-between items-center h-full px-4">
-                <div class="flex flex-col justify-between h-full py-10">
+            <div class="flex flex-row justify-between items-center h-full px-4 relative"> <!-- Adicionei relative aqui -->
+                <!-- Contêiner dos textos com z-10 -->
+                <div class="z-10 flex flex-col justify-between h-full w-3/4 py-10">
                     <div class="pb-4">
                         <h3 class="font-bold text-size uppercase xl:text-base text-lg">Apreensões do Mês</h3>
                     </div>
@@ -58,10 +67,11 @@ Copen
                         <p class="px-2 bg-gray-600 rounded text-white font-semibold xl:text-base text-lg">{{ apreensao_mes }}</p>
                     </div>
                 </div>
-                <div class="bg-red-600 rounded-full h-20 min-w-20 flex items-center justify-center">
-                    <i class="fs-1 bi bi-calendar-x-fill text-white"></i>
-                </div>
 
+                <!-- Imagem com z-0 e posicionamento absoluto -->
+                <span class="z-0 absolute flex justify-center items-center text-gray-400 text-[150px] bottom-[10px] right-[10px]">
+                    <img src="{% static 'icons/copen/apreensao.png' %}" alt="add-grupo" class="w-28 h-28">
+                </span>
             </div>
         </div>
 
@@ -70,20 +80,22 @@ Copen
     <div class="py-2 px-2 w-1/2 xl:w-1/5">
           <!-- Card 3 -->
 
-        <div class="mr-4 xl:mr-0 flex-auto h-44 shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
-            <div class="flex flex-row justify-between items-center h-full px-4">
-                <div class="flex flex-col justify-between h-full py-10">
+         <div class="mr-4 xl:mr-0 flex-auto h-44 shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
+            <div class="flex flex-row justify-between items-center h-full px-4 relative"> <!-- Adicionei relative aqui -->
+                <!-- Contêiner dos textos com z-10 -->
+                <div class="z-10 flex flex-col justify-between h-full w-3/4 py-10">
                     <div class="pb-4">
-                        <h3 class="font-bold text-size uppercase xl:text-base text-lg">Ocorrencias do Mês</h3>
+                        <h3 class="font-bold text-size uppercase xl:text-base text-lg">Ocorrência do Mês</h3>
                     </div>
                     <div>
-                        <p class="px-2 bg-gray-600 rounded text-white font-semibold xl:text-base text-lg">{{ ocorrencia_mes }}</p>
+                        <p class="px-2 bg-gray-600 rounded text-white font-semibold xl:text-base text-lg">{{ocorrencia_mes }}</p>
                     </div>
                 </div>
-                <div class="bg-red-600 rounded-full h-20 min-w-20 flex items-center justify-center">
-                    <i class="fs-1 bi bi-calendar-x-fill text-white"></i>
-                </div>
 
+                <!-- Imagem com z-0 e posicionamento absoluto -->
+                <span class="z-0 absolute flex justify-center items-center text-gray-400 text-[150px] bottom-[10px] right-[10px]">
+                    <img src="{% static 'icons/copen/ocorrencia.png' %}" alt="add-grupo" class="w-28 h-28">
+                </span>
             </div>
         </div>
 
@@ -93,21 +105,25 @@ Copen
           <!-- Card 4 -->
 
         <div class="mr-4 xl:mr-0 flex-auto h-44 shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
-            <div class="flex flex-row justify-between items-center h-full px-4">
-                <div class="flex flex-col justify-between h-full py-10">
+            <div class="flex flex-row justify-between items-center h-full px-4 relative"> <!-- Adicionei relative aqui -->
+                <!-- Contêiner dos textos com z-10 -->
+                <div class="z-10 flex flex-col justify-between h-full w-3/4 py-10">
                     <div class="pb-4">
-                        <h3 class="font-bold text-size uppercase xl:text-base text-lg">Custódias Ativas</h3>
+                        <h3 class="font-bold text-size uppercase xl:text-base text-lg">Cústodias Ativas</h3>
                     </div>
                     <div>
-                        <p class="px-2 bg-gray-600 rounded text-white font-semibold xl:text-base text-lg">{{ custodias_ativas }}</p>
+                        <p class="px-2 bg-gray-600 rounded text-white font-semibold xl:text-base text-lg">{{custodias_ativas }}</p>
                     </div>
                 </div>
-                <div class="bg-red-600 rounded-full h-20 min-w-20 flex items-center justify-center">
-                    <i class="fs-1 bi bi-calendar-x-fill text-white"></i>
-                </div>
 
+                <!-- Imagem com z-0 e posicionamento absoluto -->
+                <span class="z-0 absolute flex justify-center items-center text-gray-400 text-[150px] bottom-[10px] right-[10px]">
+                    <img src="{% static 'icons/copen/atendimento.png' %}" alt="add-grupo" class="w-28 h-28">
+                </span>
             </div>
         </div>
+
+
 
 
     </div>
@@ -115,8 +131,9 @@ Copen
           <!-- Card 5 -->
 
         <div class="mr-4 xl:mr-0 flex-auto h-44 shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
-            <div class="flex flex-row justify-between items-center h-full px-4">
-                <div class="flex flex-col justify-between h-full py-10">
+            <div class="flex flex-row justify-between items-center h-full px-4 relative"> <!-- Adicionei relative aqui -->
+                <!-- Contêiner dos textos com z-10 -->
+                <div class="z-10 flex flex-col justify-between h-full w-3/4 py-10">
                     <div class="pb-4">
                         <h3 class="font-bold text-size uppercase xl:text-base text-lg">Cumprimentos de Mandado do Mês</h3>
                     </div>
@@ -124,10 +141,11 @@ Copen
                         <p class="px-2 bg-gray-600 rounded text-white font-semibold xl:text-base text-lg">{{ mp_mes }}</p>
                     </div>
                 </div>
-                <div class="bg-red-600 rounded-full h-20 min-w-20 flex items-center justify-center">
-                    <i class="fs-1 bi bi-calendar-x-fill text-white"></i>
-                </div>
 
+                <!-- Imagem com z-0 e posicionamento absoluto -->
+                <span class="z-0 absolute flex justify-center items-center text-gray-400 text-[150px] bottom-[10px] right-[10px]">
+                    <img src="{% static 'icons/copen/mp.png' %}" alt="add-grupo" class="w-28 h-28">
+                </span>
             </div>
         </div>
 
@@ -144,110 +162,214 @@ Copen
     <div class="flex flex-row w-full px-4 space-x-8 pb-4">
     <!-- atendimentos -->
         <!-- Card com ícone como fundo -->
-        <div class="h-auto w-1/3 flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300 bg-white overflow-hidden">
-              <!-- Ícone como fundo -->
-              <span class="absolute flex justify-center items-center text-gray-400 text-[150px] bottom-[70px] right-[110px] opacity-50">
-                <i class="bi bi-headset"></i>
-              </span>
+        <div class="h-auto w-1/3 flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300 bg-white overflow-hidden relative"> <!-- Adicionei relative aqui -->
 
-          <!-- Conteúdo do card -->
-          <div class="mb-8 z-10">
-            <h3 class="xl:text-2xl text-4xl font-semibold">Atendimentos</h3>
-            <p class="mt-4 text-gray-800 font-medium z-10">Dados sobre: atendimento, localização e identificação de indivíduos.</p>
-          </div>
+            <!-- Conteúdo do card -->
+            <div class="mb-8 z-10">
+                <h3 class="xl:text-2xl text-4xl font-semibold">Atendimentos</h3>
+                <p class="mt-4 text-gray-800 font-medium z-10">Dados sobre: atendimento, localização e identificação de indivíduos.</p>
+            </div>
 
-          <div class="relative mb-8 flex flex-col items-center relative z-10">
-            <span class="text-red-600 absolute"></span>
-            <span class="text-3xl font-extrabold"></span>
-          </div>
+            <div class="relative mb-8 flex flex-col items-center z-10">
+                <span class="text-red-600 absolute"></span>
+                <span class="text-3xl font-extrabold"></span>
+            </div>
 
-          <a href="{% url 'copen:atendimento' %}" class="z-10 block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md font-medium bg-gray-600">
-            Incluir Atendimento:
-          </a>
+            <div class="pb-2 z-10">
+                <a href="{% url 'copen:atendimento' %}" class="z-10 block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md font-medium bg-gray-600">
+                    Consultar:
+                </a>
+            </div>
+
+            <div class="pb-2 z-10">
+                <a href="{% url 'copen:atendimento' %}" class="z-10 block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md font-medium bg-gray-600">
+                    Incluir Atendimento:
+                </a>
+            </div>
+
+            <!-- Ícone como fundo -->
+            <div class="z-0">
+                <span class="z-0 absolute flex justify-center items-center text-gray-400 text-[150px] bottom-[260px] right-[-43px]">
+                    <img src="{% static 'icons/copen/atendimento.png' %}" alt="add-grupo" class="size-40">
+                </span>
+            </div>
         </div>
-
         <!-- apreensoes -->
-        <div class="h-auto w-1/3 flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+        <!-- Card com ícone como fundo -->
+        <div class="h-auto w-1/3 flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300 bg-white overflow-hidden relative"> <!-- Adicionei relative aqui -->
+
+            <!-- Conteúdo do card -->
             <div class="mb-8">
               <h3 class="xl:text-2xl text-4xl font-semibold ">Apreensões</h3>
               <p class="mt-4 text-gray-600">Dados sobre apreensões realizadas no sistema penitenciário paraibano.  </p>
             </div>
-            <div class="mb-8">
-              <span class="text-xl font-medium text-gray-600"></span>
-              <span class="text-3xl font-extrabold "></span>
 
+            <div class="relative mb-8 flex flex-col items-center z-10">
+                <span class="text-red-600 absolute"></span>
+                <span class="text-3xl font-extrabold"></span>
             </div>
 
-            <a href="{% url 'copen:apreensao_add' %}" class="block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md  font-medium bg-gray-600">
-              Acessar
-            </a>
+            <div class="pb-2 z-10">
+                <a href="{% url 'copen:atendimento' %}" class="z-10 block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md font-medium bg-gray-600">
+                    Consultar:
+                </a>
+            </div>
+
+            <div class="pb-2 z-10">
+                <a href="{% url 'copen:atendimento' %}" class="z-10 block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md font-medium bg-gray-600">
+                    Incluir Atendimento:
+                </a>
+            </div>
+
+            <!-- Ícone como fundo -->
+            <div class="z-0">
+                <span class="z-0 absolute flex justify-center items-center text-gray-400 text-[150px] bottom-[260px] right-[-43px]">
+                    <img src="{% static 'icons/copen/apreensao.png' %}" alt="add-grupo" class="size-40">
+                </span>
+            </div>
         </div>
         <!-- ocorrencias -->
-        <div class="h-auto w-1/3 flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+        <!-- Card com ícone como fundo -->
+        <div class="h-auto w-1/3 flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300 bg-white overflow-hidden relative"> <!-- Adicionei relative aqui -->
+
+            <!-- Conteúdo do card -->
             <div class="mb-8">
               <h3 class="xl:text-2xl text-4xl font-semibold ">Ocorrências</h3>
               <p class="mt-4 text-gray-600">Dados sobre: atendimento, Localização e identificação e indivíduos.  </p>
             </div>
-            <div class="mb-8">
-              <span class="text-xl font-medium text-gray-600"></span>
-              <span class="text-3xl font-extrabold "></span>
 
+            <div class="relative mb-8 flex flex-col items-center z-10">
+                <span class="text-red-600 absolute"></span>
+                <span class="text-3xl font-extrabold"></span>
             </div>
 
-            <a href="{% url 'copen:ocorrencia' %}" class="block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md  font-medium bg-gray-600">
-              Incluir Atendimento:
-            </a>
+            <div class="pb-2 z-10">
+                <a href="{% url 'copen:atendimento' %}" class="z-10 block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md font-medium bg-gray-600">
+                    Consultar:
+                </a>
+            </div>
+
+            <div class="pb-2 z-10">
+                <a href="{% url 'copen:atendimento' %}" class="z-10 block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md font-medium bg-gray-600">
+                    Incluir Atendimento:
+                </a>
+            </div>
+
+            <!-- Ícone como fundo -->
+            <div class="z-0">
+                <span class="z-0 absolute flex justify-center items-center text-gray-400 text-[150px] bottom-[260px] right-[-43px]">
+                    <img src="{% static 'icons/copen/ocorrencia.png' %}" alt="add-grupo" class="size-40">
+                </span>
+            </div>
         </div>
+
+
     </div>
     <div class="flex flex-row w-full px-4 space-x-8">
-        <!-- Custodias -->
-        <div class="h-auto w-1/3 flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+        <!-- custodias -->
+        <!-- Card com ícone como fundo -->
+        <div class="h-auto w-1/3 flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300 bg-white overflow-hidden relative"> <!-- Adicionei relative aqui -->
+
+            <!-- Conteúdo do card -->
             <div class="mb-8">
               <h3 class="xl:text-2xl text-4xl font-semibold ">Custódias</h3>
               <p class="mt-4 text-gray-600">Dados sobre: atendimento, Localização e identificação e indivíduos.  </p>
             </div>
-            <div class="mb-8">
-              <span class="text-xl font-medium text-gray-600"></span>
-              <span class="text-3xl font-extrabold "></span>
 
+            <div class="relative mb-8 flex flex-col items-center z-10">
+                <span class="text-red-600 absolute"></span>
+                <span class="text-3xl font-extrabold"></span>
             </div>
 
-            <a href="{% url 'copen:custodia_add' %}" class="block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md  font-medium bg-gray-600">
-              Incluir:
-            </a>
+            <div class="pb-2 z-10">
+                <a href="{% url 'copen:atendimento' %}" class="z-10 block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md font-medium bg-gray-600">
+                    Consultar:
+                </a>
+            </div>
+
+            <div class="pb-2 z-10">
+                <a href="{% url 'copen:atendimento' %}" class="z-10 block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md font-medium bg-gray-600">
+                    Incluir Atendimento:
+                </a>
+            </div>
+
+            <!-- Ícone como fundo -->
+            <div class="z-0">
+                <span class="z-0 absolute flex justify-center items-center text-gray-400 text-[150px] bottom-[260px] right-[-43px]">
+                    <img src="{% static 'icons/copen/custodia.png' %}" alt="add-grupo" class="size-40">
+                </span>
+            </div>
         </div>
-        <!-- Mandados de Prisão -->
-        <div class="h-auto w-1/3 flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+        <!-- mandados de prisao -->
+        <!-- Card com ícone como fundo -->
+        <div class="h-auto w-1/3 flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300 bg-white overflow-hidden relative"> <!-- Adicionei relative aqui -->
+
+            <!-- Conteúdo do card -->
             <div class="mb-8">
               <h3 class="xl:text-2xl text-4xl font-semibold ">Mandados De Prisão</h3>
               <p class="mt-4 text-gray-600">Cumprimento de Mandados de Prisão em Unidades Prisionais.  </p>
             </div>
-            <div class="mb-8">
-              <span class="text-xl font-medium text-gray-600"></span>
-              <span class="text-3xl font-extrabold "></span>
 
+            <div class="relative mb-8 flex flex-col items-center z-10">
+                <span class="text-red-600 absolute"></span>
+                <span class="text-3xl font-extrabold"></span>
             </div>
 
-            <a href="{% url 'copen:mp_add' %}" class="block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md  font-medium bg-gray-600">
-              Incluir:
-            </a>
+            <div class="pb-2 z-10">
+                <a href="{% url 'copen:atendimento' %}" class="z-10 block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md font-medium bg-gray-600">
+                    Consultar:
+                </a>
+            </div>
+
+            <div class="pb-2 z-10">
+                <a href="{% url 'copen:atendimento' %}" class="z-10 block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md font-medium bg-gray-600">
+                    Incluir Atendimento:
+                </a>
+            </div>
+
+            <!-- Ícone como fundo -->
+            <div class="z-0">
+                <span class="z-0 absolute flex justify-center items-center text-gray-400 text-[150px] bottom-[260px] right-[-43px]">
+                    <img src="{% static 'icons/copen/mp.png' %}" alt="add-grupo" class="size-40">
+                </span>
+            </div>
         </div>
-        <!-- Consulta internos -->
-        <div class="h-auto w-1/3 flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+        <!-- consulta internos -->
+        <!-- Card com ícone como fundo -->
+        <div class="h-auto w-1/3 flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300 bg-white overflow-hidden relative"> <!-- Adicionei relative aqui -->
+
+            <!-- Conteúdo do card -->
             <div class="mb-8">
               <h3 class="xl:text-2xl text-4xl font-semibold ">Consulta INFOPEN</h3>
               <p class="mt-4 text-gray-600">Consulta e localização Rápida de indivíduos no INFOPEN.  </p>
             </div>
-            <div class="mb-8">
-              <span class="text-xl font-medium text-gray-600"></span>
-              <span class="text-3xl font-extrabold "></span>
 
+            <div class="relative mb-8 flex flex-col items-center z-10">
+                <span class="text-red-600 absolute"></span>
+                <span class="text-3xl font-extrabold"></span>
             </div>
 
-            <a href="{% url 'interno:interno' %}" class="block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md  font-medium bg-gray-600">
-              Consultar:
-            </a>
+            <div class="pb-2 z-10">
+                <a href="{% url 'copen:atendimento' %}" class="z-10 block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md font-medium bg-gray-600">
+                    Consultar:
+                </a>
+            </div>
+
+            <div class="pb-2 z-10">
+                <a href="{% url 'copen:atendimento' %}" class="z-10 block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md font-medium bg-gray-600">
+                    Incluir Atendimento:
+                </a>
+            </div>
+
+            <!-- Ícone como fundo -->
+            <div class="z-0">
+                <span class="z-0 absolute flex justify-center items-center text-gray-400 text-[150px] bottom-[260px] right-[-43px]">
+                    <img src="{% static 'icons/copen/infopen.png' %}" alt="add-grupo" class="size-40">
+                </span>
+            </div>
         </div>
+
+
     </div>
 
 </div>
