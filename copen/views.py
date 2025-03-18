@@ -106,18 +106,18 @@ class Copen(UserPassesTestMixin, LoginRequiredMixin, TemplateView):
 
         # Contar os ocorrencia realizados no mês
         ocorrencia_mes = lista_ocorrencia_mes.count()
-        print(f'ocorrencias do mes: {ocorrencia_mes}')
+
 
         context['lista_ocorrencia_mes'] = lista_ocorrencia_mes
         context['ocorrencia_mes'] = ocorrencia_mes
 
         # somar custodias ativas
         lista_custodias_ativas = Custodia.objects.filter(data_saida__isnull=True)
-        print(f'custodias ativas: {lista_custodias_ativas}')
+
         custodias_ativas = lista_custodias_ativas.count()
         context['lista_custodias_ativas'] = lista_custodias_ativas
         context['custodias_ativas'] = custodias_ativas
-        print(custodias_ativas)
+
 
         # Filtrar os mp realizados no mês atual
         lista_mp_mes = Mp.objects.filter(
@@ -148,16 +148,12 @@ class Copen(UserPassesTestMixin, LoginRequiredMixin, TemplateView):
 
         apreensoes = Apreensao.objects.all()
 
-        print(F'TOTAL MENSAL ATUAL: {apreensoes}')
+
 
         # Chamar a função para calcular os dados do gráfico
         monthly_totals_apreensao, monthly_labels_apreensao = calculate_bar_chart(apreensoes ,ano_atual, mes_atual)
 
-        print(monthly_totals_apreensao)
-        print(f'labels do meses: {monthly_labels_apreensao}')
-        # Captura os valores de ano e mês enviados pelo formulário de filtro
-        # ano_selecionado = self.request.GET.get('ano', timezone.now().year)
-        # mes_selecionado = self.request.GET.get('mes', timezone.now().month)
+
 
 
         # Certifique-se de converter para `int` para usá-los em consultas e lógica
@@ -168,8 +164,7 @@ class Copen(UserPassesTestMixin, LoginRequiredMixin, TemplateView):
         #grafico pizza apreensoes
         # Chamar a função para calcular os dados do gráfico de pizza
         pie_labels_apreensao, pie_values_apreensao = calculate_pie_apreensao()
-        print(f'pie {pie_values_apreensao}')
-        print(f'label: {pie_labels_apreensao}')
+
 
         # Atualizar o contexto com os filtros
         context.update({

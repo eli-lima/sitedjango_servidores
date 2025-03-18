@@ -8,15 +8,16 @@ app_name = 'copen'
 
 urlpatterns = [
     path('', Copen.as_view(), name='copen'),
-    path('atendimento/', AtendimentoView.as_view(), name='atendimento'),
-    path('apreensao_add/', ApreensaoAddView.as_view(), name='apreensao_add'),
-    path('ocorrencia/', OcorrenciaView.as_view(), name='ocorrencia'),
-    path('custodia_add/', CustodiaAddView.as_view(), name='custodia_add'),
-    path('custodia_edit/<int:pk>', CustodiaEditView.as_view(), name='custodia_edit'),
+    path('atendimento-add/', AtendimentoView.as_view(), name='atendimento-add'),
+    path('apreensao-add/', ApreensaoAddView.as_view(), name='apreensao-add'),
+    path('ocorrencia-add/', OcorrenciaView.as_view(), name='ocorrencia-add'),
+    path('custodia-add/', CustodiaAddView.as_view(), name='custodia-add'),
+    path('mp-add/', MpAddView.as_view(), name='mp-add'),
+    path('custodia-edit/<int:pk>', CustodiaEditView.as_view(), name='custodia-edit'),
     #partials htmx
     path('buscar-interno/', buscar_interno, name='buscar-interno'),
     path('filtrar-objetos/', filtrar_objetos_htmx, name='filtrar-objetos'),
-    path('mp_add/', MpAddView.as_view(), name='mp_add'),
+
 
 ]
 

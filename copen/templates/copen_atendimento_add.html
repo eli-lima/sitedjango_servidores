@@ -13,11 +13,11 @@ Copen - Apreensao
     <div class="flex flex-col pt-4">
 
         <div class="flex flex-col ítems-end">
-            <h1 class="text-center text-3xl pb-5 font-mono">Cadastro de Ocorrencia:</h1>
+            <h1 class="text-center text-3xl pb-5 font-mono">Cadastro de Atendimento:</h1>
         </div>
 
 
-        <form class="mx-4 shadow rounded shadow-md border border-2 border-secondary" method="post" action="{% url 'copen:atendimento' %}">
+        <form class="mx-4 shadow rounded shadow-md border border-2 border-secondary" method="post" action="{% url 'copen:atendimento-add' %}">
             {% csrf_token %}
 
 
