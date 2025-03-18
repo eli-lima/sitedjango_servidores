@@ -199,7 +199,7 @@ Copen
         <div class="h-auto w-1/3 flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300 bg-white overflow-hidden relative"> <!-- Adicionei relative aqui -->
 
             <!-- Conteúdo do card -->
-            <div class="mb-8">
+            <div class="mb-8 z-10">
               <h3 class="xl:text-2xl text-4xl font-semibold ">Apreensões</h3>
               <p class="mt-4 text-gray-600">Dados sobre apreensões realizadas no sistema penitenciário paraibano.  </p>
             </div>
@@ -210,7 +210,7 @@ Copen
             </div>
 
             <div class="pb-2 z-10">
-                <a href="#" class="z-10 block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md font-medium bg-gray-600 transform hover:scale-105 transition duration-300 overflow-hidden">
+                <a href="{% url 'copen:apreensao-relatorio' %}" class="z-10 block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md font-medium bg-gray-600 transform hover:scale-105 transition duration-300 overflow-hidden">
                     Consultar:
                 </a>
             </div>
@@ -271,7 +271,7 @@ Copen
         <div class="h-auto w-1/3 flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300 bg-white overflow-hidden relative"> <!-- Adicionei relative aqui -->
 
             <!-- Conteúdo do card -->
-            <div class="mb-8">
+            <div class="mb-8 z-10">
               <h3 class="xl:text-2xl text-4xl font-semibold ">Custódias</h3>
               <p class="mt-4 text-gray-600">Dados sobre: atendimento, Localização e identificação e indivíduos.  </p>
             </div>
@@ -305,7 +305,7 @@ Copen
         <div class="h-auto w-1/3 flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300 bg-white overflow-hidden relative"> <!-- Adicionei relative aqui -->
 
             <!-- Conteúdo do card -->
-            <div class="mb-8">
+            <div class="mb-8 z-10">
               <h3 class="xl:text-2xl text-4xl font-semibold ">Mandados De Prisão</h3>
               <p class="mt-4 text-gray-600">Cumprimento de Mandados de Prisão em Unidades Prisionais.  </p>
             </div>
@@ -339,7 +339,7 @@ Copen
         <div class="h-auto w-1/3 flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300 bg-white overflow-hidden relative"> <!-- Adicionei relative aqui -->
 
             <!-- Conteúdo do card -->
-            <div class="mb-8">
+            <div class="mb-8 z-10">
               <h3 class="xl:text-2xl text-4xl font-semibold ">Consulta INFOPEN</h3>
               <p class="mt-4 text-gray-600">Consulta e localização Rápida de indivíduos no INFOPEN.  </p>
             </div>
