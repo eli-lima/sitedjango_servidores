@@ -452,7 +452,7 @@ Copen
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     {% for custodia in lista_custodias_ativas %}
-                    <tr class="clickable-row" data-href="{% url 'copen:custodia_edit' custodia.id %}">
+                    <tr class="clickable-row" data-href="{% url 'copen:custodia-edit' custodia.id %}">
                         <td class="px-6 py-4 whitespace-nowrap">{{ custodia.interno.nome }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">{{ custodia.interno.prontuario }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">{{ custodia.unidade_hospitalar }}</td>
