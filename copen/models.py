@@ -41,24 +41,15 @@ class Atendimento(models.Model):
         return f"{self.data} - {self.data.strftime('%d/%m/%Y')}"
 
 
-
-
-
-#models ocorrencias
-
-
-
-
-
-
-
-
 # models apreensoes
 class Natureza(models.Model):
     nome = models.CharField(max_length=100)
 
     def __str__(self):
         return self.nome
+
+    class Meta:
+        ordering = ['nome']  # Ordena por nome em ordem alfabética
 
 
 class Objeto(models.Model):
@@ -67,6 +58,10 @@ class Objeto(models.Model):
 
     def __str__(self):
         return self.nome
+
+    class Meta:
+        ordering = ['nome']  # Ordena por nome em ordem alfabética
+
 
 class Apreensao(models.Model):
     data = models.DateField(default=timezone.now)
