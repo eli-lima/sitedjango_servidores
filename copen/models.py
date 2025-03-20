@@ -48,9 +48,6 @@ class Natureza(models.Model):
     def __str__(self):
         return self.nome
 
-    class Meta:
-        ordering = ['nome']  # Ordena por nome em ordem alfabética
-
 
 class Objeto(models.Model):
     nome = models.CharField(max_length=100)
@@ -58,10 +55,6 @@ class Objeto(models.Model):
 
     def __str__(self):
         return self.nome
-
-    class Meta:
-        ordering = ['nome']  # Ordena por nome em ordem alfabética
-
 
 class Apreensao(models.Model):
     data = models.DateField(default=timezone.now)
