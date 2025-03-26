@@ -81,8 +81,8 @@ Ajuda de Custo
                         <td class="px-6 py-4 whitespace-nowrap">
                             <form method="POST" action="{% url 'ajuda_custo:excluir_ajuda_custo' data.pk %}">
                                 {% csrf_token %}
-                                <button type="submit" class="btn btn-danger w-10 h-8">
-                                    <ion-icon name="trash"></ion-icon>
+                                <button type="submit" class="btn btn-danger w-10 h-08">
+                                    <i class="bi bi-trash-fill"></i>
                                 </button>
                             </form>
                         </td>
