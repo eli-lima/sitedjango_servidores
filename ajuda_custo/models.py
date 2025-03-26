@@ -4,6 +4,7 @@ from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.conf import settings
 from seappb.models import Unidade
+from django.db.models import Sum
 
 # Create your models here.
 
