@@ -165,12 +165,12 @@ Ajuda de Custo
 
 <div class="flex flex-col px-4">
   <div class="flex justify-center flex-wrap w-full"> <!-- Use justify-center para centralizar horizontalmente -->
-    <div class="py-2 px-2 w-1/2 xl:w-1/4 flex justify-center"> <!-- Centralize o conteúdo dentro de cada item -->
+    <div class="py-2 px-2 w-full xl:w-1/4 flex justify-center"> <!-- Centralize o conteúdo dentro de cada item -->
         <!-- adicionar ajuda de Custo -->
-        <div class="w-auto h-auto xl:h-auto flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+        <div class="w-full h-96 xl:h-auto flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
             <div class="mb-8">
               <h3 class="xl:text-2xl text-4xl font-semibold ">Ajuda De Custo Operacional</h3>
-              <p class="mt-4 text-gray-600">Marque suas datas individuais aqui. </p>
+              <p class="mt-4 xl:text-base text-2xl text-gray-600">Marque suas datas individuais aqui. </p>
             </div>
             <div class="mb-8">
               <span class="text-xl font-medium text-gray-600"></span>
@@ -184,12 +184,12 @@ Ajuda de Custo
         </div>
     </div>
       {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups %}
-    <div class="py-2 px-2 w-1/2 xl:w-1/4 flex justify-center">
+    <div class="py-2 px-2 w-full xl:w-1/4 flex justify-center"> <!-- Centralize o conteúdo dentro de cada item -->
         <!-- Administrador Cadastrar -->
-        <div class="w-auto w-1/2 h-auto xl:h-auto flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+        <div class="w-full h-96 xl:h-auto flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
             <div class="mb-8">
               <h3 class="xl:text-2xl text-4xl font-semibold ">Cadastro Administrativo</h3>
-              <p class="mt-4 text-gray-600">Cadastro de Ajuda de Custo de Servidores.</p>
+              <p class="mt-4 xl:text-base text-2xl text-gray-600">Cadastro de Ajuda de Custo de Servidores. </p>
             </div>
             <div class="mb-8">
               <span class="text-xl font-medium text-gray-600"></span>
@@ -197,17 +197,18 @@ Ajuda de Custo
 
             </div>
 
-            <a href="{% url 'ajuda_custo:admin_cadastrar' %}" class="block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md  font-medium bg-gray-600">
+            <a href="{% url 'ajuda_custo:envio_datas' %}" class="block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md  font-medium bg-gray-600">
               Adicionar:
             </a>
         </div>
     </div>
-    <div class="py-2 px-2 w-1/2 xl:w-1/4 flex justify-center">
+
+    <div class="py-2 px-2 w-full xl:w-1/4 justify-center flex justify-center">
         <!-- Limite de horas -->
-        <div class="w-auto h-auto xl:h-auto flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+        <div class="w-full h-96 xl:h-auto flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
             <div class="mb-8">
               <h3 class="xl:text-2xl text-4xl font-semibold ">Carga Horaria Servidor</h3>
-              <p class="mt-4 text-gray-600">Estipular a Carga Horaria Mensal de Servidor</p>
+              <p class="mt-4 xl:text-base text-2xl text-gray-600">Estipular a Carga Horaria Mensal de Servidor</p>
             </div>
 
 
@@ -216,12 +217,12 @@ Ajuda de Custo
             </a>
         </div>
     </div>
-    <div class="py-2 px-2 w-1/2 xl:w-1/4 flex justify-center">
+    <div class="py-2 px-2 w-full xl:w-1/4 flex justify-center">
         <!-- Relatorio Rx2 -->
-        <div class="w-auto h-auto xl:h-auto flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+        <div class="w-full h-96 xl:h-auto flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
             <div class="mb-8">
               <h3 class="xl:text-2xl text-4xl font-semibold ">Relatorio Rx2 e Utilitarios</h3>
-              <p class="mt-4 text-gray-600">Introduza relatorio Do Sistema RX-2 e Demais funções</p>
+              <p class="mt-4 xl:text-base text-2xl text-gray-600">Introduza relatorio Do Sistema RX-2 e Demais funções</p>
             </div>
             <div class="mb-8">
               <span class="text-xl font-medium text-gray-600"></span>
@@ -236,12 +237,12 @@ Ajuda de Custo
     </div>
     {% endif %}
     {% if 'Gerente' in user_groups %}
-    <div class="py-2 px-2 w-1/2 xl:w-1/4 flex justify-center">
+    <div class="py-2 px-2 w-full xl:w-1/4 flex justify-center">
         <!-- horas gerente -->
-        <div class="w-auto h-auto xl:h-auto flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+        <div class="w-full h-96 xl:h-auto flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
             <div class="mb-8">
               <h3 class="xl:text-2xl text-4xl font-semibold ">Carga Horaria Servidor</h3>
-              <p class="mt-4 text-gray-600">Estipular a Carga Horaria Mensal de Servidor</p>
+              <p class="mt-4 xl:text-base text-2xl text-gray-600">Estipular a Carga Horaria Mensal de Servidor</p>
             </div>
 
 
@@ -250,12 +251,12 @@ Ajuda de Custo
             </a>
         </div>
     </div>
-    <div class="py-2 px-2 w-1/2 xl:w-1/4 flex justify-center">
+    <div class="py-2 px-2 w-full xl:w-1/4 flex justify-center">
         <!-- relatorios completos -->
-        <div class="w-auto h-auto xl:h-auto flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
+        <div class="w-full h-96 xl:h-auto flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
             <div class="mb-8">
               <h3 class="xl:text-2xl text-4xl font-semibold ">Relatórios Ajuda Custo</h3>
-              <p class="mt-4 text-gray-600">Cunsultar e Gerar Relatórios Mensal de Ajuda de Custo.</p>
+              <p class="mt-4 xl:text-base text-2xl text-gray-600">Cunsultar e Gerar Relatórios Mensal de Ajuda de Custo.</p>
             </div>
 
 
@@ -270,30 +271,30 @@ Ajuda de Custo
 
 
 
-<div class="pt-4 flex flex-row px-4 xl:px-12 justify-start w-full xl:h-auto h-96">
+<div class="pt-2 flex xl:flex-row flex-col space-y-2 px-4 xl:px-12 justify-start w-full xl:h-auto">
 <!-- Gráfico de barra ajuda custo-->
-    <div class=" w-3/4 mr-4 bg-white border border-gray-200 rounded-lg shadow-xl px-4 py-4">
-        <div class="flex items-center justify-between pb-4 mb-4 border-b border-gray-200">
+    <div class="xl:w-3/4 w-full mr-4 bg-white border border-gray-200 rounded-lg shadow-xl px-4 py-2 h-auto my-2">
+        <div class="flex items-center justify-between pb-4 mb-4 border-b border-gray-200 p-4">
             <div>
-                <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Quantidade Total Mensal</h3>
+                <h3 class="xl:text-base text-lg font-normal text-gray-500 dark:text-gray-400">Quantidade Total Mensal</h3>
                 <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">Ajuda de Custo</span>
             </div>
 
         </div>
-        <div class="">
+        <div class="xl:h-96 h-[300px] flex justify-center">
             <canvas id="chart-bar-ajuda-custo" width="800" height="200"></canvas>
         </div>
     </div>
 
 <!--    GRAFICO MAJOARADO PIZZA-->
-    <div class="w-1/4 flex flex-col items-stretch rounded-lg shadow-lg pr-4">
-        <div class="border-b border-gray-200 pb-4 mb-4 p-4">
-            <h3 class="text-base font-semibold text-gray-500 dark:text-gray-400">Proporçāo Majorado x Normal:</h3>
+    <div class="xl:w-1/4 w-full h-auto flex flex-col justify-center items-stretch rounded-lg shadow-lg border border-gray-200 mt-8 mb-2">
+        <div class="border-b border-gray-200 p-4">
+            <h3 class="px-8 py-2 xl:text-base text-lg font-semibold text-gray-500 dark:text-gray-400">Proporçāo Majorado x Normal:</h3>
 
         </div>
 
 
-        <div class="h-[280px] xl:p-4 p-1">
+        <div class="xl:h-96 h-[500px] flex justify-center">
             <canvas id="majorado-pizza" width="200" height="100"></canvas>
         </div>
 
