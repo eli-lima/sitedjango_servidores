@@ -37,38 +37,38 @@ def relatorio_resumido_apreensao(request):
         agora = datetime.now()
         mes_atual = agora.month
         ano_atual = agora.year
-        print(f"Data atual: {agora} | Mês: {mes_atual} | Ano: {ano_atual}")  # Debug
+
 
         # Obter filtros com valores padrão
         mes_selecionado = int(request.GET.get('mes', mes_atual))
         ano_selecionado = int(request.GET.get('ano', ano_atual))
-        print(f"Filtros recebidos - Mês: {mes_selecionado} | Ano: {ano_selecionado}")  # Debug
+
 
         # Pegar o nome do mês selecionado
         nome_mes_selecionado = MESES_PT_BR.get(mes_selecionado, f"Mês {mes_selecionado}")
-        print(f"Nome mês selecionado: {nome_mes_selecionado}")  # Debug
+
 
         # Filtro base para todas as consultas
         base_filter = {
             'data__month': mes_selecionado,
             'data__year': ano_selecionado
         }
-        print(f"Filtro base: {base_filter}")  # Debug
+
 
         # Total geral de apreensões
         total_apreensoes = Apreensao.objects.filter(**base_filter).count()
-        print(f"Total de apreensões: {total_apreensoes}")  # Debug
+
 
         # Quantitativo por REISP (1° a 5°)
         reisp_counts = {
             f'reisp_{i}': Apreensao.objects.filter(**base_filter, unidade__reisp=i).count()
             for i in range(1, 6)
         }
-        print(f"Contagem por REISP: {reisp_counts}")  # Debug
+
 
         # Dados para os gráficos
         periodo_12_meses = get_periodo_12_meses(mes_selecionado, ano_selecionado)
-        print(f"Período 12 meses: {periodo_12_meses}")  # Debug
+
 
         # Preparar dados para o gráfico mensal
         monthly_totals = []
@@ -79,16 +79,14 @@ def relatorio_resumido_apreensao(request):
             monthly_totals.append(count)
             monthly_labels.append(f"{nome_mes[:3]}/{ano}")
 
-        print(f"Labels mensais: {monthly_labels}")  # Debug
-        print(f"Totais mensais: {monthly_totals}")  # Debug
+
 
         # Gráfico de pizza
         pie_labels_apreensao, pie_values_apreensao = calculate_pie_apreensao(
             mes=mes_selecionado,
             ano=ano_selecionado
         )
-        print(f"Labels pizza: {pie_labels_apreensao}")  # Debug
-        print(f"Valores pizza: {pie_values_apreensao}")  # Debug
+
 
         # Contexto
         context = {
@@ -112,15 +110,14 @@ def relatorio_resumido_apreensao(request):
             'is_pdf': request.GET.get('pdf', False),
             'base_url': request.build_absolute_uri('/')[:-1]
         }
-        print("Contexto preparado com sucesso")  # Debug
 
         # Lógica para gerar PDF
         if request.GET.get('pdf'):
-            print("Gerando versão PDF")  # Debug
+
             try:
                 context['is_pdf'] = True
                 html_string = render_to_string('relatorios/relatorio_resumido_pdf.html', context)
-                print("Template PDF renderizado")  # Debug
+
 
                 response = HttpResponse(content_type='application/pdf')
                 response['Content-Disposition'] = 'attachment; filename="relatorio_apreensoes.pdf"'
@@ -141,18 +138,18 @@ def relatorio_resumido_apreensao(request):
                         }
                     ''')]
                 )
-                print("PDF gerado com sucesso")  # Debug
+
                 return response
             except Exception as e:
-                print(f"ERRO ao gerar PDF: {str(e)}")  # Debug
+
                 raise
 
         # Versão HTML normal
-        print("Retornando versão HTML")  # Debug
+
         return render(request, 'relatorios/relatorio_resumido_apreensao.html', context)
 
     except Exception as e:
-        print(f"ERRO GLOBAL na view: {str(e)}", type(e).__name__)  # Debug
+
         raise
 
 
@@ -160,41 +157,40 @@ def gerar_pdf_generico(request, template_name, queryset, relatorio_nome, context
     """
     View genérica para gerar PDFs.
     """
-    print("Iniciando gerar_pdf_generico")  # Debug
+
     try:
         # Cria o contexto padrão
         if context is None:
             context = {}
         context['dados'] = queryset  # Passa o queryset para o template
         context['relatorio_nome'] = relatorio_nome  # Passa o queryset para o template
-        print(f"Contexto preparado: {context.keys()}")  # Debug
+
 
         # Renderiza o template HTML com os dados
-        print(f"Tentando renderizar template: {template_name}")  # Debug
+
         html_string = render_to_string(template_name, context)
-        print("Template renderizado com sucesso")  # Debug
+
 
         # Cria um objeto HTML do WeasyPrint
-        print("Criando objeto HTML do WeasyPrint")  # Debug
+
         html = HTML(string=html_string, base_url=request.build_absolute_uri())
-        print("Objeto HTML criado com sucesso")  # Debug
+
 
         # Gera o PDF
-        print("Gerando arquivo PDF temporário")  # Debug
+
         pdf_file = tempfile.NamedTemporaryFile(delete=False)
         html.write_pdf(target=pdf_file.name)
-        print(f"PDF gerado em: {pdf_file.name}")  # Debug
 
         # Lê o conteúdo do arquivo PDF
         pdf_file.seek(0)
         pdf = pdf_file.read()
         pdf_file.close()
-        print("PDF lido com sucesso")  # Debug
+
 
         # Retorna o PDF como uma resposta HTTP
         response = HttpResponse(pdf, content_type='application/pdf')
         response['Content-Disposition'] = f'attachment; filename="{filename}"'
-        print("Resposta HTTP preparada com sucesso")  # Debug
+
         return response
 
     except Exception as e:
