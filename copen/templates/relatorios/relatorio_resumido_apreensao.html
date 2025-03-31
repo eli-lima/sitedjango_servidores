@@ -1,0 +1,634 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block titulo %}
+Copen - relatorio apreensao resumido
+{% endblock %}
+
+{% block head %}
+<!-- Adicione isso no <head> -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+    /* ===== ESTILOS GERAIS ===== */
+    .impressao {
+        background-color: white;
+        width: 100%;
+    }
+
+    canvas {
+        max-width: 100%;
+        height: auto !important;
+    }
+
+    /* ===== CLASSES DE CONTROLE DE VISIBILIDADE ===== */
+    /* Elementos que NUNCA devem aparecer (em tela e PDF) */
+    .no-print-pdf {
+        display: none !important;
+        visibility: hidden !important;
+    }
+
+    /* Elementos que devem aparecer APENAS NA TELA */
+    .screen-only {
+        display: block; /* ou flex, grid conforme necessário */
+    }
+
+    /* Elementos que devem aparecer APENAS NO PDF */
+    .pdf-only {
+        display: none;
+    }
+
+    /* ===== ESTILOS ESPECÍFICOS PARA PDF/IMPRESSÃO ===== */
+    @page {
+        size: A4 landscape;
+        margin: 1cm;
+    }
+
+    @media print {
+        /* Reset básico para impressão */
+        body {
+            width: 297mm;
+            height: 210mm;
+            background: white !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+            font-size: 12pt;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* Container principal */
+        .impressao {
+            padding: 0;
+            margin: 0;
+        }
+
+        /* Estilos para cards */
+        .card {
+            background-color: #ffffff !important;
+            border: 1px solid #e0e0e0 !important;
+            border-radius: 8px !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+            page-break-inside: avoid;
+        }
+
+        /* Controle de visibilidade - IMPORTANTE: html2canvas usa essas regras */
+        .no-print,
+        .screen-only,
+        .no-print-pdf {
+            display: none !important;
+            visibility: hidden !important;
+            height: 0 !important;
+            width: 0 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            border: none !important;
+        }
+
+        .pdf-only {
+            display: block !important;
+            visibility: visible !important;
+        }
+
+        /* Ajuste de elementos específicos */
+        .flex.justify-center.items-center h3 {
+            position: relative;
+            top: -5px;
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+            line-height: 1.1 !important;
+        }
+
+        /* Garantia de exibição de imagens */
+        img {
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+
+        /* Ajustes de texto */
+        .ajuste-texto-pdf {
+            padding: 5px 10px !important;
+            margin: 0 !important;
+            line-height: 1.25 !important;
+            position: relative;
+            top: -3px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="principal mx-48">
+
+<div class="flex  justify-center pt-4 screen-only">
+    <button onclick="gerarPDF()" class="btn btn-primary">
+        <i class="fas fa-print mr-2"></i> Gerar PDF
+    </button>
+</div>
+
+<div id="conteudo-para-pdf" class="impressao">
+<div class="pt-2 flex flex-col">
+    <div class="w-auto justify-center flex xl:flex-row flex-col">
+        <!--tela administrador-->
+            {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups or 'Gerente' in user_groups %}
+        <div class="mx-4 mt-6 py-3 w-1/4 self-center items-center text-2xl">
+
+            <div class="flex justify-center items-center h-full px-4">
+                <h3 class="font-bold xl:text-xl text-lg">
+                    Relatório Apreensões
+                </h3>
+            </div>
+            <!-- Linha adicional que só aparece no PDF -->
+            <div class="pdf-only text-center mt-2">
+                <p class="text-lg font-semibold">
+                    Período: {{ nome_mes_selecionado }} de {{ ano_selecionado }}
+                </p>
+            </div>
+        </div>
+        {% endif %}
+        <div class="mx-4 py-4 flex justify-around screen-only">
+
+          <form method="GET" class="flex space-x-4 items-center">
+            <!-- Campo para selecionar o mês -->
+            <div class="flex flex-col w-56 xl:w-auto mr-4">
+              <label for="mes" class="xl:text-lg text-2xl font-semibold text-gray-700 screen-only">Selecione o Mês</label>
+              <select id="mes" name="mes" class="xl:text-base text-xl mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                {% for numero, nome in meses.items %}
+                    <option value="{{ numero }}" {% if mes_selecionado == numero|add:0 %}selected{% endif %}>{{ nome }}</option>
+                {% endfor %}
+               </select>
+            </div>
+
+            <!-- Campo para selecionar o ano -->
+            <div class="flex flex-col w-56 xl:w-auto mr-4">
+              <label for="ano" class="xl:text-lg text-2xl font-semibold text-gray-700 screen-only">Selecione o Ano</label>
+              <select id="ano" name="ano" class="xl:text-base text-xl mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                {% for ano in anos %}
+                    <option value="{{ ano }}" {% if ano_selecionado == ano|add:0 %}selected{% endif %}>{{ ano }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Botão de submissão -->
+            <div class="flex flex-col justify-end no-print">
+              <button type="submit" class="no-print mt-4 px-4 py-2 bg-blue-500 text-white xl:text-lg text-2xl font-semibold rounded-md hover:bg-blue-700">Filtrar</button>
+            </div>
+          </form>
+
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class=" flex justify-evenly flex-wrap">
+    <div class=" py-2 px-2 w-1/2 xl:w-1/5">
+          <!-- Card 1 -->
+
+        <div class="card mr-4 xl:mr-0 flex-auto h-44 shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
+            <div class="flex flex-row justify-between items-center h-full px-4 relative"> <!-- Adicionei relative aqui -->
+                <!-- Contêiner dos textos com z-10 -->
+                <div class="z-10 flex flex-col justify-between h-full w-3/4 py-10">
+                    <div class="pb-4">
+                        <h3 class="font-bold text-size uppercase xl:text-base text-lg">Total de Apreensões</h3>
+                    </div>
+                    <div>
+                        <p class="px-2 rounded font-semibold xl:text-base text-lg">{{ total_apreensoes }}</p>
+                    </div>
+                </div>
+
+                <!-- Imagem com z-0 e posicionamento absoluto -->
+                <span class="z-0 absolute flex justify-center items-center text-gray-400 text-[150px] bottom-[10px] right-[10px]">
+                    <img src="{% static 'icons/copen/apreensao.png' %}" alt="add-grupo" class="w-28 h-28">
+                </span>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="py-2 px-2 w-1/2 xl:w-1/5">
+          <!-- Card 2 -->
+
+        <div class="card mr-4 xl:mr-0 flex-auto h-44 shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
+            <div class="flex flex-row justify-between items-center h-full px-4 relative"> <!-- Adicionei relative aqui -->
+                <!-- Contêiner dos textos com z-10 -->
+                <div class="z-10 flex flex-col justify-between h-full w-3/4 py-10">
+                    <div class="pb-4">
+                        <h3 class="font-bold text-size uppercase xl:text-base text-lg">1° REISP</h3>
+                    </div>
+                    <div>
+                        <p class="px-2 rounded font-semibold xl:text-base text-lg">{{ reisp_1 }}</p>
+                    </div>
+                </div>
+
+                <!-- Imagem com z-0 e posicionamento absoluto -->
+                <span class="z-0 absolute flex justify-center items-center text-gray-400 text-[150px] bottom-[10px] right-[10px]">
+                    <img src="{% static 'icons/copen/apreensao.png' %}" alt="add-grupo" class="w-28 h-28">
+                </span>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="py-2 px-2 w-1/2 xl:w-1/5">
+          <!-- Card 3 -->
+
+         <div class="card mr-4 xl:mr-0 flex-auto h-44 shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
+            <div class="flex flex-row justify-between items-center h-full px-4 relative"> <!-- Adicionei relative aqui -->
+                <!-- Contêiner dos textos com z-10 -->
+                <div class="z-10 flex flex-col justify-between h-full w-3/4 py-10">
+                    <div class="pb-4">
+                        <h3 class="font-bold text-size uppercase xl:text-base text-lg">2° REISP</h3>
+                    </div>
+                    <div>
+                        <p class="px-2 rounded font-semibold xl:text-base text-lg">{{ reisp_2 }}</p>
+                    </div>
+                </div>
+
+                <!-- Imagem com z-0 e posicionamento absoluto -->
+                <span class="z-0 absolute flex justify-center items-center text-gray-400 text-[150px] bottom-[10px] right-[10px]">
+                    <img src="{% static 'icons/copen/apreensao.png' %}" alt="add-grupo" class="w-28 h-28">
+                </span>
+            </div>
+        </div>
+
+    </div>
+
+    <div class=" py-2 px-2 w-1/2 xl:w-1/5">
+          <!-- Card 4 -->
+
+        <div class="card mr-4 xl:mr-0 flex-auto h-44 shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
+            <div class="flex flex-row justify-between items-center h-full px-4 relative"> <!-- Adicionei relative aqui -->
+                <!-- Contêiner dos textos com z-10 -->
+                <div class="z-10 flex flex-col justify-between h-full w-3/4 py-10">
+                    <div class="pb-4">
+                        <h3 class="font-bold text-size uppercase xl:text-base text-lg">3° REISP</h3>
+                    </div>
+                    <div>
+                        <p class="px-2 rounded font-semibold xl:text-base text-lg">{{ reisp_3 }}</p>
+                    </div>
+                </div>
+
+                <!-- Imagem com z-0 e posicionamento absoluto -->
+                <span class="z-0 absolute flex justify-center items-center text-gray-400 text-[150px] bottom-[10px] right-[10px]">
+                    <img src="{% static 'icons/copen/apreensao.png' %}" alt="add-grupo" class="w-28 h-28">
+                </span>
+            </div>
+        </div>
+
+
+
+
+
+    </div>
+    <div class=" py-2 px-2 w-1/2 xl:w-1/5">
+          <!-- Card 5 -->
+
+        <div class="card mr-4 xl:mr-0 flex-auto h-44 shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
+            <div class="flex flex-row justify-between items-center h-full px-4 relative"> <!-- Adicionei relative aqui -->
+                <!-- Contêiner dos textos com z-10 -->
+                <div class="z-10 flex flex-col justify-between h-full w-3/4 py-10">
+                    <div class="pb-4">
+                        <h3 class="font-bold text-size uppercase xl:text-base text-lg">4° REISP</h3>
+                    </div>
+                    <div>
+                        <p class="px-2 rounded font-semibold xl:text-base text-lg">{{ reisp_4 }}</p>
+                    </div>
+                </div>
+
+                <!-- Imagem com z-0 e posicionamento absoluto -->
+                <span class="z-0 absolute flex justify-center items-center text-gray-400 text-[150px] bottom-[10px] right-[10px]">
+                    <img src="{% static 'icons/copen/atendimento.png' %}" alt="add-grupo" class="w-28 h-28">
+                </span>
+            </div>
+        </div>
+
+
+
+
+
+    </div>
+
+
+</div>
+
+<div class="pt-4 pb-8 flex flex-row px-4 xl:px-12 justify-start w-full xl:h-auto h-96">
+<!-- Gráfico de barra-->
+    <div class="card w-3/4 mr-4 bg-white border border-gray-200 rounded-lg shadow-xl px-4 py-4">
+        <div class="flex items-center justify-between pb-4 mb-4 border-b border-gray-200">
+            <div>
+                <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Quantidade Total Mensal</h3>
+                <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">Apreensões</span>
+            </div>
+
+        </div>
+        <div class="h-72 w-full">
+            <canvas id="chart-bar" width="800" height="500"></canvas>
+        </div>
+    </div>
+
+<!--    GRAFICO PIZZA-->
+    <div class="card w-1/4 flex flex-col items-stretch rounded-lg shadow-lg pr-4">
+        <div class="border-b border-gray-200 pb-4 mb-4 p-4">
+            <h3 class="text-base font-semibold text-gray-500 dark:text-gray-400">Natureza Apreensões:</h3>
+
+        </div>
+
+
+        <div class="h-full w-full xl:p-4 p-1">
+            <canvas id="pizza" width="500" height="500"></canvas>
+        </div>
+
+    </div>
+
+
+</div>
+
+</div>
+
+
+</div>
+
+<script>
+// Declare as variáveis dos gráficos no escopo global
+let myBarChart, myPieChart;
+
+// Configuração dos gráficos
+document.addEventListener('DOMContentLoaded', function() {
+    // Gráfico de barras
+    var ctxBar = document.getElementById('chart-bar').getContext('2d');
+    myBarChart = new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+            labels: {{ labels_mensais|safe }},
+            datasets: [{
+                label: 'Total de Apreensões',
+                data: {{ values_mensais|safe }},
+                backgroundColor: 'rgba(210, 0, 0, 1)',
+                borderColor: 'rgba(210, 0, 0, 1)',
+                borderWidth: 2,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { grid: { display: false } },
+                y: { beginAtZero: true, grid: { display: false } }
+            },
+            plugins: {
+                datalabels: {
+                    anchor: 'end',
+                    align: 'top',
+                    color: '#000',
+                    font: { weight: 'bold' },
+                    formatter: function(value) {
+                        return value === 0 ? '' : Math.round(value);
+                    }
+                }
+            }
+        },
+        plugins: [ChartDataLabels]
+    });
+
+    // Gráfico de pizza
+    var ctxPie = document.getElementById('pizza').getContext('2d');
+    myPieChart = new Chart(ctxPie, {
+        type: 'pie',
+        data: {
+            labels: {{ pie_labels_apreensao|safe }},
+            datasets: [{
+                data: {{ pie_values_apreensao|safe }},
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.7)',
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(255, 206, 86, 0.7)',
+                    'rgba(75, 192, 192, 0.7)',
+                    'rgba(153, 102, 255, 0.7)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        generateLabels: function(chart) {
+                            var data = chart.data;
+                            return data.labels.map(function(label, i) {
+                                return {
+                                    text: `${label}: ${data.datasets[0].data[i]}`,
+                                    fillStyle: data.datasets[0].backgroundColor[i],
+                                    hidden: false,
+                                    index: i
+                                };
+                            });
+                        }
+                    }
+                },
+                datalabels: {
+                    color: '#fff',
+                    font: { weight: 'bold' },
+                    formatter: (value) => {
+                        const total = {{ pie_values_apreensao|safe }}.reduce((a, b) => a + b, 0);
+                        return value === 0 ? '' : ((value / total) * 100).toFixed(1) + '%';
+                    }
+                }
+            }
+        },
+        plugins: [ChartDataLabels]
+    });
+});
+
+function gerarPDF() {
+    const loading = Swal.fire({
+        title: 'Gerando PDF',
+        html: 'Aguarde enquanto preparamos o relatório...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+    });
+
+    // Elemento principal
+    const element = document.getElementById('conteudo-para-pdf');
+    if (!element) {
+        loading.close();
+        Swal.fire('Erro', 'Elemento principal não encontrado', 'error');
+        return;
+    }
+
+    // 1. Armazenar o estado original de TODOS os elementos modificáveis
+    const originalStates = {
+        // Elementos que serão ocultados
+        hiddenElements: Array.from(document.querySelectorAll('.screen-only, .no-print, [class*="no-print"]')).map(el => ({
+            element: el,
+            originalStyle: el.style.cssText,
+            originalClasses: el.className
+        })),
+
+        // Elementos que serão mostrados
+        shownElements: Array.from(document.querySelectorAll('.pdf-only')).map(el => ({
+            element: el,
+            originalStyle: el.style.cssText,
+            originalClasses: el.className
+        })),
+
+        // Elementos com ajustes específicos
+        adjustedElements: Array.from(document.querySelectorAll('.ajuste-texto-pdf, .card-body')).map(el => ({
+            element: el,
+            originalStyle: el.style.cssText
+        }))
+    };
+
+    // 2. Aplicar modificações temporárias
+    // Ocultar elementos que devem sumir no PDF
+    originalStates.hiddenElements.forEach(({element}) => {
+        element.style.cssText = `
+            display: none !important;
+            visibility: hidden !important;
+            height: 0 !important;
+            width: 0 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            border: none !important;
+            position: absolute !important;
+            left: -9999px !important;
+        `;
+    });
+
+    // Mostrar elementos específicos para PDF
+    originalStates.shownElements.forEach(({element}) => {
+        element.style.display = 'block';
+        element.style.visibility = 'visible';
+    });
+
+    // Aplicar ajustes específicos
+    originalStates.adjustedElements.forEach(({element}) => {
+        element.style.padding = '5px 10px';
+        element.style.margin = '0';
+    });
+
+    // Configurações do html2canvas
+    const options = {
+        scale: 2,
+        logging: true,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#FFFFFF',
+        scrollX: 0,
+        scrollY: 0,
+        ignoreElements: (el) => {
+            const classes = el.classList;
+            return classes.contains('screen-only') ||
+                   classes.contains('no-print') ||
+                   classes.contains('no-print-pdf') ||
+                   Array.from(classes).some(c => c.includes('no-print'));
+        },
+        onclone: (clonedDoc) => {
+            // Aplicar modificações no documento clonado
+            clonedDoc.querySelectorAll('.screen-only, .no-print, [class*="no-print"]').forEach(el => {
+                el.style.cssText = `
+                    display: none !important;
+                    visibility: hidden !important;
+                    height: 0 !important;
+                    width: 0 !important;
+                    padding: 0 !important;
+                    margin: 0 !important;
+                    border: none !important;
+                `;
+            });
+
+            clonedDoc.querySelectorAll('.pdf-only').forEach(el => {
+                el.style.display = 'block';
+                el.style.visibility = 'visible';
+            });
+
+            clonedDoc.querySelectorAll('.ajuste-texto-pdf, .card-body').forEach(el => {
+                el.style.padding = '5px 10px';
+                el.style.margin = '0';
+            });
+        }
+    };
+
+    // Função para restaurar o estado original
+    const restoreOriginalState = () => {
+        // Restaurar elementos ocultados
+        originalStates.hiddenElements.forEach(({element, originalStyle}) => {
+            element.style.cssText = originalStyle;
+        });
+
+        // Restaurar elementos mostrados
+        originalStates.shownElements.forEach(({element, originalStyle}) => {
+            element.style.cssText = originalStyle;
+        });
+
+        // Restaurar elementos ajustados
+        originalStates.adjustedElements.forEach(({element, originalStyle}) => {
+            element.style.cssText = originalStyle;
+        });
+    };
+
+    // Gerar PDF
+    html2canvas(element, options)
+        .then(canvas => {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('l', 'mm', 'a4');
+
+            // Configurações de dimensionamento
+            const imgData = canvas.toDataURL('image/png');
+            const pdfWidth = pdf.internal.pageSize.getWidth();  // 297mm para A4 landscape
+            const pdfHeight = pdf.internal.pageSize.getHeight(); // 210mm para A4 landscape
+
+            // Proporção desejada (ajuste este valor conforme necessário)
+            const proporcaoDesejada = 1.5; // Valor maior = mais "estreito"
+
+            // Calcula a largura baseado na proporção desejada
+            let imgWidth = pdfWidth * 0.9; // Usa apenas 70% da largura da página
+            let imgHeight = imgWidth / proporcaoDesejada;
+
+            // Garante que a altura não ultrapasse 80% da página
+            const alturaMaxima = pdfHeight * 1.5;
+            if (imgHeight > alturaMaxima) {
+                imgHeight = alturaMaxima;
+                imgWidth = imgHeight * proporcaoDesejada;
+            }
+
+            // Centraliza na página
+            const x = (pdfWidth - imgWidth) / 2;
+            const y = (pdfHeight - imgHeight) / 2;
+
+            pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
+
+            // Restaurar o estado original
+            restoreOriginalState();
+
+            loading.close();
+            pdf.save('relatorio_apreensoes.pdf');
+
+            Swal.fire({
+                title: 'PDF Gerado!',
+                text: 'O relatório foi baixado com sucesso',
+                icon: 'success',
+                timer: 2000
+            });
+        })
+        .catch(err => {
+            console.error("Erro ao gerar PDF:", err);
+
+            // Restaurar o estado original em caso de erro
+            restoreOriginalState();
+
+            loading.close();
+            Swal.fire('Erro', 'Falha ao gerar o PDF: ' + err.message, 'error');
+        });
+}
+</script>
+
+{% endblock %}

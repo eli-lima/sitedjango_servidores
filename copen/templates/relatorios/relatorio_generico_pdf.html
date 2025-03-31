@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Relatório Genérico</title>
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 1cm;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            font-size: 12px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .img {
+            text-align: center;
+        }
+        .img-tamanho {
+            width: 800px;
+            height: 60px;
+        }
+        #myFooter {
+            padding-top: 12px
+        }
+    </style>
+</head>
+<body>
+{% load custom_filters %}
+    <div>
+        <div class="img">
+            <img src="https://i.imgur.com/4t5U2gL.png" alt="Logo-seap" class="img-tamanho">
+        </div>
+        <h1>Relatório De {{ relatorio_nome }}</h1>
+        <h3>Total de Registros: {{ dados|length }}</h3>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <!-- Cabeçalho da tabela -->
+                {% for campo in campos %}
+                    <th>{{ campo }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Dados da tabela -->
+            {% for item in dados %}
+                <tr>
+                    {% for campo in campos %}
+                        <td>{{ item|get_attribute:campo }}</td>
+                    {% endfor %}
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="{{ campos|length }}">Nenhum registro encontrado.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <footer id="myFooter">
+        <div class="img">
+            <img src="https://i.imgur.com/4t5U2gL.png" alt="Logo-seap" class="img-tamanho">
+        </div>
+    </footer>
+</body>
+</html>

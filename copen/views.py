@@ -8,15 +8,169 @@ from interno.models import Interno
 from .forms import (ApreensaoForm, OcorrenciaForm, AtendimentoForm,
                     Objeto, Natureza, CustodiaForm,CustodiaEditForm,
                     MpForm)
-from django.views.generic import FormView
+from django.views.generic import FormView, ListView
 from django.urls import reverse_lazy
 from django.utils import timezone
+from datetime import datetime, timedelta
 from django.utils.timezone import now
 from django.db.models import Count
 from django.contrib.auth.mixins import UserPassesTestMixin
 from .utils import calculate_bar_chart, calculate_pie_apreensao
-from datetime import date
+from seappb.models import Unidade
+from seappb.utils import get_periodo_12_meses, get_nome_mes, MESES_PT_BR
+import json
+from weasyprint import CSS
+from django.http import HttpResponse
+from weasyprint import HTML
+import tempfile
+from django.template.loader import render_to_string
 from django.db.models import Q
+from django.utils.dateparse import parse_date
+
+
+#gerar pdf
+def relatorio_resumido_apreensao(request):
+    # Obter mês/ano atual
+    agora = datetime.now()
+    mes_atual = agora.month
+    ano_atual = agora.year
+
+    # Obter filtros com valores padrão
+    mes_selecionado = int(request.GET.get('mes', mes_atual))
+    ano_selecionado = int(request.GET.get('ano', ano_atual))
+    # Pegar o nome do mês selecionado
+    nome_mes_selecionado = MESES_PT_BR.get(mes_selecionado, f"Mês {mes_selecionado}")
+    print(nome_mes_selecionado)
+    # Filtro base para todas as consultas
+    base_filter = {
+        'data__month': mes_selecionado,
+        'data__year': ano_selecionado
+    }
+
+    # Total geral de apreensões
+    total_apreensoes = Apreensao.objects.filter(**base_filter).count()
+
+    # Quantitativo por REISP (1° a 5°)
+    reisp_counts = {
+        f'reisp_{i}': Apreensao.objects.filter(**base_filter, unidade__reisp=i).count()
+        for i in range(1, 6)
+    }
+
+    # Dados para os gráficos usando sua função existente
+    periodo_12_meses = get_periodo_12_meses(mes_selecionado, ano_selecionado)
+
+    # Preparar dados para o gráfico mensal
+    monthly_totals = []
+    monthly_labels = []
+
+    for ano, mes, nome_mes in periodo_12_meses:
+        count = Apreensao.objects.filter(data__year=ano, data__month=mes).count()
+        monthly_totals.append(count)
+        monthly_labels.append(f"{nome_mes[:3]}/{ano}")  # Formato "Jan/2025"
+
+    # Gráfico de pizza
+    pie_labels_apreensao, pie_values_apreensao = calculate_pie_apreensao(
+        mes=mes_selecionado,
+        ano=ano_selecionado
+    )
+
+    # Contexto com todas as variáveis necessárias
+    context = {
+        # Dados principais
+        'total_apreensoes': total_apreensoes,
+        'reisp_1': reisp_counts['reisp_1'],
+        'reisp_2': reisp_counts['reisp_2'],
+        'reisp_3': reisp_counts['reisp_3'],
+        'reisp_4': reisp_counts['reisp_4'],
+        'reisp_5': reisp_counts['reisp_5'],
+
+        # Dados para gráficos
+        'labels_mensais': json.dumps(monthly_labels),
+        'values_mensais': json.dumps(monthly_totals),
+        'pie_labels_apreensao': json.dumps(pie_labels_apreensao),
+        'pie_values_apreensao': json.dumps(pie_values_apreensao),
+
+        # Filtros e períodos
+        'meses': MESES_PT_BR,
+        'anos': [str(ano) for ano in range(ano_atual - 4, ano_atual + 1)],
+        'mes_selecionado': mes_selecionado,
+        'nome_mes_selecionado': nome_mes_selecionado,  # Adicione esta linha
+        'ano_selecionado': ano_selecionado,
+        'nome_mes': get_nome_mes(mes_selecionado),  # Nome completo do mês
+
+        # Configurações
+        'hide_nav': True,
+        'is_pdf': request.GET.get('pdf', False),
+        'base_url': request.build_absolute_uri('/')[:-1]
+    }
+
+    # Lógica para gerar PDF
+    if request.GET.get('pdf'):
+        context['is_pdf'] = True
+        html_string = render_to_string('relatorios/relatorio_resumido_pdf.html', context)
+
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="relatorio_apreensoes.pdf"'
+
+        HTML(
+            string=html_string,
+            base_url=request.build_absolute_uri()
+        ).write_pdf(
+            response,
+            stylesheets=[CSS(string='''
+                @page { size: A4 landscape; margin: 1.5cm; }
+                .no-print { display: none !important; }
+                .periodo-relatorio {
+                    text-align: center;
+                    margin-bottom: 1rem;
+                    font-size: 1.1rem;
+                    font-weight: bold;
+                }
+            ''')]
+        )
+        return response
+
+    # Versão HTML normal
+    return render(request, 'relatorios/relatorio_resumido_apreensao.html', context)
+
+
+def gerar_pdf_generico(request, template_name, queryset, relatorio_nome, context=None, filename="relatorio.pdf"):
+    """
+    View genérica para gerar PDFs.
+
+    :param request: HttpRequest object.
+    :param template_name: Nome do template HTML.
+    :param queryset: QuerySet com os dados a serem renderizados.
+    :param context: Dicionário de contexto adicional (opcional).
+    :param filename: Nome do arquivo PDF gerado.
+    :return: HttpResponse com o PDF.
+    """
+    # Cria o contexto padrão
+    if context is None:
+        context = {}
+    context['dados'] = queryset  # Passa o queryset para o template
+    context['relatorio_nome'] = relatorio_nome  # Passa o queryset para o template
+
+
+    # Renderiza o template HTML com os dados
+    html_string = render_to_string(template_name, context)
+
+    # Cria um objeto HTML do WeasyPrint
+    html = HTML(string=html_string, base_url=request.build_absolute_uri())
+
+    # Gera o PDF
+    pdf_file = tempfile.NamedTemporaryFile(delete=False)
+    html.write_pdf(target=pdf_file.name)
+
+    # Lê o conteúdo do arquivo PDF
+    pdf_file.seek(0)
+    pdf = pdf_file.read()
+    pdf_file.close()
+
+    # Retorna o PDF como uma resposta HTTP
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response
 
 
 
@@ -181,6 +335,127 @@ class Copen(UserPassesTestMixin, LoginRequiredMixin, TemplateView):
         # grafico pizza apreensao
 
         return context
+
+
+class ApreensaoRelatorioView(UserPassesTestMixin, LoginRequiredMixin, ListView):
+    model = Apreensao
+    template_name = "relatorios/relatorio_apreensao.html"
+    context_object_name = 'apreensoes'
+    paginate_by = 50  # Quantidade de registros por página
+
+    def test_func(self):
+        user = self.request.user
+        grupos_permitidos = ['Administrador', 'Copen', 'GerGesipe']
+        return user.groups.filter(name__in=grupos_permitidos).exists()
+
+    def handle_no_permission(self):
+        messages.error(self.request, "Você não tem permissão para acessar esta página.")
+        return render(self.request, '403.html', status=403)
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+
+        # Filtro por natureza
+        natureza = self.request.GET.get('natureza')
+        if natureza:
+            queryset = queryset.filter(natureza_id=natureza)
+
+        # Filtro por objeto
+        objeto = self.request.GET.get('objeto')
+        if objeto:
+            queryset = queryset.filter(objeto_id=objeto)
+
+        # Filtro por unidade
+        unidade = self.request.GET.get('unidade')
+        if unidade:
+            queryset = queryset.filter(unidade_id=unidade)
+
+        # Filtro por data
+        data_inicial = self.request.GET.get('dataInicial')
+        data_final = self.request.GET.get('dataFinal')
+
+        # Caso dataInicial ou dataFinal não sejam fornecidas, utilizar o mês corrente
+        today = now().date()
+        first_day_of_month = today.replace(day=1)
+        last_day_of_month = (first_day_of_month + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+
+        # Converter as datas para o formato correto
+        if not data_inicial:
+            data_inicial = first_day_of_month
+        else:
+            data_inicial = parse_date(data_inicial)  # Converter para objeto de data
+
+        if not data_final:
+            data_final = last_day_of_month
+        else:
+            data_final = parse_date(data_final)  # Converter para objeto de data
+
+        # Aplicar o filtro de data
+        if data_inicial and data_final:
+            queryset = queryset.filter(data__range=[data_inicial, data_final])
+        elif data_inicial:
+            queryset = queryset.filter(data__gte=data_inicial)
+        elif data_final:
+            queryset = queryset.filter(data__lte=data_final)
+
+        # Filtro por query (pesquisa)
+        query = self.request.GET.get('query')
+        if query:
+            queryset = queryset.filter(descricao__icontains=query)  # Substitua 'descricao' pelo campo correto
+
+        return queryset.order_by('data')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+
+        # Adiciona as naturezas ao contexto para o filtro
+        context['naturezas'] = Natureza.objects.all().order_by('nome')
+        # Adiciona os objetos ao contexto para o filtro
+        context['objetos'] = Objeto.objects.all().order_by('nome')
+        # Adiciona as unidade ao contexto para o filtro
+        context['unidades'] = Unidade.objects.all().order_by('nome')
+
+
+        # Adiciona os parâmetros de filtro ao contexto para manter os valores selecionados
+        context['natureza_selecionada'] = self.request.GET.get('natureza', '')
+        context['objeto_selecionado'] = self.request.GET.get('objeto', '')
+        context['unidade_selecionada'] = self.request.GET.get('unidade', '')
+        context['dataInicial'] = self.request.GET.get('dataInicial', '')
+        context['dataFinal'] = self.request.GET.get('dataFinal', '')
+        context['query'] = self.request.GET.get('query', '')
+
+        return context
+
+    def get(self, request, *args, **kwargs):
+        action = request.GET.get('action')
+        queryset = self.get_queryset()
+        data_inicial = self.request.GET.get('dataInicial', '')
+        relatorio_nome = 'Apreensões'
+        print(f'data_inicial: {data_inicial}')
+
+        # Verifique o queryset
+        print("Queryset:", queryset)
+        print("Query params:", request.GET)
+
+        if action == 'gerar_pdf_detalhado':
+            queryset = queryset
+            campos = ['data', 'natureza', 'objeto', 'quantidade', 'unidade', 'descricao']
+            return gerar_pdf_generico(
+                request,
+                template_name='relatorios/relatorio_generico_pdf.html',
+                queryset=queryset,
+                context={'campos': campos},
+                filename="relatorio_apreensoes.pdf",
+                relatorio_nome=relatorio_nome
+            )
+        # elif action == 'excel_detalhado':
+        #     return excel_detalhado(request)
+        # elif action == 'arquivos_assinados':
+        #     return criar_arquivo_zip(request, queryset)
+        # elif action == 'gerar_pdf':
+        #     return gerar_pdf_ajuda_custo(request, queryset)
+        return super().get(request, *args, **kwargs)
 
 
 class ApreensaoAddView(UserPassesTestMixin, LoginRequiredMixin, FormView):
