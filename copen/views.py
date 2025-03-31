@@ -137,40 +137,53 @@ def relatorio_resumido_apreensao(request):
 def gerar_pdf_generico(request, template_name, queryset, relatorio_nome, context=None, filename="relatorio.pdf"):
     """
     View genérica para gerar PDFs.
-
-    :param request: HttpRequest object.
-    :param template_name: Nome do template HTML.
-    :param queryset: QuerySet com os dados a serem renderizados.
-    :param context: Dicionário de contexto adicional (opcional).
-    :param filename: Nome do arquivo PDF gerado.
-    :return: HttpResponse com o PDF.
     """
-    # Cria o contexto padrão
-    if context is None:
-        context = {}
-    context['dados'] = queryset  # Passa o queryset para o template
-    context['relatorio_nome'] = relatorio_nome  # Passa o queryset para o template
+    print("Iniciando gerar_pdf_generico")  # Debug
+    try:
+        # Cria o contexto padrão
+        if context is None:
+            context = {}
+        context['dados'] = queryset  # Passa o queryset para o template
+        context['relatorio_nome'] = relatorio_nome  # Passa o queryset para o template
+        print(f"Contexto preparado: {context.keys()}")  # Debug
+
+        # Renderiza o template HTML com os dados
+        print(f"Tentando renderizar template: {template_name}")  # Debug
+        html_string = render_to_string(template_name, context)
+        print("Template renderizado com sucesso")  # Debug
+
+        # Cria um objeto HTML do WeasyPrint
+        print("Criando objeto HTML do WeasyPrint")  # Debug
+        html = HTML(string=html_string, base_url=request.build_absolute_uri())
+        print("Objeto HTML criado com sucesso")  # Debug
+
+        # Gera o PDF
+        print("Gerando arquivo PDF temporário")  # Debug
+        pdf_file = tempfile.NamedTemporaryFile(delete=False)
+        html.write_pdf(target=pdf_file.name)
+        print(f"PDF gerado em: {pdf_file.name}")  # Debug
+
+        # Lê o conteúdo do arquivo PDF
+        pdf_file.seek(0)
+        pdf = pdf_file.read()
+        pdf_file.close()
+        print("PDF lido com sucesso")  # Debug
+
+        # Retorna o PDF como uma resposta HTTP
+        response = HttpResponse(pdf, content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        print("Resposta HTTP preparada com sucesso")  # Debug
+        return response
+
+    except Exception as e:
+        print(f"ERRO em gerar_pdf_generico: {str(e)}")  # Debug
+        print(f"Tipo do erro: {type(e).__name__}")  # Debug
+        print(f"Template usado: {template_name}")  # Debug
+        print(f"Tamanho do queryset: {len(queryset) if queryset else 0}")  # Debug
+        raise
 
 
-    # Renderiza o template HTML com os dados
-    html_string = render_to_string(template_name, context)
-
-    # Cria um objeto HTML do WeasyPrint
-    html = HTML(string=html_string, base_url=request.build_absolute_uri())
-
-    # Gera o PDF
-    pdf_file = tempfile.NamedTemporaryFile(delete=False)
-    html.write_pdf(target=pdf_file.name)
-
-    # Lê o conteúdo do arquivo PDF
-    pdf_file.seek(0)
-    pdf = pdf_file.read()
-    pdf_file.close()
-
-    # Retorna o PDF como uma resposta HTTP
-    response = HttpResponse(pdf, content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="{filename}"'
-    return response
+O
 
 
 
@@ -432,30 +445,26 @@ class ApreensaoRelatorioView(UserPassesTestMixin, LoginRequiredMixin, ListView):
         queryset = self.get_queryset()
         data_inicial = self.request.GET.get('dataInicial', '')
         relatorio_nome = 'Apreensões'
-        print(f'data_inicial: {data_inicial}')
-
-        # Verifique o queryset
-        print("Queryset:", queryset)
-        print("Query params:", request.GET)
 
         if action == 'gerar_pdf_detalhado':
-            queryset = queryset
-            campos = ['data', 'natureza', 'objeto', 'quantidade', 'unidade', 'descricao']
-            return gerar_pdf_generico(
-                request,
-                template_name='relatorios/relatorio_generico_pdf.html',
-                queryset=queryset,
-                context={'campos': campos},
-                filename="relatorio_apreensoes.pdf",
-                relatorio_nome=relatorio_nome
-            )
-        # elif action == 'excel_detalhado':
-        #     return excel_detalhado(request)
-        # elif action == 'arquivos_assinados':
-        #     return criar_arquivo_zip(request, queryset)
-        # elif action == 'gerar_pdf':
-        #     return gerar_pdf_ajuda_custo(request, queryset)
-        return super().get(request, *args, **kwargs)
+            print("Iniciando geração de PDF detalhado")  # Debug
+            try:
+                queryset = queryset
+                campos = ['data', 'natureza', 'objeto', 'quantidade', 'unidade', 'descricao']
+                print(f"Tamanho do queryset: {len(queryset)}")  # Debug
+                print(f"Campos selecionados: {campos}")  # Debug
+
+                return gerar_pdf_generico(
+                    request,
+                    template_name='relatorios/relatorio_generico_pdf.html',
+                    queryset=queryset,
+                    context={'campos': campos},
+                    filename="relatorio_apreensoes.pdf",
+                    relatorio_nome=relatorio_nome
+                )
+            except Exception as e:
+                print(f"Erro ao gerar PDF detalhado: {str(e)}")  # Debug
+                raise
 
 
 class ApreensaoAddView(UserPassesTestMixin, LoginRequiredMixin, FormView):
