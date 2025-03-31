@@ -183,9 +183,6 @@ def gerar_pdf_generico(request, template_name, queryset, relatorio_nome, context
         raise
 
 
-O
-
-
 
 # Create your views here.
 
@@ -445,6 +442,11 @@ class ApreensaoRelatorioView(UserPassesTestMixin, LoginRequiredMixin, ListView):
         queryset = self.get_queryset()
         data_inicial = self.request.GET.get('dataInicial', '')
         relatorio_nome = 'Apreensões'
+        print(f'data_inicial: {data_inicial}')
+
+        # Verifique o queryset
+        print("Queryset:", queryset)
+        print("Query params:", request.GET)
 
         if action == 'gerar_pdf_detalhado':
             print("Iniciando geração de PDF detalhado")  # Debug
@@ -465,7 +467,7 @@ class ApreensaoRelatorioView(UserPassesTestMixin, LoginRequiredMixin, ListView):
             except Exception as e:
                 print(f"Erro ao gerar PDF detalhado: {str(e)}")  # Debug
                 raise
-
+        return super().get(request, *args, **kwargs)
 
 class ApreensaoAddView(UserPassesTestMixin, LoginRequiredMixin, FormView):
     form_class = ApreensaoForm
