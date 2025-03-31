@@ -6,37 +6,36 @@ from datetime import datetime, timedelta
 from django.utils.timezone import now
 
 
-
-
-
-
 #grafico pizza
 
-def calculate_pie_apreensao():
-    # Criar dicionário para armazenar os dados do gráfico
+def calculate_pie_apreensao(mes=None, ano=None):
     pie_data = {}
-
-    # Definir o intervalo de 12 meses a partir de agora
-    data_inicio = now() - timedelta(days=365)
-
-    # Iterar sobre todas as naturezas disponíveis no modelo Natureza
     naturezas = Natureza.objects.all()
 
-    for natureza in naturezas:
-        # Filtrar as apreensões relacionadas à natureza nos últimos 12 meses
-        total = natureza.apreensao_set.filter(data__gte=data_inicio).count()
+    # Criar o filtro baseado nos parâmetros recebidos
+    filters = {}
+    if mes:
+        filters['data__month'] = mes
+    if ano:
+        filters['data__year'] = ano
 
-        if total > 0:  # Apenas incluir no gráfico se houver registros
+    for natureza in naturezas:
+        # Aplicar os filtros se existirem
+        query = natureza.apreensao_set.all()
+        if filters:
+            query = query.filter(**filters)
+
+        total = query.count()
+
+        if total > 0:
             pie_data[natureza.nome] = total
 
-    # Separar os dados em labels e valores
-    labels = list(pie_data.keys())
-    values = list(pie_data.values())
+    # Ordenar por quantidade (opcional)
+    sorted_items = sorted(pie_data.items(), key=lambda x: x[1], reverse=True)
+    labels = [item[0] for item in sorted_items]
+    values = [item[1] for item in sorted_items]
 
     return labels, values
-
-
-
 
 def calculate_bar_chart(queryset, ano_atual, mes_atual):
     """
@@ -72,5 +71,6 @@ def calculate_bar_chart(queryset, ano_atual, mes_atual):
     monthly_labels.reverse()
 
     return monthly_totals, monthly_labels
+
 
 
