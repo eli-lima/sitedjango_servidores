@@ -30,108 +30,130 @@ from django.utils.dateparse import parse_date
 
 #gerar pdf
 def relatorio_resumido_apreensao(request):
-    # Obter mês/ano atual
-    agora = datetime.now()
-    mes_atual = agora.month
-    ano_atual = agora.year
+    print("Iniciando relatorio_resumido_apreensao")  # Debug
 
-    # Obter filtros com valores padrão
-    mes_selecionado = int(request.GET.get('mes', mes_atual))
-    ano_selecionado = int(request.GET.get('ano', ano_atual))
-    # Pegar o nome do mês selecionado
-    nome_mes_selecionado = MESES_PT_BR.get(mes_selecionado, f"Mês {mes_selecionado}")
-    print(nome_mes_selecionado)
-    # Filtro base para todas as consultas
-    base_filter = {
-        'data__month': mes_selecionado,
-        'data__year': ano_selecionado
-    }
+    try:
+        # Obter mês/ano atual
+        agora = datetime.now()
+        mes_atual = agora.month
+        ano_atual = agora.year
+        print(f"Data atual: {agora} | Mês: {mes_atual} | Ano: {ano_atual}")  # Debug
 
-    # Total geral de apreensões
-    total_apreensoes = Apreensao.objects.filter(**base_filter).count()
+        # Obter filtros com valores padrão
+        mes_selecionado = int(request.GET.get('mes', mes_atual))
+        ano_selecionado = int(request.GET.get('ano', ano_atual))
+        print(f"Filtros recebidos - Mês: {mes_selecionado} | Ano: {ano_selecionado}")  # Debug
 
-    # Quantitativo por REISP (1° a 5°)
-    reisp_counts = {
-        f'reisp_{i}': Apreensao.objects.filter(**base_filter, unidade__reisp=i).count()
-        for i in range(1, 6)
-    }
+        # Pegar o nome do mês selecionado
+        nome_mes_selecionado = MESES_PT_BR.get(mes_selecionado, f"Mês {mes_selecionado}")
+        print(f"Nome mês selecionado: {nome_mes_selecionado}")  # Debug
 
-    # Dados para os gráficos usando sua função existente
-    periodo_12_meses = get_periodo_12_meses(mes_selecionado, ano_selecionado)
+        # Filtro base para todas as consultas
+        base_filter = {
+            'data__month': mes_selecionado,
+            'data__year': ano_selecionado
+        }
+        print(f"Filtro base: {base_filter}")  # Debug
 
-    # Preparar dados para o gráfico mensal
-    monthly_totals = []
-    monthly_labels = []
+        # Total geral de apreensões
+        total_apreensoes = Apreensao.objects.filter(**base_filter).count()
+        print(f"Total de apreensões: {total_apreensoes}")  # Debug
 
-    for ano, mes, nome_mes in periodo_12_meses:
-        count = Apreensao.objects.filter(data__year=ano, data__month=mes).count()
-        monthly_totals.append(count)
-        monthly_labels.append(f"{nome_mes[:3]}/{ano}")  # Formato "Jan/2025"
+        # Quantitativo por REISP (1° a 5°)
+        reisp_counts = {
+            f'reisp_{i}': Apreensao.objects.filter(**base_filter, unidade__reisp=i).count()
+            for i in range(1, 6)
+        }
+        print(f"Contagem por REISP: {reisp_counts}")  # Debug
 
-    # Gráfico de pizza
-    pie_labels_apreensao, pie_values_apreensao = calculate_pie_apreensao(
-        mes=mes_selecionado,
-        ano=ano_selecionado
-    )
+        # Dados para os gráficos
+        periodo_12_meses = get_periodo_12_meses(mes_selecionado, ano_selecionado)
+        print(f"Período 12 meses: {periodo_12_meses}")  # Debug
 
-    # Contexto com todas as variáveis necessárias
-    context = {
-        # Dados principais
-        'total_apreensoes': total_apreensoes,
-        'reisp_1': reisp_counts['reisp_1'],
-        'reisp_2': reisp_counts['reisp_2'],
-        'reisp_3': reisp_counts['reisp_3'],
-        'reisp_4': reisp_counts['reisp_4'],
-        'reisp_5': reisp_counts['reisp_5'],
+        # Preparar dados para o gráfico mensal
+        monthly_totals = []
+        monthly_labels = []
 
-        # Dados para gráficos
-        'labels_mensais': json.dumps(monthly_labels),
-        'values_mensais': json.dumps(monthly_totals),
-        'pie_labels_apreensao': json.dumps(pie_labels_apreensao),
-        'pie_values_apreensao': json.dumps(pie_values_apreensao),
+        for ano, mes, nome_mes in periodo_12_meses:
+            count = Apreensao.objects.filter(data__year=ano, data__month=mes).count()
+            monthly_totals.append(count)
+            monthly_labels.append(f"{nome_mes[:3]}/{ano}")
 
-        # Filtros e períodos
-        'meses': MESES_PT_BR,
-        'anos': [str(ano) for ano in range(ano_atual - 4, ano_atual + 1)],
-        'mes_selecionado': mes_selecionado,
-        'nome_mes_selecionado': nome_mes_selecionado,  # Adicione esta linha
-        'ano_selecionado': ano_selecionado,
-        'nome_mes': get_nome_mes(mes_selecionado),  # Nome completo do mês
+        print(f"Labels mensais: {monthly_labels}")  # Debug
+        print(f"Totais mensais: {monthly_totals}")  # Debug
 
-        # Configurações
-        'hide_nav': True,
-        'is_pdf': request.GET.get('pdf', False),
-        'base_url': request.build_absolute_uri('/')[:-1]
-    }
-
-    # Lógica para gerar PDF
-    if request.GET.get('pdf'):
-        context['is_pdf'] = True
-        html_string = render_to_string('relatorios/relatorio_resumido_pdf.html', context)
-
-        response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename="relatorio_apreensoes.pdf"'
-
-        HTML(
-            string=html_string,
-            base_url=request.build_absolute_uri()
-        ).write_pdf(
-            response,
-            stylesheets=[CSS(string='''
-                @page { size: A4 landscape; margin: 1.5cm; }
-                .no-print { display: none !important; }
-                .periodo-relatorio {
-                    text-align: center;
-                    margin-bottom: 1rem;
-                    font-size: 1.1rem;
-                    font-weight: bold;
-                }
-            ''')]
+        # Gráfico de pizza
+        pie_labels_apreensao, pie_values_apreensao = calculate_pie_apreensao(
+            mes=mes_selecionado,
+            ano=ano_selecionado
         )
-        return response
+        print(f"Labels pizza: {pie_labels_apreensao}")  # Debug
+        print(f"Valores pizza: {pie_values_apreensao}")  # Debug
 
-    # Versão HTML normal
-    return render(request, 'relatorios/relatorio_resumido_apreensao.html', context)
+        # Contexto
+        context = {
+            'total_apreensoes': total_apreensoes,
+            'reisp_1': reisp_counts['reisp_1'],
+            'reisp_2': reisp_counts['reisp_2'],
+            'reisp_3': reisp_counts['reisp_3'],
+            'reisp_4': reisp_counts['reisp_4'],
+            'reisp_5': reisp_counts['reisp_5'],
+            'labels_mensais': json.dumps(monthly_labels),
+            'values_mensais': json.dumps(monthly_totals),
+            'pie_labels_apreensao': json.dumps(pie_labels_apreensao),
+            'pie_values_apreensao': json.dumps(pie_values_apreensao),
+            'meses': MESES_PT_BR,
+            'anos': [str(ano) for ano in range(ano_atual - 4, ano_atual + 1)],
+            'mes_selecionado': mes_selecionado,
+            'nome_mes_selecionado': nome_mes_selecionado,
+            'ano_selecionado': ano_selecionado,
+            'nome_mes': get_nome_mes(mes_selecionado),
+            'hide_nav': True,
+            'is_pdf': request.GET.get('pdf', False),
+            'base_url': request.build_absolute_uri('/')[:-1]
+        }
+        print("Contexto preparado com sucesso")  # Debug
+
+        # Lógica para gerar PDF
+        if request.GET.get('pdf'):
+            print("Gerando versão PDF")  # Debug
+            try:
+                context['is_pdf'] = True
+                html_string = render_to_string('relatorios/relatorio_resumido_pdf.html', context)
+                print("Template PDF renderizado")  # Debug
+
+                response = HttpResponse(content_type='application/pdf')
+                response['Content-Disposition'] = 'attachment; filename="relatorio_apreensoes.pdf"'
+
+                HTML(
+                    string=html_string,
+                    base_url=request.build_absolute_uri()
+                ).write_pdf(
+                    response,
+                    stylesheets=[CSS(string='''
+                        @page { size: A4 landscape; margin: 1.5cm; }
+                        .no-print { display: none !important; }
+                        .periodo-relatorio {
+                            text-align: center;
+                            margin-bottom: 1rem;
+                            font-size: 1.1rem;
+                            font-weight: bold;
+                        }
+                    ''')]
+                )
+                print("PDF gerado com sucesso")  # Debug
+                return response
+            except Exception as e:
+                print(f"ERRO ao gerar PDF: {str(e)}")  # Debug
+                raise
+
+        # Versão HTML normal
+        print("Retornando versão HTML")  # Debug
+        return render(request, 'relatorios/relatorio_resumido_apreensao.html', context)
+
+    except Exception as e:
+        print(f"ERRO GLOBAL na view: {str(e)}", type(e).__name__)  # Debug
+        raise
 
 
 def gerar_pdf_generico(request, template_name, queryset, relatorio_nome, context=None, filename="relatorio.pdf"):
