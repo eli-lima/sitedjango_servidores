@@ -1,5 +1,5 @@
 {% load static %}
-<div class="pb-32 xl:pb-24">
+<div class="pb-16 xl:pb-24">
     <nav class="bg-gray-800 lg:py-4 xl:py-0 fixed w-full z-50 lg:px-8">
         <div class="mx-auto px-2 sm:px-4 lg:px-1">
             <div class="relative flex h-16 items-center justify-between">
@@ -7,7 +7,7 @@
                 <div class="absolute inset-y-0 left-0 flex items-center lg:hidden">
                     <button type="button" class="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white" aria-controls="mobile-menu" aria-expanded="false" id="mobile-menu-button">
                         <span class="sr-only">Abrir menu</span>
-                        <svg class="block h-16 w-16 sm:h-10 sm:w-10" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" id="icon-open">
+                        <svg class="block h-10 w-10 sm:h-10 sm:w-10" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" id="icon-open">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                         </svg>
                     </button>
@@ -61,26 +61,28 @@
                     </div>
                 </div>
 
-                <!-- Profile dropdown -->
                 {% if user.is_authenticated %}
                 <div class="absolute inset-y-0 right-0 flex items-center lg:static inset-auto ml-6 pr-0">
-                    <p class="hidden lg:block rounded-md pr-8 py-2 text-xs sm:text-base font-medium text-white">V 1.8.4</p>
+                    <p class="hidden lg:block rounded-md pr-8 py-2 text-xs sm:text-base font-medium text-white">V 1.9.4</p>
                     <p class="hidden lg:block rounded-md pr-8 py-2 text-xs sm:text-base font-medium text-white">
                         {{ user_role }}
                     </p>
 
-                    <button type="button" class="relative flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
-                        <span class="sr-only">Abrir menu do usuário</span>
-                        <img class="h-12 w-12 sm:h-12 sm:w-12 rounded-full" src="{% if user.foto_perfil %}{{ user.foto_perfil.url }}{% else %}{% static 'images/default.jpg' %}{% endif %}" alt="Imagen Perfil">
-                    </button>
-
-                    <div class="absolute right-0 z-10 mt-48 mr-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none hidden" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1" id="user-menu">
-                        <a href="{% url 'seappb:editarperfil' user.pk %}" class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-0">Seu Perfil</a>
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-1">Configurações</a>
-                        <form id="logout-form" action="{% url 'seappb:logout' %}" method="POST" style="display: none;">
-                            {% csrf_token %}
-                        </form>
-                        <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-2">Sair</a>
+                    <!-- Dropdown do Bootstrap -->
+                    <div class="dropdown">
+                        <button class="btn" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img class="h-12 w-12 rounded-full" src="{% if user.foto_perfil %}{{ user.foto_perfil.url }}{% else %}{% static 'images/default.jpg' %}{% endif %}" alt="Foto do usuário">
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" href="{% url 'seappb:editarperfil' user.pk %}">Perfil</a></li>
+                            <li><a class="dropdown-item" href="#">Configurações</a></li>
+                            <li>
+                                <form method="post" action="{% url 'seappb:logout' %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="dropdown-item">Sair</button>
+                                </form>
+                            </li>
+                        </ul>
                     </div>
                 </div>
                 {% endif %}
@@ -166,7 +168,7 @@
                                 Perfil
                             </a>
                             <a href="#" class="flex items-center px-4 py-3 text-base font-medium rounded-md text-gray-300 hover:bg-gray-700 hover:text-white">
-                                <ion-icon name="settings" class="mr-3 text-lg"></ion-icon>
+                                <ion-icon name="setting" class="mr-3 text-lg"></ion-icon>
                                 Configurações
                             </a>
                             <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="flex items-center px-4 py-3 text-base font-medium rounded-md text-gray-300 hover:bg-gray-700 hover:text-white">
@@ -183,59 +185,36 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Menu mobile principal
-    const mobileMenuButton = document.getElementById('mobile-menu-button');
-    const mobileMenu = document.getElementById('mobile-menu');
-    const iconClose = document.getElementById('icon-close');
+    document.addEventListener('DOMContentLoaded', function() {
+        // Menu mobile principal
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const iconClose = document.getElementById('icon-close');
 
-    mobileMenuButton.addEventListener('click', function() {
-        mobileMenu.classList.toggle('-translate-x-full');
-        document.body.style.overflow = mobileMenu.classList.contains('-translate-x-full') ? '' : 'hidden';
-    });
+        mobileMenuButton.addEventListener('click', function() {
+            mobileMenu.classList.toggle('-translate-x-full');
+            document.body.style.overflow = mobileMenu.classList.contains('-translate-x-full') ? '' : 'hidden';
+        });
 
-    iconClose.addEventListener('click', function() {
-        mobileMenu.classList.add('-translate-x-full');
-        document.body.style.overflow = '';
-    });
-
-    // Submenu Gesipe mobile
-    const gesipeToggle = document.getElementById('gesipe-toggle');
-    const gesipeMenu = document.getElementById('gesipe-menu');
-    const gesipeArrow = document.getElementById('gesipe-arrow');
-
-    gesipeToggle.addEventListener('click', function() {
-        // Alternar a rotação do ícone
-        gesipeArrow.classList.toggle('rotate-180');
-
-        // Alternar a altura do menu
-        if (gesipeMenu.classList.contains('max-h-0')) {
-            gesipeMenu.classList.remove('max-h-0');
-            gesipeMenu.classList.add('max-h-96', 'py-2');
-        } else {
-            gesipeMenu.classList.add('max-h-0');
-            gesipeMenu.classList.remove('max-h-96', 'py-2');
-        }
-    });
-
-    // Menu do perfil
-    const userMenuButton = document.getElementById('user-menu-button');
-    const userMenu = document.getElementById('user-menu');
-
-    userMenuButton.addEventListener('click', function() {
-        userMenu.classList.toggle('hidden');
-    });
-
-    // Fechar menus ao clicar fora
-    document.addEventListener('click', function(event) {
-        if (!mobileMenu.contains(event.target) && !mobileMenuButton.contains(event.target)) {
+        iconClose.addEventListener('click', function() {
             mobileMenu.classList.add('-translate-x-full');
             document.body.style.overflow = '';
-        }
+        });
 
-        if (!userMenu.contains(event.target) && !userMenuButton.contains(event.target)) {
-            userMenu.classList.add('hidden');
-        }
+        // Submenu Gesipe mobile
+        const gesipeToggle = document.getElementById('gesipe-toggle');
+        const gesipeMenu = document.getElementById('gesipe-menu');
+        const gesipeArrow = document.getElementById('gesipe-arrow');
+
+        gesipeToggle.addEventListener('click', function() {
+            gesipeArrow.classList.toggle('rotate-180');
+            if (gesipeMenu.classList.contains('max-h-0')) {
+                gesipeMenu.classList.remove('max-h-0');
+                gesipeMenu.classList.add('max-h-96', 'py-2');
+            } else {
+                gesipeMenu.classList.add('max-h-0');
+                gesipeMenu.classList.remove('max-h-96', 'py-2');
+            }
+        });
     });
-});
 </script>
