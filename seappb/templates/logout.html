@@ -1,23 +1,31 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block titulo %}
-Pagina de Logout
+Página de Logout
 {% endblock %}
 
-
 {% block content %}
+<header class="min-h-screen bg-gray-900 border-b-8 border-gray-600 flex justify-center items-center">
+    <div class="container mx-auto px-4 py-16 text-center">
+        <div class="max-w-2xl mx-auto bg-gray-800 rounded-lg shadow-xl p-8">
+            <h2 class="text-2xl md:text-3xl lg:text-4xl font-semibold text-white mb-8">
+                Você saiu da sua conta
+            </h2>
 
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <div>1</div>
+                <div>2</div>
+                <a href="{% url 'seappb:login' %}"
+                   class="bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-6 rounded-md text-lg transition duration-300">
+                    Fazer Login
+                </a>
 
-     <header class="min-h-screen showcase border-gray-600 border-b-8 flex justify-center items-center bg-no-repeat"  style="background-image: url('#');">
-        <div class="z-10 h-full py-32 md:py-0 text-center flex items-center flex-col">
-            <h2 class="font-semibold text-4xl xl:text-2xl">Você saiu da sua conta</h2>
-            <div class="flex flex-nowrap justify-center space-x-5 p-5">
-
-                <a href="{% url 'seappb:login'%}"><button class="bg-gray-900 py-8 xl:py-4 xl:text-lg text-5xl xl:px-3 px-4 text-white rounded-md">Fazer Login</button></a>
-                <a href="{% url 'seappb:criarconta'%}"><button class="bg-gray-900 py-8 xl:py-4 xl:text-lg text-5xl xl:px-3 px-4 text-white rounded-md">Criar uma Conta</button></a>
-
+                <a href="{% url 'seappb:criarconta' %}"
+                   class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-3 px-6 rounded-md text-lg transition duration-300">
+                    Criar uma Conta
+                </a>
             </div>
         </div>
-    </header>
-
+    </div>
+</header>
 {% endblock %}
