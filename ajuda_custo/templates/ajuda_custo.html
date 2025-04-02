@@ -203,13 +203,26 @@ Ajuda de Custo
         <div class="p-4 bg-gray-50">
             <form method="GET" class="flex flex-col sm:flex-row gap-4">
                 <div class="flex-1 flex flex-col sm:flex-row gap-4">
-                    <input type="date" name="dataInicial" value="{{ dataInicial|date:'Y-m-d' }}"
-                           class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm">
-                    <input type="date" name="dataFinal" value="{{ dataFinal|date:'Y-m-d' }}"
-                           class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm">
+                    <input class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
+                                   type="date" name="dataInicial" id="dataInicial" value="{{ dataInicial|date:'Y-m-d' }}"
+                                   hx-get="{% url 'ajuda_custo:ajuda_custo_list' %}"
+                                   hx-trigger="change delay:500ms"
+                                   hx-target="#content2"
+                                   hx-include="[name='dataFinal'], [name='query']">
+                    <input class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
+                                   type="date" name="dataFinal" id="dataFinal" value="{{ dataFinal|date:'Y-m-d' }}"
+                                   hx-get="{% url 'ajuda_custo:ajuda_custo_list' %}"
+                                   hx-trigger="change delay:500ms"
+                                   hx-target="#content2"
+                                   hx-include="[name='dataInicial'], [name='query']">
                 </div>
-                <input type="text" name="query" placeholder="Pesquisar..." value="{{ query }}"
-                       class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm">
+                <input type="text" name="query"
+                                   class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
+                                   placeholder="Pesquisar..." value="{{ query }}"
+                                   hx-get="{% url 'ajuda_custo:ajuda_custo_list' %}"
+                                   hx-trigger="keyup changed delay:500ms"
+                                   hx-target="#content2"
+                                   hx-include="[name='dataInicial'], [name='dataFinal']">
             </form>
         </div>
 
@@ -315,6 +328,29 @@ Ajuda de Custo
     document.querySelector('form[method="GET"]').addEventListener('change', function() {
         this.submit();
     });
+</script>
+
+<!--data ultimo mes-->
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const dataInicialField = document.getElementById('dataInicial');
+    const dataFinalField = document.getElementById('dataFinal');
+
+    // Verificar se os campos já têm valores (vindos do Django)
+    if (!dataInicialField.value) {
+        const now = new Date();
+        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+        dataInicialField.value = firstDay.toISOString().split('T')[0];  // Define apenas se estiver vazio
+    }
+
+    if (!dataFinalField.value) {
+        const now = new Date();
+        const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        dataFinalField.value = lastDay.toISOString().split('T')[0];  // Define apenas se estiver vazio
+    }
+});
+
 </script>
 
 {% endblock %}
