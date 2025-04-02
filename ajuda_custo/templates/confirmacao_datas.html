@@ -46,7 +46,7 @@ Ajuda de Custo Confirmação
         </div>
 
         <!-- Verification Form -->
-        <form method="POST" enctype="multipart/form-data" class="space-y-6">
+        <form method="POST" enctype="multipart/form-data" class="space-y-6" id="verificationForm">
             {% csrf_token %}
             <div class="bg-white shadow-md rounded-lg overflow-hidden">
                 <!-- Verification Header -->
@@ -61,16 +61,16 @@ Ajuda de Custo Confirmação
                     </p>
 
                     <div class="max-w-xs mx-auto">
-                        <div class="bg-gray-100 rounded-full p-1 shadow-inner">
+                        <div class="bg-gray-100 rounded-lg p-1 shadow-inner">
                             <input
                                 type="text"
                                 id="codigo_verificacao"
                                 name="codigo_verificacao"
-                                class="w-full bg-transparent py-3 px-6 text-center text-xl sm:text-2xl font-bold tracking-widest outline-none"
-                                placeholder="6 dígitos"
-                                maxlength="6"
-                                pattern="\d{6}"
-                                required>
+                                class="w-full bg-white py-3 px-6 text-center text-xl sm:text-2xl font-bold tracking-widest border-none focus:ring-2 focus:ring-green-500 rounded-lg"
+                                placeholder="Digite o código"
+                                maxlength="10"
+                                autocomplete="one-time-code"
+                                autofocus>
                         </div>
                     </div>
 
@@ -91,8 +91,8 @@ Ajuda de Custo Confirmação
                         Confirmar Datas
                     </button>
                     <button
-                        type="submit"
-                        name="reenviar_codigo"
+                        type="button"
+                        id="reenviarBtn"
                         class="px-6 py-3 bg-gray-600 text-white font-medium rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
                         Reenviar Código
                     </button>
@@ -145,10 +145,34 @@ document.addEventListener("DOMContentLoaded", function() {
 
     setInterval(updateCountdown, 1000);
 
-    // Input formatting for verification code
-    const codeInput = document.getElementById("codigo_verificacao");
-    codeInput.addEventListener("input", function() {
-        this.value = this.value.replace(/\D/g, '').slice(0, 6);
+    // Reenviar Código Button
+    const reenviarBtn = document.getElementById("reenviarBtn");
+    const verificationForm = document.getElementById("verificationForm");
+
+    reenviarBtn.addEventListener("click", function() {
+        // Cria um form temporário apenas para o reenvio
+        const tempForm = document.createElement("form");
+        tempForm.method = "POST";
+        tempForm.action = "";
+        tempForm.style.display = "none";
+
+        // Adiciona o CSRF token
+        const csrfInput = document.createElement("input");
+        csrfInput.type = "hidden";
+        csrfInput.name = "csrfmiddlewaretoken";
+        csrfInput.value = document.querySelector("input[name='csrfmiddlewaretoken']").value;
+        tempForm.appendChild(csrfInput);
+
+        // Adiciona campo para identificar o reenvio
+        const reenviarInput = document.createElement("input");
+        reenviarInput.type = "hidden";
+        reenviarInput.name = "reenviar_codigo";
+        reenviarInput.value = "true";
+        tempForm.appendChild(reenviarInput);
+
+        // Adiciona ao body e submete
+        document.body.appendChild(tempForm);
+        tempForm.submit();
     });
 });
 </script>
