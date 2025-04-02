@@ -3,29 +3,25 @@
 {% load static %}
 
 {% block titulo %}
-Adicionar Ajuda de Custo
+Gesipe Administrativo
 {% endblock %}
 
 {% block content %}
-<div class="px-4 sm:px-6 lg:px-8 py-6">
+<div class="px-4 sm:px-6 lg:px-8 py-6" >
     <div class="bg-white rounded-xl shadow-md p-6 sm:p-8 max-w-4xl mx-auto">
         <!-- Header -->
         <div class="text-center mb-8">
             <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Preencha o Mês e Ano</h1>
         </div>
-
-        <!-- Main Form -->
-        <form method="POST" enctype="multipart/form-data" class="space-y-6">
+        <form class="space-y-6" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
-
-            <!-- Month/Year Selection -->
             <div class="flex flex-col sm:flex-row gap-6 justify-center">
-                <!-- Month Field -->
+                <!-- Menu Mês -->
                 <div class="flex-1">
                     <label class="block text-sm sm:text-base font-medium text-gray-700 mb-1">
                         {{ form.mes.label }}
                     </label>
-                    {{ form.mes }}
+                        {{ form.mes }}
                     {% if form.mes.errors %}
                         <ul class="mt-1 text-sm text-red-600">
                             {% for error in form.mes.errors %}
@@ -35,12 +31,12 @@ Adicionar Ajuda de Custo
                     {% endif %}
                 </div>
 
-                <!-- Year Field -->
+                <!-- Menu Ano -->
                 <div class="flex-1">
                     <label class="block text-sm sm:text-base font-medium text-gray-700 mb-1">
                         {{ form.ano.label }}
                     </label>
-                    {{ form.ano }}
+                        {{ form.ano }}
                     {% if form.ano.errors %}
                         <ul class="mt-1 text-sm text-red-600">
                             {% for error in form.ano.errors %}
@@ -51,19 +47,17 @@ Adicionar Ajuda de Custo
                 </div>
             </div>
 
-            <!-- Dates Form Section -->
+            <!-- Formulário com as datas -->
             <div class="border border-gray-200 rounded-lg p-4 sm:p-6 mt-8">
                 <h2 class="text-center text-xl sm:text-2xl font-bold text-gray-800 mb-6">Adicionar Datas</h2>
-
                 <div id="formContainer" class="space-y-4">
-                    <!-- Initial Form Row -->
                     <div class="flex flex-col sm:flex-row gap-4 items-start border-b border-gray-100 pb-4 form-row" id="formRow_1">
-                        <!-- Day Field -->
+                        <!-- menu Dia -->
                         <div class="flex-1">
                             <label class="block text-sm sm:text-base font-medium text-gray-700 mb-1">
                                 {{ form.dia.label }}
                             </label>
-                            {{ form.dia }}
+                                {{ form.dia }}
                             {% if form.dia.errors %}
                                 <ul class="mt-1 text-sm text-red-600">
                                     {% for error in form.dia.errors %}
@@ -72,13 +66,12 @@ Adicionar Ajuda de Custo
                                 </ul>
                             {% endif %}
                         </div>
-
-                        <!-- Unit Field -->
+                        <!-- menu Unidade -->
                         <div class="flex-1">
                             <label class="block text-sm sm:text-base font-medium text-gray-700 mb-1">
                                 {{ form.unidade.label }}
                             </label>
-                            {{ form.unidade }}
+                                {{ form.unidade }}
                             {% if form.unidade.errors %}
                                 <ul class="mt-1 text-sm text-red-600">
                                     {% for error in form.unidade.errors %}
@@ -87,13 +80,12 @@ Adicionar Ajuda de Custo
                                 </ul>
                             {% endif %}
                         </div>
-
-                        <!-- Work Hours Field -->
+                        <!-- menu Carga Horária -->
                         <div class="flex-1">
                             <label class="block text-sm sm:text-base font-medium text-gray-700 mb-1">
                                 {{ form.carga_horaria.label }}
                             </label>
-                            {{ form.carga_horaria }}
+                                {{ form.carga_horaria }}
                             {% if form.carga_horaria.errors %}
                                 <ul class="mt-1 text-sm text-red-600">
                                     {% for error in form.carga_horaria.errors %}
@@ -102,8 +94,6 @@ Adicionar Ajuda de Custo
                                 </ul>
                             {% endif %}
                         </div>
-
-                        <!-- Action Buttons -->
                         <div class="flex gap-2 sm:w-auto">
                             <button type="button" class="add-date-btn px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm sm:text-base">
                                 <i class="bi bi-plus-circle"></i>
@@ -114,26 +104,40 @@ Adicionar Ajuda de Custo
                         </div>
                     </div>
                 </div>
+
+
+
+
+
+
+        <!-- Button trigger modal -->
+        <div class="justify-center flex items-center my-8">
+            <button type="submit" class="px-6 py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 text-sm sm:text-base">
+                Enviar Datas
+            </button>
+        </div>
+
+
+
+
+
+
+
+
+
+
             </div>
 
-            <!-- Submit Button -->
-            <div class="flex justify-center mt-8">
-                <button type="submit" class="px-6 py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 text-sm sm:text-base">
-                    Enviar Datas
-                </button>
-            </div>
         </form>
     </div>
 </div>
-
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function () {
     let formCounter = 1;
     const maxForms = 16;
 
-    // Event delegation for add/remove buttons
+    // Usando event delegation para capturar os cliques nos botões "Adicionar" e "Remover"
     document.getElementById('formContainer').addEventListener('click', function (e) {
-        // Add new form row
         if (e.target && e.target.closest('.add-date-btn')) {
             if (formCounter >= maxForms) {
                 return;
@@ -143,51 +147,46 @@ document.addEventListener('DOMContentLoaded', function () {
             const firstRow = document.querySelector('.form-row');
             const newFormRow = firstRow.cloneNode(true);
 
-            // Update cloned fields with new IDs and names
+            // Atualiza os campos clonados com novos IDs e names
             newFormRow.id = `formRow_${formCounter}`;
-            newFormRow.classList.remove('border-b');
-            newFormRow.querySelectorAll('input, select').forEach(function (input) {
-                const name = input.name.split('_')[0];
+            newFormRow.querySelectorAll('input').forEach(function (input, index) {
+                const name = input.name.split('_')[0]; // Extrai o nome base (ex: 'dia', 'unidade')
                 input.name = `${name}_${formCounter}`;
                 input.id = `${name}_${formCounter}`;
-                input.value = '';
-                input.classList.remove('is-invalid');
+                input.value = ''; // Limpa o valor dos novos campos clonados
             });
-
-            // Clear any error messages
-            const errorLists = newFormRow.querySelectorAll('ul');
-            errorLists.forEach(list => list.remove());
 
             document.getElementById('formContainer').appendChild(newFormRow);
 
-            // Disable add button if max forms reached
             if (formCounter >= maxForms) {
                 document.querySelector('.add-date-btn').setAttribute('disabled', 'disabled');
             }
 
-            // Enable remove buttons for all rows
+            // Ativa os botões de remoção para todos os novos conjuntos de campos
             document.querySelectorAll('.remove-date-btn').forEach(btn => btn.removeAttribute('disabled'));
         }
 
-        // Remove form row
+        // Evento para remover a linha do formulário
         if (e.target && e.target.closest('.remove-date-btn')) {
-            const rowToRemove = e.target.closest('.form-row');
-            if (document.querySelectorAll('.form-row').length > 1) {
-                rowToRemove.remove();
-                formCounter--;
+            e.target.closest('.form-row').remove();
+            formCounter--;
 
-                // Re-enable add button if below max
-                if (formCounter < maxForms) {
-                    document.querySelector('.add-date-btn').removeAttribute('disabled');
-                }
+            if (formCounter < maxForms) {
+                document.querySelector('.add-date-btn').removeAttribute('disabled');
+            }
 
-                // Disable remove button if only one row left
-                if (formCounter === 1) {
-                    document.querySelector('.remove-date-btn').setAttribute('disabled', 'disabled');
-                }
+            // Desativa o botão de remoção se restar apenas um conjunto de campos
+            if (formCounter === 1) {
+                document.querySelector('.remove-date-btn').setAttribute('disabled', 'disabled');
             }
         }
     });
 });
+
+
 </script>
+
+
+
+
 {% endblock %}

@@ -59,7 +59,6 @@ def custom_403(request, exception):
     return render(request, '403.html', context, status=403)
 
 
-
 class Homepage(LoginRequiredMixin, TemplateView):
     template_name = "homepage.html"
 
@@ -262,7 +261,7 @@ class Criarconta(HideNavMixin, FormView):
         # Adiciona o usuário ao grupo "Comum" após salvar
         padrao_group = Group.objects.get(name="Padrao")
         usuario.groups.add(padrao_group)
-
+        messages.success(self.request, 'Usuário Com Sucesso!')
         return super().form_valid(form)
 
 
