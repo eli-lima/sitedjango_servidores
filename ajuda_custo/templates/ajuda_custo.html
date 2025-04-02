@@ -77,7 +77,7 @@ Ajuda de Custo
         </div>
     </div>
 
-    {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups %}
+
     <!-- Card 3 -->
     <div class="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
         <div class="flex justify-between items-center">
@@ -91,6 +91,8 @@ Ajuda de Custo
         </div>
     </div>
 
+
+    {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups or 'Gerente' in user_groups %}
     <!-- Card 4 -->
     <div class="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
         <div class="flex justify-between items-center">
@@ -151,7 +153,27 @@ Ajuda de Custo
     {% endif %}
 
     {% if 'Gerente' in user_groups %}
-    <!-- Additional Gerente actions -->
+     <!-- horas gerente -->
+    <div class="bg-white rounded-lg shadow-md p-6 flex flex-col">
+        <div class="mb-4">
+            <h3 class="text-lg font-semibold">Carga Horaria Servidor</h3>
+            <p class="mt-2 text-sm text-gray-600">Estipular a Carga Horaria Mensal de Servidor</p>
+        </div>
+        <a href="{% url 'ajuda_custo:cargahoraria_gerente' %}" class="mt-auto w-full py-2 px-4 text-center text-white text-sm sm:text-base rounded-md font-medium bg-gray-600 hover:bg-gray-700">
+            Gerenciar
+        </a>
+    </div>
+    <!-- relatorios completos -->
+    <div class="bg-white rounded-lg shadow-md p-6 flex flex-col">
+        <div class="mb-4">
+            <h3 class="text-lg font-semibold">Relatórios Ajuda Custo</h3>
+            <p class="mt-2 text-sm text-gray-600">Consultar e Gerar Relatórios Mensal de Ajuda de Custo.</p>
+        </div>
+        <a href="{% url 'ajuda_custo:relatorio_ajuda_custo' %}" class="mt-auto w-full py-2 px-4 text-center text-white text-sm sm:text-base rounded-md font-medium bg-gray-600 hover:bg-gray-700">
+            Gerenciar
+        </a>
+    </div>
+
     {% endif %}
 </div>
 
