@@ -22,78 +22,90 @@ HomePage SeapPB
 
             <!-- Card 1 -->
 
-                <div class="shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
+                <div class="shadow-xl rounded-2xl transform hover:scale-105 transition duration-300 h-full">
                     <div class="flex flex-row justify-between items-center h-full px-4">
-                        <div class="flex flex-col justify-between h-full py-10">
-                            <div class="pb-4">
-                                <h3 class="font-bold text-size uppercase xl:text-base text-lg">Servidores Cadastrados</h3>
+                        <div class="flex flex-col justify-between h-full py-6 md:py-4">
+                            <div class="pb-2 md:pb-4">
+                                <h3 class="font-bold text-size uppercase text-lg xl:text-base">Servidores Cadastrados</h3>
                             </div>
                             <div>
-                                <p class="px-2 bg-black rounded text-white font-semibold xl:text-base text-lg">{{ total_servidores }}</p>
+                                <p class="px-2 bg-black rounded text-white font-semibold text-lg xl:text-base">{{ total_servidores }}</p>
                             </div>
                         </div>
-                        <div class="bg-black rounded-full h-20 min-w-20 flex items-center justify-center">
-                            <i class="fs-1 bi bi-people-fill text-white"></i>
-                        </div>
 
+                        <!-- Container da imagem - Versão corrigida -->
+                        <div class="hidden md:flex items-center justify-center rounded-full bg-black h-16 w-16 min-w-[4rem]">
+                            <img src="{% static 'icons/guard-prison.png' %}" alt="Ícone servidores"
+                                 class="h-8 w-8 object-contain">
+                        </div>
                     </div>
                 </div>
 <!--            card 2-->
 
-               <div class="shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
+                <div class="shadow-xl rounded-2xl transform hover:scale-105 transition duration-300 h-full">
                     <div class="flex flex-row justify-between items-center h-full px-4">
-                        <div class="flex flex-col justify-between h-full py-10">
-                            <div class="pb-4">
-                                <h3 class="font-bold text-size uppercase xl:text-base text-lg">Policiais Penais Total</h3>
-
+                        <div class="flex flex-col justify-between h-full py-6 md:py-4">
+                            <div class="pb-2 md:pb-4">
+                                <h3 class="font-bold text-size uppercase text-lg xl:text-base">Total de Policiais Penais</h3>
                             </div>
                             <div>
-                                <p class="px-2 bg-blue-600 rounded text-white font-semibold xl:text-base text-lg">{{ total_policiais_penal }}</p>
+                                <p class="px-2 bg-black rounded text-white font-semibold text-lg xl:text-base">{{ total_policiais_penal }}</p>
                             </div>
                         </div>
-                        <div class="bg-blue-600 rounded-full h-20 min-w-20 flex items-center justify-center">
-                            <img src="{% static 'icons/guard-prison.png' %}" alt="add-grupo" class=" h-10 w-10">
-                        </div>
 
+                        <!-- Container da imagem - Versão corrigida -->
+                        <div class="hidden md:flex items-center justify-center rounded-full bg-black h-16 w-16 min-w-[4rem]">
+                            <img src="{% static 'icons/guard-prison.png' %}" alt="Ícone servidores"
+                                 class="h-8 w-8 object-contain">
+                        </div>
                     </div>
                 </div>
 
 
 
             <!-- Card 3 -->
-            <div class="shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
-                <div class="flex flex-row justify-between items-center h-full px-4">
-                    <div class="flex flex-col justify-between h-full py-10">
-                        <div class="pb-4">
-                            <h3 class="font-bold text-size uppercase xl:text-base text-lg">Policiais Penais em Atividade</h3>
+                <div class="shadow-xl rounded-2xl transform hover:scale-105 transition duration-300 h-full">
+                    <div class="flex flex-row justify-between items-center h-full px-4">
+                        <div class="flex flex-col justify-between h-full py-6 md:py-4">
+                            <div class="pb-2 md:pb-4">
+                                <h3 class="font-bold text-size uppercase text-lg xl:text-base">Policiais Penais em Atividade</h3>
+                            </div>
+                            <div>
+                                <p class="px-2 bg-black rounded text-white font-semibold text-lg xl:text-base">{{ total_servidores_ativos_policial_penal }}</p>
+                            </div>
                         </div>
-                        <div>
-                            <p class="px-2 bg-green-600 rounded text-white font-semibold xl:text-base text-lg">{{ total_servidores_ativos_policial_penal }}</p>
+
+                        <!-- Container da imagem - Versão corrigida -->
+                        <div class="hidden md:flex items-center justify-center rounded-full bg-green-600 h-16 w-16 min-w-[4rem]">
+                            <img src="{% static 'icons/guard-prison.png' %}" alt="Ícone servidores"
+                                 class="h-8 w-8 object-contain">
                         </div>
-                    </div>
-                    <div class="bg-green-600 rounded-full h-20 min-w-20 flex items-center justify-center">
-                        <img src="{% static 'icons/guard-prison.png' %}" alt="add-grupo" class=" h-10 w-10">
                     </div>
                 </div>
-            </div>
 
 <!--        card 4-->
 
-            <div class="shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
-                <div class="flex flex-row justify-between items-center h-full px-4">
-                    <div class="flex flex-col justify-between h-full py-10">
-                        <div class="pb-4">
-                            <h3 class="font-bold text-size uppercase xl:text-base text-lg">Policiais Penais Fora De Serviço</h3>
+
+
+
+                <div class="shadow-xl rounded-2xl transform hover:scale-105 transition duration-300 h-full">
+                    <div class="flex flex-row justify-between items-center h-full px-4">
+                        <div class="flex flex-col justify-between h-full py-6 md:py-4">
+                            <div class="pb-2 md:pb-4">
+                                <h3 class="font-bold text-size uppercase text-lg xl:text-base">Policiais Penais Fora De Serviço</h3>
+                            </div>
+                            <div>
+                                <p class="px-2 bg-black rounded text-white font-semibold text-lg xl:text-base">{{ total_servidores_inativos_policial_penal }}</p>
+                            </div>
                         </div>
-                        <div>
-                            <p class="px-2 bg-red-600 rounded text-white font-semibold xl:text-base text-lg">{{ total_servidores_inativos_policial_penal }}</p>
+
+                        <!-- Container da imagem - Versão corrigida -->
+                        <div class="hidden md:flex items-center justify-center rounded-full bg-red-600 h-16 w-16 min-w-[4rem]">
+                            <img src="{% static 'icons/guard-prison.png' %}" alt="Ícone servidores"
+                                 class="h-8 w-8 object-contain">
                         </div>
-                    </div>
-                    <div class="bg-red-600 rounded-full h-20 min-w-20 flex items-center justify-center">
-                        <img src="{% static 'icons/guard-prison.png' %}" alt="add-grupo" class=" h-10 w-10">
                     </div>
                 </div>
-            </div>
         </div>
         {% endif %}
 <!--        carrosel testes-->
@@ -129,166 +141,124 @@ HomePage SeapPB
     </header>
 
     {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups or 'GerRh' in user_groups  or 'ServGesipe' in user_groups %}
-    <section>
-        <div class="grid grid-cols-2 xl:grid xl:grid-cols-4 pb-4 gap-4 mx-8 content-between">
-
-            <!-- efetivo por unidade -->
-
-
-
-
-            <div class="col-span-2 xl:col-span-4 flex flex-col items-stretch rounded-lg shadow-lg p-6">
-                <div class="mb-2">
-                  <h3 class="text-2xl font-semibold ">Efetivo Por Unidade</h3>
-                  <p class="mt-4 text-gray-600"></p>
+    <section class="px-4 sm:px-6 lg:mx-8">
+        <!-- Primeira linha de gráficos -->
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 pb-4">
+            <!-- Efetivo por unidade (ocupa toda a linha em mobile) -->
+            <div class="col-span-1 md:col-span-2 xl:col-span-4 bg-white rounded-lg shadow-lg p-4 sm:p-6">
+                <div class="mb-4">
+                    <h3 class="text-xl sm:text-2xl font-semibold">Efetivo Por Unidade</h3>
                 </div>
-
-
-                <div>
-                    <canvas id="chart-bar-unidade" width="200" height="100"></canvas>
+                <div class="h-[250px] sm:h-[300px]">
+                    <canvas id="chart-bar-unidade"></canvas>
                 </div>
-
             </div>
 
-
-
-            <!-- genero pizza-->
-
-            <div class="flex flex-col items-stretch rounded-lg shadow-lg p-6">
+            <!-- Gráfico de Pizza - Versão Corrigida -->
+            <div class="bg-white rounded-lg shadow-lg p-4 sm:p-6 flex flex-col">
+                <!-- Cabeçalho -->
                 <div class="border-b border-gray-200 pb-4 mb-4">
-                    <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Efetivo por Gênero:</h3>
-                    <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">Policiais Penais</span>
+                    <h3 class="text-sm sm:text-base font-normal text-gray-500">Efetivo por Gênero:</h3>
+                    <span class="text-xl sm:text-2xl font-bold text-gray-900">Policiais Penais</span>
                 </div>
 
-
-                <div class="h-[300px]">
-                    <canvas id="genero-pizza" width="200" height="100"></canvas>
+                <!-- Container do gráfico com centralização perfeita -->
+                <div class="flex-1 min-h-[180px] sm:min-h-[220px] flex items-center justify-center p-2">
+                    <div class="w-full max-w-[180px] sm:max-w-[220px] aspect-square mx-auto">
+                        <canvas id="genero-pizza" class="w-full h-full"></canvas>
+                    </div>
                 </div>
-
             </div>
 
-
-
-            <!-- gráfico de pizza administrativo -->
-
-                <div class="bg-white shadow-xl px-4 py-4 ">
-                    <div class="flex items-center justify-between pb-4 mb-4 border-b border-gray-200">
-                        <div>
-                            <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Tipo de Movimentacao</h3>
-                            <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">Administrativo</span>
-                        </div>
-
-                    </div>
-                    <div class="h-[300px]">
-                        <canvas id="administrativo-pizza" width="300" height="100"></canvas>
-                    </div>
-                </div>
-
-                  <!-- Gráfico de barra administrativo-->
-            <div class="col-span-2 bg-white border border-gray-200 rounded-lg shadow-xl px-4 py-4">
+            <!-- Pizza administrativo - Versão com centralização perfeita -->
+            <div class="bg-white rounded-lg shadow-lg p-4 sm:p-6">
                 <div class="flex items-center justify-between pb-4 mb-4 border-b border-gray-200">
                     <div>
-                        <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Tipo de Movimentacao</h3>
-                        <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">Administrativo</span>
+                        <h3 class="text-sm sm:text-base font-normal text-gray-500">Tipo de Movimentação</h3>
+                        <span class="text-xl sm:text-2xl font-bold text-gray-900">Administrativo</span>
                     </div>
-
                 </div>
-                <div class="h-[300px]">
-                    <canvas id="chart-bar" width="300" height="100"></canvas>
+
+                <!-- Container do gráfico com centralização -->
+                <div class="relative h-[200px] sm:h-[250px] flex items-center justify-center">
+                    <div class="w-full max-w-[200px] mx-auto"> <!-- Ajuste o max-w conforme necessário -->
+                        <canvas id="administrativo-pizza" class="w-full h-full"></canvas>
+                    </div>
                 </div>
             </div>
 
-
-        </div>
-
-        <div class="flex flex-col xl:grid xl:grid-cols-4  gap-4 mx-8 content-between">
-
-
-
-<!--            tabela administrativo-->
-
-                <div class="col-span-4 bg-white w-full border border-gray-200 rounded-lg shadow-sm mb-4">
-                <div class="flex items-start justify-between pb-4 mb-4 border-b border-gray-200 py-4 px-4">
+            <!-- Gráfico de barra administrativo -->
+            <div class="col-span-1 md:col-span-2 bg-white rounded-lg shadow-lg p-4 sm:p-6 place-content-center">
+                <div class="flex items-center justify-between pb-4 mb-4 border-b border-gray-200">
                     <div>
-                        <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Tipo de Movimentacao</h3>
-                        <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">Administrativo</span>
+                        <h3 class="text-sm sm:text-base font-normal text-gray-500">Tipo de Movimentação</h3>
+                        <span class="text-xl sm:text-2xl font-bold text-gray-900">Administrativo</span>
                     </div>
-                    <a href="#" class="inline-flex items-center p-2 text-xs font-medium uppercase rounded-lg text-primary-700 sm:text-sm hover:bg-gray-100 dark:text-primary-500 dark:hover:bg-gray-700">
-                        Dados Completos
-                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                        </svg>
-                    </a>
                 </div>
-                <div>
-                    <div class="flex-auto px-0 pt-0 pb-2">
-                    <div class="p-0 overflow-x-auto">
-                      <table class="items-center w-full mb-0 align-top border-gray-200 text-slate-500">
-                        <thead class="align-bottom">
-                          <tr>
-                            <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-lg border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Autor</th>
-                            <th class="hidden lg:table-cell px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-lg border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Memorandos</th>
-                            <th class="hidden lg:table-cell px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-lg border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Despachos</th>
-                            <th class="hidden lg:table-cell px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-lg border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Oficios</th>
-                            <th class="hidden lg:table-cell px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-lg border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">OS</th>
-                            <th class="hidden lg:table-cell px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-lg border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Portarias</th>
-                            <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-lg border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Total</th>
-
-                          </tr>
-                        </thead>
-                        <tbody>
-
-                          <tr>
-                            {% for data in object_list %}
-                            <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                              <div class="flex px-2 py-1">
-                                <div>
-                                    {% if data.usuario.foto_perfil %}
-                                        <img src="{{ data.usuario.foto_perfil.url }}" class="inline-flex items-center justify-center mr-4 text-white transition-all duration-200 ease-in-out text-sm h-9 w-9 rounded-xl" alt="user1" />
-                                    {% else %}
-                                        <img src="{% static 'static/default.jpg' %}" class="inline-flex items-center justify-center mr-4 text-white transition-all duration-200 ease-in-out text-sm h-9 w-9 rounded-xl" alt="user1" />
-                                    {% endif %}
-                                </div>
-                                <div class="flex flex-col justify-center">
-                                  <h6 class="mb-0 leading-normal text-sm">{{ data.usuario.nome_completo }}</h6>
-                                  <p class="mb-0 leading-tight text-xs text-slate-400">{{ data.usuario.email }}</p>
-                                </div>
-                              </div>
-                            </td>
-
-                            <td class="hidden lg:table-cell p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                              <span class="font-semibold leading-tight text-xs text-slate-400">{{ data.total_memorando }}</span>
-                            </td>
-                            <td class="hidden lg:table-cell p-2 leading-normal text-center align-middle bg-transparent border-b text-sm whitespace-nowrap shadow-transparent">
-                              <span class="font-semibold leading-tight text-xs text-slate-400">{{ data.total_despacho }}</span>
-                            </td>
-                            <td class="hidden lg:table-cell p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                              <span class="font-semibold leading-tight text-xs text-slate-400">{{ data.total_oficio }}</span>
-                            </td>
-                            <td class="hidden lg:table-cell p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                              <span class="font-semibold leading-tight text-xs text-slate-400">{{ data.total_os }}</span>
-                            </td>
-                            <td class="hidden lg:table-cell p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                              <span class="font-semibold leading-tight text-xs text-slate-400">{{ data.portarias }}</span>
-                            </td>
-                            <td class=" lg:table-cell p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                              <span class="font-semibold leading-tight text-xs text-slate-400">{{ data.total }}</span>
-                            </td>
-                          </tr>
-                          {% endfor %}
-
-
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
+                <div class="h-[250px] sm:h-[300px] flex justify-center items-center">
+                    <canvas id="chart-bar"></canvas>
                 </div>
             </div>
-
-
-
         </div>
 
+        <!-- Tabela administrativo -->
+        <div class="bg-white rounded-lg shadow-sm mt-4 overflow-hidden">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border-b border-gray-200">
+                <div class="mb-2 sm:mb-0">
+                    <h3 class="text-sm sm:text-base font-normal text-gray-500">Tipo de Movimentação</h3>
+                    <span class="text-xl sm:text-2xl font-bold text-gray-900">Administrativo</span>
+                </div>
+                <a href="#" class="inline-flex items-center px-3 py-2 text-xs sm:text-sm font-medium uppercase rounded-lg text-primary-700 hover:bg-gray-100">
+                    Dados Completos
+                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </a>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Autor</th>
+                            <th scope="col" class="hidden sm:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Memorandos</th>
+                            <th scope="col" class="hidden sm:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Despachos</th>
+                            <th scope="col" class="hidden sm:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ofícios</th>
+                            <th scope="col" class="hidden sm:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">OS</th>
+                            <th scope="col" class="hidden sm:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Portarias</th>
+                            <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for data in object_list %}
+                        <tr>
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10">
+                                        {% if data.usuario.foto_perfil %}
+                                            <img class="h-10 w-10 rounded-full" src="{{ data.usuario.foto_perfil.url }}" alt="">
+                                        {% else %}
+                                            <img class="h-10 w-10 rounded-full" src="{% static 'images/default.jpg' %}" alt="">
+                                        {% endif %}
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900">{{ data.usuario.nome_completo|truncatechars:15 }}</div>
+                                        <div class="text-sm text-gray-500">{{ data.usuario.email|truncatechars:15 }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="hidden sm:table-cell px-4 py-3 whitespace-nowrap text-sm text-gray-500">{{ data.total_memorando }}</td>
+                            <td class="hidden sm:table-cell px-4 py-3 whitespace-nowrap text-sm text-gray-500">{{ data.total_despacho }}</td>
+                            <td class="hidden sm:table-cell px-4 py-3 whitespace-nowrap text-sm text-gray-500">{{ data.total_oficio }}</td>
+                            <td class="hidden sm:table-cell px-4 py-3 whitespace-nowrap text-sm text-gray-500">{{ data.total_os }}</td>
+                            <td class="hidden sm:table-cell px-4 py-3 whitespace-nowrap text-sm text-gray-500">{{ data.portarias }}</td>
+                            <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{{ data.total }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </section>
     {% endif %}
 

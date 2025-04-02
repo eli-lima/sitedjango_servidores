@@ -4,574 +4,317 @@
 Ajuda de Custo
 {% endblock %}
 
-
 {% block content %}
 
-
-
-<div class="pt-2 flex flex-col">
-    <div class="w-auto justify-center flex xl:flex-row flex-col">
-        <!--tela administrador-->
-            {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups or 'Gerente' in user_groups %}
-        <div class="mx-4 mt-6 py-3 bg-gray-600 text-white w-1/4 self-center items-center shadow-xl rounded-2xl">
-
-            <div class="flex justify-center items-center h-full px-4">
-                <h3 class="font-bold xl:text-xl text-lg">
-
-                    {% if unidade_gerente %}
-                        Gerente - {{ unidade_gerente }}
-                    {% else %}
-                        Gesipe
-                    {% endif %}
-                </h3>
-
-            </div>
+<!-- Filtros Section -->
+<div class="pt-4 px-4">
+    <div class="flex flex-col xl:flex-row gap-4">
+        {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups or 'Gerente' in user_groups %}
+        <div class="py-3 bg-gray-600 text-white w-full xl:w-1/4 rounded-lg shadow-md flex justify-center items-center">
+            <h3 class="text-lg xl:text-xl font-bold">
+                {% if unidade_gerente %}
+                    Gerente - {{ unidade_gerente }}
+                {% else %}
+                    Gesipe
+                {% endif %}
+            </h3>
         </div>
         {% endif %}
-        <div class="mx-4 py-4 flex justify-around">
 
-          <form method="GET" class="flex space-x-4 items-center">
-            <!-- Campo para selecionar o mês -->
-            <div class="flex flex-col w-56 xl:w-auto mr-4">
-              <label for="mes" class="xl:text-lg text-2xl font-semibold text-gray-700">Selecione o Mês</label>
-              <select id="mes" name="mes" class="xl:text-base text-xl mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                {% for numero, nome in meses.items %}
-                  <option class="" value="{{ numero }}" {% if mes_selecionado == numero %}selected{% endif %}>{{ nome }}</option>
-                {% endfor %}
-              </select>
+        <form method="GET" class="flex-1 flex flex-col sm:flex-row gap-4 items-end">
+            <div class="w-full sm:w-1/3">
+                <label for="mes" class="block text-sm font-medium text-gray-700">Mês</label>
+                <select id="mes" name="mes" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm sm:text-base">
+                    {% for numero, nome in meses.items %}
+                        <option value="{{ numero }}" {% if mes_selecionado == numero %}selected{% endif %}>{{ nome }}</option>
+                    {% endfor %}
+                </select>
             </div>
 
-            <!-- Campo para selecionar o ano -->
-            <div class="flex flex-col w-56 xl:w-auto mr-4">
-              <label for="ano" class="xl:text-lg text-2xl font-semibold text-gray-700">Selecione o Ano</label>
-              <select id="ano" name="ano" class="xl:text-base text-xl mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                {% for ano in anos %}
-                  <option value="{{ ano }}" {% if ano_selecionado == ano %}selected{% endif %}>{{ ano }}</option>
-                {% endfor %}
-              </select>
+            <div class="w-full sm:w-1/3">
+                <label for="ano" class="block text-sm font-medium text-gray-700">Ano</label>
+                <select id="ano" name="ano" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm sm:text-base">
+                    {% for ano in anos %}
+                        <option value="{{ ano }}" {% if ano_selecionado == ano %}selected{% endif %}>{{ ano }}</option>
+                    {% endfor %}
+                </select>
             </div>
 
-            <!-- Botão de submissão -->
-            <div class="flex flex-col justify-end">
-              <button type="submit" class="mt-4 px-4 py-2 bg-blue-500 text-white xl:text-lg text-2xl font-semibold rounded-md hover:bg-blue-700">Filtrar</button>
+            <div class="w-full sm:w-1/3">
+                <button type="submit" class="w-full px-4 py-2 bg-blue-600 text-white text-sm sm:text-base font-medium rounded-md hover:bg-blue-700">
+                    Filtrar
+                </button>
             </div>
-          </form>
-
-
-        </div>
-
+        </form>
     </div>
-
 </div>
 
-
-
-<div class="flex flex-col">
-  <div class="flex justify-center flex-wrap">
-    <div class="py-2 px-2 w-1/2 xl:w-1/4">
-          <!-- Card 1 -->
-
-    <div class="ml-4 flex-auto xl:h-44 h-56 shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
-        <div class="flex flex-row justify-between items-center h-full px-4">
-            <div class="flex flex-col justify-between h-full py-10">
-                <div class="pb-4">
-                    <h3 class="uppercase xl:text-xl text-3xl font-bold">Ajuda de Custo Mês Atual</h3>
-                </div>
-                <div>
-                    <p class="px-2 bg-gray-600 rounded text-white font-semibold xl:text-lg text-2xl">{{ ajudas_mes_atual }}</p>
-                </div>
+<!-- Stats Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 px-4 py-6">
+    <!-- Card 1 -->
+    <div class="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
+        <div class="flex justify-between items-center">
+            <div>
+                <h3 class="text-sm sm:text-base font-bold uppercase text-gray-600">Ajuda Mês Atual</h3>
+                <p class="mt-2 text-2xl font-bold">{{ ajudas_mes_atual }}</p>
             </div>
-            <div class="bg-green-600 rounded-full h-20 min-w-20 flex items-center justify-center">
-                <i class="fs-1 bi bi-calendar-fill text-white"></i>
+            <div class="bg-green-500 rounded-full h-12 w-12 flex items-center justify-center">
+                <i class="bi bi-calendar-check text-white text-lg"></i>
             </div>
+        </div>
+    </div>
 
+    <!-- Card 2 -->
+    <div class="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
+        <div class="flex justify-between items-center">
+            <div>
+                <h3 class="text-sm sm:text-base font-bold uppercase text-gray-600">Ajuda Mês Anterior</h3>
+                <p class="mt-2 text-2xl font-bold">{{ ajudas_mes_anterior }}</p>
+            </div>
+            <div class="bg-red-500 rounded-full h-12 w-12 flex items-center justify-center">
+                <i class="bi bi-calendar-x text-white text-lg"></i>
+            </div>
         </div>
     </div>
 
-    </div>
-
-    <div class="py-2 px-2 w-1/2 xl:w-1/4">
-          <!-- Card 2 -->
-
-        <div class="mr-4 xl:mr-0 flex-auto xl:h-44 h-56 shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
-            <div class="flex flex-row justify-between items-center h-full px-4">
-                <div class="flex flex-col justify-between h-full py-10">
-                    <div class="pb-4">
-                        <h3 class="uppercase xl:text-xl text-3xl font-bold">Ajuda de Custo Mês Anterior</h3>
-                    </div>
-                    <div>
-                        <p class="px-2 bg-gray-600 rounded text-white font-semibold xl:text-lg text-2xl">{{ ajudas_mes_anterior }}</p>
-                    </div>
-                </div>
-                <div class="bg-red-600 rounded-full h-20 min-w-20 flex items-center justify-center">
-                    <i class="fs-1 bi bi-calendar-x-fill text-white"></i>
-                </div>
-
+    {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups %}
+    <!-- Card 3 -->
+    <div class="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
+        <div class="flex justify-between items-center">
+            <div>
+                <h3 class="text-sm sm:text-base font-bold uppercase text-gray-600">Variação %</h3>
+                <p class="mt-2 text-2xl font-bold {{ text_class }}">{{ variacao_percentual }}%</p>
+            </div>
+            <div class="{{ bg_class }} rounded-full h-12 w-12 flex items-center justify-center">
+                <i class="bi bi-graph-up text-white text-lg"></i>
             </div>
         </div>
-
-    </div>
-    <!--tela administrador-->
-            {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups or 'Gerente' in user_groups %}
-    <div class="py-2 px-2 w-1/2 xl:w-1/4">
-          <!-- Card 3 -->
-
-        <div class="ml-4 xl:ml-0 flex-auto xl:h-44 h-56 shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
-            <div class="flex flex-row justify-between items-center h-full px-4">
-                <div class="flex flex-col justify-between h-full py-10">
-                    <div class="pb-4">
-                        <h3 class="uppercase xl:text-xl text-3xl font-bold">Variação % Mês Anterior</h3>
-                    </div>
-                    <div>
-                        <p class="px-2 {{ bg_class }} rounded text-white font-semibold xl:text-lg text-2xl">{{variacao_percentual}}%</p>
-                    </div>
-                </div>
-                <div class="{{ bg_class }} rounded-full h-20 min-w-20 flex items-center justify-center">
-                    <i class="fs-1 bi bi-people-fill text-white"></i>
-                </div>
-
-            </div>
-        </div>
-
     </div>
 
-    <div class=" py-2 px-2 w-1/2 xl:w-1/4">
-          <!-- Card 4 -->
-
-        <div class="mr-4 flex-auto xl:h-44 h-56 shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
-            <div class="flex flex-row justify-between items-center h-full px-4">
-                <div class="flex flex-col justify-between h-full py-10">
-                    <div class="pb-4">
-                        <h3 class="uppercase xl:text-xl text-3xl font-bold">Servidores Com Ajuda de Custo</h3>
-                    </div>
-                    <div>
-                        <p class="px-2 bg-blue-600 rounded text-white font-semibold xl:text-lg text-2xl">{{ servidores_com_ajuda }}</p>
-                    </div>
-                </div>
-                <div class="bg-blue-600 rounded-full h-20 min-w-20 flex items-center justify-center">
-                    <i class="fs-1 bi bi-people-fill text-white"></i>
-                </div>
-
+    <!-- Card 4 -->
+    <div class="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
+        <div class="flex justify-between items-center">
+            <div>
+                <h3 class="text-sm sm:text-base font-bold uppercase text-gray-600">Servidores</h3>
+                <p class="mt-2 text-2xl font-bold">{{ servidores_com_ajuda }}</p>
             </div>
-        </div>
-
-    </div>
-    {% endif %}
-  </div>
-</div>
-
-
-
-
-<div class="flex flex-col px-4">
-  <div class="flex justify-center flex-wrap w-full"> <!-- Use justify-center para centralizar horizontalmente -->
-    <div class="py-2 px-2 w-full xl:w-1/4 flex justify-center"> <!-- Centralize o conteúdo dentro de cada item -->
-        <!-- adicionar ajuda de Custo -->
-        <div class="w-full h-96 xl:h-auto flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
-            <div class="mb-8">
-              <h3 class="xl:text-2xl text-5xl font-semibold ">Ajuda De Custo Operacional</h3>
-              <p class="mt-4 xl:text-base text-3xl text-gray-600">Marque suas datas individuais aqui. </p>
+            <div class="bg-blue-500 rounded-full h-12 w-12 flex items-center justify-center">
+                <i class="bi bi-people text-white text-lg"></i>
             </div>
-            <div class="mb-8">
-              <span class="text-xl font-medium text-gray-600"></span>
-              <span class="text-3xl font-extrabold "></span>
-
-            </div>
-
-            <a href="{% url 'ajuda_custo:envio_datas' %}" class="block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md  font-medium bg-gray-600">
-              Adicionar Datas:
-            </a>
-        </div>
-    </div>
-      {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups %}
-    <div class="py-2 px-2 w-full xl:w-1/4 flex justify-center"> <!-- Centralize o conteúdo dentro de cada item -->
-        <!-- Administrador Cadastrar -->
-        <div class="w-full h-96 xl:h-auto flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
-            <div class="mb-8">
-              <h3 class="xl:text-2xl text-5xl font-semibold ">Cadastro Administrativo</h3>
-              <p class="mt-4 xl:text-base text-3xl text-gray-600">Cadastro de Ajuda de Custo de Servidores. </p>
-            </div>
-            <div class="mb-8">
-              <span class="text-xl font-medium text-gray-600"></span>
-              <span class="text-3xl font-extrabold "></span>
-
-            </div>
-
-            <a href="{% url 'ajuda_custo:envio_datas' %}" class="block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md  font-medium bg-gray-600">
-              Adicionar:
-            </a>
-        </div>
-    </div>
-
-    <div class="py-2 px-2 w-full xl:w-1/4 justify-center flex justify-center">
-        <!-- Limite de horas -->
-        <div class="w-full h-96 xl:h-auto flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
-            <div class="mb-8">
-              <h3 class="xl:text-2xl text-5xl font-semibold ">Carga Horaria Servidor</h3>
-              <p class="mt-4 xl:text-base text-3xl text-gray-600">Estipular a Carga Horaria Mensal de Servidor</p>
-            </div>
-
-
-            <a href="{% url 'ajuda_custo:horas_limite' %}" class="block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md  font-medium bg-gray-600">
-              Adicionar Informaçoes:
-            </a>
-        </div>
-    </div>
-    <div class="py-2 px-2 w-full xl:w-1/4 flex justify-center">
-        <!-- Relatorio Rx2 -->
-        <div class="w-full h-96 xl:h-auto flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
-            <div class="mb-8">
-              <h3 class="xl:text-2xl text-5xl font-semibold ">Relatorio Rx2 e Utilitarios</h3>
-              <p class="mt-4 xl:text-base text-3xl text-gray-600">Introduza relatorio Do Sistema RX-2 e Demais funções</p>
-            </div>
-            <div class="mb-8">
-              <span class="text-xl font-medium text-gray-600"></span>
-              <span class="text-3xl font-extrabold "></span>
-
-            </div>
-
-            <a href="{% url 'ajuda_custo:upload_excel_rx2' %}" class="block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md  font-medium bg-gray-600">
-              Verificar Informaçoes:
-            </a>
         </div>
     </div>
     {% endif %}
+</div>
+
+<!-- Quick Actions -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 px-4 pb-6">
+    <div class="bg-white rounded-lg shadow-md p-6 flex flex-col">
+        <div class="mb-4">
+            <h3 class="text-lg font-semibold">Ajuda Operacional</h3>
+            <p class="mt-2 text-sm text-gray-600">Marque suas datas individuais</p>
+        </div>
+        <a href="{% url 'ajuda_custo:envio_datas' %}" class="mt-auto w-full py-2 px-4 text-center text-white text-sm sm:text-base rounded-md font-medium bg-gray-600 hover:bg-gray-700">
+            Adicionar Datas
+        </a>
+    </div>
+
+    {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups %}
+    <div class="bg-white rounded-lg shadow-md p-6 flex flex-col">
+        <div class="mb-4">
+            <h3 class="text-lg font-semibold">Cadastro Admin</h3>
+            <p class="mt-2 text-sm text-gray-600">Cadastro de Ajuda de Custo</p>
+        </div>
+        <a href="{% url 'ajuda_custo:envio_datas' %}" class="mt-auto w-full py-2 px-4 text-center text-white text-sm sm:text-base rounded-md font-medium bg-gray-600 hover:bg-gray-700">
+            Adicionar
+        </a>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md p-6 flex flex-col">
+        <div class="mb-4">
+            <h3 class="text-lg font-semibold">Carga Horária</h3>
+            <p class="mt-2 text-sm text-gray-600">Definir carga horária mensal</p>
+        </div>
+        <a href="{% url 'ajuda_custo:horas_limite' %}" class="mt-auto w-full py-2 px-4 text-center text-white text-sm sm:text-base rounded-md font-medium bg-gray-600 hover:bg-gray-700">
+            Gerenciar
+        </a>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md p-6 flex flex-col">
+        <div class="mb-4">
+            <h3 class="text-lg font-semibold">Relatório RX-2</h3>
+            <p class="mt-2 text-sm text-gray-600">Relatório do Sistema RX-2</p>
+        </div>
+        <a href="{% url 'ajuda_custo:upload_excel_rx2' %}" class="mt-auto w-full py-2 px-4 text-center text-white text-sm sm:text-base rounded-md font-medium bg-gray-600 hover:bg-gray-700">
+            Verificar
+        </a>
+    </div>
+    {% endif %}
+
     {% if 'Gerente' in user_groups %}
-    <div class="py-2 px-2 w-full xl:w-1/4 flex justify-center">
-        <!-- horas gerente -->
-        <div class="w-full h-96 xl:h-auto flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
-            <div class="mb-8">
-              <h3 class="xl:text-2xl text-5xl font-semibold ">Carga Horaria Servidor</h3>
-              <p class="mt-4 xl:text-base text-3xl text-gray-600">Estipular a Carga Horaria Mensal de Servidor</p>
-            </div>
-
-
-            <a href="{% url 'ajuda_custo:cargahoraria_gerente' %}" class="block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md  font-medium bg-gray-600">
-              Adicionar Informaçoes:
-            </a>
-        </div>
-    </div>
-    <div class="py-2 px-2 w-full xl:w-1/4 flex justify-center">
-        <!-- relatorios completos -->
-        <div class="w-full h-96 xl:h-auto flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
-            <div class="mb-8">
-              <h3 class="xl:text-2xl text-5xl font-semibold ">Relatórios Ajuda Custo</h3>
-              <p class="mt-4 xl:text-base text-3xl text-gray-600">Cunsultar e Gerar Relatórios Mensal de Ajuda de Custo.</p>
-            </div>
-
-
-            <a href="{% url 'ajuda_custo:relatorio_ajuda_custo' %}" class="block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md  font-medium bg-gray-600">
-              Consultar Informações:
-            </a>
-        </div>
-    </div>
+    <!-- Additional Gerente actions -->
     {% endif %}
-  </div>
 </div>
 
-
-
-<div class="pt-2 flex xl:flex-row flex-col space-y-2 px-4 xl:px-12 justify-start w-full xl:h-auto">
-<!-- Gráfico de barra ajuda custo-->
-    <div class="xl:w-3/4 w-full mr-4 bg-white border border-gray-200 rounded-lg shadow-xl px-4 py-2 h-auto my-2">
-        <div class="flex items-center justify-between pb-4 mb-4 border-b border-gray-200 p-4">
-            <div>
-                <h3 class="xl:text-base text-lg font-normal text-gray-500 dark:text-gray-400">Quantidade Total Mensal</h3>
-                <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">Ajuda de Custo</span>
-            </div>
-
+<!-- Charts Section -->
+<div class="flex flex-col xl:flex-row gap-6 px-4 pb-6">
+    <!-- Bar Chart -->
+    <div class="w-full xl:w-3/4 bg-white rounded-lg shadow-md p-4">
+        <div class="border-b border-gray-200 pb-4 mb-4">
+            <h3 class="text-lg font-semibold">Quantidade Mensal de Ajuda de Custo</h3>
         </div>
-        <div class="xl:h-96 h-[300px] flex justify-center">
-            <canvas id="chart-bar-ajuda-custo" width="800" height="200"></canvas>
+        <div class="h-64 sm:h-80 md:h-96">
+            <canvas id="chart-bar-ajuda-custo"></canvas>
         </div>
     </div>
 
-<!--    GRAFICO MAJOARADO PIZZA-->
-    <div class="xl:w-1/4 w-full h-auto flex flex-col justify-center items-stretch rounded-lg shadow-lg border border-gray-200 mt-8 mb-2">
-        <div class="border-b border-gray-200 p-4">
-            <h3 class="px-8 py-2 xl:text-base text-lg font-semibold text-gray-500 dark:text-gray-400">Proporçāo Majorado x Normal:</h3>
-
+    <!-- Pie Chart -->
+    <div class="w-full xl:w-1/4 bg-white rounded-lg shadow-md p-4">
+        <div class="border-b border-gray-200 pb-4 mb-4">
+            <h3 class="text-lg font-semibold">Proporção Majorado x Normal</h3>
         </div>
-
-
-        <div class="xl:h-96 h-[500px] flex justify-center">
-            <canvas id="majorado-pizza" width="200" height="100"></canvas>
+        <div class="h-64 sm:h-80 flex justify-center">
+            <div class="aspect-square w-full max-w-xs">
+                <canvas id="majorado-pizza"></canvas>
+            </div>
         </div>
-
     </div>
-
-
 </div>
 
-
-
-
-
-
-
-
-<!--tabela com ajuda de custo-->
-
-<div class="mb-12 flex px-4 xl:px-12 justify-start w-full pt-4">
-    <div class="bg-white shadow-lg rounded-lg w-full">
-        <div class="p-6 rounded-t-lg">
-            <div>
-               <div class="flex items-center justify-between pb-4 mb-4 border-b border-gray-200">
-                    <div>
-                        <h3 class="xl:text-base text-2xl font-normal text-gray-500 dark:text-gray-400 pb-2">Relatório</h3>
-                        <span class="xl:text-2xl text-5xl font-bold leading-none text-gray-900 dark:text-white">Ajuda de Custo</span>
-                    </div>
-                   {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups or 'Gerente' in user_groups %}
-                    <a href="{% url 'ajuda_custo:relatorio_ajuda_custo' %}" class="inline-flex items-center p-2 text-2xl xl:text-xl font-bold uppercase rounded-lg text-primary-700 hover:bg-gray-100 dark:text-primary-500 dark:hover:bg-gray-700">
-                        Dados Completos
-                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                        </svg>
-                    </a>
-                   {% endif %}
-               </div>
+<!-- Table Section -->
+<div class="px-4 pb-12">
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="p-4 border-b border-gray-200">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h3 class="text-lg sm:text-xl font-semibold">Relatório de Ajuda de Custo</h3>
+                </div>
+                {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups or 'Gerente' in user_groups %}
+                <a href="{% url 'ajuda_custo:relatorio_ajuda_custo' %}" class="inline-flex items-center text-sm sm:text-base font-medium text-blue-600 hover:text-blue-800">
+                    Dados Completos
+                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </a>
+                {% endif %}
             </div>
-
-                <form method="GET" onsubmit="return false;">
-                    <div class="mt-4 px-0 flex flex-row justify-between w-full">
-                        <div class="flex flex-row">
-                            <input class="form-input w-full sm:w-auto sm:ml-4 p-1.5 rounded-md border-1 border-gray-600"
-                                   type="date" name="dataInicial" id="dataInicial" value="{{ dataInicial|date:'Y-m-d' }}"
-                                   hx-get="{% url 'ajuda_custo:ajuda_custo_list' %}"
-                                   hx-trigger="change delay:500ms"
-                                   hx-target="#content2"
-                                   hx-include="[name='dataFinal'], [name='query']">
-
-                            <input class="form-input w-full sm:w-auto sm:ml-4 p-1.5 rounded-md border-1 border-gray-600"
-                                   type="date" name="dataFinal" id="dataFinal" value="{{ dataFinal|date:'Y-m-d' }}"
-                                   hx-get="{% url 'ajuda_custo:ajuda_custo_list' %}"
-                                   hx-trigger="change delay:500ms"
-                                   hx-target="#content2"
-                                   hx-include="[name='dataInicial'], [name='query']">
-
-                            <input type="text" name="query"
-                                   class="form-input w-full sm:w-auto sm:ml-4 p-1.5 rounded-md border-1 border-gray-600"
-                                   placeholder="Pesquisar..." value="{{ query }}"
-                                   hx-get="{% url 'ajuda_custo:ajuda_custo_list' %}"
-                                   hx-trigger="keyup changed delay:500ms"
-                                   hx-target="#content2"
-                                   hx-include="[name='dataInicial'], [name='dataFinal']">
-
-                        </div>
-                    </div>
-                </form>
-
         </div>
+
+        <!-- Table Filters -->
+        <div class="p-4 bg-gray-50">
+            <form method="GET" class="flex flex-col sm:flex-row gap-4">
+                <div class="flex-1 flex flex-col sm:flex-row gap-4">
+                    <input type="date" name="dataInicial" value="{{ dataInicial|date:'Y-m-d' }}"
+                           class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm">
+                    <input type="date" name="dataFinal" value="{{ dataFinal|date:'Y-m-d' }}"
+                           class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm">
+                </div>
+                <input type="text" name="query" placeholder="Pesquisar..." value="{{ query }}"
+                       class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm">
+            </form>
+        </div>
+
+        <!-- Table -->
         <div class="overflow-x-auto">
-            <table class="min-w-full bg-white divide-y divide-gray-200">
-                <thead class="bg-gray-100">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left xl:text-base text-xl font-medium text-gray-500 uppercase tracking-wider">Matricula</th>
-                        <th class="px-6 py-3 text-left xl:text-base text-xl font-medium text-gray-500 uppercase tracking-wider">Nome</th>
-                        <th class="px-6 py-3 text-left xl:text-base text-xl font-medium text-gray-500 uppercase tracking-wider">Data</th>
-                        <th class="px-6 py-3 xl:text-base text-xl font-medium text-gray-500 uppercase tracking-wider">Unidade</th>
-                        <th class="px-6 py-3 text-left xl:text-base text-xl font-medium text-gray-500 uppercase tracking-wider">Carga Horaria</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Matrícula</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nome</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Data</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Unidade</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Carga Horária</th>
                     </tr>
                 </thead>
-                <tbody id="content2" class="bg-white divide-y divide-gray-200">
+                <tbody id="content2" class="divide-y divide-gray-200">
                     {% include "partials/ajuda_custo_partial.html" %}
                 </tbody>
             </table>
         </div>
 
-        <!-- Paginação -->
-        <div class="p-6 bg-gray-100 rounded-b-lg">
-            <nav aria-label="Page navigation">
-                <ul class="inline-flex items-center -space-x-px">
+        <!-- Pagination -->
+        <div class="px-4 py-3 bg-gray-50 border-t border-gray-200">
+            <nav class="flex items-center justify-between">
+                <div class="hidden sm:block">
+                    <p class="text-sm text-gray-700">
+                        Página <span class="font-medium">{{ page_obj.number }}</span> de <span class="font-medium">{{ page_obj.paginator.num_pages }}</span>
+                    </p>
+                </div>
+                <div class="flex-1 flex justify-between sm:justify-end">
                     {% if page_obj.has_previous %}
-                    <li>
-                        <a href="?page=1&query={{ query }}&dataInicial={{ dataInicial }}&dataFinal={{ dataFinal }}" class="px-3 py-2 ml-0 text-sm font-medium text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100">Primeira</a>
-                    </li>
-                    <li>
-                        <a href="?page={{ page_obj.previous_page_number }}&query={{ query }}&dataInicial={{ dataInicial }}&dataFinal={{ dataFinal }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">Anterior</a>
-                    </li>
+                    <a href="?page={{ page_obj.previous_page_number }}&query={{ query }}&dataInicial={{ dataInicial }}&dataFinal={{ dataFinal }}"
+                       class="relative inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        Anterior
+                    </a>
                     {% endif %}
-
-                    {% for p in page_range %}
-                    {% if p == page_obj.number %}
-                    <li>
-                        <span class="px-3 py-2 text-sm font-medium text-white bg-blue-500 border border-gray-300">{{ p }}</span>
-                    </li>
-                    {% else %}
-                    <li>
-                        <a href="?page={{ p }}&query={{ query }}&dataInicial={{ dataInicial }}&dataFinal={{ dataFinal }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">{{ p }}</a>
-                    </li>
-                    {% endif %}
-                    {% endfor %}
 
                     {% if page_obj.has_next %}
-                    <li>
-                        <a href="?page={{ page_obj.next_page_number }}&query={{ query }}&dataInicial={{ dataInicial }}&dataFinal={{ dataFinal }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">Próxima</a>
-                    </li>
-                    <li>
-                        <a href="?page={{ page_obj.paginator.num_pages }}&query={{ query }}&dataInicial={{ dataInicial }}&dataFinal={{ dataFinal }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100">Última</a>
-                    </li>
+                    <a href="?page={{ page_obj.next_page_number }}&query={{ query }}&dataInicial={{ dataInicial }}&dataFinal={{ dataFinal }}"
+                       class="ml-3 relative inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        Próxima
+                    </a>
                     {% endif %}
-                </ul>
+                </div>
             </nav>
         </div>
     </div>
-
 </div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 <script>
-    // Dados do gráfico de barra para Ajuda de Custo
-    var ctx = document.getElementById('chart-bar-ajuda-custo').getContext('2d');
-    var barLabels = {{ labels_mensais|safe }};  // Labels dos meses com ano
-    var barValues = {{ values_mensais|safe }};  // Quantidade mensal de Ajuda de Custo
-
-    var myBarChart = new Chart(ctx, {
-        type: 'bar', // Tipo de gráfico: barra
+    // Bar Chart
+    var ctxBar = document.getElementById('chart-bar-ajuda-custo').getContext('2d');
+    var barChart = new Chart(ctxBar, {
+        type: 'bar',
         data: {
-            labels: barLabels, // Nomes dos meses (Janeiro 2024, Fevereiro 2024, etc.)
+            labels: {{ labels_mensais|safe }},
             datasets: [{
                 label: 'Total de Ajuda de Custo',
-                data: barValues, // Valores mensais calculados no backend
-                backgroundColor: 'rgba(210, 0, 0, 1)', // Cor de fundo das barras (vermelho)
-                borderColor: 'rgba(210, 0, 0, 1)', // Cor da borda das barras (vermelho)
-                borderWidth: 2, // Largura da borda das barras
-                borderRadius: 4 // Arredondamento das bordas das barras
+                data: {{ values_mensais|safe }},
+                backgroundColor: 'rgba(210, 0, 0, 1)',
+                borderColor: 'rgba(210, 0, 0, 1)',
+                borderWidth: 2,
+                borderRadius: 4
             }]
         },
         options: {
+            responsive: true,
+            maintainAspectRatio: false,
             scales: {
-                x: {
-                    grid: {
-                        display: false // Oculta a grade no eixo X
-                    }
-                },
-                y: {
-                    beginAtZero: true, // Começa o eixo Y no zero
-                    grid: {
-                        display: false // Oculta a grade no eixo Y
-                    }
+                x: { grid: { display: false } },
+                y: { beginAtZero: true, grid: { display: false } }
+            }
+        }
+    });
+
+    // Pie Chart
+    var ctxPie = document.getElementById('majorado-pizza').getContext('2d');
+    var pieChart = new Chart(ctxPie, {
+        type: 'pie',
+        data: {
+            labels: {{ pie_labels|safe }},
+            datasets: [{
+                data: {{ pie_values|safe }},
+                backgroundColor: [
+                    'rgba(54, 162, 35, 1)',
+                    'rgba(255, 69, 58, 1)'
+                ],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
                 }
             }
         }
     });
 
-    // Adicione um evento para atualizar o gráfico com base no filtro aplicado
-    document.getElementById('filtro-form').addEventListener('submit', function(event) {
-        event.preventDefault(); // Previne o envio do formulário
-        var selectedYear = document.getElementById('ano-selecionado').value;
-        var selectedMonth = document.getElementById('mes-selecionado').value;
-
-        // Atualize os valores das labels e dados do gráfico
-        // Assumindo que você faça uma requisição AJAX para buscar os novos dados
-        fetch(`/api/get-bar-data?year=${selectedYear}&month=${selectedMonth}`)
-            .then(response => response.json())
-            .then(data => {
-                myBarChart.data.labels = data.labels_mensais;
-                myBarChart.data.datasets[0].data = data.values_mensais;
-                myBarChart.update();
-            });
+    // Auto-submit filters
+    document.querySelector('form[method="GET"]').addEventListener('change', function() {
+        this.submit();
     });
 </script>
-
-
-
-
-<!--grafico Pizza majorado x normal-->
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var ctx = document.getElementById('majorado-pizza').getContext('2d');
-        var myPieChart = new Chart(ctx, {
-            type: 'pie',
-            data: {
-                labels: {{ pie_labels|safe }},  // Ex.: ['Ajuda Normal', 'Ajuda Majorada']
-                datasets: [{
-                    label: 'Distribuição de Ajuda de Custo',
-                    data: {{ pie_values|safe }},  // Ex.: [50, 30] - dados dinâmicos
-                    backgroundColor: [
-                        'rgba(54, 162, 35, 1)',  // verde para Ajuda Normal
-                        'rgba(255, 69, 58, 1)'   // Vermelho para Ajuda Majorada
-                    ],
-                    borderColor: [
-                        'rgba(54, 162, 35, 1)',  // Verde
-                        'rgba(255, 69, 58, 1)'   // Vermelho
-                    ],
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            font: {
-                                size: 12
-                            }
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(tooltipItem) {
-                                return tooltipItem.label + ': ' + tooltipItem.raw;
-                            }
-                        }
-                    },
-                    datalabels: {
-                        display: true,
-                        color: '#ffffff',
-                        font: {
-                            weight: 'bold',
-                            size: 14
-                        },
-                        formatter: (value) => {
-                            return `${value}`;  // Exibe o valor numérico de cada segmento
-                        }
-                    }
-                },
-                cutout: '50%'  // Ajusta a espessura do gráfico tipo donut, caso esteja usando um gráfico de donut
-            }
-        });
-    });
-</script>
-
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-    const dataInicialField = document.getElementById('dataInicial');
-    const dataFinalField = document.getElementById('dataFinal');
-
-    // Verificar se os campos já têm valores (vindos do Django)
-    if (!dataInicialField.value) {
-        const now = new Date();
-        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-        dataInicialField.value = firstDay.toISOString().split('T')[0];  // Define apenas se estiver vazio
-    }
-
-    if (!dataFinalField.value) {
-        const now = new Date();
-        const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-        dataFinalField.value = lastDay.toISOString().split('T')[0];  // Define apenas se estiver vazio
-    }
-});
-
-</script>
-
-
-
 
 {% endblock %}
