@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.contrib.admin import DateFieldListFilter
+from rangefilter.filters import DateRangeFilter
 from .models import Ajuda_Custo, DataMajorada, LimiteAjudaCusto, CotaAjudaCusto
 
 
@@ -14,7 +14,7 @@ class AjudaCustoAdmin(admin.ModelAdmin):
         'unidade',
         'carga_horaria',
         'majorado',
-        ('data', DateFieldListFilter),  # Filtro nativo de data do Django
+        ('data', DateRangeFilter),  # Filtro de intervalo com calendário
     )
     ordering = ('-data',)
 

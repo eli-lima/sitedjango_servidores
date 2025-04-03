@@ -75,6 +75,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'smart_selects',
     'multiupload',
+    'rangefilter',  # Adicione esta linha
     'seappb',
     'gesipe',
     'servidor',
