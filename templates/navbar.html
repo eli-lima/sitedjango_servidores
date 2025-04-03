@@ -36,18 +36,20 @@
                             <a href="{{ ajuda_custo_url }}" class="rounded-md mx-0 px-3 py-2 text-sm sm:text-lg font-medium {% if request.path == ajuda_custo_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">Ajuda de Custo</a>
 
                             {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups or 'ServGesipe' in user_groups or 'Copen' in user_groups %}
-                            <div class="relative group">
-                                <button class="bg-gray-800 rounded-md px-3 py-2 text-sm sm:text-lg font-medium {% if request.path == gesipe_url or request.path == gesipe_sga_url or request.path == copen_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %} flex items-center">
-                                    Gesipe
-                                    <svg class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                    </svg>
-                                </button>
-                                <div class="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-gray-800 py-1 hidden group-hover:block z-50">
-                                    <a href="{{ gesipe_url }}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700">Administrativo</a>
-                                    <a href="{{ gesipe_sga_url }}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700">SGA</a>
-                                    <a href="{{ copen_url }}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700">COPEN</a>
-                                </div>
+                            <div class="dropdown">
+                              <button class="btn btn-dark dropdown-toggle bg-gray-800 rounded-md px-3 py-2 text-sm sm:text-lg font-medium {% if request.path == gesipe_url or request.path == gesipe_sga_url or request.path == copen_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %} flex items-center"
+                                      type="button"
+                                      id="gesipeDropdown"
+                                      data-bs-toggle="dropdown"
+                                      aria-expanded="false">
+                                Gesipe
+
+                              </button>
+                              <ul class="dropdown-menu bg-gray-800 border-0 shadow-lg" aria-labelledby="gesipeDropdown">
+                                <li><a class="dropdown-item text-gray-300 hover:bg-gray-700" href="{{ gesipe_url }}">Administrativo</a></li>
+                                <li><a class="dropdown-item text-gray-300 hover:bg-gray-700" href="{{ gesipe_sga_url }}">SGA</a></li>
+                                <li><a class="dropdown-item text-gray-300 hover:bg-gray-700" href="{{ copen_url }}">COPEN</a></li>
+                              </ul>
                             </div>
 
                             <a href="{{ servidor_url }}" class="rounded-md px-3 py-2 text-sm sm:text-lg font-medium {% if request.path == servidor_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">Recursos Humanos</a>
@@ -208,20 +210,6 @@
             document.body.style.overflow = '';
         });
 
-        // Submenu Gesipe mobile
-        const gesipeToggle = document.getElementById('gesipe-toggle');
-        const gesipeMenu = document.getElementById('gesipe-menu');
-        const gesipeArrow = document.getElementById('gesipe-arrow');
 
-        gesipeToggle.addEventListener('click', function() {
-            gesipeArrow.classList.toggle('rotate-180');
-            if (gesipeMenu.classList.contains('max-h-0')) {
-                gesipeMenu.classList.remove('max-h-0');
-                gesipeMenu.classList.add('max-h-96', 'py-2');
-            } else {
-                gesipeMenu.classList.add('max-h-0');
-                gesipeMenu.classList.remove('max-h-96', 'py-2');
-            }
-        });
     });
 </script>
