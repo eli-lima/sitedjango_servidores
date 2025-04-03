@@ -12,7 +12,7 @@ class CriarContaForm(UserCreationForm):
             'nome_completo': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
             'foto_perfil': forms.ClearableFileInput(attrs={'class': 'form-control'}),
-            'matricula': forms.TextInput(attrs={'class': 'form-control'}),
+            'matricula': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Somente Números...'}),
             'setor': forms.Select(attrs={'class': 'form-control'}),
 
 
