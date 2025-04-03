@@ -14,9 +14,9 @@
                 </div>
 
                 <!-- Logo -->
-                <div class="flex flex-1 items-center justify-center pl-12 sm:pl-20 lg:pl-0 lg:justify-start">
+                <div class="flex flex-1 items-center justify-center lg:pl-0 lg:justify-start">
                     <div class="flex flex-shrink-0 items-center">
-                        <a href="/"><img class="h-10 sm:h-16 lg:h-8 w-auto" src="{% static 'images/GOVPBBranco.png' %}" alt="Governo da Paraiba"></a>
+                        <a href="/"><img class="h-10 sm:h-12 lg:h-8 w-auto" src="{% static 'images/GOVPBBranco.png' %}" alt="Governo da Paraiba"></a>
                     </div>
 
                     <!-- Desktop Menu -->
@@ -164,17 +164,24 @@
                         <h4 class="px-4 py-2 text-sm font-medium text-gray-400">Pessoal</h4>
                         <div class="space-y-1">
                             <a href="{% url 'seappb:editarperfil' user.pk %}" class="flex items-center px-4 py-3 text-base font-medium rounded-md {% if request.path == 'editarperfil/<int:pk>' %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">
-                                <ion-icon name="person" class="mr-3 text-lg"></ion-icon>
+                                <i class="bi bi-person mr-3 text-lg"></i>
                                 Perfil
                             </a>
                             <a href="#" class="flex items-center px-4 py-3 text-base font-medium rounded-md text-gray-300 hover:bg-gray-700 hover:text-white">
-                                <ion-icon name="setting" class="mr-3 text-lg"></ion-icon>
+                                <i class="bi bi-gear mr-3 text-lg"></i>
                                 Configurações
                             </a>
-                            <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="flex items-center px-4 py-3 text-base font-medium rounded-md text-gray-300 hover:bg-gray-700 hover:text-white">
-                                <ion-icon name="log-out" class="mr-3 text-lg"></ion-icon>
-                                Sair
-                            </a>
+                            <form method="post" action="{% url 'seappb:logout' %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="flex items-center px-4 py-3 text-base font-medium rounded-md text-gray-300 hover:bg-gray-700 hover:text-white">
+                                        <i class="bi bi-box-arrow-right mr-3 text-lg"></i>
+                                        Sair
+                                    </button>
+                            </form>
+<!--                            <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="flex items-center px-4 py-3 text-base font-medium rounded-md text-gray-300 hover:bg-gray-700 hover:text-white">-->
+<!--                                <ion-icon name="log-out" class="mr-3 text-lg"></ion-icon>-->
+<!--                                Sair-->
+<!--                            </a>-->
                         </div>
                     </div>
                     {% endif %}
