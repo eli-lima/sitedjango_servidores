@@ -93,7 +93,6 @@ def gerar_pdf_ajuda_custo(request, queryset):
 
 # upload relatorios do rx2
 
-
 def upload_excel_rx2(request):
     if request.method == 'POST':
         form = UploadExcelRx2Form(request.POST, request.FILES)
@@ -770,7 +769,6 @@ class EnvioDatasView(LoginRequiredMixin, FormView):
             # Gerar e enviar código de verificação
             codigo, expiracao = gerar_e_armazenar_codigo(request)
             print(f"Código gerado: {codigo}, expira em: {expiracao}")
-
 
             return redirect(self.success_url)
 
