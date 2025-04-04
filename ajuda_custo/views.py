@@ -97,93 +97,47 @@ def upload_excel_rx2(request):
             excel_file = request.FILES['file']
             try:
                 # Upload para o Cloudinary
-                upload_result = cloudinary.uploader.upload(
-                    excel_file,
-                    resource_type="raw",
-                    folder="ajuda_custo_uploads"
-                )
-                cloudinary_url = upload_result['secure_url']
+                upload_result = cloudinary.uploader.upload(excel_file, resource_type="raw")
+                cloudinary_url = upload_result['url']
 
                 # Envia a tarefa de processamento para o Celery
                 task = process_excel_file.delay(cloudinary_url)
 
                 # Informa o usuário e redireciona para a página de status
-                messages.success(request, "Arquivo enviado com sucesso. Processamento em andamento...")
+                messages.success(request, "Arquivo enviado para o Cloudinary e processamento iniciado.")
                 return redirect('ajuda_custo:status_task', task_id=task.id)
 
             except Exception as e:
-                messages.error(request, f"Erro ao processar arquivo: {str(e)}")
+                messages.error(request, f"Erro ao fazer upload no Cloudinary: {str(e)}")
                 return redirect('ajuda_custo:upload_excel_rx2')
     else:
         form = UploadExcelRx2Form()
 
-    return render(request, 'ajuda_custo/upload_excel_rx2.html', {'form': form})
+    return render(request, 'upload_excel_rx2.html', {'form': form})
 
 
 def status_task(request, task_id):
     task = AsyncResult(task_id)
-    context = {
-        'task_id': task_id,
-        'task_state': task.state,
-        'registros_inseridos': 0,
-        'total_erros': 0,
-        'erros': [],
-        'status_message': "Aguardando processamento...",
-        'progresso': 0
-    }
 
-    if task.state == 'PROGRESS':
-        progress_info = task.info
-        context.update({
-            'status_message': f"Processando... ({progress_info.get('processados', 0)}/{progress_info.get('total', 0)})",
-            'registros_inseridos': progress_info.get('inseridos', 0),
-            'total_erros': progress_info.get('erros', 0),
-            'progresso': progress_info.get('progresso', 0)
-        })
+
+    # Verifica se a tarefa está pendente
+    if task.state == 'PENDING':
+        status = "Processamento pendente..."
+    # Verifica se a tarefa foi concluída com sucesso
     elif task.state == 'SUCCESS':
         result = task.result
         if result['status'] == 'sucesso':
-            context.update({
-                'status_message': "Processamento concluído com sucesso!",
-                'registros_inseridos': result['registros_inseridos'],
-                'progresso': 100
-            })
-        elif result['status'] == 'parcial':
-            context.update({
-                'status_message': "Processamento concluído com alguns erros",
-                'registros_inseridos': result['registros_inseridos'],
-                'total_erros': result['total_erros'],
-                'erros': result['erros'],
-                'progresso': 100
-            })
+            status = "Processamento concluído com sucesso!"
         else:
-            context.update({
-                'status_message': "Processamento concluído com erros",
-                'total_erros': result['total_erros'],
-                'erros': result['erros'],
-                'progresso': 100
-            })
+            status = f"Erros encontrados: {', '.join(result['erros'])}"
+    # Verifica se houve falha na tarefa
     elif task.state == 'FAILURE':
-        context.update({
-            'status_message': "Falha no processamento",
-            'erros': [str(task.result)] if task.result else ["Erro desconhecido"],
-            'total_erros': 1,
-            'progresso': 100
-        })
+        status = f"Falha no processamento: {task.result}"
+    # Para outros estados
+    else:
+        status = f"Processamento em andamento... Status: {task.state}"
 
-    # Se for requisição AJAX, retorna JSON
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return JsonResponse({
-            'task_state': context['task_state'],
-            'status_message': context['status_message'],
-            'registros_inseridos': context['registros_inseridos'],
-            'total_erros': context['total_erros'],
-            'progresso': context['progresso'],
-            'erros': context['erros'][:5]  # Retorna apenas os primeiros erros para AJAX
-        })
-
-    return render(request, 'ajuda_custo/status_task.html', context)
-
+    return render(request, 'status_task.html', {'status': status})
 
 
 # def baixar zip arquivos assinados
