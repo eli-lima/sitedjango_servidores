@@ -13,145 +13,136 @@ from datetime import datetime
 
 @shared_task
 def process_batch(df_batch):
-    registros_inseridos = False
+    registros_inseridos = 0
     ajuda_custos_para_inserir = []
-    horas_por_servidor = defaultdict(int)
-    datas_processadas = set()
+    horas_por_servidor_mes = defaultdict(int)  # (matricula, ano, mes) -> horas
     erros = []
 
-    # Limpa e converte as matrículas para números inteiros
+    print("\n=== INÍCIO DO PROCESSAMENTO DO LOTE ===\n")
+    print(f"Total de registros no lote: {len(df_batch)}")
+
+    # 1. Coleta todas as matrículas e meses/anos únicos no lote
     servidores_no_lote = set()
+    meses_anos_no_lote = set()
+
     for row in df_batch:
-        matricula_raw = row['Matrícula']
-        if not matricula_raw:
-            continue
         try:
-            # Remove caracteres não numéricos e converte para inteiro
-            matricula = int(re.sub(r'\D', '', str(matricula_raw)).lstrip('0'))
+            matricula = int(re.sub(r'\D', '', str(row['Matrícula'])).lstrip('0'))
+            data_completa = parser.parse(str(row['Data'])).date()
             servidores_no_lote.add(matricula)
-        except ValueError:
-            erros.append(f"Erro: Matrícula inválida '{matricula_raw}'.")
+            meses_anos_no_lote.add((data_completa.year, data_completa.month))
+        except Exception as e:
+            print(f"Erro ao extrair matrícula/data: {str(e)}")
             continue
 
-    # Extrai os meses/anos do lote
-    meses_no_lote = set()
-    for row in df_batch:
-        data = row['Data']
-        if not data:
-            continue
+    print(f"\nServidores únicos no lote: {len(servidores_no_lote)}")
+    print(f"Meses/anos únicos no lote: {meses_anos_no_lote}")
+
+    # 2. Consulta as horas já registradas no banco
+    if servidores_no_lote and meses_anos_no_lote:
+        print("\nConsultando horas existentes no banco...")
+        registros_banco = Ajuda_Custo.objects.filter(
+            matricula__in=servidores_no_lote,
+            data__year__in=[ano for ano, mes in meses_anos_no_lote],
+            data__month__in=[mes for ano, mes in meses_anos_no_lote]
+        )
+        print(f"Total de registros existentes encontrados: {len(registros_banco)}")
+
+        for registro in registros_banco:
+            key = (registro.matricula, registro.data.year, registro.data.month)
+            horas = 12 if registro.carga_horaria.strip() == "12 horas" else 24
+            horas_por_servidor_mes[key] += horas
+            print(
+                f"  - {registro.matricula} {registro.data.strftime('%m/%Y')}: +{horas}h (Total no banco: {horas_por_servidor_mes[key]}h)")
+
+    # 3. Processa o lote atual
+    print("\nProcessando registros do lote atual...")
+    for i, row in enumerate(df_batch, 1):
         try:
-            data_completa = parser.parse(str(data)).date()
-            meses_no_lote.add((data_completa.year, data_completa.month))
-        except ValueError:
-            erros.append(f"Erro: Data inválida '{data}'.")
+            print(f"\n--- Registro {i}/{len(df_batch)} ---")
+            # Processamento básico
+            matricula = int(re.sub(r'\D', '', str(row['Matrícula'])).lstrip('0'))
+            nome = row['Nome']
+            data_completa = parser.parse(str(row['Data'])).date()
+            mes_ano_key = (matricula, data_completa.year, data_completa.month)
+            carga_horaria = 12 if str(row['Carga Horaria']).strip() == "12 horas" else 24
+
+            print(f"Processando: {nome} (Matrícula: {matricula})")
+            print(f"Data: {data_completa.strftime('%d/%m/%Y')} | Carga: {carga_horaria}h")
+
+            # Verifica registro existente
+            if Ajuda_Custo.objects.filter(matricula=matricula, data=data_completa).exists():
+                erro_msg = f"REGISTRO JÁ EXISTE: {nome} em {data_completa}"
+            print(erro_msg)
+            erros.append(erro_msg)
             continue
 
-    # Consulta ao banco de dados para obter as horas já registradas
-    registros_banco = Ajuda_Custo.objects.filter(
-        matricula__in=servidores_no_lote,
-        data__year__in=[ano for ano, mes in meses_no_lote],
-        data__month__in=[mes for ano, mes in meses_no_lote]
-    )
+            # Calcula totais (banco + lote atual)
+            horas_banco = horas_por_servidor_mes.get(mes_ano_key, 0)
+            horas_em_insercao = sum(
+                12 if r.carga_horaria.strip() == "12 horas" else 24
+                for r in ajuda_custos_para_inserir
+                if (r.matricula, r.data.year, r.data.month) == mes_ano_key
+            )
+            horas_totais = horas_banco + horas_em_insercao
 
-    # Pré-calcular as horas do banco de dados
-    for registro in registros_banco:
-        mes_ano = (registro.data.year, registro.data.month)
-        carga_horaria_passado = registro.carga_horaria.strip()
-        if carga_horaria_passado == "12 horas":
-            horas_por_servidor[(registro.matricula, mes_ano)] += 12
-        elif carga_horaria_passado == "24 horas":
-            horas_por_servidor[(registro.matricula, mes_ano)] += 24
+            print("\nDEBUG - CÁLCULO DE HORAS:")
+            print(f"  - Banco de dados: {horas_banco}h")
+            print(f"  - Lote atual (a inserir): {horas_em_insercao}h")
+            print(f"  - Registro atual: {carga_horaria}h")
+            print(f"  - TOTAL PARCIAL: {horas_totais}h")
+            print(f"  - TOTAL + ATUAL: {horas_totais + carga_horaria}h (Limite: 192h)")
 
-    # Processa cada linha do lote
-    for row in df_batch:
-        matricula_raw = row['Matrícula']
-        if not matricula_raw:
-            erros.append("Erro: Matrícula vazia encontrada.")
+            # Verificação FINAL do limite ANTES de adicionar
+            if (horas_totais + carga_horaria) > 192:
+                erro_msg = (
+                    f"LIMITE EXCEDIDO: {nome} (Matrícula: {matricula}) "
+                    f"em {data_completa.strftime('%m/%Y')} "
+                    f"(Banco: {horas_banco}h + Lote: {horas_em_insercao}h + Atual: {carga_horaria}h = {horas_totais + carga_horaria}h)"
+                )
+                print("❌ " + erro_msg)
+                erros.append(erro_msg)
+                continue
+
+            print("✅ Dentro do limite - Adicionando ao lote de inserção")
+
+            # Adiciona ao lote de inserção
+            ajuda_custos_para_inserir.append(Ajuda_Custo(
+                matricula=matricula,
+                nome=nome,
+                data=data_completa,
+                unidade=row['Unidade'],
+                carga_horaria=row['Carga Horaria'],
+                majorado=DataMajorada.objects.filter(data=data_completa).exists()
+            ))
+
+        except Exception as e:
+            erro_msg = f"ERRO NO REGISTRO {i}: {str(e)}"
+            print("⚠️ " + erro_msg)
+            erros.append(erro_msg)
             continue
 
-        # Limpa a matrícula e converte para inteiro
+    # 4. Insere tudo de uma vez (se não houver erros)
+    print("\n=== RESUMO FINAL ===")
+    print(f"Registros válidos para inserção: {len(ajuda_custos_para_inserir)}")
+    print(f"Total de erros detectados: {len(erros)}")
+
+    if ajuda_custos_para_inserir:
         try:
-            matricula = int(re.sub(r'\D', '', str(matricula_raw)).lstrip('0'))
-        except ValueError:
-            erros.append(f"Erro: Matrícula inválida '{matricula_raw}' para o servidor {row['Nome']}.")
-            continue
-
-        unidade = row['Unidade']
-        nome = row['Nome']
-        data = row['Data']
-        carga_horaria_raw = row['Carga Horaria']
-
-        # Converte a carga horária de texto para número inteiro
-        carga_horaria = 0
-        if carga_horaria_raw.strip() == "12 horas":
-            carga_horaria = 12
-        elif carga_horaria_raw.strip() == "24 horas":
-            carga_horaria = 24
-        else:
-            erros.append(f"Erro: Carga horária inválida '{carga_horaria_raw}' para o servidor {nome}.")
-            continue
-
-        try:
-            servidor = Servidor.objects.get(matricula=matricula)
-        except Servidor.DoesNotExist:
-            erros.append(f"Erro: Servidor com matrícula {matricula} não encontrado.")
-            continue
-
-        try:
-            data_completa = parser.parse(str(data)).date()
-        except ValueError:
-            erros.append(f"Erro: Data inválida {data} para o servidor {nome}.")
-            continue
-
-        if (servidor.matricula, data_completa) in datas_processadas:
-            erros.append(f"Registro duplicado para o servidor {nome} na data {data_completa}.")
-            continue
-
-        registro_existente = Ajuda_Custo.objects.filter(matricula=servidor.matricula, data=data_completa).exists()
-        if registro_existente:
-            erros.append(f"Erro: Registro já existe para o servidor {nome} na data {data_completa}.")
-            continue
-
-        datas_processadas.add((servidor.matricula, data_completa))
-
-        mes_ano = (data_completa.year, data_completa.month)
-        horas_mes_atual = horas_por_servidor.get((servidor.matricula, mes_ano), 0)
-
-        if horas_mes_atual + carga_horaria > 192:
-            erros.append(f"Limite mensal de 192 horas excedido para o servidor {nome} no mês {data_completa.strftime('%m/%Y')}.")
-            continue
-
-        horas_por_servidor[(servidor.matricula, mes_ano)] = horas_mes_atual + carga_horaria
-
-        majorado = DataMajorada.objects.filter(data=data_completa).exists()
-
-        ajuda_custos_para_inserir.append(Ajuda_Custo(
-            matricula=servidor.matricula,
-            nome=servidor.nome,
-            data=data_completa,
-            unidade=unidade,
-            carga_horaria=carga_horaria_raw,
-            majorado=majorado
-        ))
-
-    try:
-        if ajuda_custos_para_inserir:
+            print("\nIniciando inserção em lote...")
             Ajuda_Custo.objects.bulk_create(ajuda_custos_para_inserir)
-            registros_inseridos = True
-    except IntegrityError as e:
-        erros.append(f"Erro de integridade durante a inserção: {str(e)}")
+            registros_inseridos = len(ajuda_custos_para_inserir)
+            print(f"✅ Inserção concluída - {registros_inseridos} registros adicionados")
+        except Exception as e:
+            erro_msg = f"ERRO NA INSERÇÃO: {str(e)}"
+            print("❌ " + erro_msg)
+            erros.append(erro_msg)
 
-    if registros_inseridos:
-        print("Registros inseridos com sucesso!")
-    else:
-        print("Nenhum registro foi inserido.")
-
-    if erros:
-        print("Erros encontrados:")
-        for erro in erros:
-            print(erro)
-
-    return erros
+    return {
+        'registros_inseridos': registros_inseridos,
+        'total_erros': len(erros),
+        'erros': erros
+    }
 
 
 @shared_task(bind=True)

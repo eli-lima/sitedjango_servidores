@@ -88,9 +88,6 @@ def gerar_pdf_ajuda_custo(request, queryset):
     return response
 
 
-
-
-
 # upload relatorios do rx2
 
 def upload_excel_rx2(request):
