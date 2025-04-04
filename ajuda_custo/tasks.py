@@ -15,103 +15,80 @@ from datetime import datetime
 def process_batch(df_batch):
     registros_inseridos = 0
     ajuda_custos_para_inserir = []
-    horas_por_servidor_mes = defaultdict(int)  # (matricula, ano, mes) -> horas
+    horas_por_servidor_mes = defaultdict(int)
     erros = []
 
-    print("\n=== INÍCIO DO PROCESSAMENTO DO LOTE ===")
-    print(f"Total de registros no lote: {len(df_batch)}")
+    print("\n=== INÍCIO DO PROCESSAMENTO ===")
+    print(f"Total de registros a processar: {len(df_batch)}")
 
-    # 1. Coleta todas as matrículas e meses/anos únicos no lote
+    # 1. Coleta de dados únicos
     servidores_no_lote = set()
     meses_anos_no_lote = set()
 
-    print("\nColetando matrículas e datas únicas...")
     for i, row in enumerate(df_batch, 1):
         try:
             matricula = int(re.sub(r'\D', '', str(row['Matrícula'])).lstrip('0'))
             data_completa = parser.parse(str(row['Data'])).date()
             servidores_no_lote.add(matricula)
             meses_anos_no_lote.add((data_completa.year, data_completa.month))
-            print(f"  - Registro {i}: Matrícula {matricula} | Data {data_completa}")
         except Exception as e:
-            erro_msg = f"Erro ao processar linha {i}: {str(e)}"
-            print(f"  ⚠️ {erro_msg}")
-            erros.append(erro_msg)
+            error_message = f"ERRO no registro {i} (inicialização): {str(e)}"
+            print(error_message)
+            erros.append(error_message)
             continue
 
-    print(f"\nServidores únicos encontrados: {servidores_no_lote}")
-    print(f"Períodos únicos encontrados: {meses_anos_no_lote}")
-
-    # 2. Consulta as horas já registradas no banco
+    # 2. Consulta ao banco
     if servidores_no_lote and meses_anos_no_lote:
-        print("\nConsultando banco de dados para horas existentes...")
         registros_banco = Ajuda_Custo.objects.filter(
             matricula__in=servidores_no_lote,
             data__year__in=[ano for ano, mes in meses_anos_no_lote],
             data__month__in=[mes for ano, mes in meses_anos_no_lote]
         )
 
-        print(f"Total de registros existentes encontrados: {registros_banco.count()}")
-
         for registro in registros_banco:
             key = (registro.matricula, registro.data.year, registro.data.month)
-            horas = 12 if registro.carga_horaria.strip() == "12 horas" else 24
-            horas_por_servidor_mes[key] += horas
-            print(
-                f"  - {registro.matricula} {registro.data.strftime('%m/%Y')}: +{horas}h (Total: {horas_por_servidor_mes[key]}h)")
+            horas_por_servidor_mes[key] += 12 if registro.carga_horaria.strip() == "12 horas" else 24
 
-    # 3. Processa o lote atual
-    print("\nProcessando registros do lote atual...")
+    # 3. Processamento do lote
     for i, row in enumerate(df_batch, 1):
         try:
-            print(f"\n--- Processando Registro {i} ---")
-            print(f"Conteúdo: {dict(row)}")
-
-            # Processamento básico
+            print(f"\n--- Processando registro {i} ---")
             matricula = int(re.sub(r'\D', '', str(row['Matrícula'])).lstrip('0'))
             nome = row['Nome']
             data_completa = parser.parse(str(row['Data'])).date()
             mes_ano_key = (matricula, data_completa.year, data_completa.month)
             carga_horaria = 12 if str(row['Carga Horaria']).strip() == "12 horas" else 24
 
-            print(f"Processando: {nome} (Matrícula: {matricula})")
-            print(f"Data: {data_completa.strftime('%d/%m/%Y')} | Carga Horária: {carga_horaria}h")
+            print(f"Servidor: {nome} (Matrícula: {matricula})")
+            print(f"Data: {data_completa.strftime('%d/%m/%Y')} | Carga: {carga_horaria}h")
 
-            # Verifica registro existente
+            # Verificação de registro existente
             if Ajuda_Custo.objects.filter(matricula=matricula, data=data_completa).exists():
-                erro_msg = f"Registro já existe: {nome} em {data_completa.strftime('%d/%m/%Y')}"
-                print(f"  ⚠️ {erro_msg}")
-                erros.append(erro_msg)
+                error_message = f"REGISTRO DUPLICADO: {nome} em {data_completa.strftime('%d/%m/%Y')}"
+                print(error_message)
+                erros.append(error_message)
                 continue
 
-            # Calcula totais (banco + lote atual)
+            # Cálculo de horas
             horas_banco = horas_por_servidor_mes.get(mes_ano_key, 0)
-            horas_em_insercao = sum(
+            horas_lote = sum(
                 12 if r.carga_horaria.strip() == "12 horas" else 24
                 for r in ajuda_custos_para_inserir
                 if (r.matricula, r.data.year, r.data.month) == mes_ano_key
             )
-            horas_totais = horas_banco + horas_em_insercao
+            total_horas = horas_banco + horas_lote + carga_horaria
 
-            print("\n  CÁLCULO DE HORAS:")
-            print(f"  - Horas no banco: {horas_banco}h")
-            print(f"  - Horas no lote atual: {horas_em_insercao}h")
-            print(f"  - Horas deste registro: {carga_horaria}h")
-            print(f"  - TOTAL PARCIAL: {horas_totais}h")
-            print(f"  - TOTAL COM ESTE REGISTRO: {horas_totais + carga_horaria}h (Limite: 192h)")
+            print("\nDEBUG - CÁLCULO DE HORAS:")
+            print(f"Banco: {horas_banco}h | Lote: {horas_lote}h | Atual: {carga_horaria}h")
+            print(f"TOTAL: {total_horas}h (Limite: 192h)")
 
-            # Verificação FINAL do limite ANTES de adicionar
-            if (horas_totais + carga_horaria) > 192:
-                erro_msg = (f"LIMITE EXCEDIDO: {nome} (Matrícula: {matricula}) "
-                            f"em {data_completa.strftime('%m/%Y')} "
-                            f"(Total: {horas_totais + carga_horaria}h)")
-                print(f"  ❌ {erro_msg}")
-                erros.append(erro_msg)
+            if total_horas > 192:
+                error_message = f"LIMITE EXCEDIDO: {nome} ({matricula}) - {total_horas}h em {data_completa.strftime('%m/%Y')}"
+                print(error_message)
+                erros.append(error_message)
                 continue
 
-            print("  ✅ Dentro do limite - Adicionando ao lote")
-
-            # Adiciona ao lote de inserção
+            # Adição ao lote
             ajuda_custos_para_inserir.append(Ajuda_Custo(
                 matricula=matricula,
                 nome=nome,
@@ -120,34 +97,33 @@ def process_batch(df_batch):
                 carga_horaria=row['Carga Horaria'],
                 majorado=DataMajorada.objects.filter(data=data_completa).exists()
             ))
+            print("✅ Registro válido - Adicionado ao lote")
 
         except Exception as e:
-            erro_msg = f"ERRO NO REGISTRO {i}: {str(e)}"
-            print(f"  ⚠️ {erro_msg}")
-            erros.append(erro_msg)
+            error_message = f"ERRO NO PROCESSAMENTO (registro {i}): {str(e)}"
+            print(error_message)
+            erros.append(error_message)
             continue
 
-    # 4. Insere tudo de uma vez (se não houver erros)
-    print("\n=== RESUMO FINAL DO LOTE ===")
-    print(f"Total de registros válidos para inserção: {len(ajuda_custos_para_inserir)}")
-    print(f"Total de erros encontrados: {len(erros)}")
+    # 4. Inserção final
+    print("\n=== ETAPA FINAL ===")
+    print(f"Total a inserir: {len(ajuda_custos_para_inserir)}")
+    print(f"Total de erros: {len(erros)}")
 
     if ajuda_custos_para_inserir:
-        print("\nIniciando inserção em lote no banco de dados...")
         try:
             Ajuda_Custo.objects.bulk_create(ajuda_custos_para_inserir)
             registros_inseridos = len(ajuda_custos_para_inserir)
-            print(f"✅ {registros_inseridos} registros inseridos com sucesso!")
+            print("✅ Inserção em lote concluída com sucesso")
         except Exception as e:
-            erro_msg = f"FALHA NA INSERÇÃO EM LOTE: {str(e)}"
-            print(f"  ❌ {erro_msg}")
-            erros.append(erro_msg)
+            error_message = f"FALHA NA INSERÇÃO: {str(e)}"
+            print(error_message)
+            erros.append(error_message)
 
-    print("\n=== PROCESSAMENTO CONCLUÍDO ===")
     return {
         'registros_inseridos': registros_inseridos,
         'total_erros': len(erros),
-        'erros': erros[:100]  # Limita a 100 erros para evitar payload grande
+        'erros': erros[:100]  # Limita a 100 erros
     }
 
 
