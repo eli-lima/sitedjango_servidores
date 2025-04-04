@@ -135,28 +135,35 @@ def process_excel_file(self, cloudinary_url):
         response = requests.get(cloudinary_url)
         response.raise_for_status()
 
-        # Ler o arquivo Excel
+        # Ler o arquivo Excel diretamente como DataFrame
         df = pd.read_excel(response.content)
-        total_registros = df.shape[0]
+
+        # Verificar colunas necessárias
+        colunas_necessarias = ['Matrícula', 'Nome', 'Data', 'Unidade', 'Carga Horaria']
+        if not all(col in df.columns for col in colunas_necessarias):
+            missing = [col for col in colunas_necessarias if col not in df.columns]
+            raise ValueError(f"Colunas faltando no arquivo: {missing}")
+
+        total_registros = len(df)
         print(f"Total de registros a processar: {total_registros}")
 
-        # Variáveis para acumular resultados
+        # Variáveis para resultados
         registros_inseridos_totais = 0
         erros_totais = []
 
         batch_size = 10000
         for start in range(0, total_registros, batch_size):
             end = min(start + batch_size, total_registros)
-            df_batch = df.iloc[start:end]
+            df_batch = df.iloc[start:end]  # Mantém como DataFrame
 
-            print(f"\nProcessando lote de registros: {start} a {end}")
+            print(f"\nProcessando lote: {start} a {end}")
             result = process_batch(df_batch)  # Envia o DataFrame diretamente
 
             # Acumula resultados
             registros_inseridos_totais += result['registros_inseridos']
             erros_totais.extend(result['erros'])
 
-            # Atualiza status para o Celery
+            # Atualiza progresso
             self.update_state(
                 state='PROGRESS',
                 meta={
@@ -174,11 +181,11 @@ def process_excel_file(self, cloudinary_url):
             'status': 'sucesso' if registros_inseridos_totais > 0 else 'erro',
             'registros_inseridos': registros_inseridos_totais,
             'total_erros': len(erros_totais),
-            'erros': erros_totais[:100]  # Limita a 100 erros no retorno
+            'erros': erros_totais[:100]
         }
 
     except Exception as e:
-        error_msg = f"ERRO NO PROCESSAMENTO DO ARQUIVO: {str(e)}"
+        error_msg = f"ERRO NO PROCESSAMENTO: {str(e)}"
         print(error_msg)
         return {
             'status': 'falha',
