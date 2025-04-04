@@ -24,7 +24,7 @@ def process_batch(df_batch):
 
     for row in df_batch:
         try:
-            matricula = int(re.sub(r'\D', '', str(row['Matrícula'])).lstrip('0')
+            matricula = int(re.sub(r'\D', '', str(row['Matrícula'])).lstrip('0'))
             data_completa = parser.parse(str(row['Data'])).date()
             servidores_no_lote.add(matricula)
             meses_anos_no_lote.add((data_completa.year, data_completa.month))
@@ -48,7 +48,7 @@ def process_batch(df_batch):
     for row in df_batch:
         try:
             # Processamento básico
-            matricula = int(re.sub(r'\D', '', str(row['Matrícula'])).lstrip('0')
+            matricula = int(re.sub(r'\D', '', str(row['Matrícula'])).lstrip('0'))
             nome = row['Nome']
             data_completa = parser.parse(str(row['Data'])).date()
             mes_ano_key = (matricula, data_completa.year, data_completa.month)
