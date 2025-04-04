@@ -185,6 +185,7 @@ def status_task(request, task_id):
     return render(request, 'ajuda_custo/status_task.html', context)
 
 
+
 # def baixar zip arquivos assinados
 
 def criar_arquivo_zip(request, queryset):
