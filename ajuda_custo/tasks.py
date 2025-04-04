@@ -130,40 +130,58 @@ def process_batch(df_batch):
 
 @shared_task(bind=True)
 def process_excel_file(self, cloudinary_url):
-
     try:
         # Fazer o download do arquivo do Cloudinary
         response = requests.get(cloudinary_url)
         response.raise_for_status()
 
-
         # Ler o arquivo Excel
         df = pd.read_excel(response.content)
-
-
-        # Lógica de processamento dos dados
-        batch_size = 10000
         total_registros = df.shape[0]
         print(f"Total de registros a processar: {total_registros}")
+
+        # Variáveis para acumular resultados
+        registros_inseridos_totais = 0
         erros_totais = []
 
+        batch_size = 10000
         for start in range(0, total_registros, batch_size):
             end = min(start + batch_size, total_registros)
             df_batch = df.iloc[start:end]
 
-            # Converte o batch para uma lista de dicionários
-            df_batch_dict = df_batch.to_dict(orient='records')
-            print(f"Processando lote de registros: {start} a {end}")
+            print(f"\nProcessando lote de registros: {start} a {end}")
+            result = process_batch(df_batch)  # Envia o DataFrame diretamente
 
-            # Processa o lote e acumula erros
-            result = process_batch(df_batch_dict)  # Chama a função que já processa os dados
-            erros_totais.extend(result)
+            # Acumula resultados
+            registros_inseridos_totais += result['registros_inseridos']
+            erros_totais.extend(result['erros'])
 
-        print(f"Processamento concluído. Erros totais: {len(erros_totais)}")
+            # Atualiza status para o Celery
+            self.update_state(
+                state='PROGRESS',
+                meta={
+                    'processados': end,
+                    'total': total_registros,
+                    'inseridos': registros_inseridos_totais,
+                    'erros': len(erros_totais)
+                }
+            )
 
-        # Retorna status e erros, se houver
-        return {'status': 'sucesso' if not erros_totais else 'erro', 'erros': erros_totais}
+        print(f"\nProcessamento concluído. Total inserido: {registros_inseridos_totais}")
+        print(f"Total de erros: {len(erros_totais)}")
+
+        return {
+            'status': 'sucesso' if registros_inseridos_totais > 0 else 'erro',
+            'registros_inseridos': registros_inseridos_totais,
+            'total_erros': len(erros_totais),
+            'erros': erros_totais[:100]  # Limita a 100 erros no retorno
+        }
 
     except Exception as e:
-        print(f"Ocorreu um erro durante o processamento: {str(e)}")  # Print do erro
-        return {'status': 'falha', 'mensagem': str(e)}
+        error_msg = f"ERRO NO PROCESSAMENTO DO ARQUIVO: {str(e)}"
+        print(error_msg)
+        return {
+            'status': 'falha',
+            'mensagem': error_msg,
+            'erros': [error_msg]
+        }
