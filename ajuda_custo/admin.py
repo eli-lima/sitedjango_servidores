@@ -2,9 +2,6 @@ from django.contrib import admin
 from .models import Ajuda_Custo, DataMajorada, LimiteAjudaCusto, CotaAjudaCusto
 
 
-
-
-
 @admin.register(Ajuda_Custo)
 class AjudaCustoAdmin(admin.ModelAdmin):
     list_display = ('nome', 'matricula', 'data', 'unidade', 'carga_horaria', 'majorado', 'codigo_verificacao')
