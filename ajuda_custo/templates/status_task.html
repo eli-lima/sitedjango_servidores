@@ -1,140 +1,74 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="pt-48 flex justify-center">
-  <div class="flex flex-col items-center w-full max-w-4xl px-4">
-    <h1 class="text-2xl font-bold mb-6">Status do Processamento</h1>
+  <div class="pt-48 flex justify-center">
+    <div class="flex flex-col items-center">
+      <h1 class="text-2xl font-bold mb-4">Status do Processamento</h1>
 
-    <!-- Card principal -->
-    <div class="w-full bg-white rounded-lg shadow-md overflow-hidden mb-6">
-      <!-- Cabeçalho -->
-      <div class="bg-blue-600 px-6 py-4 text-white">
-        <h2 class="text-xl font-semibold">ID da Tarefa: {{ task_id }}</h2>
+      <!-- Status do processamento -->
+      <div id="status" class="text-center text-lg font-semibold">
+          {{ status }}
       </div>
 
-      <!-- Corpo -->
-      <div class="p-6">
-        <!-- Status -->
-        <div class="mb-6">
-          <h3 class="text-lg font-medium mb-2">Status</h3>
-          <div class="flex items-center">
-            <div class="flex-1">
-              <p id="status-message" class="text-lg font-semibold {% if task_state == 'SUCCESS' %}text-green-600{% elif task_state == 'FAILURE' %}text-red-600{% else %}text-blue-600{% endif %}">
-                {{ status_message }}
-              </p>
-              {% if task_state == 'PROGRESS' %}
-              <p class="text-sm text-gray-500 mt-1">Por favor, aguarde...</p>
-              {% endif %}
-            </div>
-            <div class="ml-4">
-              {% if task_state == 'SUCCESS' %}
-              <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">✓ Concluído</span>
-              {% elif task_state == 'FAILURE' %}
-              <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">✗ Falha</span>
-              {% else %}
-              <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">⌛ Em andamento</span>
-              {% endif %}
-            </div>
-          </div>
-        </div>
+      <!-- Seção de loading com spinner e barra de progresso -->
+      <div id="loading-section" class="mt-4 flex flex-col items-center hidden">
+        <!-- Spinner -->
+        <div class="loader mb-4"></div>
 
         <!-- Barra de progresso -->
-        {% if task_state != 'SUCCESS' and task_state != 'FAILURE' %}
-        <div class="mb-6">
-          <div class="flex justify-between mb-1">
-            <span class="text-sm font-medium">Progresso</span>
-            <span id="progress-percent" class="text-sm font-medium">{{ progresso }}%</span>
-          </div>
-          <div class="w-full bg-gray-200 rounded-full h-2.5">
-            <div id="progress-bar" class="bg-blue-600 h-2.5 rounded-full" style="width: {{ progresso }}%"></div>
-          </div>
+        <div class="w-64 bg-gray-200 rounded-full overflow-hidden">
+          <div id="progress-bar" class="h-4 bg-blue-500 animate-progress"></div>
         </div>
-        {% endif %}
-
-        <!-- Resumo -->
-        <div class="grid md:grid-cols-2 gap-4 mb-6">
-          <div class="bg-green-50 p-4 rounded-lg border border-green-100">
-            <p class="text-sm text-green-600 mb-1">Registros Inseridos</p>
-            <p id="registros-inseridos" class="text-2xl font-bold text-green-700">{{ registros_inseridos }}</p>
-          </div>
-          <div class="bg-red-50 p-4 rounded-lg border border-red-100">
-            <p class="text-sm text-red-600 mb-1">Erros Encontrados</p>
-            <p id="total-erros" class="text-2xl font-bold text-red-700">{{ total_erros }}</p>
-          </div>
-        </div>
-
-        <!-- Lista de erros -->
-        {% if erros %}
-        <div class="border-t pt-4">
-          <h3 class="text-lg font-medium mb-3 text-red-600">Detalhes dos Erros</h3>
-          <div class="max-h-64 overflow-y-auto pr-2">
-            <ul class="space-y-2">
-              {% for erro in erros %}
-              <li class="text-sm p-3 bg-red-50 rounded-md border border-red-100 flex items-start">
-                <span class="text-red-500 mr-2">•</span>
-                <span>{{ erro }}</span>
-              </li>
-              {% endfor %}
-            </ul>
-          </div>
-        </div>
-        {% endif %}
       </div>
     </div>
-
-    <!-- Botões de ação -->
-    <div class="flex space-x-4">
-      <a href="{% url 'ajuda_custo:upload_excel_rx2' %}" class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
-        Novo Upload
-      </a>
-      {% if task_state == 'SUCCESS' or task_state == 'FAILURE' %}
-      <button onclick="window.location.reload()" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition">
-        Atualizar
-      </button>
-      {% endif %}
-    </div>
   </div>
-</div>
 
-<script>
-// Função para atualizar o status via AJAX
-function atualizarStatus() {
-  fetch(window.location.href, {
-    headers: {
-      'X-Requested-With': 'XMLHttpRequest'
-    }
-  })
-  .then(response => response.json())
-  .then(data => {
-    // Atualiza os elementos da página
-    document.getElementById('status-message').innerText = data.status_message;
-    document.getElementById('progress-percent').innerText = data.progresso + '%';
-    document.getElementById('progress-bar').style.width = data.progresso + '%';
-    document.getElementById('registros-inseridos').innerText = data.registros_inseridos;
-    document.getElementById('total-erros').innerText = data.total_erros;
+  <script>
+    function atualizarStatus() {
+        fetch(window.location.href)  // Faz uma requisição para a própria página
+        .then(response => response.text())
+        .then(html => {
+            let parser = new DOMParser();
+            let doc = parser.parseFromString(html, 'text/html');
+            let novoStatus = doc.getElementById('status').innerText.trim();
 
-    // Atualiza classes de status
-    const statusMsg = document.getElementById('status-message');
-    statusMsg.className = 'text-lg font-semibold ';
-    if (data.task_state === 'SUCCESS') {
-      statusMsg.classList.add('text-green-600');
-    } else if (data.task_state === 'FAILURE') {
-      statusMsg.classList.add('text-red-600');
-    } else {
-      statusMsg.classList.add('text-blue-600');
+            document.getElementById('status').innerText = novoStatus;
+
+            if (novoStatus.includes("pendente") || novoStatus.includes("Em andamento")) {
+                document.getElementById('loading-section').classList.remove('hidden');
+                document.getElementById('progress-bar').classList.remove('hidden');
+            } else {
+                document.getElementById('loading-section').classList.add('hidden');
+                document.getElementById('progress-bar').classList.add('hidden');
+                clearInterval(statusInterval);
+            }
+        });
     }
 
-    // Para de atualizar se o processamento terminou
-    if (data.task_state === 'SUCCESS' || data.task_state === 'FAILURE') {
-      clearInterval(statusInterval);
-    }
-  })
-  .catch(error => console.error('Erro ao atualizar status:', error));
-}
+    // Atualiza o status a cada 5 segundos
+    var statusInterval = setInterval(atualizarStatus, 5000);
+  </script>
 
-// Configura a atualização periódica apenas se o processamento não estiver completo
-{% if task_state != 'SUCCESS' and task_state != 'FAILURE' %}
-var statusInterval = setInterval(atualizarStatus, 3000);
-{% endif %}
-</script>
+  <style>
+    @keyframes progress {
+      0% { width: 0%; }
+      100% { width: 100%; }
+    }
+    .animate-progress {
+      animation: progress 2s linear infinite;
+    }
+    /* Spinner */
+    .loader {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(0, 0, 255, 0.3);
+      border-top-color: blue;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
 {% endblock %}
