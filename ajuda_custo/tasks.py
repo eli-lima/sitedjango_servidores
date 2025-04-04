@@ -9,7 +9,10 @@ from celery import shared_task
 import requests
 from collections import defaultdict
 from datetime import datetime
+from django.db import transaction
+import logging
 
+logger = logging.getLogger(__name__)
 
 @shared_task
 def process_batch(df_batch):
@@ -18,22 +21,22 @@ def process_batch(df_batch):
     horas_por_servidor_mes = defaultdict(int)
     erros = []
 
-    print("\n=== INÍCIO DO PROCESSAMENTO ===")
-    print(f"Total de registros a processar: {len(df_batch)}")
+    logger.info("\n=== INÍCIO DO PROCESSAMENTO ===")
+    logger.info(f"Total de registros a processar: {len(df_batch)}")
 
     # 1. Coleta de dados únicos
     servidores_no_lote = set()
     meses_anos_no_lote = set()
 
-    for i, row in enumerate(df_batch, 1):
+    for i, row in df_batch.iterrows():
         try:
             matricula = int(re.sub(r'\D', '', str(row['Matrícula'])).lstrip('0'))
             data_completa = parser.parse(str(row['Data'])).date()
             servidores_no_lote.add(matricula)
             meses_anos_no_lote.add((data_completa.year, data_completa.month))
         except Exception as e:
-            error_message = f"ERRO no registro {i} (inicialização): {str(e)}"
-            print(error_message)
+            error_message = f"ERRO no registro {i+1} (inicialização): {str(e)}"
+            logger.error(error_message)
             erros.append(error_message)
             continue
 
@@ -50,22 +53,22 @@ def process_batch(df_batch):
             horas_por_servidor_mes[key] += 12 if registro.carga_horaria.strip() == "12 horas" else 24
 
     # 3. Processamento do lote
-    for i, row in enumerate(df_batch, 1):
+    for i, row in df_batch.iterrows():
         try:
-            print(f"\n--- Processando registro {i} ---")
+            logger.info(f"\n--- Processando registro {i+1} ---")
             matricula = int(re.sub(r'\D', '', str(row['Matrícula'])).lstrip('0'))
             nome = row['Nome']
             data_completa = parser.parse(str(row['Data'])).date()
             mes_ano_key = (matricula, data_completa.year, data_completa.month)
             carga_horaria = 12 if str(row['Carga Horaria']).strip() == "12 horas" else 24
 
-            print(f"Servidor: {nome} (Matrícula: {matricula})")
-            print(f"Data: {data_completa.strftime('%d/%m/%Y')} | Carga: {carga_horaria}h")
+            logger.info(f"Servidor: {nome} (Matrícula: {matricula})")
+            logger.info(f"Data: {data_completa.strftime('%d/%m/%Y')} | Carga: {carga_horaria}h")
 
             # Verificação de registro existente
             if Ajuda_Custo.objects.filter(matricula=matricula, data=data_completa).exists():
                 error_message = f"REGISTRO DUPLICADO: {nome} em {data_completa.strftime('%d/%m/%Y')}"
-                print(error_message)
+                logger.warning(error_message)
                 erros.append(error_message)
                 continue
 
@@ -78,13 +81,13 @@ def process_batch(df_batch):
             )
             total_horas = horas_banco + horas_lote + carga_horaria
 
-            print("\nDEBUG - CÁLCULO DE HORAS:")
-            print(f"Banco: {horas_banco}h | Lote: {horas_lote}h | Atual: {carga_horaria}h")
-            print(f"TOTAL: {total_horas}h (Limite: 192h)")
+            logger.info("\nDEBUG - CÁLCULO DE HORAS:")
+            logger.info(f"Banco: {horas_banco}h | Lote: {horas_lote}h | Atual: {carga_horaria}h")
+            logger.info(f"TOTAL: {total_horas}h (Limite: 192h)")
 
             if total_horas > 192:
                 error_message = f"LIMITE EXCEDIDO: {nome} ({matricula}) - {total_horas}h em {data_completa.strftime('%m/%Y')}"
-                print(error_message)
+                logger.warning(error_message)
                 erros.append(error_message)
                 continue
 
@@ -97,31 +100,32 @@ def process_batch(df_batch):
                 carga_horaria=row['Carga Horaria'],
                 majorado=DataMajorada.objects.filter(data=data_completa).exists()
             ))
-            print("✅ Registro válido - Adicionado ao lote")
+            logger.info("✅ Registro válido - Adicionado ao lote")
 
         except Exception as e:
-            error_message = f"ERRO NO PROCESSAMENTO (registro {i}): {str(e)}"
-            print(error_message)
+            error_message = f"ERRO NO PROCESSAMENTO (registro {i+1}): {str(e)}"
+            logger.error(error_message)
             erros.append(error_message)
             continue
 
     # 4. Inserção final
-    print("\n=== ETAPA FINAL ===")
-    print(f"Total a inserir: {len(ajuda_custos_para_inserir)}")
-    print(f"Total de erros: {len(erros)}")
+    logger.info("\n=== ETAPA FINAL ===")
+    logger.info(f"Total a inserir: {len(ajuda_custos_para_inserir)}")
+    logger.info(f"Total de erros: {len(erros)}")
 
     if ajuda_custos_para_inserir:
         try:
-            Ajuda_Custo.objects.bulk_create(ajuda_custos_para_inserir)
-            registros_inseridos = len(ajuda_custos_para_inserir)
-            print("✅ Inserção em lote concluída com sucesso")
+            with transaction.atomic():
+                Ajuda_Custo.objects.bulk_create(ajuda_custos_para_inserir)
+                registros_inseridos = len(ajuda_custos_para_inserir)
+                logger.info("✅ Inserção em lote concluída com sucesso")
         except Exception as e:
             error_message = f"FALHA NA INSERÇÃO: {str(e)}"
-            print(error_message)
+            logger.error(error_message)
             erros.append(error_message)
 
     return {
-        'status': 'sucesso' if registros_inseridos > 0 and not erros else 'erro',
+        'status': 'sucesso' if registros_inseridos > 0 else 'parcial' if registros_inseridos > 0 and erros else 'erro',
         'registros_inseridos': registros_inseridos,
         'total_erros': len(erros),
         'erros': erros[:100]  # Limita a 100 erros
@@ -145,18 +149,18 @@ def process_excel_file(self, cloudinary_url):
             raise ValueError(f"Colunas faltando no arquivo: {missing}")
 
         total_registros = len(df)
-        print(f"Total de registros a processar: {total_registros}")
+        logger.info(f"Total de registros a processar: {total_registros}")
 
         # Variáveis para resultados
         registros_inseridos_totais = 0
         erros_totais = []
 
-        batch_size = 10000
+        batch_size = 1000  # Tamanho reduzido para melhor gerenciamento de memória
         for start in range(0, total_registros, batch_size):
             end = min(start + batch_size, total_registros)
             df_batch = df.iloc[start:end]  # Mantém como DataFrame
 
-            print(f"\nProcessando lote: {start} a {end}")
+            logger.info(f"\nProcessando lote: {start} a {end}")
             result = process_batch(df_batch)  # Envia o DataFrame diretamente
 
             # Acumula resultados
@@ -170,23 +174,24 @@ def process_excel_file(self, cloudinary_url):
                     'processados': end,
                     'total': total_registros,
                     'inseridos': registros_inseridos_totais,
-                    'erros': len(erros_totais)
+                    'erros': len(erros_totais),
+                    'progresso': int((end / total_registros) * 100)
                 }
             )
 
-        print(f"\nProcessamento concluído. Total inserido: {registros_inseridos_totais}")
-        print(f"Total de erros: {len(erros_totais)}")
+        logger.info(f"\nProcessamento concluído. Total inserido: {registros_inseridos_totais}")
+        logger.info(f"Total de erros: {len(erros_totais)}")
 
         return {
-            'status': 'sucesso' if registros_inseridos_totais > 0 else 'erro',
+            'status': 'sucesso' if registros_inseridos_totais > 0 and not erros_totais else 'parcial' if registros_inseridos_totais > 0 else 'erro',
             'registros_inseridos': registros_inseridos_totais,
             'total_erros': len(erros_totais),
-            'erros': erros_totais[:100]
+            'erros': erros_totais[:100]  # Limita a 100 erros
         }
 
     except Exception as e:
         error_msg = f"ERRO NO PROCESSAMENTO: {str(e)}"
-        print(error_msg)
+        logger.error(error_msg)
         return {
             'status': 'falha',
             'mensagem': error_msg,
