@@ -13,7 +13,7 @@ class AjudaCustoAdmin(admin.ModelAdmin):
         'unidade',
         'carga_horaria',
         'majorado',
-        ('data', DateRangeFilter),  # Filtro de intervalo com calendário
+        ('data'),  # Filtro de intervalo com calendário
     )
     ordering = ('-data',)
 
