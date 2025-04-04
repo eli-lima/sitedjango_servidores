@@ -121,6 +121,7 @@ def process_batch(df_batch):
             erros.append(error_message)
 
     return {
+        'status': 'sucesso' if registros_inseridos > 0 and not erros else 'erro',
         'registros_inseridos': registros_inseridos,
         'total_erros': len(erros),
         'erros': erros[:100]  # Limita a 100 erros
