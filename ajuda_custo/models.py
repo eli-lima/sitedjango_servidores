@@ -106,3 +106,15 @@ class CotaAjudaCusto(models.Model):
 
     def __str__(self):
         return f"{self.gestor} - {self.unidade} - Cota: {self.cota_ajudacusto} dias ({self.carga_horaria_total} horas)"
+
+
+class MatriculaImportante(models.Model):
+    matricula = models.CharField(max_length=20, unique=True)
+    nome = models.CharField(max_length=100)
+
+    class Meta:
+        verbose_name = "Matrícula Importante"
+        verbose_name_plural = "Matrículas Importantes"
+
+    def __str__(self):
+        return f"{self.matricula} - {self.nome}"

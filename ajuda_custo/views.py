@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404, reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView, CreateView, FormView, ListView, View
-from .models import Ajuda_Custo, DataMajorada, LimiteAjudaCusto, CotaAjudaCusto
+from .models import Ajuda_Custo, DataMajorada, LimiteAjudaCusto, CotaAjudaCusto, MatriculaImportante
 from .forms import EnvioDatasForm, ConfirmacaoDatasForm, FiltroRelatorioForm, AdminDatasForm, LimiteAjudaCustoForm, UploadExcelRx2Form, CotaAjudaCustoForm
 from django.urls import reverse_lazy
 from django.contrib import messages
@@ -30,7 +30,7 @@ from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from django.conf import settings
 from openpyxl.styles import Alignment
-from django.db.models import Sum, Case, When, IntegerField
+from django.db.models import Sum, Case, When, IntegerField, Count
 from django.db import transaction
 from seappb.models import Unidade
 from .utils import (get_intervalo_mes, calcular_horas_por_unidade, get_limites_horas_por_unidade, \
@@ -1367,7 +1367,7 @@ class VerificarCargaHoraria(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = Ajuda_Custo
     template_name = "verificar_carga_horaria.html"
     context_object_name = "dados"
-    paginate_by = 50  # Paginação
+    paginate_by = 50
 
     def test_func(self):
         user = self.request.user
@@ -1379,32 +1379,25 @@ class VerificarCargaHoraria(LoginRequiredMixin, UserPassesTestMixin, ListView):
         return render(self.request, "403.html", status=403)
 
     def get_queryset(self):
-        # Obter o mês, ano e termo de busca
         mes = self.request.GET.get("mes")
         ano = self.request.GET.get("ano")
-        query = self.request.GET.get("query", "").strip()  # Remover espaços extras
+        query = self.request.GET.get("query", "").strip()
 
-        # Filtro inicial: por mês e ano
         queryset = Ajuda_Custo.objects.all()
 
         if mes and ano:
             queryset = queryset.filter(data__year=ano, data__month=mes)
 
-        # Filtro adicional: por nome
         if query:
             queryset = queryset.filter(nome__icontains=query)
 
-        # Ordenar explicitamente por nome ou outro campo relevante
         return queryset.order_by("nome")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        # Obter parâmetros do filtro
         mes = self.request.GET.get("mes")
         ano = self.request.GET.get("ano")
         query = self.request.GET.get("query", "").strip()
-
         today = now().date()
 
         if not mes:
@@ -1412,8 +1405,35 @@ class VerificarCargaHoraria(LoginRequiredMixin, UserPassesTestMixin, ListView):
         if not ano:
             ano = today.year
 
-        # Dados agregados por servidor
-        dados_ajuda_custo = (
+        # 1. Obter matrículas importantes
+        matriculas_importantes = MatriculaImportante.objects.values_list('matricula', flat=True)
+
+        # 2. Obter servidores presentes no mês
+        servidores_presentes = Ajuda_Custo.objects.filter(
+            data__year=ano,
+            data__month=mes
+        ).values_list('matricula', flat=True).distinct()
+
+        # 3. Identificar matrículas importantes faltantes
+        matriculas_faltantes = set(matriculas_importantes) - set(servidores_presentes)
+
+        # 4. Obter dados dos faltantes
+        faltantes = []
+        for matricula in matriculas_faltantes:
+            try:
+                info = MatriculaImportante.objects.get(matricula=matricula)
+                faltantes.append({
+                    'matricula': matricula,
+                    'nome': info.nome,
+                    'erro': 'Servidor importante faltante',
+                    'total_horas': 0,
+                    'limite_horas': 192
+                })
+            except MatriculaImportante.DoesNotExist:
+                pass
+
+        # 5. Obter dados agregados por servidor (total de horas)
+        dados_agregados = (
             Ajuda_Custo.objects.filter(data__year=ano, data__month=mes)
             .values("matricula", "nome")
             .annotate(
@@ -1428,60 +1448,139 @@ class VerificarCargaHoraria(LoginRequiredMixin, UserPassesTestMixin, ListView):
             )
         )
 
-        # Filtro por nome (query)
-        if query:
-            dados_ajuda_custo = dados_ajuda_custo.filter(nome__icontains=query)
+        # 6. Verificar datas repetidas para cada servidor
+        servidores_com_datas_repetidas = (
+            Ajuda_Custo.objects.filter(data__year=ano, data__month=mes)
+            .values('matricula', 'nome', 'data')
+            .annotate(total=Count('id'))
+            .filter(total__gt=1)
+            .order_by('matricula', 'data')
+        )
 
-        # Lógica de limites, erros e ordenação (como antes)
-        dados_com_limites = []
-        total_erros = 0
-        for ajuda in dados_ajuda_custo:
-            matricula = ajuda["matricula"]
-            limite = (
-                LimiteAjudaCusto.objects.filter(servidor__matricula=matricula)
-                .values("limite_horas")
-                .first()
-            )
-            ajuda["limite_horas"] = limite["limite_horas"] if limite else None
+        # Processar problemas
+        servidores_problema = {}
 
-            # Determinar se há erro
-            erro = False
-            if ajuda["total_horas"] > 192 or (
-                    ajuda["limite_horas"] is not None
-                    and ajuda["total_horas"] > ajuda["limite_horas"]
-            ):
-                erro = True
-                total_erros += 1
-            ajuda["erro"] = erro
+        # Adicionar faltantes
+        for faltante in faltantes:
+            servidores_problema[faltante['matricula']] = faltante
 
-            # Adicionar prioridade de ordenação
-            if ajuda["total_horas"] > 192:
-                prioridade = 1
-            elif ajuda["limite_horas"] is not None:
-                prioridade = 2
+        # Processar servidores que ultrapassaram 192 horas
+        for servidor in dados_agregados:
+            matricula = servidor["matricula"]
+            if servidor["total_horas"] > 192:
+                if matricula in servidores_problema:
+                    servidores_problema[matricula]['erro'] += ' e limite excedido'
+                else:
+                    servidores_problema[matricula] = {
+                        'matricula': matricula,
+                        'nome': servidor["nome"],
+                        'total_horas': servidor["total_horas"],
+                        'limite_horas': 192,
+                        'erro': 'Limite excedido',
+                        'datas_repetidas': []
+                    }
+
+        # Processar servidores com datas repetidas
+        for repeticao in servidores_com_datas_repetidas:
+            matricula = repeticao["matricula"]
+            data_repetida = repeticao["data"].strftime('%d/%m/%Y')
+
+            if matricula in servidores_problema:
+                if 'datas_repetidas' in servidores_problema[matricula]:
+                    servidores_problema[matricula]['datas_repetidas'].append(data_repetida)
+                else:
+                    servidores_problema[matricula]['datas_repetidas'] = [data_repetida]
+
+                if 'Limite excedido' in servidores_problema[matricula]['erro']:
+                    servidores_problema[matricula]['erro'] = 'Limite excedido e datas repetidas'
+                else:
+                    servidores_problema[matricula]['erro'] = 'Datas repetidas'
             else:
-                prioridade = 3
+                servidores_problema[matricula] = {
+                    'matricula': matricula,
+                    'nome': repeticao["nome"],
+                    'total_horas': next((s['total_horas'] for s in dados_agregados
+                                         if s['matricula'] == matricula), 0),
+                    'limite_horas': 192,
+                    'erro': 'Datas repetidas',
+                    'datas_repetidas': [data_repetida]
+                }
 
-            ajuda["prioridade"] = prioridade
-            dados_com_limites.append(ajuda)
+        # Aplicar filtro de pesquisa se existir
+        if query:
+            servidores_problema = {k: v for k, v in servidores_problema.items()
+                                   if query.lower() in v['nome'].lower()}
 
-        # Ordenar por prioridade e erro
-        dados_com_limites.sort(key=lambda x: (x["prioridade"], not x["erro"]))
+        # Converter para lista e ordenar
+        dados_com_problemas = []
+        for matricula, info in servidores_problema.items():
+            dados_com_problemas.append({
+                'matricula': matricula,
+                'nome': info['nome'],
+                'total_horas': info.get('total_horas', 0),
+                'limite_horas': info.get('limite_horas', 192),
+                'erro': info['erro'],
+                'datas_repetidas': ', '.join(info.get('datas_repetidas', [])) if info.get('datas_repetidas') else 'N/A'
+            })
 
-        # Mapeamento de meses
+        # Ordenar por tipo de erro e nome
+        ordem_erro = {
+            'Servidor importante faltante e limite excedido e datas repetidas': 0,
+            'Servidor importante faltante e limite excedido': 1,
+            'Servidor importante faltante e datas repetidas': 2,
+            'Servidor importante faltante': 3,
+            'Limite excedido e datas repetidas': 4,
+            'Limite excedido': 5,
+            'Datas repetidas': 6
+        }
+
+        dados_com_problemas.sort(key=lambda x: (
+            ordem_erro.get(x['erro'], 7),
+            x['nome']
+        ))
+
+        # Configuração do contexto
         meses_nomes = {
             1: "Janeiro", 2: "Fevereiro", 3: "Março", 4: "Abril", 5: "Maio",
             6: "Junho", 7: "Julho", 8: "Agosto", 9: "Setembro", 10: "Outubro",
             11: "Novembro", 12: "Dezembro"
         }
 
-        context["dados"] = dados_com_limites
-        context["mes"] = int(mes)
-        context["ano"] = int(ano)
-        context["query"] = query  # Adicionar o termo de busca ao contexto
-        context["meses"] = [(num, nome) for num, nome in meses_nomes.items()]
-        context["anos"] = range(today.year - 5, today.year + 1)  # Últimos 5 anos
-        context["mes_atual_nome"] = meses_nomes[int(mes)]
-        context["total_erros"] = total_erros
+        context.update({
+            'dados': dados_com_problemas,
+            'mes': int(mes),
+            'ano': int(ano),
+            'query': query,
+            'meses': [(num, nome) for num, nome in meses_nomes.items()],
+            'anos': range(today.year - 5, today.year + 1),
+            'mes_atual_nome': meses_nomes[int(mes)],
+            'total_erros': len(dados_com_problemas),
+            'total_faltantes': len(faltantes)
+        })
 
         return context
+
+
+def adicionar_matricula_importante(request):
+    if request.method == 'POST':
+        matricula = request.POST.get('matricula')
+        nome = request.POST.get('nome')
+
+        if matricula and nome:
+            MatriculaImportante.objects.create(matricula=matricula, nome=nome)
+            messages.success(request, "Matrícula importante adicionada com sucesso!")
+        else:
+            messages.error(request, "Matrícula e nome são obrigatórios!")
+
+    return redirect('ajuda_custo:verificar_carga_horaria')
+
+
+def remover_matricula_importante(request, matricula_id):
+    try:
+        matricula = MatriculaImportante.objects.get(id=matricula_id)
+        matricula.delete()
+        messages.success(request, "Matrícula importante removida com sucesso!")
+    except MatriculaImportante.DoesNotExist:
+        messages.error(request, "Matrícula não encontrada!")
+
+    return redirect('ajuda_custo:verificar_carga_horaria')
