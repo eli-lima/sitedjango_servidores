@@ -1,8 +1,9 @@
 from django.urls import path
-from .views import AjudaCusto, EnvioDatasView, ConfirmacaoDatasView, RelatorioAjudaCusto, exportar_excel, \
+from .views import (AjudaCusto, EnvioDatasView, ConfirmacaoDatasView, RelatorioAjudaCusto, exportar_excel, \
     excel_detalhado, AdminCadastrar, buscar_nome_servidor, \
     HorasLimite, excluir_limite, upload_excel_rx2, VerificarCargaHoraria, CargaHorariaGerente,\
-    excluir_cota, reenviar_codigo, excluir_ajuda_custo, status_task  # Adicione status_task aqui
+    excluir_cota, reenviar_codigo, excluir_ajuda_custo, status_task,
+    adicionar_matricula_importante, remover_matricula_importante)  # Adicione status_task aqui
 from .htmx_views import ajuda_custo_list
 
 
@@ -19,12 +20,18 @@ urlpatterns = [
     path('admin_cadastrar/', AdminCadastrar.as_view(), name='admin_cadastrar'),
     path('buscar-nome-servidor/', buscar_nome_servidor, name='buscar_nome_servidor'),
     path('horas_limite/', HorasLimite.as_view(), name='horas_limite'),
+    path('verificar-carga-horaria/', VerificarCargaHoraria.as_view(), name='verificar_carga_horaria'),
+    path('adicionar-matricula-importante/', adicionar_matricula_importante, name='adicionar_matricula_importante'),
+
+
+
     #exclusoes
     path('excluir-ajuda-custo/<int:pk>/', excluir_ajuda_custo, name='excluir_ajuda_custo'),
     path('excluir-limite/<int:pk>/', excluir_limite, name='excluir_limite'),
     path('excluir-cota/<int:pk>/', excluir_cota, name='excluir_cota'),
+    path('remover-matricula-importante/<int:matricula_id>/', remover_matricula_importante, name='remover_matricula_importante'),
+
     path('upload-excel_rx2/', upload_excel_rx2, name='upload_excel_rx2'),
-    path('verificar_carga_horaria/', VerificarCargaHoraria.as_view(), name='verificar_carga_horaria'),
     path('cargahoraria_gerente/', CargaHorariaGerente.as_view(), name='cargahoraria_gerente'),
     # Adicione esta nova linha para a view status_task
     path('status-task/<str:task_id>/', status_task, name='status_task'),
