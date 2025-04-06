@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='matriculaimportante',
             name='servidor',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, related_name='matriculas_importantes', to='servidor.servidor'),
+            field=models.ForeignKey(default=540, on_delete=django.db.models.deletion.CASCADE, related_name='matriculas_importantes', to='servidor.servidor'),
             preserve_default=False,
         ),
     ]
