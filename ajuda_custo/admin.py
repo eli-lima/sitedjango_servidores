@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Ajuda_Custo, DataMajorada, LimiteAjudaCusto, CotaAjudaCusto
+from .models import Ajuda_Custo, DataMajorada, LimiteAjudaCusto, CotaAjudaCusto, MatriculaImportante
 
 
 @admin.register(Ajuda_Custo)
@@ -19,3 +19,4 @@ class AjudaCustoAdmin(admin.ModelAdmin):
 admin.site.register(DataMajorada)
 admin.site.register(LimiteAjudaCusto)
 admin.site.register(CotaAjudaCusto)
+admin.site.register(MatriculaImportante)
