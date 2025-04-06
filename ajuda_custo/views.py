@@ -1562,9 +1562,13 @@ class VerificarCargaHoraria(LoginRequiredMixin, UserPassesTestMixin, ListView):
             6: "Junho", 7: "Julho", 8: "Agosto", 9: "Setembro", 10: "Outubro",
             11: "Novembro", 12: "Dezembro"
         }
+        # Adicione esta parte para a paginação
+        paginator = Paginator(dados_com_problemas, self.paginate_by)
+        page_number = self.request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
 
         context.update({
-            'dados': dados_com_problemas,
+            'dados': page_obj,
             'mes': int(mes),
             'ano': int(ano),
             'query': query,
