@@ -1405,34 +1405,31 @@ class VerificarCargaHoraria(LoginRequiredMixin, UserPassesTestMixin, ListView):
         if not ano:
             ano = today.year
 
-        # 1. Obter matrículas importantes
-        matriculas_importantes = MatriculaImportante.objects.values_list('matricula', flat=True)
+        # 1. Obter matrículas importantes (com filtro de query)
+        matriculas_importantes = MatriculaImportante.objects.select_related('servidor').all()
+        if query:
+            matriculas_importantes = matriculas_importantes.filter(
+                Q(matricula__icontains=query) |
+                Q(servidor__nome__icontains=query)
+            )
+        matriculas_importantes_lista = matriculas_importantes.order_by('servidor__nome')
+        matriculas_importantes_values = matriculas_importantes.values_list('matricula', flat=True)
 
-        # 2. Obter servidores presentes no mês
+        # 2. Obter servidores presentes no mês (com filtro de query)
         servidores_presentes = Ajuda_Custo.objects.filter(
             data__year=ano,
             data__month=mes
-        ).values_list('matricula', flat=True).distinct()
+        )
+        if query:
+            servidores_presentes = servidores_presentes.filter(nome__icontains=query)
+        servidores_presentes_values = servidores_presentes.values_list('matricula', flat=True).distinct()
 
-        # 3. Identificar matrículas importantes faltantes
-        matriculas_faltantes = set(matriculas_importantes) - set(servidores_presentes)
+        # 3. Identificar matrículas importantes faltantes (convertendo para string para comparação)
+        matriculas_importantes_str = {str(m) for m in matriculas_importantes_values}
+        servidores_presentes_str = {str(s) for s in servidores_presentes_values}
+        matriculas_faltantes = matriculas_importantes_str - servidores_presentes_str
 
-        # 4. Obter dados dos faltantes
-        faltantes = []
-        for matricula in matriculas_faltantes:
-            try:
-                info = MatriculaImportante.objects.get(matricula=matricula)
-                faltantes.append({
-                    'matricula': matricula,
-                    'nome': info.nome,
-                    'erro': 'Servidor importante faltante',
-                    'total_horas': 0,
-                    'limite_horas': 192
-                })
-            except MatriculaImportante.DoesNotExist:
-                pass
-
-        # 5. Obter dados agregados por servidor (total de horas)
+        # 4. Obter dados agregados por servidor (total de horas)
         dados_agregados = (
             Ajuda_Custo.objects.filter(data__year=ano, data__month=mes)
             .values("matricula", "nome")
@@ -1447,6 +1444,28 @@ class VerificarCargaHoraria(LoginRequiredMixin, UserPassesTestMixin, ListView):
                 )
             )
         )
+
+        # Criar um dicionário rápido para consulta de horas por matrícula
+        horas_por_matricula = {str(item['matricula']): item['total_horas'] for item in dados_agregados}
+
+        # 5. Obter dados dos faltantes
+        faltantes = []
+        for matricula in matriculas_faltantes:
+            try:
+                info = matriculas_importantes.get(matricula=matricula)
+                # Usar as horas do dicionário ou 0 se não existir
+                total_horas = horas_por_matricula.get(matricula, 0)
+
+                faltantes.append({
+                    'matricula': matricula,
+                    'nome': info.servidor.nome if info.servidor else "Nome não encontrado",
+                    'erro': 'Servidor importante faltante',
+                    'total_horas': total_horas,  # Agora mostra o total real de horas
+                    'limite_horas': 192,
+                    'datas_repetidas': []
+                })
+            except MatriculaImportante.DoesNotExist:
+                pass
 
         # 6. Verificar datas repetidas para cada servidor
         servidores_com_datas_repetidas = (
@@ -1466,10 +1485,11 @@ class VerificarCargaHoraria(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
         # Processar servidores que ultrapassaram 192 horas
         for servidor in dados_agregados:
-            matricula = servidor["matricula"]
+            matricula = str(servidor["matricula"])
             if servidor["total_horas"] > 192:
                 if matricula in servidores_problema:
                     servidores_problema[matricula]['erro'] += ' e limite excedido'
+                    servidores_problema[matricula]['total_horas'] = servidor["total_horas"]
                 else:
                     servidores_problema[matricula] = {
                         'matricula': matricula,
@@ -1482,7 +1502,7 @@ class VerificarCargaHoraria(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
         # Processar servidores com datas repetidas
         for repeticao in servidores_com_datas_repetidas:
-            matricula = repeticao["matricula"]
+            matricula = str(repeticao["matricula"])
             data_repetida = repeticao["data"].strftime('%d/%m/%Y')
 
             if matricula in servidores_problema:
@@ -1496,20 +1516,17 @@ class VerificarCargaHoraria(LoginRequiredMixin, UserPassesTestMixin, ListView):
                 else:
                     servidores_problema[matricula]['erro'] = 'Datas repetidas'
             else:
+                # Obter o total de horas para este servidor
+                total_horas = horas_por_matricula.get(matricula, 0)
+
                 servidores_problema[matricula] = {
                     'matricula': matricula,
                     'nome': repeticao["nome"],
-                    'total_horas': next((s['total_horas'] for s in dados_agregados
-                                         if s['matricula'] == matricula), 0),
+                    'total_horas': total_horas,
                     'limite_horas': 192,
                     'erro': 'Datas repetidas',
                     'datas_repetidas': [data_repetida]
                 }
-
-        # Aplicar filtro de pesquisa se existir
-        if query:
-            servidores_problema = {k: v for k, v in servidores_problema.items()
-                                   if query.lower() in v['nome'].lower()}
 
         # Converter para lista e ordenar
         dados_com_problemas = []
@@ -1555,7 +1572,8 @@ class VerificarCargaHoraria(LoginRequiredMixin, UserPassesTestMixin, ListView):
             'anos': range(today.year - 5, today.year + 1),
             'mes_atual_nome': meses_nomes[int(mes)],
             'total_erros': len(dados_com_problemas),
-            'total_faltantes': len(faltantes)
+            'total_faltantes': len(faltantes),
+            'matriculas_importantes': matriculas_importantes_lista
         })
 
         return context
@@ -1564,13 +1582,22 @@ class VerificarCargaHoraria(LoginRequiredMixin, UserPassesTestMixin, ListView):
 def adicionar_matricula_importante(request):
     if request.method == 'POST':
         matricula = request.POST.get('matricula')
-        nome = request.POST.get('nome')
 
-        if matricula and nome:
-            MatriculaImportante.objects.create(matricula=matricula, nome=nome)
+        # Busca o servidor pela matrícula (assumindo que a matrícula existe na tabela Servidor)
+        try:
+            servidor = Servidor.objects.get(matricula=matricula)
+
+            # Cria a matrícula importante relacionada ao servidor
+            MatriculaImportante.objects.create(
+                matricula=matricula,
+                servidor=servidor
+            )
             messages.success(request, "Matrícula importante adicionada com sucesso!")
-        else:
-            messages.error(request, "Matrícula e nome são obrigatórios!")
+
+        except Servidor.DoesNotExist:
+            messages.error(request, "Servidor com esta matrícula não encontrado!")
+        except Exception as e:
+            messages.error(request, f"Erro ao adicionar matrícula: {str(e)}")
 
     return redirect('ajuda_custo:verificar_carga_horaria')
 

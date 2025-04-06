@@ -5,6 +5,8 @@ from django.dispatch import receiver
 from django.conf import settings
 from seappb.models import Unidade
 from django.db.models import Sum
+from servidor.models import Servidor
+from django.core.exceptions import ValidationError
 
 # Create your models here.
 
@@ -110,11 +112,25 @@ class CotaAjudaCusto(models.Model):
 
 class MatriculaImportante(models.Model):
     matricula = models.CharField(max_length=20, unique=True)
-    nome = models.CharField(max_length=100)
+    servidor = models.ForeignKey(
+        Servidor,
+        on_delete=models.CASCADE,
+        related_name='matriculas_importantes'
+    )
+
+    def clean(self):
+        # Garante que a matrícula só contenha números
+        if not self.matricula.isdigit():
+            raise ValidationError("A matrícula deve conter apenas números")
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = "Matrícula Importante"
         verbose_name_plural = "Matrículas Importantes"
 
     def __str__(self):
-        return f"{self.matricula} - {self.nome}"
+        return f"{self.matricula} - {self.servidor.nome if self.servidor else 'Sem servidor'}"
+
