@@ -34,7 +34,7 @@ def relatorio_resumido_apreensao(request):
 
     try:
         # Obter mês/ano atual
-        agora = datetime.now()
+        agora = timezone.now()
         mes_atual = agora.month
         ano_atual = agora.year
 
