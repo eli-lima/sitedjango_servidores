@@ -1,0 +1,353 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block titulo %}Editar Ocorrência - {{ object.data|date:"d/m/Y" }}{% endblock %}
+
+{% block content %}
+<form method="post" id="ocorrencia-form">
+    {% csrf_token %}
+
+<div class="container mx-auto px-4 py-8">
+    <div class="bg-white shadow-lg rounded-lg p-6">
+        <!-- Cabeçalho -->
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold">Editar Ocorrência de Plantão</h1>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save-fill"></i> Salvar Alterações
+            </button>
+        </div>
+        
+        <!-- Seção 1: Informações Básicas -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <!-- Data -->
+                <div class="w-full md:w-1/4">
+                    <label class="form-label">
+                        {{ form.data.label }}
+                    </label>
+                    {{ form.data }}
+                    {% if form.data.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.data.errors.as_text }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Unidade -->
+                <div class="w-full md:w-1/4">
+                    <label class="form-label">
+                        {{ form.unidade.label }}
+                    </label>
+                    {{ form.unidade }}
+                    {% if form.unidade.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.unidade.errors.as_text }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Chefe de Equipe -->
+                <div class="w-full md:w-1/4">
+                    <label class="form-label">
+                        {{ form.chefe_equipe.label }}
+                    </label>
+                    {{ form.chefe_equipe }}
+                    {% if form.chefe_equipe.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.chefe_equipe.errors.as_text }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Seção 2: Servidores -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <!-- Ordinário -->
+            <div class="bg-white rounded-lg shadow-md p-4">
+                <h2 class="text-lg font-semibold mb-4">Servidores Ordinários</h2>
+                <div class="flex gap-2 mb-4">
+                    <input type="text" id="matricula-ordinario" 
+                           class="form-control flex-1" 
+                           placeholder="Digite a matrícula">
+                    <button type="button" onclick="adicionarServidor('ordinario')" 
+                            class="btn btn-primary">
+                        Adicionar
+                    </button>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white border">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-4 py-2">Matrícula</th>
+                                <th class="px-4 py-2">Nome</th>
+                                <th class="px-4 py-2">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="corpo-ordinario">
+                            {% for servidor in servidores_ordinario %}
+                            <tr data-id="{{ servidor.id }}">
+                                <td class="px-4 py-2">{{ servidor.matricula }}</td>
+                                <td class="px-4 py-2">{{ servidor.nome }}</td>
+                                <td class="px-4 py-2">
+                                    <button type="button" onclick="removerServidor(this, 'ordinario')" 
+                                            class="text-red-600 hover:text-red-900">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {{ form.ordinario_ids }}
+            </div>
+            
+            <!-- Extraordinário -->
+            <div class="bg-white rounded-lg shadow-md p-4">
+                <h2 class="text-lg font-semibold mb-4">Servidores Extraordinários</h2>
+                <div class="flex gap-2 mb-4">
+                    <input type="text" id="matricula-extraordinario" 
+                           class="form-control flex-1" 
+                           placeholder="Digite a matrícula">
+                    <button type="button" onclick="adicionarServidor('extraordinario')" 
+                            class="btn btn-success">
+                        Adicionar
+                    </button>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white border">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-4 py-2">Matrícula</th>
+                                <th class="px-4 py-2">Nome</th>
+                                <th class="px-4 py-2">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="corpo-extraordinario">
+                            {% for servidor in servidores_extraordinario %}
+                            <tr data-id="{{ servidor.id }}">
+                                <td class="px-4 py-2">{{ servidor.matricula }}</td>
+                                <td class="px-4 py-2">{{ servidor.nome }}</td>
+                                <td class="px-4 py-2">
+                                    <button type="button" onclick="removerServidor(this, 'extraordinario')" 
+                                            class="text-red-600 hover:text-red-900">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {{ form.extraordinario_ids }}
+            </div>
+        </div>
+        
+        <!-- Seção 3: População Carcerária -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-lg font-semibold mb-4">População Carcerária</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Por Regime -->
+                <div>
+                    <h3 class="font-medium mb-2">Por Regime</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="form-label">{{ form.regime_aberto.label }}</label>
+                            {{ form.regime_aberto }}
+                        </div>
+                        <div>
+                            <label class="form-label">{{ form.regime_semiaberto.label }}</label>
+                            {{ form.regime_semiaberto }}
+                        </div>
+                        <div>
+                            <label class="form-label">{{ form.regime_fechado.label }}</label>
+                            {{ form.regime_fechado }}
+                        </div>
+                        <div>
+                            <label class="form-label">{{ form.regime_domiciliar.label }}</label>
+                            {{ form.regime_domiciliar }}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Por Situação Processual -->
+                <div>
+                    <h3 class="font-medium mb-2">Por Situação Processual</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="form-label">{{ form.provisorio.label }}</label>
+                            {{ form.provisorio }}
+                        </div>
+                        <div>
+                            <label class="form-label">{{ form.sentenciado.label }}</label>
+                            {{ form.sentenciado }}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Por Gênero -->
+                <div>
+                    <h3 class="font-medium mb-2">Por Gênero</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="form-label">{{ form.masculino.label }}</label>
+                            {{ form.masculino }}
+                        </div>
+                        <div>
+                            <label class="form-label">{{ form.feminino.label }}</label>
+                            {{ form.feminino }}
+                        </div>
+                    </div>
+                    <div class="mt-4 p-3 bg-gray-50 rounded">
+                        <p class="font-medium">Total: <span id="total-populacao">0</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Seção 4: Descrição e Observações -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="mb-4">
+                <label class="form-label">{{ form.descricao.label }}</label>
+                {{ form.descricao }}
+                {% if form.descricao.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.descricao.errors.as_text }}</p>
+                {% endif %}
+            </div>
+            
+            <div>
+                <label class="form-label">{{ form.observacao.label }}</label>
+                {{ form.observacao }}
+                {% if form.observacao.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.observacao.errors.as_text }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+</form>
+
+<script>
+// Dados dos servidores já adicionados
+const servidoresAdicionados = {
+    ordinario: [
+        {% for servidor in servidores_ordinario %}
+        { id: "{{ servidor.id }}", matricula: "{{ servidor.matricula }}", nome: "{{ servidor.nome }}" },
+        {% endfor %}
+    ],
+    extraordinario: [
+        {% for servidor in servidores_extraordinario %}
+        { id: "{{ servidor.id }}", matricula: "{{ servidor.matricula }}", nome: "{{ servidor.nome }}" },
+        {% endfor %}
+    ]
+};
+
+// Função para adicionar servidor
+async function adicionarServidor(tipo) {
+    const matriculaInput = document.getElementById(`matricula-${tipo}`);
+    const matricula = matriculaInput.value.trim();
+
+    if (!matricula) {
+        alert('Digite uma matrícula válida');
+        return;
+    }
+
+    try {
+        // Verificar se já foi adicionado
+        if (servidoresAdicionados[tipo].some(s => s.matricula === matricula)) {
+            throw new Error('Servidor já adicionado');
+        }
+
+        // Buscar dados do servidor (simulação - implemente sua API)
+        const response = await fetch(`/api/servidores/?matricula=${matricula}`);
+        if (!response.ok) throw new Error('Servidor não encontrado');
+        
+        const servidor = await response.json();
+        
+        // Adicionar aos dados
+        servidoresAdicionados[tipo].push(servidor);
+        
+        // Atualizar tabela
+        atualizarTabela(tipo);
+        
+        // Limpar campo
+        matriculaInput.value = '';
+    } catch (error) {
+        alert(error.message);
+        console.error('Erro:', error);
+    }
+}
+
+// Função para remover servidor
+function removerServidor(botao, tipo) {
+    const linha = botao.closest('tr');
+    const id = linha.dataset.id;
+    
+    // Remover dos dados
+    servidoresAdicionados[tipo] = servidoresAdicionados[tipo].filter(s => s.id !== id);
+    
+    // Atualizar tabela
+    atualizarTabela(tipo);
+}
+
+// Função para atualizar tabela e campo hidden
+function atualizarTabela(tipo) {
+    const tbody = document.getElementById(`corpo-${tipo}`);
+    const hiddenField = document.getElementById(`id_${tipo}_ids`);
+    
+    // Limpar tabela
+    tbody.innerHTML = '';
+    
+    // Adicionar linhas
+    servidoresAdicionados[tipo].forEach(servidor => {
+        const row = document.createElement('tr');
+        row.dataset.id = servidor.id;
+        row.innerHTML = `
+            <td class="px-4 py-2">${servidor.matricula}</td>
+            <td class="px-4 py-2">${servidor.nome}</td>
+            <td class="px-4 py-2">
+                <button type="button" onclick="removerServidor(this, '${tipo}')" 
+                        class="text-red-600 hover:text-red-900">
+                    <i class="bi bi-trash-fill"></i>
+                </button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+    
+    // Atualizar campo hidden
+    hiddenField.value = servidoresAdicionados[tipo].map(s => s.id).join(',');
+}
+
+// Calcular total da população
+function calcularTotal() {
+    const campos = [
+        'regime_aberto', 'regime_semiaberto', 'regime_fechado', 'regime_domiciliar',
+        'provisorio', 'sentenciado', 'masculino', 'feminino'
+    ];
+    
+    let total = 0;
+    campos.forEach(campo => {
+        const valor = parseInt(document.getElementById(`id_${campo}`).value) || 0;
+        total += valor;
+    });
+    
+    document.getElementById('total-populacao').textContent = total;
+}
+
+// Configurar eventos
+document.addEventListener('DOMContentLoaded', function() {
+    // Atualizar campos hidden inicialmente
+    atualizarTabela('ordinario');
+    atualizarTabela('extraordinario');
+    
+    // Configurar eventos para calcular total
+    const camposPopulacao = document.querySelectorAll('input[id^="id_regime_"], input[id^="id_provisorio"], input[id^="id_sentenciado"], input[id^="id_masculino"], input[id^="id_feminino"]');
+    camposPopulacao.forEach(campo => {
+        campo.addEventListener('change', calcularTotal);
+        campo.addEventListener('keyup', calcularTotal);
+    });
+    
+    // Calcular total inicial
+    calcularTotal();
+});
+</script>
+{% endblock %}

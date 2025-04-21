@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block titulo %}Detalhes da Ocorrência - {{ ocorrencia.data|date:"d/m/Y" }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="bg-white shadow-lg rounded-lg p-6">
+        <!-- Cabeçalho -->
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold">Detalhes da Ocorrência</h1>
+            
+            {% if pode_editar %}
+            <a href="{% url 'gestao_prisional:ocorrencia-editar' ocorrencia.id %}"
+               class="btn btn-primary">
+                <i class="bi bi-pencil-fill"></i> Editar
+            </a>
+            {% endif %}
+        </div>
+        
+        <!-- Informações Básicas -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div>
+                <h2 class="text-lg font-semibold mb-4">Informações do Plantão</h2>
+                <div class="space-y-3">
+                    <p><span class="font-medium">Data:</span> {{ ocorrencia.data|date:"d/m/Y" }}</p>
+                    <p><span class="font-medium">Unidade:</span> {{ ocorrencia.unidade.nome }}</p>
+                    <p><span class="font-medium">Chefe de Equipe:</span> {{ ocorrencia.chefe_equipe.nome }}</p>
+                    <p><span class="font-medium">Registrado por:</span> {{ ocorrencia.usuario.username }}</p>
+                    <p><span class="font-medium">Última edição:</span> {{ ocorrencia.data_edicao|date:"d/m/Y H:i" }}</p>
+                </div>
+            </div>
+            
+            <div>
+                <h2 class="text-lg font-semibold mb-4">Descrição</h2>
+                <div class="bg-gray-50 p-4 rounded">
+                    <p class="whitespace-pre-line">{{ ocorrencia.descricao }}</p>
+                </div>
+                
+                {% if ocorrencia.observacao %}
+                <h2 class="text-lg font-semibold mt-4 mb-2">Observações</h2>
+                <div class="bg-gray-50 p-4 rounded">
+                    <p class="whitespace-pre-line">{{ ocorrencia.observacao }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Servidores -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div>
+                <h2 class="text-lg font-semibold mb-4">Servidores em Plantão Ordinário</h2>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white border">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-4 py-2">Matrícula</th>
+                                <th class="px-4 py-2">Nome</th>
+                                <th class="px-4 py-2">Cargo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for servidor in ocorrencia.servidores_ordinario.all %}
+                            <tr class="border-t">
+                                <td class="px-4 py-2">{{ servidor.matricula }}</td>
+                                <td class="px-4 py-2">{{ servidor.nome }}</td>
+                                <td class="px-4 py-2">{{ servidor.cargo }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3" class="px-4 py-2 text-center text-gray-500">Nenhum servidor</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div>
+                <h2 class="text-lg font-semibold mb-4">Servidores em Plantão Extraordinário</h2>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white border">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-4 py-2">Matrícula</th>
+                                <th class="px-4 py-2">Nome</th>
+                                <th class="px-4 py-2">Cargo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for servidor in ocorrencia.servidores_extraordinario.all %}
+                            <tr class="border-t">
+                                <td class="px-4 py-2">{{ servidor.matricula }}</td>
+                                <td class="px-4 py-2">{{ servidor.nome }}</td>
+                                <td class="px-4 py-2">{{ servidor.cargo }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3" class="px-4 py-2 text-center text-gray-500">Nenhum servidor</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- População Carcerária -->
+        {% if populacao %}
+        <div class="mb-8">
+            <h2 class="text-lg font-semibold mb-4">População Carcerária</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Por Regime -->
+                <div class="bg-gray-50 p-4 rounded">
+                    <h3 class="font-medium mb-3">Por Regime</h3>
+                    <div class="space-y-2">
+                        <p><span class="font-medium">Aberto:</span> {{ populacao.regime_aberto }}</p>
+                        <p><span class="font-medium">Semiaberto:</span> {{ populacao.regime_semiaberto }}</p>
+                        <p><span class="font-medium">Fechado:</span> {{ populacao.regime_fechado }}</p>
+                        <p><span class="font-medium">Domiciliar:</span> {{ populacao.regime_domiciliar }}</p>
+                    </div>
+                </div>
+                
+                <!-- Por Situação Processual -->
+                <div class="bg-gray-50 p-4 rounded">
+                    <h3 class="font-medium mb-3">Por Situação Processual</h3>
+                    <div class="space-y-2">
+                        <p><span class="font-medium">Provisórios:</span> {{ populacao.provisorio }}</p>
+                        <p><span class="font-medium">Sentenciados:</span> {{ populacao.sentenciado }}</p>
+                    </div>
+                </div>
+                
+                <!-- Por Gênero -->
+                <div class="bg-gray-50 p-4 rounded">
+                    <h3 class="font-medium mb-3">Por Gênero</h3>
+                    <div class="space-y-2">
+                        <p><span class="font-medium">Masculino:</span> {{ populacao.masculino }}</p>
+                        <p><span class="font-medium">Feminino:</span> {{ populacao.feminino }}</p>
+                        <p><span class="font-medium">Total:</span> {{ populacao.total }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Botão Voltar -->
+        <div class="flex justify-end">
+            <a href="{% url 'gestao_prisional:ocorrencia-relatorio' %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Voltar para a lista
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,513 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block titulo %}
+Gestão de Unidade Prisional
+{% endblock %}
+
+{% block content %}
+<style>
+      @keyframes marquee {
+      0% {
+        transform: translateX(100%);
+      }
+      100% {
+        transform: translateX(-100%);
+      }
+    }
+
+    .animate-marquee {
+      animation: marquee 40s linear infinite;
+    }
+</style>
+
+
+
+<!-- Ticker estilo bolsa de valores -->
+<div class="w-full bg-black overflow-hidden border-b border-gray-800">
+  <div class="flex gap-8 px-4 py-2 whitespace-nowrap animate-marquee text-sm text-white">
+    {% for item in ticker_data %}
+      <div class="flex items-center gap-2 whitespace-nowrap">
+        <span class="font-semibold">{{ item.unidade }}:</span>
+        <span class="text-yellow-400">{{ item.populacao }}</span>
+        {% if item.variacao > 0 %}
+          <span class="text-red-400">▲ {{ item.variacao }}%</span>
+        {% elif item.variacao < 0 %}
+          <span class="text-green-400">▼ {{ item.variacao }}%</span>
+        {% else %}
+          <span class="text-gray-400">– 0.0%</span>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+
+
+
+
+<!-- Filtros Section -->
+<!--<div class="pt-4 px-4">-->
+<!--    <div class="flex flex-col xl:flex-row gap-4">-->
+<!--        {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups or 'Gerente' in user_groups %}-->
+<!--        <div class="py-3 bg-gray-600 text-white w-full xl:w-1/4 rounded-lg shadow-md flex justify-center items-center">-->
+<!--            <h3 class="text-lg xl:text-xl font-bold">-->
+<!--                {% if unidade_gerente %}-->
+<!--                    Unidade: {{ unidade_gerente }}-->
+<!--                {% else %}-->
+<!--                    Visão Geral-->
+<!--                {% endif %}-->
+<!--            </h3>-->
+<!--        </div>-->
+<!--        {% endif %}-->
+<!--    </div>-->
+<!--</div>-->
+
+<!-- Stats Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 px-4 py-6">
+    <!-- Card 1 - Internos Cadastrados -->
+    <div class="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
+        <div class="flex justify-between items-center">
+            <div>
+                <h3 class="text-sm sm:text-base font-bold uppercase text-gray-600">Internos Cadastrados</h3>
+                <p class="mt-2 text-2xl font-bold">{{ internos_cadastrados }}</p>
+            </div>
+            <div class="bg-black rounded-full h-12 w-12 flex items-center justify-center">
+                <i class="bi bi-people-fill text-white text-lg"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 2 - População Prisional -->
+    <div class="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
+        <div class="flex justify-between items-center">
+            <div>
+                <h3 class="text-sm sm:text-base font-bold uppercase text-gray-600">População Prisional</h3>
+                <p class="mt-2 text-2xl font-bold">{{ total_populacao }}</p>
+            </div>
+            <div class="bg-blue-600 rounded-full h-12 w-12 flex items-center justify-center">
+                <img src="{% static 'icons/prisoner.png' %}" alt="população" class="h-6 w-6">
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 3 - Servidores Ativos -->
+    <div class="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
+        <div class="flex justify-between items-center">
+            <div>
+                <h3 class="text-sm sm:text-base font-bold uppercase text-gray-600">Servidores Ativos</h3>
+                <p class="mt-2 text-2xl font-bold">{{ total_servidores_ativos_policial_penal }}</p>
+            </div>
+            <div class="bg-green-600 rounded-full h-12 w-12 flex items-center justify-center">
+                <img src="{% static 'icons/guard-prison.png' %}" alt="servidores" class="h-6 w-6">
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 4 - Internos Inativos -->
+    <div class="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
+        <div class="flex justify-between items-center">
+            <div>
+                <h3 class="text-sm sm:text-base font-bold uppercase text-gray-600">Internos Inativos</h3>
+                <p class="mt-2 text-2xl font-bold">{{ total_servidores_inativos_policial_penal }}</p>
+            </div>
+            <div class="bg-red-600 rounded-full h-12 w-12 flex items-center justify-center">
+                <img src="{% static 'icons/prisoner.png' %}" alt="inativos" class="h-6 w-6">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+{% if 'Administrador' in user_groups or 'GerGesipe' in user_groups or 'EditInterno' in user_groups %}
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 px-4 pb-6">
+    <!-- Atualizar População -->
+    <div class="bg-white rounded-lg shadow-md p-6 flex flex-col">
+        <div class="mb-4">
+            <h3 class="text-lg font-semibold">Atualizar População</h3>
+            <p class="mt-2 text-sm text-gray-600">Incluir ou atualizar população carcerária</p>
+        </div>
+        <a href="{% url 'interno:populacao_edit' %}" class="mt-auto w-full py-2 px-4 text-center text-white text-sm sm:text-base rounded-md font-medium bg-gray-600 hover:bg-gray-700">
+            Acessar
+        </a>
+    </div>
+
+    <!-- Reconhecimento Facial -->
+    <div class="bg-white rounded-lg shadow-md p-6 flex flex-col">
+        <div class="mb-4">
+            <h3 class="text-lg font-semibold">Reconhecimento Facial</h3>
+            <p class="mt-2 text-sm text-gray-600">Reconhecer interno via biometria facial</p>
+        </div>
+        <a href="{% url 'interno:reconhecer_interno' %}" class="mt-auto w-full py-2 px-4 text-center text-white text-sm sm:text-base rounded-md font-medium bg-gray-600 hover:bg-gray-700">
+            Acessar
+        </a>
+    </div>
+
+    <!-- Registro de Ocorrências -->
+    <div class="bg-white rounded-lg shadow-md p-6 flex flex-col">
+        <div class="mb-4">
+            <h3 class="text-lg font-semibold">Registro de Ocorrências</h3>
+            <p class="mt-2 text-sm text-gray-600">Registro diário da unidade prisional</p>
+        </div>
+        <a href="{% url 'gestao_prisional:ocorrencia-relatorio' %}" class="mt-auto mb-2 w-full py-2 px-4 text-center text-white text-sm sm:text-base rounded-md font-medium bg-gray-600 hover:bg-gray-700">
+            Consulta
+        </a>
+        <a href="{% url 'gestao_prisional:ocorrencia-plantao-add' %}" class="mt-auto w-full py-2 px-4 text-center text-white text-sm sm:text-base rounded-md font-medium bg-gray-600 hover:bg-gray-700">
+            Acessar
+        </a>
+    </div>
+
+    <!-- Nova Funcionalidade -->
+    <div class="bg-white rounded-lg shadow-md p-6 flex flex-col">
+        <div class="mb-4">
+            <h3 class="text-lg font-semibold">Nova Funcionalidade</h3>
+            <p class="mt-2 text-sm text-gray-600">Em breve novas funcionalidades</p>
+        </div>
+        <a href="#" class="mt-auto w-full py-2 px-4 text-center text-white text-sm sm:text-base rounded-md font-medium bg-gray-600 hover:bg-gray-700">
+            Acessar
+        </a>
+    </div>
+</div>
+{% endif %}
+
+<!-- Charts Section -->
+{% if 'GerGesipe' in user_groups or 'GerRh' in user_groups or 'Administrador' in user_groups or 'ServGesipe' in user_groups %}
+<div class="flex flex-col xl:flex-row gap-6 px-4 pb-6 h-auto lg:h-[1000px]">
+    <!-- Bar Chart - populacao prisional unidade -->
+    <div class="h-full w-full xl:w-1/2 bg-white rounded-lg shadow-md p-4">
+        <div class="border-b border-gray-200 pb-4 mb-4">
+            <h3 class="text-lg font-semibold">População Carcerária: Unidades</h3>
+        </div>
+        <div class="h-[800px]">
+            <canvas id="chart-bar-populacao"></canvas>
+        </div>
+    </div>
+
+    <div class="flex flex-col w-full xl:w-1/2 space-y-4">
+        <!-- Bar Chart - populacao prisional reisp -->
+        <div class="h-1/2 w-full bg-white rounded-lg shadow-md p-4">
+            <div class="border-b border-gray-200 pb-4 mb-4">
+                <h3 class="text-lg font-semibold">População Carcerária: Reisp</h3>
+            </div>
+            <div class="">
+                <canvas id="chart-bar-reisp"></canvas>
+            </div>
+        </div>
+        <!-- Pie Chart - Gênero -->
+        <div class="h-1/2 w-full xl:w-full bg-white rounded-lg shadow-md p-4">
+            <div class="border-b border-gray-200 pb-4 mb-4">
+                <h3 class="text-lg font-semibold">Distribuição por Gênero</h3>
+            </div>
+            <div class="flex justify-center">
+                <div class="aspect-square w-full max-w-xs">
+                    <canvas id="genero-pizza"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="flex flex-col px-4">
+    <!-- Bar Chart - populacao prisional mensal -->
+    <div class="h-full w-full bg-white rounded-lg shadow-md p-4">
+        <div class="border-b border-gray-200">
+            <h3 class="text-lg font-semibold">População Carcerária: Unidades</h3>
+        </div>
+        <div class="h-[500px]">
+            <canvas id="chart-bar-mensal"></canvas>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Table Section -->
+<div class="px-4 pb-12 pt-4">
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="p-4 border-b border-gray-200">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h3 class="text-lg sm:text-xl font-semibold">Relatório de Internos</h3>
+                </div>
+                {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups %}
+                <a href="{% url 'interno:relatorio_interno' %}" class="inline-flex items-center text-sm sm:text-base font-medium text-blue-600 hover:text-blue-800">
+                    Dados Completos
+                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Table Filters -->
+        <div class="p-4 bg-gray-50">
+            <form method="GET" class="flex flex-col sm:flex-row gap-4">
+                <input
+                    class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
+                    type="text"
+                    name="prontuario"
+                    placeholder="Prontuário..."
+                    value="{{ request.GET.prontuario }}"
+                    hx-get="{% url 'interno:interno_list' %}"
+                    hx-trigger="keyup delay:500ms"
+                    hx-target="#content2"
+                >
+                <input
+                    class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
+                    type="text"
+                    name="cpf"
+                    placeholder="CPF..."
+                    value="{{ request.GET.cpf }}"
+                    hx-get="{% url 'interno:interno_list' %}"
+                    hx-trigger="keyup delay:500ms"
+                    hx-target="#content2"
+                >
+                <input
+                    class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
+                    type="text"
+                    name="nome_mae"
+                    placeholder="Nome da Mãe..."
+                    value="{{ request.GET.nome_mae }}"
+                    hx-get="{% url 'interno:interno_list' %}"
+                    hx-trigger="keyup delay:500ms"
+                    hx-target="#content2"
+                >
+                <input
+                    type="text"
+                    name="query"
+                    class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
+                    placeholder="Pesquisar..."
+                    value="{{ request.GET.query }}"
+                    hx-get="{% url 'interno:interno_list' %}"
+                    hx-trigger="keyup delay:500ms"
+                    hx-target="#content2"
+                >
+            </form>
+        </div>
+
+        <!-- Table -->
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Prontuário</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nome</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Unidade</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nome da Mãe</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">CPF</th>
+                    </tr>
+                </thead>
+                <tbody id="content2" class="divide-y divide-gray-200">
+                    {% include "partials/interno_partial.html" %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj %}
+        <div class="px-4 py-3 bg-gray-50 border-t border-gray-200">
+            <nav class="flex items-center justify-between">
+                <div class="hidden sm:block">
+                    <p class="text-sm text-gray-700">
+                        Página <span class="font-medium">{{ page_obj.number }}</span> de <span class="font-medium">{{ page_obj.paginator.num_pages }}</span>
+                    </p>
+                </div>
+                <div class="flex-1 flex justify-between sm:justify-end">
+                    {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}&query={{ request.GET.query }}"
+                       class="relative inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        Anterior
+                    </a>
+                    {% endif %}
+
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}&query={{ request.GET.query }}"
+                       class="ml-3 relative inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        Próxima
+                    </a>
+                    {% endif %}
+                </div>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    console.log("Bar Labels JSON:", {{ bar_labels|safe }});
+    console.log("Bar Values JSON:", {{ bar_values|safe }});
+</script>
+
+
+<script>
+    // Gráfico de Barras - População Prisional por reisp
+    var ctxBar = document.getElementById('chart-bar-reisp').getContext('2d');
+    var barChart = new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+            labels: {{ bar_labels_reisp|safe }},
+            datasets: [{
+                label: 'População por Reisp',
+                data: {{ bar_values_reisp|safe }},
+                backgroundColor: 'rgba(210, 0, 0, 1)',
+                borderColor: 'rgba(210, 0, 0, 1)',
+                borderWidth: 2,
+                borderRadius: 4
+            }]
+        },
+        options: {
+
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { grid: { display: false } },
+                y: { beginAtZero: true, grid: { display: false } }
+            }
+        }
+    });
+
+
+
+
+</script>
+
+<script>
+    // Gráfico de Barras - População Prisional mensal
+    var ctxBar = document.getElementById('chart-bar-mensal').getContext('2d');
+    var barChart = new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+            labels: {{ bar_labels_mensal|safe }},
+            datasets: [{
+                label: 'População por Reisp',
+                data: {{ bar_values_mensal|safe }},
+                backgroundColor: 'rgba(210, 0, 0, 1)',
+                borderColor: 'rgba(210, 0, 0, 1)',
+                borderWidth: 2,
+                borderRadius: 4
+            }]
+        },
+        options: {
+
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { grid: { display: false } },
+                y: { beginAtZero: true, grid: { display: false } }
+            }
+        }
+    });
+
+
+
+
+</script>
+
+
+
+<script>
+    // Gráfico de Barras - População Prisional por unidade
+var ctxBar = document.getElementById('chart-bar-populacao').getContext('2d');
+var barChart = new Chart(ctxBar, {
+    type: 'bar',
+    data: {
+        labels: {{ bar_labels|safe }},
+        datasets: [{
+            label: 'População por Unidade',
+            data: {{ bar_values|safe }},
+            backgroundColor: 'rgba(210, 0, 0, 1)',
+            borderColor: 'rgba(210, 0, 0, 1)',
+            borderWidth: 2,
+            borderRadius: 4
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            x: {
+                grid: { display: false },
+                ticks: {
+                    font: {
+                        size: 12 // tamanho da fonte do eixo X
+                    }
+                }
+            },
+            y: {
+                beginAtZero: true,
+                grid: { display: false },
+                ticks: {
+                    font: {
+                        size: 8 // tamanho da fonte do eixo Y
+                    }
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                labels: {
+                    font: {
+                        size: 14 // tamanho da legenda
+                    }
+                }
+            },
+            tooltip: {
+                titleFont: { size: 14 },
+                bodyFont: { size: 12 }
+            }
+        }
+    }
+});
+
+
+<!--// Gráfico de Pizza - Gênero-->
+<!--var ctxPie = document.getElementById('genero-pizza').getContext('2d');-->
+<!--var pieChart = new Chart(ctxPie, {-->
+<!--    type: 'pie',-->
+<!--    data: {-->
+<!--        labels: {{ pie_labels|safe }},-->
+<!--        datasets: [{-->
+<!--            data: {{ pie_values|safe }},-->
+<!--            backgroundColor: [-->
+<!--                'rgba(54, 162, 235, 1)',  // Azul-->
+<!--                'rgba(255, 99, 132, 1)',   // Vermelho-->
+<!--                'rgba(201, 203, 207, 1)'   // Cinza-->
+<!--            ],-->
+<!--            borderWidth: 2-->
+<!--        }]-->
+<!--    },-->
+<!--    options: {-->
+<!--        responsive: true,-->
+<!--        maintainAspectRatio: false,-->
+<!--        plugins: {-->
+<!--            legend: {-->
+<!--                position: 'bottom'-->
+<!--            }-->
+<!--        }-->
+<!--    }-->
+<!--});-->
+
+// Comportamento das linhas clicáveis
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.clickable-row').forEach(row => {
+        row.addEventListener('click', (event) => {
+            if (!event.target.tagName === 'A') {
+                window.location.href = row.dataset.href;
+            }
+        });
+    });
+});
+
+document.addEventListener('htmx:afterSwap', function() {
+    document.querySelectorAll('.clickable-row').forEach(row => {
+        row.addEventListener('click', (event) => {
+            if (!event.target.tagName === 'A') {
+                window.location.href = row.dataset.href;
+            }
+        });
+    });
+});
+</script>
+
+
+
+{% endblock %}

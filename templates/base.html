@@ -75,26 +75,25 @@
         {% include 'navbar.html' %}
     {% endif %}
 
-    <!-- Mensagens -->
-    {% if messages %}
-    <div class="pt-2 flex flex-col items-end space-y-2">
-        {% for message in messages %}
-             {% if message.tags == 'error' %}
-                <div class="font-semibold alert alert-danger">
-            {% else %}
-                <div class="font-semibold alert alert-{{ message.tags }}">
-            {% endif %}
-                {{ message }}
-                </div>
-        {% endfor %}
-    </div>
-    {% endif %}
+    <!-- Container principal - margem condicional -->
+    <div id="main-container" class="transition-all duration-300 ease-in-out {% if user.is_authenticated %}md:ml-20{% endif %}">
+        <!-- Mensagens -->
+        {% if messages %}
+        <div class="pt-4 px-4 w-full max-w-7xl mx-auto">
+            {% for message in messages %}
+            <div class="{% if message.tags == 'error' %}bg-red-100 border-red-400 text-red-700{% else %}bg-blue-100 border-blue-400 text-blue-700{% endif %} px-4 py-3 rounded relative mb-2" role="alert">
+                <span class="block sm:inline">{{ message }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
 
-    <!-- Conteúdo Principal -->
-    <main class="min-h-screen">
-        {% block content %}
-        {% endblock %}
-    </main>
+        <!-- Conteúdo Principal -->
+        <main class="min-h-screen">
+            {% block content %}
+            {% endblock %}
+        </main>
+    </div>
 
     <!-- Rodapé -->
     {% include 'footer.html' %}

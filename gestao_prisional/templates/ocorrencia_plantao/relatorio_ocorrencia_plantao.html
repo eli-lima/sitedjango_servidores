@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block titulo %}Ocorrências de Plantão{% endblock %}
+
+{% block content %}
+<div class="mb-12 flex px-4 justify-start w-full">
+    <div class="bg-white shadow-lg rounded-lg w-full">
+        <div class="p-6 rounded-t-lg">
+            <div>
+               <div class="flex items-center justify-between pb-4 mb-4 border-b border-gray-200">
+                    <div>
+                        <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Relatório</h3>
+                        <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">Ocorrências de Plantão</span>
+                    </div>
+               </div>
+            </div>
+
+            <form method="GET">
+                <div class="flex flex-row justify-end pt-4">
+                    <select class="form-control w-2/6 ml-2" name="unidade">
+                        <option value="">Todas as Unidades...</option>
+                        {% for unidade in unidades %}
+                        <option value="{{ unidade.id }}"
+                            {% if request.GET.unidade == unidade.id|stringformat:"s" %}selected{% endif %}>
+                            {{ unidade.nome }}
+                        </option>
+                        {% endfor %}
+                    </select>
+
+                    <input class="form-input w-full sm:w-auto sm:ml-2 p-1.5 rounded-md border-1 border-gray-600"
+                           type="date" name="dataInicial" id="dataInicial" value="{{ dataInicial }}">
+
+                    <input class="form-input w-full sm:w-auto sm:ml-2 p-1.5 rounded-md border-1 border-gray-600"
+                           type="date" name="dataFinal" id="dataFinal" value="{{ dataFinal }}">
+
+                    <input type="text" name="query" id="searchInput"
+                           class="form-input w-full sm:w-auto sm:ml-2 p-1.5 rounded-md border-1 border-gray-600"
+                           placeholder="Pesquisar..." value="{{ query }}">
+
+                    <button type="submit" class="ml-2 btn btn-primary">Pesquisar</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white divide-y divide-gray-200">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Chefe de Equipe</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unidade</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descrição</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for ocorrencia in ocorrencias %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ ocorrencia.data|date:"d/m/Y" }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ ocorrencia.chefe_equipe.nome }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ ocorrencia.unidade.nome }}</td>
+                        <td class="px-6 py-4">
+                            {{ ocorrencia.descricao|truncatechars:50 }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <a href="{% url 'gestao_prisional:ocorrencia-detalhes' ocorrencia.id %}"
+                               class="btn btn-primary">
+                                <i class="bi bi-eye-fill"></i> Ver
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                            Nenhuma ocorrência encontrada
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Paginação -->
+        <div class="p-6 bg-gray-100 rounded-b-lg">
+            <nav aria-label="Page navigation">
+                <ul class="inline-flex items-center -space-x-px">
+                    {% if page_obj.has_previous %}
+                    <li>
+                        <a href="?page=1&query={{ query }}&dataInicial={{ dataInicial }}&dataFinal={{ dataFinal }}&unidade={{ request.GET.unidade }}"
+                           class="px-3 py-2 ml-0 text-sm font-medium text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100">
+                            Primeira
+                        </a>
+                    </li>
+                    <li>
+                        <a href="?page={{ page_obj.previous_page_number }}&query={{ query }}&dataInicial={{ dataInicial }}&dataFinal={{ dataFinal }}&unidade={{ request.GET.unidade }}"
+                           class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">
+                            Anterior
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for p in page_obj.paginator.page_range %}
+                    {% if p == page_obj.number %}
+                    <li>
+                        <span class="px-3 py-2 text-sm font-medium text-white bg-blue-500 border border-gray-300">{{ p }}</span>
+                    </li>
+                    {% else %}
+                    <li>
+                        <a href="?page={{ p }}&query={{ query }}&dataInicial={{ dataInicial }}&dataFinal={{ dataFinal }}&unidade={{ request.GET.unidade }}"
+                           class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">
+                            {{ p }}
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li>
+                        <a href="?page={{ page_obj.next_page_number }}&query={{ query }}&dataInicial={{ dataInicial }}&dataFinal={{ dataFinal }}&unidade={{ request.GET.unidade }}"
+                           class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">
+                            Próxima
+                        </a>
+                    </li>
+                    <li>
+                        <a href="?page={{ page_obj.paginator.num_pages }}&query={{ query }}&dataInicial={{ dataInicial }}&dataFinal={{ dataFinal }}&unidade={{ request.GET.unidade }}"
+                           class="px-3 py-2 text-sm font-medium text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100">
+                            Última
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Função para lidar com a tecla Enter nos campos de pesquisa
+    function handleEnterKey(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            document.querySelector('button[type="submit"]').click();
+        }
+    }
+
+    document.getElementById('searchInput').addEventListener('keypress', handleEnterKey);
+    document.getElementById('dataInicial').addEventListener('keypress', handleEnterKey);
+    document.getElementById('dataFinal').addEventListener('keypress', handleEnterKey);
+
+    // Função para definir as datas inicial e final do mês atual
+    function setInitialAndFinalDates() {
+        const dataInicialField = document.getElementById('dataInicial');
+        const dataFinalField = document.getElementById('dataFinal');
+
+        if (dataInicialField.value && dataFinalField.value) {
+            return;
+        }
+
+        const now = new Date();
+        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+        const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+        const formatDate = (date) => date.toISOString().split('T')[0];
+
+        if (!dataInicialField.value) dataInicialField.value = formatDate(firstDay);
+        if (!dataFinalField.value) dataFinalField.value = formatDate(lastDay);
+    }
+
+    document.addEventListener('DOMContentLoaded', setInitialAndFinalDates);
+</script>
+{% endblock %}

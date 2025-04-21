@@ -84,7 +84,8 @@ INSTALLED_APPS = [
     'cloudinary_storage',
     'cloudinary',
     'copen',
-    'interno'
+    'interno',
+    'gestao_prisional',
 ]
 
 MIDDLEWARE = [

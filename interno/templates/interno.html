@@ -11,8 +11,6 @@ Ajuda de Custo
 
 
 
-
-
 <!--tabela com internos-->
 
 <div class="mb-12 flex px-4 xl:px-12 justify-start w-full pt-4">
@@ -120,95 +118,58 @@ Ajuda de Custo
 </div>
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 <script>
-    // Dados do gráfico de barra para Ajuda de Custo
-    var ctx = document.getElementById('chart-bar-ajuda-custo').getContext('2d');
-    var barLabels = {{ labels_mensais|safe }};  // Labels dos meses com ano
-    var barValues = {{ values_mensais|safe }};  // Quantidade mensal de Ajuda de Custo
+// Função para adicionar o comportamento de clique nas linhas
+function addClickableRowBehavior() {
+    document.querySelectorAll('.clickable-row').forEach(row => {
+        // Adiciona o evento de clique na linha
+        row.addEventListener('click', (event) => {
+            // Redireciona para o link definido no atributo 'data-href'
+            window.location.href = row.dataset.href;
+        });
 
-    var myBarChart = new Chart(ctx, {
-        type: 'bar', // Tipo de gráfico: barra
-        data: {
-            labels: barLabels, // Nomes dos meses (Janeiro 2024, Fevereiro 2024, etc.)
-            datasets: [{
-                label: 'Total de Ajuda de Custo',
-                data: barValues, // Valores mensais calculados no backend
-                backgroundColor: 'rgba(210, 0, 0, 1)', // Cor de fundo das barras (vermelho)
-                borderColor: 'rgba(210, 0, 0, 1)', // Cor da borda das barras (vermelho)
-                borderWidth: 2, // Largura da borda das barras
-                borderRadius: 4 // Arredondamento das bordas das barras
-            }]
-        },
-        options: {
-            scales: {
-                x: {
-                    grid: {
-                        display: false // Oculta a grade no eixo X
-                    }
-                },
-                y: {
-                    beginAtZero: true, // Começa o eixo Y no zero
-                    grid: {
-                        display: false // Oculta a grade no eixo Y
-                    }
-                }
-            }
+        // Adiciona um evento de clique específico para o link do prontuário
+        const linkProntuario = row.querySelector('a'); // Seleciona o link dentro da linha
+        if (linkProntuario) {
+            linkProntuario.addEventListener('click', (event) => {
+                // Impede que o clique no link propague para a linha
+                event.stopPropagation();
+                // O link já tem target="_blank", então ele abrirá em uma nova aba
+            });
         }
     });
+}
 
-    // Adicione um evento para atualizar o gráfico com base no filtro aplicado
-    document.getElementById('filtro-form').addEventListener('submit', function(event) {
-        event.preventDefault(); // Previne o envio do formulário
-        var selectedYear = document.getElementById('ano-selecionado').value;
-        var selectedMonth = document.getElementById('mes-selecionado').value;
+// Adiciona o comportamento de clique nas linhas ao carregar a página
+document.addEventListener('DOMContentLoaded', addClickableRowBehavior);
 
-        // Atualize os valores das labels e dados do gráfico
-        // Assumindo que você faça uma requisição AJAX para buscar os novos dados
-        fetch(`/api/get-bar-data?year=${selectedYear}&month=${selectedMonth}`)
-            .then(response => response.json())
-            .then(data => {
-                myBarChart.data.labels = data.labels_mensais;
-                myBarChart.data.datasets[0].data = data.values_mensais;
-                myBarChart.update();
-            });
-    });
+// Adiciona o comportamento de clique nas linhas após o HTMX atualizar o conteúdo
+document.addEventListener('htmx:afterSwap', addClickableRowBehavior);
 </script>
 
 
+<!--grafico pizza depois criar js proprios-->
 
-
-<!--grafico Pizza majorado x normal-->
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        var ctx = document.getElementById('majorado-pizza').getContext('2d');
+        var ctx = document.getElementById('genero-pizza').getContext('2d');
         var myPieChart = new Chart(ctx, {
             type: 'pie',
             data: {
-                labels: {{ pie_labels|safe }},  // Ex.: ['Ajuda Normal', 'Ajuda Majorada']
+                labels: {{ pie_labels|safe }},  // Ex.: ['Masculino', 'Feminino', 'Outros']
                 datasets: [{
-                    label: 'Distribuição de Ajuda de Custo',
-                    data: {{ pie_values|safe }},  // Ex.: [50, 30] - dados dinâmicos
+                    label: 'Distribuição por Gênero',
+                    data: {{ pie_values|safe }},  // Ex.: [50, 30, 20]
                     backgroundColor: [
-                        'rgba(54, 162, 35, 1)',  // verde para Ajuda Normal
-                        'rgba(255, 69, 58, 1)'   // Vermelho para Ajuda Majorada
+                        'rgba(54, 162, 235, 1)',  // Azul para Masculino
+                        'rgba(255, 99, 132, 1)',  // Vermelho para Feminino
+                        'rgba(201, 203, 207, 1)'  // Cinza para Outros
                     ],
                     borderColor: [
-                        'rgba(54, 162, 35, 1)',  // Verde
-                        'rgba(255, 69, 58, 1)'   // Vermelho
+                        'rgba(54, 162, 235, 1)',  // Azul
+                        'rgba(255, 99, 132, 1)',  // Vermelho
+                        'rgba(201, 203, 207, 1)'  // Cinza
                     ],
                     borderWidth: 2
                 }]
@@ -250,26 +211,72 @@ Ajuda de Custo
 </script>
 
 
+<!--grafico barra por unidade-->
+
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-    const dataInicialField = document.getElementById('dataInicial');
-    const dataFinalField = document.getElementById('dataFinal');
+    // Dados do gráfico de barra
+    var ctx = document.getElementById('chart-bar').getContext('2d');
+    var barLabels = {{ bar_labels|safe }};  // Usando as labels do contexto
+    var barValues = {{ bar_values|safe }};  // Usando os valores do contexto
 
-    // Verificar se os campos já têm valores (vindos do Django)
-    if (!dataInicialField.value) {
-        const now = new Date();
-        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-        dataInicialField.value = firstDay.toISOString().split('T')[0];  // Define apenas se estiver vazio
+    // Função para dividir rótulos longos em várias linhas
+    function splitLabel(label, length) {
+        if (label.length > length) {
+            return label.match(new RegExp(`.{1,${length}}`, 'g')); // Divide a cada 'length' caracteres
+        }
+        return [label]; // Retorna o rótulo como array para multi-linha
     }
 
-    if (!dataFinalField.value) {
-        const now = new Date();
-        const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-        dataFinalField.value = lastDay.toISOString().split('T')[0];  // Define apenas se estiver vazio
-    }
-});
+    var multiLineLabels = barLabels.map(label => splitLabel(label, 15)); // Divide rótulos a cada 15 caracteres
 
+    var myBarChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: multiLineLabels,
+            datasets: [{
+                label: 'Total de Servidores',
+                data: barValues,
+                backgroundColor: 'rgba(210, 0, 0, 1)',
+                borderColor: 'rgba(210, 0, 0, 1)',
+                borderWidth: 2,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        font: {
+                            size: 10 // Ajusta o tamanho da fonte
+                        }
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        display: false
+                    }
+                }
+            },
+            layout: {
+                padding: {
+                    bottom: 40 // Adiciona espaço para rótulos multi-linha
+                }
+            }
+        }
+    });
 </script>
+
+
+
+
+
+
+
+
 
 
 

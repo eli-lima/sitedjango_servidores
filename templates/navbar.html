@@ -1,10 +1,10 @@
 {% load static %}
-<div class="pb-16 xl:pb-24">
-    <nav class="bg-gray-800 lg:py-4 xl:py-0 fixed w-full z-50 lg:px-8">
-        <div class="mx-auto px-2 sm:px-4 lg:px-1">
+<div class="pb-16 lg:pb-2">
+    <nav class="bg-gray-800 lg:bg-white fixed w-full md:w-80 z-50">
+        <div class="block md:hidden mx-auto px-2 sm:px-4 lg:px-1">
             <div class="relative flex h-16 items-center justify-between">
                 <!-- Mobile menu button -->
-                <div class="absolute inset-y-0 left-0 flex items-center lg:hidden">
+                <div class="absolute inset-y-0 left-0 flex items-center md:hidden">
                     <button type="button" class="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white" aria-controls="mobile-menu" aria-expanded="false" id="mobile-menu-button">
                         <span class="sr-only">Abrir menu</span>
                         <svg class="block h-10 w-10 sm:h-10 sm:w-10" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" id="icon-open">
@@ -30,34 +30,9 @@
                             {% url 'CMTE:CMTE' as CMTE_url %}
                             {% url 'servidor:recursos_humanos' as servidor_url %}
                             {% url 'interno:interno' as interno_url %}
+                            {% url 'gestao_prisional:gestao_prisional' as gestao_prisional_url %}
                             {% url 'seappb:estatistica' as estatistica_url %}
 
-                            <a href="/" class="rounded-md px-3 py-2 text-sm sm:text-lg font-medium {% if request.path == '/' %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}" aria-current="page">Inicio</a>
-                            <a href="{{ ajuda_custo_url }}" class="rounded-md mx-0 px-3 py-2 text-sm sm:text-lg font-medium {% if request.path == ajuda_custo_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">Ajuda de Custo</a>
-
-                            {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups or 'ServGesipe' in user_groups or 'Copen' in user_groups %}
-                            <div class="dropdown">
-                              <button class="btn btn-dark dropdown-toggle bg-gray-800 rounded-md px-3 py-2 text-sm sm:text-lg font-medium {% if request.path == gesipe_url or request.path == gesipe_sga_url or request.path == copen_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %} flex items-center"
-                                      type="button"
-                                      id="gesipeDropdown"
-                                      data-bs-toggle="dropdown"
-                                      aria-expanded="false">
-                                Gesipe
-
-                              </button>
-                              <ul class="dropdown-menu bg-gray-800 border-0 shadow-lg" aria-labelledby="gesipeDropdown">
-                                <li><a class="dropdown-item text-gray-300 hover:bg-gray-700" href="{{ gesipe_url }}">Administrativo</a></li>
-                                <li><a class="dropdown-item text-gray-300 hover:bg-gray-700" href="{{ gesipe_sga_url }}">SGA</a></li>
-                                <li><a class="dropdown-item text-gray-300 hover:bg-gray-700" href="{{ copen_url }}">COPEN</a></li>
-                              </ul>
-                            </div>
-
-                            <a href="{{ servidor_url }}" class="rounded-md px-3 py-2 text-sm sm:text-lg font-medium {% if request.path == servidor_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">Recursos Humanos</a>
-                            {% endif %}
-
-                            {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups %}
-                            <a href="{{ estatistica_url }}" class="rounded-md px-3 py-2 text-sm sm:text-lg font-medium {% if request.path == estatistica_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">Estatísticas</a>
-                            {% endif %}
                         </div>
                         {% endif %}
                     </div>
@@ -65,8 +40,8 @@
 
                 {% if user.is_authenticated %}
                 <div class="absolute inset-y-0 right-0 flex items-center lg:static inset-auto ml-6 pr-0">
-                    <p class="hidden lg:block rounded-md pr-8 py-2 text-xs sm:text-base font-medium text-white">V 1.9.4</p>
-                    <p class="hidden lg:block rounded-md pr-8 py-2 text-xs sm:text-base font-medium text-white">
+                    <p class="hidden lg:block rounded-md pr-8 py-2 text-xs sm:text-base font-medium text-gray-400">V 2.8.1</p>
+                    <p class="hidden lg:block rounded-md pr-8 py-2 text-xs sm:text-base font-medium text-gray-400">
                         {{ user_role }}
                     </p>
 
@@ -90,126 +65,298 @@
                 {% endif %}
             </div>
         </div>
+        <!-- Wrapper da sidebar pra controlar estado expandido/colapsado -->
+        <div id="sidebar-wrapper" class="group transition-all duration-300 {% if user.is_authenticated %}{% endif %}" style="display: none;">
+            <!-- sidebar geral-->
+            {% if user.is_authenticated %}
 
-        <!-- Mobile menu (sidebar) -->
-        <div class="fixed inset-y-0 left-0 z-40 w-80 transform -translate-x-full transition-transform duration-300 ease-in-out bg-gray-800 text-white lg:hidden" id="mobile-menu">
-            <div class="flex flex-col h-full">
-                <div class="flex justify-between items-center p-4 border-b border-gray-700">
-                    <a href="/" class="flex-shrink-0">
-                        <img class="h-10 w-auto" src="{% static 'images/GOVPBBranco.png' %}" alt="Governo da Paraiba">
-                    </a>
-                    <button id="icon-close" class="text-gray-400 hover:text-white">
-                        <svg class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
+            <div class="fixed inset-y-0 left-0 z-40 transition-all duration-300 ease-in-out bg-gray-800 text-white block group-[.collapsed]:w-20 w-80" id="mobile-menu">
 
-                <div class="flex-1 overflow-y-auto py-4 px-2 text-xl">
-                    <h3 class="px-4 py-2 text-xl font-medium text-white">{{ user_role }}</h3>
+                <div class="flex flex-col h-full">
+                    <div class="flex justify-between items-center p-4 border-b border-gray-700">
 
-                    <div class="space-y-1">
-                        <a href="/" class="flex items-center px-4 py-3 font-medium rounded-md {% if request.path == '/' %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">
-                            <ion-icon name="home" class="mr-3 text-lg"></ion-icon>
-                            Inicio
-                        </a>
 
-                        <a href="{{ ajuda_custo_url }}" class="flex items-center px-4 py-3  font-medium rounded-md {% if request.path == ajuda_custo_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">
-                            <ion-icon name="time" class="mr-3 text-lg"></ion-icon>
-                            Ajuda de Custo
-                        </a>
+                        <!-- LOGO -->
+                        <div class="flex justify-center items-center border-b border-gray-700">
+                            <a href="/" class="flex-shrink-0" id="logo-area">
+                                <img id="sidebar-logo" class="h-10 w-auto group-[.collapsed]:hidden" src="{% static 'images/GOVPBBranco.png' %}" alt="Governo da Paraiba">
+                                <img id="sidebar-logo-mini" class="h-10 w-auto hidden group-[.collapsed]:block" src="{% static 'images/mini/GOVPBMini.png' %}" alt="Mini Logo">
 
-                        {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups or 'ServGesipe' in user_groups or 'Copen' in user_groups %}
-                        <div class="px-4 py-3">
-                            <button id="gesipe-toggle" class="flex items-center justify-between w-full font-medium text-gray-300 hover:text-white transition-colors duration-200">
-                                <div class="flex items-center">
-                                    <ion-icon name="document-text" class="mr-3"></ion-icon>
-                                    <span>Gesipe</span>
-                                </div>
-                                <ion-icon name="chevron-down" class="text-lg transition-transform duration-200" id="gesipe-arrow"></ion-icon>
+                            </a>
+                        </div>
+                        <!-- BOTÃO DE COLAPSAR/EXPANDIR -->
+                        <div class="ml-5 border-b border-gray-700 md:flex justify-end hidden">
+                            <button id="toggle-sidebar" class="text-white hover:text-gray-300">
+                                <i class="bi bi-chevron-left text-2xl" id="toggle-icon"></i>
                             </button>
+                        </div>
+                        <div class="flex md:hidden">
+                            <button id="icon-close" class="text-gray-400 hover:text-white">
+                                <svg class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
 
-                            <div id="gesipe-menu" class="mt-2 pl-8 space-y-2 overflow-hidden transition-all duration-300 ease-in-out max-h-0">
-                                <a href="{{ gesipe_url }}" class="block px-2 py-2 text-lg rounded-md {% if request.path == gesipe_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %} transition-colors duration-150">
-                                    Administrativo
+                    <div class="flex-1 overflow-y-auto py-4 px-2 text-xl">
+                        <div class="group">
+                            <h3 class="h-10 px-3 py-1 text-base font-medium text-gray-400">
+                                <span class="group-[.collapsed]:md:hidden">{{ user_role }}</span>
+                            </h3>
+                        </div>
+
+                        <div class="space-y-1">
+                            <a href="/" class="px-3 flex items-center gap-3 py-3 font-medium rounded-md group h-12">
+                                <ion-icon name="home" class="text-xl"></ion-icon>
+                                <span class="group-[.collapsed]:md:hidden">Início</span>
+                            </a>
+                            <a href="{{ ajuda_custo_url }}" class="px-3 flex items-center gap-3 py-3 font-medium rounded-md group h-12">
+                                <ion-icon name="time" class="text-xl"></ion-icon>
+                                <span class="group-[.collapsed]:md:hidden">Ajuda De Custo</span>
+                            </a>
+
+                            {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups or 'ServGesipe' in user_groups or 'Copen' in user_groups %}
+                            <div class="pr-4 group">
+                                <button id="gesipe-toggle" class="px-3 flex items-center justify-between font-medium text-gray-300 hover:text-white transition-colors duration-200">
+                                    <div class="flex items-center h-12">
+                                        <ion-icon name="document-text" class="text-xl"></ion-icon>
+                                        <span class="group-[.collapsed]:md:hidden pl-4">Gesipe</span>
+                                    </div>
+                                    <ion-icon name="chevron-down" class="px-2 group-[.collapsed]:hidden text-lg transition-transform duration-200" id="gesipe-arrow"></ion-icon>
+                                </button>
+
+                                <div id="gesipe-menu" class="mt-2 pl-8 space-y-2 overflow-hidden transition-all duration-300 ease-in-out max-h-0">
+
+                                    {% if request.path == gesipe_url %}
+                                    <a href="{{ gesipe_url }}" class="block px-2 py-2 text-lg rounded-md bg-gray-900 text-white transition-colors duration-150">
+                                        Administrativo
+                                    </a>
+                                    {% else %}
+                                    <a href="{{ gesipe_url }}" class="block px-2 py-2 text-lg rounded-md text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-150">
+                                        Administrativo
+                                    </a>
+                                    {% endif %}
+
+                                    {% if request.path == gesipe_sga_url %}
+                                    <a href="{{ gesipe_sga_url }}" class="block px-2 py-2 text-lg rounded-md bg-gray-900 text-white transition-colors duration-150">
+                                        SGA
+                                    </a>
+                                    {% else %}
+                                    <a href="{{ gesipe_sga_url }}" class="block px-2 py-2 text-lg rounded-md text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-150">
+                                        SGA
+                                    </a>
+                                    {% endif %}
+
+                                    {% if request.path == copen_url %}
+                                    <a href="{{ copen_url }}" class="block px-2 py-2 text-lg rounded-md bg-gray-900 text-white transition-colors duration-150">
+                                        COPEN
+                                    </a>
+                                    {% else %}
+                                    <a href="{{ copen_url }}" class="block px-2 py-2 text-lg rounded-md text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-150">
+                                        COPEN
+                                    </a>
+                                    {% endif %}
+
+                                </div>
+                            </div>
+
+                            <a href="{{ servidor_url }}" class="px-3 flex items-center gap-3 pr-4 py-3 font-medium rounded-md group h-12">
+                                <ion-icon name="people" class="text-xl"></ion-icon>
+                                <span class="group-[.collapsed]:md:hidden">Recursos Humanos</span>
+                            </a>
+                            <a href="{{ gestao_prisional_url }}" class="px-3 flex items-center gap-3 pr-4 py-3 font-medium rounded-md group h-12">
+                                <ion-icon name="clipboard" class="text-xl"></ion-icon>
+                                <span class="group-[.collapsed]:md:hidden">Gestão Prisional</span>
+                            </a>
+
+                            {% endif %}
+
+                            {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups %}
+                            <a href="{{ estatistica_url }}" class="px-3 flex items-center gap-3 pr-4 py-3 font-medium rounded-md group h-12">
+                                <ion-icon name="stats-chart" class="text-xl"></ion-icon>
+                                <span class="group-[.collapsed]:md:hidden">Estatísticas</span>
+                            </a>
+
+                            {% endif %}
+                        </div>
+
+                        {% if user.is_authenticated %}
+                        <div class="mt-auto border-t border-gray-700 pt-2">
+                            <div class="h-8 group">
+                                <h4 class="px-2 py-1 text-sm font-medium text-gray-400 group-[.collapsed]:md:hidden">Pessoal</h4>
+                            </div>
+                            <div class="space-y-1">
+                                <a href="{% url 'seappb:editarperfil' user.pk %}" class="px-3 flex items-center gap-3 py-3 font-medium rounded-md group h-12">
+                                    <i class="bi bi-person mr-3 text-xl"></i>
+                                    <span class="group-[.collapsed]:md:hidden">Perfil</span>
                                 </a>
-                                <a href="{{ gesipe_sga_url }}" class="block px-2 py-2 text-lg rounded-md {% if request.path == gesipe_sga_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %} transition-colors duration-150">
-                                    SGA
+
+                                <a href="#" class="px-3 flex items-center gap-3 py-3 font-medium rounded-md group h-12">
+                                    <i class="bi bi-gear mr-3 text-xl"></i>
+                                    <span class="group-[.collapsed]:md:hidden">Configurações</span>
                                 </a>
-                                <a href="{{ copen_url }}" class="block px-2 py-2 text-lg rounded-md {% if request.path == copen_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %} transition-colors duration-150">
-                                    COPEN
-                                </a>
+
+                                <form method="post" action="{% url 'seappb:logout' %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="px-3 flex items-center gap-3 py-3 font-medium rounded-md group h-12">
+                                            <i class="bi bi-box-arrow-right text-xl"></i>
+                                            <span class="group-[.collapsed]:md:hidden">Sair</span>
+                                        </button>
+                                </form>
                             </div>
                         </div>
-
-                        <a href="{{ servidor_url }}" class="flex items-center px-4 py-3 font-medium rounded-md {% if request.path == servidor_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">
-                            <ion-icon name="people" class="mr-3 text-lg"></ion-icon>
-                            Recursos Humanos
-                        </a>
-
-                        <a href="{{ interno_url }}" class="flex items-center px-4 py-3 font-medium rounded-md {% if request.path == interno_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">
-                            <ion-icon name="people" class="mr-3 text-lg"></ion-icon>
-                            População Carcerária
-                        </a>
-                        {% endif %}
-
-                        {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups %}
-                        <a href="{{ estatistica_url }}" class="flex items-center px-4 py-3 font-medium rounded-md {% if request.path == estatistica_url %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">
-                            <ion-icon name="stats-chart" class="mr-3 text-lg"></ion-icon>
-                            Estatísticas
-                        </a>
                         {% endif %}
                     </div>
-
-                    {% if user.is_authenticated %}
-                    <div class="mt-auto border-t border-gray-700 pt-4">
-                        <h4 class="px-4 py-2 text-sm font-medium text-gray-400">Pessoal</h4>
-                        <div class="space-y-1">
-                            <a href="{% url 'seappb:editarperfil' user.pk %}" class="flex items-center px-4 py-3 text-base font-medium rounded-md {% if request.path == 'editarperfil/<int:pk>' %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">
-                                <i class="bi bi-person mr-3 text-lg"></i>
-                                Perfil
-                            </a>
-                            <a href="#" class="flex items-center px-4 py-3 text-base font-medium rounded-md text-gray-300 hover:bg-gray-700 hover:text-white">
-                                <i class="bi bi-gear mr-3 text-lg"></i>
-                                Configurações
-                            </a>
-                            <form method="post" action="{% url 'seappb:logout' %}">
-                                    {% csrf_token %}
-                                    <button type="submit" class="flex items-center px-4 py-3 text-base font-medium rounded-md text-gray-300 hover:bg-gray-700 hover:text-white">
-                                        <i class="bi bi-box-arrow-right mr-3 text-lg"></i>
-                                        Sair
-                                    </button>
-                            </form>
-<!--                            <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="flex items-center px-4 py-3 text-base font-medium rounded-md text-gray-300 hover:bg-gray-700 hover:text-white">-->
-<!--                                <ion-icon name="log-out" class="mr-3 text-lg"></ion-icon>-->
-<!--                                Sair-->
-<!--                            </a>-->
-                        </div>
-                    </div>
-                    {% endif %}
                 </div>
             </div>
+            {% endif %}
         </div>
     </nav>
 </div>
 
+<div class="flex justify-end px-4 pb-2">
+    {% if user.is_authenticated %}
+        <div class="hidden absolute inset-y-0 right-0 lg:flex items-center lg:static inset-auto ml-6 pr-0">
+            <p class="hidden lg:block rounded-md pr-8 py-2 text-xs sm:text-base font-medium text-gray-400">V 1.9.4</p>
+            <p class="hidden lg:block rounded-md pr-8 py-2 text-xs sm:text-base font-medium text-gray-400">
+                {{ user_role }}
+            </p>
+
+            <!-- Dropdown do Bootstrap -->
+            <div class="dropdown">
+                <button class="btn" type="button" id="userDropdown2" data-bs-toggle="dropdown" aria-expanded="false">
+                    <img class="h-12 w-12 rounded-full" src="{% if user.foto_perfil %}{{ user.foto_perfil.url }}{% else %}{% static 'images/default.jpg' %}{% endif %}" alt="Foto do usuário">
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown2">
+                    <li><a class="dropdown-item" href="{% url 'seappb:editarperfil' user.pk %}">Perfil</a></li>
+                    <li><a class="dropdown-item" href="#">Configurações</a></li>
+                    <li>
+                        <form method="post" action="{% url 'seappb:logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="dropdown-item">Sair</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+</div>
+<style>
+  #sidebar-wrapper {
+    transition: transform 0.3s ease, opacity 0.2s ease;
+  }
+
+  #mobile-menu {
+    transition: transform 0.3s ease;
+  }
+</style>
+
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Menu mobile principal
-        const mobileMenuButton = document.getElementById('mobile-menu-button');
-        const mobileMenu = document.getElementById('mobile-menu');
-        const iconClose = document.getElementById('icon-close');
+  // Esconde o sidebar antes de qualquer renderização
+  document.addEventListener('DOMContentLoaded', function() {
+    // Elementos
+    const sidebarWrapper = document.getElementById('sidebar-wrapper');
+    const toggleBtn = document.getElementById('toggle-sidebar');
+    const toggleIcon = document.getElementById('toggle-icon');
+    const mainContainer = document.getElementById('main-container');
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const iconClose = document.getElementById('icon-close');
+    const gesipeToggle = document.getElementById('gesipe-toggle');
+    const gesipeMenu = document.getElementById('gesipe-menu');
+    const gesipeArrow = document.getElementById('gesipe-arrow');
 
-        mobileMenuButton.addEventListener('click', function() {
-            mobileMenu.classList.toggle('-translate-x-full');
-            document.body.style.overflow = mobileMenu.classList.contains('-translate-x-full') ? '' : 'hidden';
-        });
+    // Configuração inicial imediata para mobile
+    const isMobile = window.innerWidth < 768;
+    if (isMobile) {
+      mobileMenu.classList.add('-translate-x-full');
+      mobileMenu.style.width = '80%';
+      sidebarWrapper.style.display = ''; // Mostra o wrapper, mas o menu continua fechado
+    } else {
+      // Configuração para desktop
+      const savedState = localStorage.getItem('sidebarCollapsed');
+      const shouldCollapse = savedState ? savedState === 'true' : true;
 
-        iconClose.addEventListener('click', function() {
-            mobileMenu.classList.add('-translate-x-full');
-            document.body.style.overflow = '';
-        });
+      if (shouldCollapse) {
+        sidebarWrapper.classList.add('collapsed');
+      } else {
+        sidebarWrapper.classList.remove('collapsed');
+      }
+      sidebarWrapper.style.display = '';
+    }
 
+    // Funções de apoio
+    function saveSidebarState(isCollapsed) {
+      if (!isMobile) {
+        localStorage.setItem('sidebarCollapsed', isCollapsed);
+      }
+    }
 
+    function updateMainMargin() {
+      if (!mainContainer) return;
+
+      const isCollapsed = sidebarWrapper.classList.contains('collapsed');
+      const isAuthenticated = document.querySelector('.dropdown') !== null;
+
+      if (isMobile) {
+        mainContainer.classList.remove('md:ml-20', 'md:ml-80');
+      } else if (isCollapsed) {
+        mainContainer.classList.remove('md:ml-80');
+        mainContainer.classList.add('md:ml-20');
+      } else {
+        mainContainer.classList.remove('md:ml-20');
+        if (isAuthenticated) {
+          mainContainer.classList.add('md:ml-80');
+        }
+      }
+    }
+
+    // Configura eventos
+    toggleBtn?.addEventListener('click', function() {
+      if (isMobile) {
+        mobileMenu.classList.toggle('-translate-x-full');
+        document.body.style.overflow = mobileMenu.classList.contains('-translate-x-full') ? '' : 'hidden';
+      } else {
+        sidebarWrapper.classList.toggle('collapsed');
+        toggleIcon.classList.toggle('bi-chevron-left');
+        toggleIcon.classList.toggle('bi-chevron-right');
+        saveSidebarState(sidebarWrapper.classList.contains('collapsed'));
+        updateMainMargin();
+      }
     });
+
+    mobileMenuButton?.addEventListener('click', function() {
+      mobileMenu.classList.remove('-translate-x-full');
+      document.body.style.overflow = 'hidden';
+    });
+
+    iconClose?.addEventListener('click', function() {
+      mobileMenu.classList.add('-translate-x-full');
+      document.body.style.overflow = '';
+    });
+
+    gesipeToggle?.addEventListener('click', function() {
+      const isOpen = gesipeMenu.style.maxHeight && gesipeMenu.style.maxHeight !== "0px";
+
+      if (isOpen) {
+        gesipeMenu.style.maxHeight = "0px";
+        gesipeArrow.style.transform = "rotate(0deg)";
+      } else {
+        gesipeMenu.style.maxHeight = gesipeMenu.scrollHeight + "px";
+        gesipeArrow.style.transform = "rotate(180deg)";
+      }
+
+      if (!isMobile && sidebarWrapper.classList.contains('collapsed')) {
+        sidebarWrapper.classList.remove('collapsed');
+        toggleIcon.classList.remove('bi-chevron-right');
+        toggleIcon.classList.add('bi-chevron-left');
+        saveSidebarState(false);
+        updateMainMargin();
+      }
+    });
+
+    // Atualiza margens após tudo estar configurado
+    updateMainMargin();
+  });
 </script>

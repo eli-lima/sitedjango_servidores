@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block titulo %}
+Resultado do Reconhecimento
+{% endblock %}
+
+{% block content %}
+
+<!-- Header Section -->
+<div class="pt-4 px-4">
+    <div class="bg-gray-800 text-white rounded-lg shadow-md p-6 mb-6">
+        <h1 class="text-2xl font-bold text-center">Resultado do Reconhecimento Facial</h1>
+        <p class="mt-2 text-center text-gray-300">Detalhes do interno identificado</p>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="px-4 pb-6">
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        {% if interno %}
+        <!-- Success Result -->
+        <div class="p-6">
+            <div class="flex flex-col md:flex-row gap-6">
+                <!-- Photo Column -->
+                <div class="w-full md:w-1/3 flex flex-col items-center">
+                    <div class="relative w-48 h-48 rounded-lg overflow-hidden border-4 border-gray-200 shadow-md">
+                        {% if interno.foto %}
+                            <img src="{{ interno.foto.url }}" alt="Foto do Interno" class="w-full h-full object-cover">
+                        {% else %}
+                            <img src="{% static 'images/default.jpg' %}" alt="Foto padrão" class="w-full h-full object-cover">
+                        {% endif %}
+                    </div>
+                    <div class="mt-4 flex gap-2">
+                        <span class="px-3 py-1 rounded-full text-xs font-medium {% if interno.status == 'Ativo' %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                            {{ interno.status }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Details Column -->
+                <div class="w-full md:w-2/3">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">{{ interno.nome }}</h2>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500">ID</h3>
+                            <p class="mt-1 text-sm text-gray-900">{{ interno.id }}</p>
+                        </div>
+
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500">CPF</h3>
+                            <p class="mt-1 text-sm text-gray-900">{{ interno.cpf|default:"Não informado" }}</p>
+                        </div>
+
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500">Data de Nascimento</h3>
+                            <p class="mt-1 text-sm text-gray-900">{{ interno.data_nascimento|date:"d/m/Y"|default:"Não informada" }}</p>
+                        </div>
+
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500">Mãe</h3>
+                            <p class="mt-1 text-sm text-gray-900">{{ interno.nome_mae|default:"Não informado" }}</p>
+                        </div>
+
+                        {% if interno.rg %}
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500">RG</h3>
+                            <p class="mt-1 text-sm text-gray-900">{{ interno.rg }}</p>
+                        </div>
+                        {% endif %}
+
+                        {% if interno.naturalidade %}
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500">Naturalidade</h3>
+                            <p class="mt-1 text-sm text-gray-900">{{ interno.naturalidade }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="mt-6 flex flex-wrap gap-3">
+                        <a href="{% url 'interno:detalhes_interno' interno.id %}"
+                           class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm font-medium">
+                            <i class="bi bi-file-earmark-text-fill mr-2"></i> Ver Detalhes Completos
+                        </a>
+                        <a href="{% url 'interno:reconhecer_interno' %}"
+                           class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors text-sm font-medium">
+                            <i class="bi bi-arrow-repeat mr-2"></i> Nova Consulta
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <!-- No Result Found -->
+        <div class="p-6">
+            <div class="text-center py-8">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                    <i class="bi bi-exclamation-triangle-fill text-red-600 text-xl"></i>
+                </div>
+                <h2 class="mt-3 text-lg font-medium text-gray-900">Nenhum interno reconhecido</h2>
+                <p class="mt-2 text-sm text-gray-500">{{ mensagem }}</p>
+                <div class="mt-6">
+                    <a href="{% url 'interno:reconhecer_interno' %}"
+                       class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm font-medium inline-flex items-center">
+                        <i class="bi bi-arrow-repeat mr-2"></i> Tentar Novamente
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Additional Information Section -->
+{% if interno %}
+<div class="px-4 pb-6">
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">Informações Adicionais</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Criminal Information -->
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h3 class="text-sm font-medium text-gray-500 mb-3">Informações Criminais</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <h4 class="text-xs font-medium text-gray-500">Processos</h4>
+                            <p class="text-sm">
+                                {% if interno.processos.all %}
+                                    {% for processo in interno.processos.all|slice:":3" %}
+                                        {{ processo.numero }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                    {% if interno.processos.count > 3 %}...{% endif %}
+                                {% else %}
+                                    Nenhum processo registrado
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-medium text-gray-500">Última Ocorrência</h4>
+                            <p class="text-sm">{{ interno.ultima_ocorrencia|default:"Nenhuma ocorrência registrada" }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prison Information -->
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h3 class="text-sm font-medium text-gray-500 mb-3">Informações Prisionais</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <h4 class="text-xs font-medium text-gray-500">Unidade Atual</h4>
+                            <p class="text-sm">{{ interno.unidade_atual|default:"Não informada" }}</p>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-medium text-gray-500">Data de Entrada</h4>
+                            <p class="text-sm">{{ interno.data_entrada|date:"d/m/Y"|default:"Não informada" }}</p>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-medium text-gray-500">Regime</h4>
+                            <p class="text-sm">{{ interno.regime|default:"Não informado" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}

@@ -74,7 +74,7 @@ Relatorio Internos
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     {% for interno in internos %}
-                    <tr class="clickable-row {% if interno.status == 'Inativo' %}bg-red-200{% else %}{% endif %}">
+                    <tr class="clickable-row {% if interno.status == 'Inativo' %}bg-red-200{% else %}{% endif %}" data-href="{% url 'interno:detalhes_interno' interno.id %}">
                         <td class="px-6 py-4 whitespace-nowrap">
                             <a href="https://infopenpb.mj.gov.br/interno/show/{{ interno.prontuario }}" class="text-blue-500 hover:text-blue-700 underline hover:no-underline" target="_blank">
                                 {{ interno.prontuario }}

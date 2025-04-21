@@ -1,0 +1,571 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block titulo %}
+Livro de Ocorrência do Plantão
+{% endblock %}
+
+{% block content %}
+
+
+
+
+<form method="post" id="ocorrencia-form">  <!-- Adicione esta linha -->
+    {% csrf_token %}  <!-- Não esqueça do token CSRF -->
+
+<header class="bg-white rounded-lg shadow-md p-6 mb-6">
+  <h1 class="text-2xl font-bold text-center mb-4">Livro de Ocorrência do Plantão</h1>
+  <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+     <div class="">
+      <label class="form-label">
+        {{ form.data.label }}
+      </label>
+      {{ form.data }}
+      {% if form.data.errors %}
+      <p class="mt-1 text-sm text-red-600">{{ form.data.errors.as_text }}</p>
+      {% endif %}
+    </div>
+    <div class="">
+      <label class="form-label">
+        {{ form.unidade.label }}
+      </label>
+      {{ form.unidade }}
+      {% if form.unidade.errors %}
+      <p class="mt-1 text-sm text-red-600">{{ form.unidade.errors.as_text }}</p>
+      {% endif %}
+    </div>
+    <div class="">
+      <label class="form-label">
+        {{ form.chefe_equipe.label }}
+      </label>
+      {{ form.chefe_equipe }}
+      {% if form.chefe_equipe.errors %}
+      <p class="mt-1 text-sm text-red-600">{{ form.chefe_equipe.errors.as_text }}</p>
+      {% endif %}
+    </div>
+    <div class="pt-4">
+      <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors w-full sm:w-auto">
+        Salvar Ocorrência
+      </button>
+    </div>
+  </div>
+  <div class="pt-8">
+      <div class="max-w-sm mx-auto bg-white shadow-md rounded-2xl p-4">
+          <h2 class="text-lg font-semibold text-gray-700 mb-2">População Carcerária Atual</h2>
+          <input
+            type="text"
+            value="{{total_populacao}}"
+            readonly
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700 font-medium text-center cursor-not-allowed"
+          />
+      </div>
+  </div>
+
+
+</header>
+
+<div class="flex flex-col space-y-4">
+
+  <!-- Item 1 - Ordinário -->
+
+  <div class="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
+    <input type="checkbox" id="accordion-1" class="hidden peer">
+    <label for="accordion-1" class="flex items-center justify-between w-full p-4 hover:bg-gray-50 cursor-pointer select-none">
+      <span class="font-medium">I - Equipe de Plantão: Ordinário</span>
+      <svg id="seta-ordinario" class="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+      </svg>
+    </label>
+    <div class="px-4 grid w-full grid-rows-[0fr] transition-all duration-500 ease-in-out peer-checked:grid-rows-[1fr]">
+      <div class="overflow-hidden w-full flex flex-col lg:flex-row">
+        <!-- Ordinário -->
+          <div class="flex gap-2 mb-4 w-auto lg:w-1/6 px-8 lg:px-4">
+            <input type="text" id="matricula-ordinario"
+                   class="h-12 form-control flex-1 text-sm"
+                   placeholder="Digite a matrícula">
+            <button type="button" onclick="adicionarServidor('ordinario')"
+                    class="h-12 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+              Adicionar
+            </button>
+          </div>
+
+          <div class="overflow-x-auto w-full lg:w-5/6 rounded-md">
+          <table class="min-w-[600px] w-full divide-y divide-gray-200" id="tabela-ordinario">
+            <thead class="bg-gray-100 w-full">
+                  <tr>
+                    <th class="px-4 py-2">Matrícula</th>
+                    <th class="px-4 py-2">Nome</th>
+                    <th class="px-4 py-2">Cargo</th>
+                    <th class="px-4 py-2">Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="corpo-ordinario" class="bg-white divide-y divide-gray-200">
+                  <!-- Linhas serão adicionadas dinamicamente -->
+                </tbody>
+              </table>
+        </div>
+
+          <input type="hidden" name="ordinario_ids" id="ordinario-ids">
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Item 2 - Extraordinário -->
+  <div class="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
+    <input type="checkbox" id="accordion-2" class="hidden peer">
+    <label for="accordion-2" class="flex items-center justify-between w-full p-4 hover:bg-gray-50 cursor-pointer select-none">
+      <span class="font-medium">II - Equipe de Plantão: Extraordinário</span>
+      <svg id="seta-extraordinario" class="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+      </svg>
+    </label>
+    <div class="px-4 grid w-full grid-rows-[0fr] transition-all duration-500 ease-in-out peer-checked:grid-rows-[1fr]">
+      <div class="overflow-hidden w-full flex flex-col lg:flex-row">
+        <div class="flex gap-2 mb-4 w-auto lg:w-1/6 px-8 lg:px-4">
+          <input type="text" id="matricula-extraordinario"
+                 class="h-12 form-control flex-1 text-sm"
+                 placeholder="Digite a matrícula">
+          <button type="button" onclick="adicionarServidor('extraordinario')"
+                  class="h-12 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+            Adicionar
+          </button>
+        </div>
+
+        <div class="overflow-x-auto w-full lg:w-5/6 rounded-md">
+          <table class="min-w-[600px] w-full divide-y divide-gray-200" id="tabela-extraordinario">
+            <thead class="bg-gray-100 w-full">
+              <tr>
+                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Matrícula</th>
+                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Cargo</th>
+                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="corpo-extraordinario" class="bg-white divide-y divide-gray-200">
+              <!-- Linhas serão adicionadas dinamicamente -->
+            </tbody>
+          </table>
+        </div>
+
+        <input type="hidden" name="extraordinario_ids" id="extraordinario-ids">
+      </div>
+    </div>
+  </div>
+
+
+
+  <!-- Item 3 - População Carcerária -->
+  <div class="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
+    <input type="checkbox" id="accordion-3" class="hidden peer">
+    <label for="accordion-3" class="flex items-center justify-between w-full p-4 hover:bg-gray-50 cursor-pointer select-none">
+      <span class="font-medium">III - População Carcerária</span>
+      <svg id="seta-populacao" class="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+      </svg>
+    </label>
+    <div class="grid grid-rows-[0fr] transition-all duration-500 ease-in-out peer-checked:grid-rows-[1fr]">
+      <div class="overflow-hidden">
+        <div class="p-4 border-t border-gray-200 flex flex-col justify-center">
+            <div class="flex justify-center pb-4 font-bold">
+                <h3>População Por Regime:</h3>
+            </div>
+            <div class="flex flex-col lg:flex-row justify-center items-center">
+                <div class="flex flex-row">
+                  <div class="pl-2 pb-3 ">
+                    <label class="form-label xl:text-base text-2xl font-medium">
+                        {{ form.regime_aberto.label }}
+                    </label>
+                        {{ form.regime_aberto }}
+                    {% if form.regime_aberto.errors %}
+                        <ul class="text-danger">
+                            {% for error in form.regime_aberto.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                  </div>
+                  <div class="pl-2 pb-3 ">
+                    <label class="form-label xl:text-base text-2xl font-medium">
+                        {{ form.regime_semiaberto.label }}
+                    </label>
+                        {{ form.regime_semiaberto }}
+                    {% if form.regime_semiaberto.errors %}
+                        <ul class="text-danger">
+                            {% for error in form.regime_semiaberto.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="flex flex-row">
+                  <div class="pl-2 pb-3 ">
+                    <label class="form-label xl:text-base text-2xl font-medium">
+                        {{ form.regime_fechado.label }}
+                    </label>
+                        {{ form.regime_fechado }}
+                    {% if form.regime_fechado.errors %}
+                        <ul class="text-danger">
+                            {% for error in form.regime_fechado.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                  </div>
+                  <div class="pl-2 pb-3 ">
+                    <label class="form-label xl:text-base text-2xl font-medium">
+                        {{ form.regime_domiciliar.label }}
+                    </label>
+                        {{ form.regime_domiciliar }}
+                    {% if form.regime_domiciliar.errors %}
+                        <ul class="text-danger">
+                            {% for error in form.regime_domiciliar.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                  </div>
+                </div>
+            </div>
+            <div class="flex justify-center pb-4 pt-8 font-bold">
+                <h3>População Por Situaçāo Processual:</h3>
+            </div>
+            <div class="flex flex-row justify-center">
+              <div class="pl-2 pb-3 ">
+                <label class="form-label xl:text-base text-2xl font-semibold">
+                    {{ form.provisorio.label }}
+                </label>
+                    {{ form.provisorio }}
+                {% if form.provisorio.errors %}
+                    <ul class="text-danger">
+                        {% for error in form.provisorio.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+              </div>
+              <div class="pl-2 pb-3 ">
+                <label class="form-label xl:text-base text-2xl font-semibold">
+                    {{ form.sentenciado.label }}
+                </label>
+                    {{ form.sentenciado }}
+                {% if form.sentenciado.errors %}
+                    <ul class="text-danger">
+                        {% for error in form.sentenciado.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="flex justify-center pb-4 pt-8 font-bold">
+                <h3>População Por Gênero:</h3>
+            </div>
+            <div class="flex flex-row justify-center">
+              <div class="pl-2 pb-3 ">
+                <label class="form-label xl:text-base text-2xl font-semibold">
+                    {{ form.masculino.label }}
+                </label>
+                    {{ form.masculino }}
+                {% if form.masculino.errors %}
+                    <ul class="text-danger">
+                        {% for error in form.masculino.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+              </div>
+              <div class="pl-2 pb-3 ">
+                <label class="form-label xl:text-base text-2xl font-semibold">
+                    {{ form.feminino.label }}
+                </label>
+                    {{ form.feminino }}
+                {% if form.feminino.errors %}
+                    <ul class="text-danger">
+                        {% for error in form.feminino.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+              </div>
+            </div>
+            <div class="max-w-sm mx-auto bg-white shadow-md rounded-2xl p-4">
+              <h2 class="text-lg font-semibold text-gray-700 mb-2">População Carcerária Total</h2>
+              <input
+                type="text"
+                value="1234"
+                readonly
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700 font-medium text-center cursor-not-allowed"
+              />
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+  <!-- Item 4 - Equipamentos e Descrição do Plantão -->
+  <div class="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
+    <input type="checkbox" id="accordion-4" class="hidden peer">
+    <label for="accordion-4" class="flex items-center justify-between w-full p-4 hover:bg-gray-50 cursor-pointer select-none">
+      <span class="font-medium">IV - Equipamentos, Armamentos e Descrição</span>
+      <svg id="seta-armamento" class="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+      </svg>
+    </label>
+    <div class="grid grid-rows-[0fr] transition-all duration-500 ease-in-out peer-checked:grid-rows-[1fr]">
+      <div class="overflow-hidden">
+        <div class="p-4 border-t border-gray-200">
+            <div class="">
+              <label class="form-label">
+                {{ form.descricao.label }}
+              </label>
+              {{ form.descricao }}
+              {% if form.descricao.errors %}
+              <p class="mt-1 text-sm text-red-600">{{ form.data.errors.as_text }}</p>
+              {% endif %}
+            </div>
+            <h3>Observações</h3>
+            <div class="">
+              <label class="form-label">
+                {{ form.observacao.label }}
+              </label>
+              {{ form.observacao }}
+              {% if form.observacao.errors %}
+              <p class="mt-1 text-sm text-red-600">{{ form.observacao.errors.as_text }}</p>
+              {% endif %}
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</form>
+
+<style>
+  .rotate-180 {
+  transform: rotate(180deg);
+  transition: transform 0.2s ease-in-out;
+}
+
+
+</style>
+
+
+
+
+
+<script>
+  // Dados temporários
+  const servidoresAdicionados = {
+    ordinario: [],
+    extraordinario: []
+  };
+
+  // Função para adicionar servidor
+  async function adicionarServidor(tipo) {
+    const matriculaInput = document.getElementById(`matricula-${tipo}`);
+    const matricula = matriculaInput.value.trim();
+
+    if (!matricula) {
+      alert('Digite uma matrícula válida');
+      return;
+    }
+
+    try {
+      // Busca dados do servidor
+      const response = await fetch(`{% url 'gestao_prisional:buscar-servidor-list' %}?matricula=${matricula}`);
+      const servidor = await response.json();
+
+      if (servidor.error) {
+        throw new Error(servidor.error);
+      }
+
+      // Verifica se já foi adicionado
+      if (servidoresAdicionados[tipo].some(s => s.matricula === servidor.matricula)) {
+        throw new Error('Servidor já adicionado');
+      }
+
+      // Adiciona aos dados temporários
+      servidoresAdicionados[tipo].push(servidor);
+
+      // Atualiza a tabela
+      atualizarTabela(tipo);
+
+      // Limpa o campo
+      matriculaInput.value = '';
+
+    } catch (error) {
+      alert(error.message);
+      console.error('Erro:', error);
+    }
+  }
+
+  // Função para remover servidor
+  function removerServidor(tipo, index) {
+    servidoresAdicionados[tipo].splice(index, 1);
+    atualizarTabela(tipo);
+  }
+
+  // Atualiza a tabela e o campo hidden
+  function atualizarTabela(tipo) {
+    const tbody = document.getElementById(`corpo-${tipo}`);
+    const hiddenField = document.getElementById(`${tipo}-ids`);
+
+    // Limpa a tabela
+    tbody.innerHTML = '';
+
+    // Popula com novos dados
+    servidoresAdicionados[tipo].forEach((servidor, index) => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td class="px-6 py-4 whitespace-nowrap text-center">${servidor.matricula}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-center">${servidor.nome}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-center">${servidor.cargo}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-center font-medium">
+          <button type="button" onclick="removerServidor('${tipo}', ${index})"
+                  class="text-red-600 text-lgokl hover:text-red-900">
+            <i class="bi bi-trash-fill"></i>
+          </button>
+        </td>
+      `;
+      tbody.appendChild(row);
+    });
+
+    // Atualiza campo hidden com IDs separados por vírgula
+    hiddenField.value = servidoresAdicionados[tipo].map(s => s.id).join(',');
+  }
+
+  // Carrega dados existentes se for edição
+  document.addEventListener('DOMContentLoaded', function() {
+    // Exemplo para carregar dados existentes (implemente conforme necessidade)
+    // const dadosExistentes = JSON.parse('{{ dados_existentes|escapejs }}');
+    // if (dadosExistentes) {
+    //   servidoresAdicionados.ordinario = dadosExistentes.ordinario;
+    //   servidoresAdicionados.extraordinario = dadosExistentes.extraordinario;
+    //   atualizarTabela('ordinario');
+    //   atualizarTabela('extraordinario');
+    // }
+  });
+</script>
+
+
+<!--girar botao acordeon-->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Configuração para cada acordeão
+  const acordeoes = [
+    { botaoId: 'accordion-1', setaId: 'seta-ordinario' },
+    { botaoId: 'accordion-2', setaId: 'seta-extraordinario' },
+    { botaoId: 'accordion-3', setaId: 'seta-populacao' },
+    { botaoId: 'accordion-4', setaId: 'seta-armamento' }
+  ];
+
+  acordeoes.forEach(acordeao => {
+    const checkbox = document.getElementById(acordeao.botaoId);
+    const seta = document.getElementById(acordeao.setaId);
+
+    if (checkbox && seta) {
+      checkbox.addEventListener('change', function() {
+        if (this.checked) {
+          seta.classList.add('rotate-180');
+        } else {
+          seta.classList.remove('rotate-180');
+        }
+      });
+    }
+  });
+});
+</script>
+
+
+<!--script atualizar a populacao-->
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Elementos do formulário
+        const unidadeSelect = document.querySelector('select[name="unidade"]');
+        const regimeAberto = document.querySelector('input[name="regime_aberto"]');
+        const regimeSemiaberto = document.querySelector('input[name="regime_semiaberto"]');
+        const regimeFechado = document.querySelector('input[name="regime_fechado"]');
+        const regimeDomiciliar = document.querySelector('input[name="regime_domiciliar"]');
+        const provisorio = document.querySelector('input[name="provisorio"]');
+        const sentenciado = document.querySelector('input[name="sentenciado"]');
+        const masculino = document.querySelector('input[name="masculino"]');
+        const feminino = document.querySelector('input[name="feminino"]');
+        const totalInputs = document.querySelectorAll('input[readonly][value]');
+
+        // Função para atualizar os campos com os dados da população carcerária
+        function atualizarCamposPopulacao(data) {
+            if (data) {
+                regimeAberto.value = data.regime_aberto || 0;
+                regimeSemiaberto.value = data.regime_semiaberto || 0;
+                regimeFechado.value = data.regime_fechado || 0;
+                regimeDomiciliar.value = data.regime_domiciliar || 0;
+                provisorio.value = data.provisorio || 0;
+                sentenciado.value = data.sentenciado || 0;
+                masculino.value = data.masculino || 0;
+                feminino.value = data.feminino || 0;
+
+                // Atualiza todos os campos de total
+                totalInputs.forEach(input => {
+                    input.value = data.total || 0;
+                });
+            }
+        }
+
+        // Event listener para mudanças no select de unidade
+        if (unidadeSelect) {
+            unidadeSelect.addEventListener('change', function() {
+                const unidadeId = this.value;
+
+                if (unidadeId) {
+                    // Faz a requisição AJAX para buscar os dados da população carcerária
+                    fetch(`{% url 'gestao_prisional:populacao-carceraria-api' %}?unidade_id=${unidadeId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            atualizarCamposPopulacao(data);
+                        })
+                        .catch(error => {
+                            console.error('Erro ao buscar dados da população carcerária:', error);
+                            // Reseta os campos se houver erro
+                            atualizarCamposPopulacao({});
+                        });
+                } else {
+                    // Limpa os campos se nenhuma unidade for selecionada
+                    atualizarCamposPopulacao({});
+                }
+            });
+        }
+        // Verifica se já tem uma unidade selecionada e carrega os dados
+        if (unidadeSelect && unidadeSelect.value) {
+            // Dispara o evento change manualmente
+            const event = new Event('change');
+            unidadeSelect.dispatchEvent(event);
+        }
+    });
+
+</script>
+
+<!--pegar a data do dia-->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const campoData = document.getElementById('id_data');  // substitua pelo ID correto do seu input
+        if (campoData && !campoData.value) {
+            const hoje = new Date();
+            const dia = String(hoje.getDate()).padStart(2, '0');
+            const mes = String(hoje.getMonth() + 1).padStart(2, '0'); // mês começa do 0
+            const ano = hoje.getFullYear();
+            campoData.value = `${ano}-${mes}-${dia}`;
+        }
+    });
+</script>
+
+
+
+{% endblock %}

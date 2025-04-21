@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Interno
+from .models import Interno, PopulacaoCarceraria
 
 
 # Register your models here.
@@ -17,3 +17,6 @@ class InternoAdmin(admin.ModelAdmin):
 
     # Habilitar a ordenação por data
     ordering = ('-prontuario',)
+
+
+admin.site.register(PopulacaoCarceraria)

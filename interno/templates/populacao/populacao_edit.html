@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block titulo %}
+atualizar populacao
+{% endblock %}
+
+
+
+{% block content %}
+    <div class="container pt-3 pb-32">
+        <div class="container p-3">
+            <h1 class="text-center text-bold text-3xl pb-5 font-mono">Edite as Informações do dia: <strong class="fs-4 text">{{ formatted_date }}</strong></h1>
+        </div>
+
+        <form class="form-group container border border-2 border-secondary" action="" method="POST">
+            {% csrf_token %}
+            <div class="grid grid-cols-2 lg:grid-cols-4 p-3">
+                {% for field in form %}
+                    <div class="p-2">
+                        <label class="form-label font-semibold lg:text-base text-2xl ">{{ field.label_tag }}</label>
+                        {% if field.name == 'data' %}
+                            <!-- Adiciona readonly ao campo de data -->
+                            <input type="date" name="{{ field.name }}" value="{{ field.value }}" class="form-control bg-dark-subtle fw-bold" readonly>
+                        {% else %}
+                            {{ field }}
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="w-full p-4 flex justify-between">
+                <button type="submit"  class="btn btn-success">Editar Registro</button>
+                <button type="button" data-bs-toggle="modal" data-bs-target="#staticBackdrop" class="btn btn-danger ml-2">Excluir Registro</button>
+            </div>
+            <hr>
+            <!-- Adicione mais seções conforme necessário -->
+
+    </div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="staticBackdropLabel">Confirmar Exclusão</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Deseja realmente excluir este registro? Esta ação não pode ser desfeita.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+
+
+
+                    <button type="submit" name="action" value="delete" class="btn btn-danger">Excluir Registro</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

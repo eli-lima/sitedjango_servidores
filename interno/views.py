@@ -1,103 +1,300 @@
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from .forms import UploadPDFForm, UploadExcelInternosForm
-from .models import ArquivoUpload, Interno
-from .utils import extrair_dados_pdf, salvar_dados
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.mixins import UserPassesTestMixin
-from django.views.generic import ListView
+
+from .forms import UploadExcelInternosForm
+
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.views.generic import ListView, UpdateView
 from django.db.models import Q
-from .tasks import process_excel_internos
-import traceback
-from celery.result import AsyncResult
-import cloudinary.uploader
+
+import os
+import pandas as pd
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.utils import timezone
+from datetime import datetime
+from django.core.files.storage import default_storage
+from .models import Interno, PopulacaoCarceraria
+from .forms import PopulacaoCarcerariaForm
+import face_recognition
+import json
+import base64
+from django.core.files.base import ContentFile
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from django.urls import reverse_lazy
+
+#modulo facial
 
 
-def upload_excel_internos(request):
-    print("Função upload_excel_internos chamada")  # Verifica se a função está sendo chamada
+def detalhes_interno(request, interno_id):
+    interno = get_object_or_404(Interno, id=interno_id)
+    return render(request, 'detalhes_interno.html', {'interno': interno})
+
+
+@csrf_exempt
+def cadastrar_rosto(request, interno_id):
+    interno = get_object_or_404(Interno, id=interno_id)
 
     if request.method == 'POST':
-        print("Método POST detectado")  # Confirma que o método POST está sendo recebido
+        fonte_imagem = request.POST.get('fonte_imagem')  # Verifica a fonte da imagem (câmera ou upload)
+
+        if fonte_imagem == 'camera':
+            # Processa a imagem capturada pela câmera (base64)
+            foto_base64 = request.POST.get('foto_camera')
+            if foto_base64:
+                formato, imagem_base64 = foto_base64.split(';base64,')
+                extensao = formato.split('/')[-1]  # Obtém a extensão da imagem (ex: jpeg)
+                imagem_decodificada = base64.b64decode(imagem_base64)
+                file_name = f"temp_foto.{extensao}"
+                file_path = default_storage.save(file_name, ContentFile(imagem_decodificada))
+            else:
+                return render(request, 'cadastrar_rosto.html',
+                              {'interno': interno, 'mensagem': 'Nenhuma imagem foi capturada.'})
+        else:
+            # Processa o arquivo enviado pelo upload
+            if 'foto_upload' in request.FILES:
+                foto = request.FILES['foto_upload']
+                file_name = default_storage.save(foto.name, foto)
+                file_path = default_storage.path(file_name)
+            else:
+                return render(request, 'cadastrar_rosto.html',
+                              {'interno': interno, 'mensagem': 'Nenhum arquivo foi enviado.'})
+
+        # Carrega a imagem e gera a codificação facial
+        imagem = face_recognition.load_image_file(default_storage.path(file_path))
+        codificacoes = face_recognition.face_encodings(imagem)
+
+        if len(codificacoes) > 0:
+            codificacao = codificacoes[0]
+            interno.codificacao_facial = json.dumps(codificacao.tolist())  # Salva a codificação como JSON
+            if fonte_imagem == 'camera':
+                interno.foto.save(f"foto_{interno.id}.{extensao}",
+                                  ContentFile(imagem_decodificada))  # Salva a foto da câmera
+            else:
+                interno.foto.save(foto.name, foto)  # Salva a foto do upload
+            interno.save()
+            default_storage.delete(file_path)  # Remove a imagem temporária
+            return redirect('interno:detalhes_interno', interno_id=interno.id)
+        else:
+            default_storage.delete(file_path)
+            return render(request, 'cadastrar_rosto.html',
+                          {'interno': interno, 'mensagem': 'Nenhum rosto detectado na imagem.'})
+
+    return render(request, 'cadastrar_rosto.html', {'interno': interno})
+
+
+def reconhecer_interno(request):
+    if request.method == 'POST':
+        fonte_imagem = request.POST.get('fonte_imagem')  # Verifica a fonte da imagem (câmera ou upload)
+
+        if fonte_imagem == 'camera':
+            # Processa a imagem capturada pela câmera (base64)
+            foto_base64 = request.POST.get('foto_camera')
+            if foto_base64:
+                formato, imagem_base64 = foto_base64.split(';base64,')
+                extensao = formato.split('/')[-1]  # Obtém a extensão da imagem (ex: jpeg)
+                imagem_decodificada = base64.b64decode(imagem_base64)
+                file_name = f"temp_foto.{extensao}"
+                file_path = default_storage.save(file_name, ContentFile(imagem_decodificada))
+            else:
+                return render(request, 'reconhecer_interno.html', {'mensagem': 'Nenhuma imagem foi capturada.'})
+        else:
+            # Processa o arquivo enviado pelo upload
+            if 'foto_upload' in request.FILES:
+                foto = request.FILES['foto_upload']
+                file_name = default_storage.save(foto.name, foto)
+                file_path = default_storage.path(file_name)
+            else:
+                return render(request, 'reconhecer_interno.html', {'mensagem': 'Nenhum arquivo foi enviado.'})
+
+        # Carrega a imagem e gera a codificação facial
+        imagem = face_recognition.load_image_file(default_storage.path(file_path))
+        codificacoes = face_recognition.face_encodings(imagem)
+
+        if len(codificacoes) > 0:
+            codificacao_desconhecida = codificacoes[0]
+
+            # Compara com as codificações dos internos cadastrados
+            for interno in Interno.objects.exclude(codificacao_facial__isnull=True):
+                codificacao_cadastrada = json.loads(interno.codificacao_facial)
+                resultado = face_recognition.compare_faces([codificacao_cadastrada], codificacao_desconhecida)
+
+                if resultado[0]:
+                    default_storage.delete(file_path)  # Remove a imagem temporária
+                    return render(request, 'resultado.html', {'interno': interno})
+
+            default_storage.delete(file_path)
+            return render(request, 'resultado.html', {'mensagem': 'Nenhum interno reconhecido.'})
+        else:
+            default_storage.delete(file_path)
+            return render(request, 'resultado.html', {'mensagem': 'Nenhum rosto detectado na imagem.'})
+
+    return render(request, 'reconhecer_interno.html')
+
+
+
+BATCH_SIZE = 1000  # Define o tamanho dos lotes
+
+def save_in_batches(model, instances, fields=None):
+    """Salva registros em lotes para evitar erro de muitas variáveis SQL."""
+    print(f"📊 Salvando {len(instances)} registros em lotes de {BATCH_SIZE}.")
+    for i in range(0, len(instances), BATCH_SIZE):
+        batch = instances[i:i + BATCH_SIZE]
+        print(f"🔄 Processando lote {i // BATCH_SIZE + 1}: {len(batch)} registros.")
+        try:
+            if fields:
+                model.objects.bulk_update(batch, fields)  # Atualização em lote
+            else:
+                model.objects.bulk_create(batch, ignore_conflicts=True)  # ⚠️ Evita erro de unicidade
+        except Exception as e:
+            print(f"❌ Erro ao processar o lote {i // BATCH_SIZE + 1}: {e}")
+            raise
+
+
+def upload_planilha_excel(request):
+    print("📢 Iniciando upload da planilha...")
+
+
+    if request.method == 'POST':
+        print("📥 Método POST detectado.")
         form = UploadExcelInternosForm(request.POST, request.FILES)
-        print(f"request.FILES: {request.FILES}")
 
         if form.is_valid():
-            print("Formulário válido")  # Confirma que o formulário foi validado corretamente
+            print("✅ Formulário válido.")
+            arquivo = request.FILES['arquivo']
 
-            if 'arquivo' in request.FILES:
-                excel_file = request.FILES['arquivo']
-                print(f"Arquivo recebido: {excel_file.name}")  # Mostra o nome do arquivo enviado
+            try:
+                df = pd.read_excel(arquivo)
+                print(f"📊 Planilha carregada com {len(df)} registros.")
 
-                try:
-                    print("Iniciando upload para Cloudinary...")
-                    upload_result = cloudinary.uploader.upload(excel_file, resource_type="raw")
-                    cloudinary_url = upload_result['url']
-                    print(f"Arquivo enviado para Cloudinary: {cloudinary_url}")
+                # Criar um log para registrar alterações
 
-                    # Chama a task de processamento
-                    print("Enviando task para processamento...")
-                    task = process_excel_internos.delay(cloudinary_url)
-                    print(f"Task ID: {task.id}")
+                csv_log = "log_atualizacoes.csv"
+
+                log_entries = []  # Lista para armazenar logs
+                novo_interno = []  # lista internos novos adicionados
+                atualizacoes = []
+
+                # Iterar pelos registros do Excel
+                for index, row in df.iterrows():
+
+                    # Converte os valores para string e remove espaços em branco
+                    prontuario = str(row.get('prontuario', '')).strip()
+                    nome = str(row.get('nome', '')).strip()
+                    cpf = str(row.get('cpf', '')).strip()
+                    nome_mae = str(row.get('nome_mae', '')).strip()
+
+                    # Tratando a unidade para garantir que valores 'NaN' sejam tratados corretamente
+                    unidade = row.get('unidade', '')  # Atribui valor vazio se não encontrar o campo
+                    if pd.isna(unidade) or unidade == 'nan':  # Verifica se é NaN ou 'nan'
+                        unidade = ''  # Substitui por string vazia
+
+                    else:
+                        unidade = str(unidade).strip()  # Converte para string e remove espaços, caso contrário
+                    status = str(row.get('status', '')).strip()
+
+                    # Garantir que data_extracao seja uma data normal (date)
+                    data_extracao = row.get('data_extracao')
+                    if not data_extracao or pd.isna(data_extracao):
+                        data_extracao = timezone.now()
+                    else:
+                        try:
+                            # Converte de "DD-MM-YYYY" para "YYYY-MM-DD"
+                            data_extracao = datetime.strptime(data_extracao, "%d-%m-%Y").date()
+                        except ValueError:
+                            raise ValueError(f"Data inválida: {data_extracao}")
+
+                    # Buscar o interno no banco
+
+                    interno = Interno.objects.filter(prontuario=prontuario).first()
+
+                    if interno:
+
+                        # Comparar campos para ver se há mudanças
+                        alterado = False
+                        campos_modificados = []
+
+                        if interno.nome != nome:
+                            interno.nome = nome
+                            campos_modificados.append("nome")
+                            alterado = True
+
+                        if interno.cpf != cpf:
+                            interno.cpf = cpf
+                            campos_modificados.append("cpf")
+                            alterado = True
+
+                        if interno.nome_mae != nome_mae:
+                            interno.nome_mae = nome_mae
+                            campos_modificados.append("nome_mae")
+                            alterado = True
+
+                        if interno.unidade != unidade:
+                            interno.unidade = unidade
+                            campos_modificados.append("unidade")
+                            alterado = True
+
+                        if interno.status != status:
+                            interno.status = status
+                            campos_modificados.append("status")
+                            alterado = True
+
+                        # Só atualiza a `data_extracao` se algum outro campo mudou
+                        if alterado:
+                            interno.data_extracao = data_extracao
+                            campos_modificados.append("data_extracao")
+
+                            # Salvar no banco de dados
+                            print(f"💾 Salvando interno atualizado: {interno}")
+                            interno.save()
+
+                            # Criar log
+                            log_entries.append(
+                                [prontuario, ", ".join(campos_modificados), str(timezone.now())])
+                            atualizacoes.append(prontuario)
+
+                    else:
+                        print(f"❌ Interno não encontrado. Criando novo registro.")
+                        # Criar um novo registro
+                        novo_interno = Interno(
+                            prontuario=prontuario,
+                            nome=row["nome"],
+                            cpf=row["cpf"],
+                            nome_mae=row["nome_mae"],
+                            unidade=row["unidade"],
+                            status=row["status"],
+                            data_extracao=data_extracao,
+                        )
+                        print(f"💾 Salvando novo interno: {novo_interno}")
+                        novo_interno.save()
+                        novo_interno.append(prontuario)
+
+                        # Criar log de novo registro
+                        log_entries.append([prontuario, "Novo Registro", str(timezone.now())])
 
 
-                    return redirect('interno:status_task_internos', task_id=task.id)
+
+                # Salvar log em CSV
+                print(f"📝 Salvando log em CSV no arquivo {csv_log}")
+                log_df = pd.DataFrame(log_entries, columns=["Prontuario", "Campos Modificados", "Data"])
+                log_df.to_csv(csv_log, mode="a", header=not os.path.exists(csv_log), index=False)
 
 
-                except Exception as e:
-                    erro_msg = f"Erro ao fazer upload: {str(e)}\n{traceback.format_exc()}"
-                    print(erro_msg)
-                    messages.error(request, erro_msg)
-                    return redirect('interno:upload_excel_internos')
+                print("✅ Atualização concluída!")
 
+                messages.success(request,
+                                 f"Planilha processada! {len(novo_interno)} adicionados, {len(atualizacoes)} atualizados.")
+                return redirect('interno:upload_interno')
 
-            else:
-                print("Nenhum arquivo recebido no request.FILES")  # Indica se nenhum arquivo foi enviado
-                messages.error(request, "Nenhum arquivo foi enviado.")
-                return redirect('interno:upload_excel_internos')
-
-        else:
-            print("Formulário inválido")  # Indica se o formulário falhou na validação
-            print(form.errors)  # Mostra os erros do formulário para depuração
-            messages.error(request, "Formulário inválido. Verifique os dados enviados.")
-            return redirect('interno:upload_excel_internos')
+            except Exception as e:
+                print(f"❌ Erro ao processar a planilha: {e}")
+                messages.error(request, f"Erro ao processar a planilha: {e}")
 
     else:
-        print("Método GET recebido")  # Confirma que a página foi carregada via GET
+        messages.error(request, f"Erro ao processar a planilha:")
+        form = UploadExcelInternosForm()
 
-    form = UploadExcelInternosForm()
-    return render(request, 'upload_excel_internos.html', {'form': form})
-
-
-def status_task_internos(request, task_id):
-    task = AsyncResult(task_id)
-    novos_inseridos = 0
-    atualizados = 0
-
-    if task.state == 'PENDING':
-        status = "Processamento pendente..."
-    elif task.state == 'SUCCESS':
-        result = task.result
-        status = "Concluído com sucesso!" if result['status'] == 'sucesso' else f"Erros: {', '.join(result['erros'])}"
-
-        # Corrigido: Pegando os valores corretos do dicionário result
-        if result['status'] == 'sucesso':
-            novos_inseridos = result.get('total_novos', 0)
-            atualizados = result.get('total_atualizados', 0)
-
-    elif task.state == 'FAILURE':
-        status = f"Falha no processamento: {task.result}"
-    else:
-        status = f"Em andamento... Status: {task.state}"
-
-    return render(request, 'status_task_internos.html', {
-        'status': status,
-        'novos_inseridos': novos_inseridos if task.state == 'SUCCESS' else None,
-        'atualizados': atualizados if task.state == 'SUCCESS' else None,
-    })
-
-
-
-
+    return render(request, 'upload_interno.html', {'form': form})
 
 
 class Internos(LoginRequiredMixin, UserPassesTestMixin, ListView):
@@ -123,8 +320,10 @@ class Internos(LoginRequiredMixin, UserPassesTestMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        return context
+        internos_cadastrados = Interno.objects.count()
+        context['internos_cadastrados'] = internos_cadastrados
 
+        return context
 
 
 class RelatorioInterno(LoginRequiredMixin, UserPassesTestMixin, ListView):
@@ -222,9 +421,54 @@ class RelatorioInterno(LoginRequiredMixin, UserPassesTestMixin, ListView):
         # Substituindo 'None' por "Sem unidade"
         unidades = ['Sem unidade' if unidade is None else unidade for unidade in unidades]
 
-
         context['unidades'] = unidades
 
         context['status'] = Interno.objects.values_list('status', flat=True).distinct()
 
+        return context
+
+#populacao edit
+
+class PopulacaoEdit(LoginRequiredMixin, UpdateView, UserPassesTestMixin):
+    model = PopulacaoCarceraria
+    form_class = PopulacaoCarcerariaForm
+    template_name = 'populacao/populacao_edit.html'
+    success_url = reverse_lazy('interno:interno')  # Redirecionar para a página de sucesso
+
+    def test_func(self):
+        user = self.request.user
+        grupos_permitidos = ['Administrador', 'GerGesipe', 'EditInterno']
+        return user.groups.filter(name__in=grupos_permitidos).exists()
+
+    def handle_no_permission(self):
+        messages.error(self.request, "Você não tem permissão para acessar esta página.")
+        return render(self.request, '403.html', status=403)
+
+
+    # def get_form_kwargs(self):
+    #     """Passa o formato correto da data para o formulário."""
+    #     kwargs = super().get_form_kwargs()
+    #     if self.object:
+    #         # Ajusta o valor da data para o formato 'yyyy-mm-dd'
+    #         kwargs['initial'] = {
+    #             'data': self.object.data.strftime('%Y-%m-%d'),
+    #         }
+    #     return kwargs
+
+    def form_valid(self, form):
+        if self.request.POST.get('action') == 'delete':
+            # Lida com a exclusão do registro
+            self.object.delete()
+            messages.error(self.request, 'Atualização excluída com sucesso!')
+            return redirect(self.success_url)
+
+        # Atualiza os dados do registro
+        populacao = form.save(commit=False)
+        populacao.save()
+
+        messages.success(self.request, 'População atualizada com sucesso!')
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         return context

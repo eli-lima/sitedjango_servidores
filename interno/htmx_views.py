@@ -33,3 +33,4 @@ def interno_list(request):
     return render(request, 'partials/interno_partial.html', {
         'datas': queryset
     })
+

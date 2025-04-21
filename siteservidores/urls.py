@@ -20,6 +20,10 @@ from django.urls import include
 from django.conf import settings
 from django.conf.urls.static import static
 
+
+# Apontando para a view custom_403 do app seappb
+handler403 = 'seappb.views.custom_403'
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('seappb.urls', namespace='seappb')),
@@ -28,6 +32,7 @@ urlpatterns = [
     path('servidor/', include('servidor.urls', namespace='servidor')),
     path('copen/', include('copen.urls', namespace='copen')),
     path('interno/', include('interno.urls', namespace='interno')),
+    path('gestao_prisional/', include('gestao_prisional.urls', namespace='gestao_prisional')),
     path('chained/', include('smart_selects.urls')),
 ]
 
