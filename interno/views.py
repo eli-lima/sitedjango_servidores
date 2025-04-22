@@ -21,14 +21,43 @@ import base64
 from django.core.files.base import ContentFile
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
+from django.forms.models import model_to_dict
+from io import BytesIO
+from PIL import Image
+import numpy as np
 
 #modulo facial
 
 
 def detalhes_interno(request, interno_id):
+    # Obtém o interno ou retorna 404
     interno = get_object_or_404(Interno, id=interno_id)
-    return render(request, 'detalhes_interno.html', {'interno': interno})
+
+    # Verifica se é uma requisição AJAX/API
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        # Prepara os dados para resposta JSON
+        data = model_to_dict(interno, exclude=['foto'])  # Exclui o campo foto binário
+
+        # Adiciona campos extras
+        data.update({
+            'unidade': str(interno.unidade) if interno.unidade else None,
+            'foto_url': interno.foto.url if interno.foto else '/static/images/default-profile.png',
+            'detalhes_url': f'/interno/{interno.id}/detalhes/'
+        })
+
+        # Adicione quaisquer outros campos que precise na API
+        if hasattr(interno, 'data_nascimento'):
+            data['data_nascimento'] = interno.data_nascimento.strftime('%d/%m/%Y') if interno.data_nascimento else None
+
+        return JsonResponse(data)
+
+    # Se não for AJAX, renderiza o template normal
+    context = {
+        'interno': interno,
+        'foto_url': interno.foto.url if interno.foto else '/static/images/default-profile.png'
+    }
+    return render(request, 'detalhes_interno.html', context)
 
 
 @csrf_exempt
@@ -84,56 +113,248 @@ def cadastrar_rosto(request, interno_id):
 
 
 def reconhecer_interno(request):
+    print("\n=== NOVA REQUISIÇÃO RECEBIDA ===")
+    print(f"Método: {request.method}")
+    print(f"Content-Type: {request.content_type}")
+
     if request.method == 'POST':
-        fonte_imagem = request.POST.get('fonte_imagem')  # Verifica a fonte da imagem (câmera ou upload)
-
-        if fonte_imagem == 'camera':
-            # Processa a imagem capturada pela câmera (base64)
-            foto_base64 = request.POST.get('foto_camera')
-            if foto_base64:
-                formato, imagem_base64 = foto_base64.split(';base64,')
-                extensao = formato.split('/')[-1]  # Obtém a extensão da imagem (ex: jpeg)
-                imagem_decodificada = base64.b64decode(imagem_base64)
-                file_name = f"temp_foto.{extensao}"
-                file_path = default_storage.save(file_name, ContentFile(imagem_decodificada))
-            else:
-                return render(request, 'reconhecer_interno.html', {'mensagem': 'Nenhuma imagem foi capturada.'})
-        else:
-            # Processa o arquivo enviado pelo upload
+        try:
+            # Verifica se é FormData (upload de arquivo)
             if 'foto_upload' in request.FILES:
+                print("[DEBUG] Modo upload de arquivo")
                 foto = request.FILES['foto_upload']
-                file_name = default_storage.save(foto.name, foto)
-                file_path = default_storage.path(file_name)
+                print(f"[DEBUG] Arquivo recebido: {foto.name} ({foto.size} bytes)")
+
+                # Verificação de extensão antes de processar
+                if not foto.name.lower().endswith(('.jpg', '.jpeg', '.jpe')):
+                    print("[ERRO] Formato de arquivo não suportado")
+                    return JsonResponse({
+                        'status': 'error',
+                        'message': 'Apenas arquivos JPG/JPEG são suportados'
+                    }, status=400)
+
+                # Processa diretamente da memória
+                try:
+                    image_stream = BytesIO(foto.read())
+                    resultado = processar_imagem_da_memoria(image_stream)
+                    print(f"[DEBUG] Resultado do processamento: {resultado}")
+                    return JsonResponse(resultado)
+                except Exception as e:
+                    print(f"[ERRO] Falha no processamento do upload: {str(e)}")
+                    return JsonResponse({
+                        'status': 'error',
+                        'message': str(e)
+                    }, status=500)
+
+            # Verifica se é Blob (câmera)
+            elif 'imagem' in request.FILES:
+                print("[DEBUG] Modo câmera (Blob)")
+                imagem_blob = request.FILES['imagem']
+                print(f"[DEBUG] Tamanho do blob recebido: {imagem_blob.size} bytes")
+
+                # Processa diretamente da memória
+                try:
+                    image_stream = BytesIO(imagem_blob.read())
+                    resultado = processar_imagem_da_memoria(image_stream)
+                    print(f"[DEBUG] Resultado do processamento: {resultado}")
+                    return JsonResponse(resultado)
+                except Exception as e:
+                    print(f"[ERRO] Falha no processamento do blob: {str(e)}")
+                    return JsonResponse({
+                        'status': 'error',
+                        'message': str(e)
+                    }, status=500)
+
+            # Modo legado (base64 - mantido para compatibilidade)
+            elif 'foto_camera' in request.POST:
+                print("[DEBUG] Modo legado (base64)")
+                foto_base64 = request.POST.get('foto_camera')
+                if not foto_base64:
+                    print("[ERRO] Nenhuma imagem capturada")
+                    return JsonResponse({
+                        'status': 'error',
+                        'message': 'Nenhuma imagem capturada'
+                    }, status=400)
+
+                try:
+                    # Processamento da imagem base64
+                    if ';base64,' in foto_base64:
+                        foto_base64 = foto_base64.split(';base64,')[1]
+
+                    imagem_decodificada = base64.b64decode(foto_base64)
+                    image_stream = BytesIO(imagem_decodificada)
+                    resultado = processar_imagem_da_memoria(image_stream)
+                    print(f"[DEBUG] Resultado do processamento: {resultado}")
+                    return JsonResponse(resultado)
+
+                except Exception as e:
+                    print(f"[ERRO] Falha no processamento base64: {str(e)}")
+                    return JsonResponse({
+                        'status': 'error',
+                        'message': str(e)
+                    }, status=500)
+
             else:
-                return render(request, 'reconhecer_interno.html', {'mensagem': 'Nenhum arquivo foi enviado.'})
+                print("[ERRO] Formato de requisição inválido")
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Formato de requisição inválido'
+                }, status=400)
 
-        # Carrega a imagem e gera a codificação facial
-        imagem = face_recognition.load_image_file(default_storage.path(file_path))
-        codificacoes = face_recognition.face_encodings(imagem)
+        except Exception as e:
+            print(f"[ERRO CRÍTICO] Falha no processamento: {str(e)}")
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Erro interno no servidor'
+            }, status=500)
 
-        if len(codificacoes) > 0:
-            codificacao_desconhecida = codificacoes[0]
-
-            # Compara com as codificações dos internos cadastrados
-            for interno in Interno.objects.exclude(codificacao_facial__isnull=True):
-                codificacao_cadastrada = json.loads(interno.codificacao_facial)
-                resultado = face_recognition.compare_faces([codificacao_cadastrada], codificacao_desconhecida)
-
-                if resultado[0]:
-                    default_storage.delete(file_path)  # Remove a imagem temporária
-                    return render(request, 'resultado.html', {'interno': interno})
-
-            default_storage.delete(file_path)
-            return render(request, 'resultado.html', {'mensagem': 'Nenhum interno reconhecido.'})
-        else:
-            default_storage.delete(file_path)
-            return render(request, 'resultado.html', {'mensagem': 'Nenhum rosto detectado na imagem.'})
-
+    print("[DEBUG] Requisição GET recebida - exibindo página")
     return render(request, 'reconhecer_interno.html')
+
+
+def processar_imagem_da_memoria(image_stream):
+    """
+    Processa imagens JPG/JPEG para reconhecimento facial
+    Versão simplificada que rejeita outros formatos
+    """
+    print("[DEBUG] Processando imagem (versão JPG/JPEG only)")
+    try:
+        # 1. Verificar se é JPG/JPEG
+        header = image_stream.read(4)
+        image_stream.seek(0)
+
+        if not header.startswith(b'\xFF\xD8'):
+            print("[ERRO] Formato não é JPG/JPEG")
+            return {'status': 'error', 'message': 'Apenas imagens JPG/JPEG são suportadas'}
+
+        # 2. Carregar imagem
+        try:
+            pil_image = Image.open(image_stream)
+            print(f"[DEBUG] Imagem carregada. Formato: {pil_image.format}, Modo: {pil_image.mode}")
+
+            # Verificação adicional de formato
+            if pil_image.format not in ('JPEG', 'JPG'):
+                print(f"[ERRO] Formato real: {pil_image.format} (esperado JPEG/JPG)")
+                return {'status': 'error', 'message': 'Formato de arquivo inválido'}
+        except Exception as e:
+            print(f"[ERRO] Falha ao abrir imagem: {str(e)}")
+            return {'status': 'error', 'message': 'Falha ao ler imagem'}
+
+        # 3. Conversão garantida para RGB (embora JPG já deva ser RGB)
+        if pil_image.mode != 'RGB':
+            print(f"[DEBUG] Convertendo de {pil_image.mode} para RGB")
+            pil_image = pil_image.convert('RGB')
+
+        # 4. Conversão para array numpy
+        try:
+            image_array = np.array(pil_image)
+            print(f"[DEBUG] Array numpy criado. Dimensões: {image_array.shape}")
+        except Exception as e:
+            print(f"[ERRO] Falha na conversão para array: {str(e)}")
+            return {'status': 'error', 'message': 'Falha ao processar imagem'}
+
+        # 5. Detecção facial
+        try:
+            codificacoes = face_recognition.face_encodings(image_array)
+
+            if not codificacoes:
+                print("[DEBUG] Nenhum rosto detectado")
+                return {'status': 'no_face', 'message': 'Nenhum rosto detectado'}
+
+            print(f"[DEBUG] {len(codificacoes)} rosto(s) detectado(s)")
+            codificacao_desconhecida = codificacoes[0]
+        except Exception as e:
+            print(f"[ERRO] Falha na detecção facial: {str(e)}")
+            return {'status': 'error', 'message': 'Falha no reconhecimento facial'}
+
+        # 6. Busca no banco de dados
+        print("[DEBUG] Buscando internos no banco de dados...")
+        from .models import Interno
+        internos = Interno.objects.exclude(codificacao_facial__isnull=True).only(
+            'id', 'nome', 'prontuario', 'unidade', 'codificacao_facial'
+        )
+        print(f"[DEBUG] {len(internos)} internos com codificação facial")
+
+        resultados = []
+        for interno in internos:
+            try:
+                codificacao_cadastrada = json.loads(interno.codificacao_facial)
+                distancia = face_recognition.face_distance([codificacao_cadastrada], codificacao_desconhecida)[0]
+
+                if distancia < 0.6:  # Limite de similaridade
+                    resultados.append({
+                        'id': interno.id,
+                        'nome': interno.nome,
+                        'prontuario': interno.prontuario,
+                        'unidade': str(interno.unidade),
+                        'distancia': float(distancia),
+                        'status': 'recognized'
+                    })
+            except Exception as e:
+                print(f"[AVISO] Erro ao processar interno {interno.id}: {str(e)}")
+                continue
+
+
+        if resultados:
+            resultados.sort(key=lambda x: x['distancia'])
+            for resultado in resultados:
+                interno = Interno.objects.get(id=resultado['id'])
+                resultado.update({
+                    'foto_url': interno.foto.url if interno.foto else '/static/images/default-profile.png',
+                    'detalhes_url': reverse('interno:detalhes_interno', kwargs={'interno_id': interno.id})
+                })
+            print(f"[DEBUG] Melhor match: {resultados[0]['nome']} (Distância: {resultados[0]['distancia']})")
+            return {'status': 'success', 'resultados': resultados}
+
+        print("[DEBUG] Nenhum interno reconhecido")
+        return {'status': 'unknown', 'message': 'Nenhum interno reconhecido'}
+
+    except Exception as e:
+        print(f"[ERRO CRÍTICO] {str(e)}")
+        return {'status': 'error', 'message': 'Erro interno no processamento'}
+
+
+def processar_reconhecimento_rapido(request):
+    print("\n[DEBUG] Iniciando processamento rápido (AJAX)")
+    try:
+        foto_base64 = request.POST.get('imagem')
+        if not foto_base64:
+            print("[ERRO] Nenhuma imagem recebida na requisição AJAX")
+            return JsonResponse({'error': 'Nenhuma imagem recebida'}, status=400)
+
+        print("[DEBUG] Decodificando imagem base64...")
+        # Extrai apenas a parte dos dados da string base64
+        if ';base64,' in foto_base64:
+            foto_base64 = foto_base64.split(';base64,')[1]
+
+        imagem_decodificada = base64.b64decode(foto_base64)
+
+        # Processa diretamente da memória sem salvar em arquivo
+        print("[DEBUG] Processando imagem da memória...")
+        try:
+            # Cria um objeto de arquivo em memória
+            from io import BytesIO
+            image_stream = BytesIO(imagem_decodificada)
+
+            # Processa diretamente do stream
+            resultado = processar_imagem_da_memoria(image_stream)
+            print(f"[DEBUG] Resultado do processamento rápido: {resultado}")
+
+            return JsonResponse(resultado)
+
+        except Exception as e:
+            print(f"[ERRO] Falha no processamento direto: {str(e)}")
+            return JsonResponse({'error': str(e)}, status=500)
+
+    except Exception as e:
+        print(f"[ERRO] Falha no processamento rápido: {str(e)}")
+        return JsonResponse({'error': str(e)}, status=500)
+
 
 
 
 BATCH_SIZE = 1000  # Define o tamanho dos lotes
+
 
 def save_in_batches(model, instances, fields=None):
     """Salva registros em lotes para evitar erro de muitas variáveis SQL."""

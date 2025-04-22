@@ -12,7 +12,9 @@ urlpatterns = [
     path('populacao-edit/', PopulacaoEdit.as_view(), name='populacao_edit'),
     path('<int:interno_id>/cadastrar-rosto/', cadastrar_rosto, name='cadastrar_rosto'),
     path('reconhecer-interno/', reconhecer_interno, name='reconhecer_interno'),
-    path('<int:interno_id>/detalhes/', detalhes_interno, name='detalhes_interno'),  # Nova URL
+    path('<int:interno_id>/detalhes/', detalhes_interno, name='detalhes_interno'),
+
+    # Nova URL
 ]
 
 htmx_urlpatterns = [

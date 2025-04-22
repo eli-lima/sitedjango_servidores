@@ -1,317 +1,625 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block titulo %}
-Reconhecimento Facial
-{% endblock %}
+
+{% block titulo %}Reconhecimento Facial{% endblock %}
 
 {% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="bg-white rounded-lg shadow-xl overflow-hidden">
+        <!-- Cabeçalho -->
+        <div class="bg-blue-600 text-white px-6 py-4">
+            <h1 class="text-2xl font-bold">Reconhecimento Facial de Internos</h1>
+            <p class="text-blue-100">Identificação por câmera ou upload de imagem</p>
+        </div>
 
-<!-- Header Section -->
-<div class="pt-4 px-4">
-    <div class="bg-gray-800 text-white rounded-lg shadow-md p-6 mb-6">
-        <h1 class="text-2xl font-bold text-center">Reconhecimento Facial de Internos</h1>
-        <p class="mt-2 text-center text-gray-300">Capture ou envie uma foto para identificar um interno</p>
-    </div>
-</div>
-
-<!-- Main Content -->
-<div class="flex flex-col lg:flex-row gap-6 px-4 pb-6">
-    <!-- Left Column - Form -->
-    <div class="w-full lg:w-1/2 bg-white rounded-lg shadow-md p-6">
-        <form method="post" enctype="multipart/form-data" class="space-y-6">
-            {% csrf_token %}
-
-            <!-- Image Source Selection -->
-            <div class="space-y-2">
-                <h3 class="text-lg font-semibold">Selecione a fonte da imagem</h3>
-                <div class="flex flex-col sm:flex-row gap-4">
-                    <label class="flex items-center space-x-2 cursor-pointer">
-                        <input type="radio" name="fonte_imagem" value="camera" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500">
-                        <span>Usar Câmera</span>
-                    </label>
-                    <label class="flex items-center space-x-2 cursor-pointer">
-                        <input type="radio" name="fonte_imagem" value="upload" class="h-4 w-4 text-blue-600 focus:ring-blue-500">
-                        <span>Enviar Arquivo</span>
-                    </label>
-                </div>
-            </div>
-
-            <!-- Camera Section -->
-            <div id="camera-section" class="space-y-4">
-                <div id="camera-container" class="relative mx-auto w-full max-w-md">
-                    <video id="video" class="w-full h-auto rounded-lg border border-gray-300" autoplay playsinline></video>
-                    <div id="moldura" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-60 border-4 border-green-500 rounded-xl pointer-events-none"></div>
-                </div>
-
-                <div class="flex justify-center">
-                    <button type="button" id="capturar" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
-                        <i class="bi bi-camera-fill mr-2"></i> Capturar Foto
-                    </button>
-                </div>
-
-                <canvas id="canvas" class="hidden"></canvas>
-                <input type="hidden" id="foto_camera" name="foto_camera">
-            </div>
-
-            <!-- Upload Section -->
-            <div id="upload-section" class="hidden space-y-4">
-                <div class="flex items-center justify-center w-full">
-                    <label for="foto_upload" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
-                        <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                            <i class="bi bi-cloud-arrow-up text-3xl text-gray-500 mb-2"></i>
-                            <p class="text-sm text-gray-500">Clique para selecionar ou arraste uma foto</p>
-                        </div>
-                        <input id="foto_upload" name="foto_upload" type="file" class="hidden" accept="image/*">
-                    </label>
-                </div>
-
-                <div id="preview-container" class="hidden">
-                    <h4 class="text-sm font-medium text-gray-700 mb-2">Pré-visualização:</h4>
-                    <img id="preview-image" class="max-w-full h-auto rounded-lg border border-gray-300">
-                </div>
-            </div>
-
-            <!-- Submit Button -->
-            <div class="pt-4">
-                <button type="submit" class="w-full px-4 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors font-medium">
-                    <i class="bi bi-search mr-2"></i> Identificar Interno
+        <!-- Seletor de Modo -->
+        <div class="px-6 py-4 border-b border-gray-200">
+            <div class="flex space-x-4">
+                <button id="realtimeBtn" class="px-4 py-2 bg-blue-600 text-white rounded-lg">
+                    <i class="fas fa-video mr-2"></i> Tempo Real
+                </button>
+                <button id="uploadBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+                    <i class="fas fa-upload mr-2"></i> Enviar Foto
                 </button>
             </div>
-        </form>
-    </div>
-
-    <!-- Right Column - Instructions/Results -->
-    <div class="w-full lg:w-1/2 space-y-6">
-        <!-- Instructions Card -->
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <h2 class="text-xl font-semibold mb-4">Instruções para Reconhecimento</h2>
-            <ul class="space-y-3 text-gray-700">
-                <li class="flex items-start">
-                    <i class="bi bi-check-circle-fill text-green-500 mr-2 mt-1"></i>
-                    <span>Certifique-se que o rosto esteja bem iluminado e visível</span>
-                </li>
-                <li class="flex items-start">
-                    <i class="bi bi-check-circle-fill text-green-500 mr-2 mt-1"></i>
-                    <span>Posicione o rosto dentro da moldura verde</span>
-                </li>
-                <li class="flex items-start">
-                    <i class="bi bi-check-circle-fill text-green-500 mr-2 mt-1"></i>
-                    <span>Evite óculos escuros ou acessórios que cubram o rosto</span>
-                </li>
-                <li class="flex items-start">
-                    <i class="bi bi-check-circle-fill text-green-500 mr-2 mt-1"></i>
-                    <span>Para melhores resultados, use fotos recentes</span>
-                </li>
-            </ul>
         </div>
 
-        <!-- Results Card (initially hidden) -->
-        <div id="results-section" class="bg-white rounded-lg shadow-md p-6 hidden">
-            <h2 class="text-xl font-semibold mb-4">Resultado do Reconhecimento</h2>
-            <div id="results-content" class="space-y-4">
-                <!-- Results will be displayed here -->
+        <!-- Corpo principal -->
+        <div class="md:flex">
+            <!-- Coluna da câmera (modo tempo real) -->
+            <div id="realtimeSection" class="md:w-2/3 p-6">
+                <div class="relative">
+                    <video id="video" class="w-full h-auto border-2 border-gray-300 rounded-lg" autoplay playsinline></video>
+                    <div id="faceFrame" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-60 border-4 border-green-500 rounded-lg pointer-events-none hidden"></div>
+                    <canvas id="canvas" class="hidden"></canvas>
+                </div>
+
+                <div class="mt-4 flex justify-center space-x-4">
+                    <button id="startBtn" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                        <i class="fas fa-play mr-2"></i> Iniciar Reconhecimento
+                    </button>
+                    <button id="captureBtn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 hidden">
+                        <i class="fas fa-camera mr-2"></i> Capturar Foto
+                    </button>
+                </div>
+            </div>
+
+            <!-- Coluna de upload (modo upload) -->
+            <div id="uploadSection" class="md:w-2/3 p-6 hidden">
+                <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                    <div class="flex flex-col items-center justify-center">
+                        <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
+                        <p class="text-gray-600 mb-4">Arraste e solte uma foto aqui, ou</p>
+                        <label for="fileUpload" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer">
+                            <i class="fas fa-folder-open mr-2"></i> Selecionar Arquivo
+                        </label>
+                        <input type="file" id="fileUpload" accept=".jpg,.jpeg,.jpe" class="hidden">
+                    </div>
+                    <div id="uploadPreview" class="mt-4 hidden">
+                        <img id="previewImage" class="max-w-full h-auto rounded-lg border border-gray-300 mx-auto max-h-64">
+                        <button id="processUpload" class="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                            <i class="fas fa-search mr-2"></i> Identificar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coluna de resultados -->
+            <div class="md:w-1/3 bg-gray-50 p-6 border-l border-gray-200">
+                <h2 class="text-xl font-semibold mb-4">Resultados</h2>
+                <div id="resultsContainer" class="space-y-4">
+                    <div class="text-center text-gray-500 py-8">
+                        <i class="fas fa-user-circle text-4xl mb-2"></i>
+                        <p>Nenhum reconhecimento realizado</p>
+                    </div>
+                </div>
+
+                <div id="loadingIndicator" class="hidden text-center py-4">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                    <p class="mt-2 text-gray-600">Processando...</p>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Error Message -->
-{% if mensagem %}
-<div class="px-4 pb-6">
-    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded">
-        <div class="flex items-center">
-            <i class="bi bi-exclamation-triangle-fill mr-2"></i>
-            <p>{{ mensagem }}</p>
+<!-- Modal para detalhes -->
+<div id="detailModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+    <div class="bg-white rounded-lg max-w-md w-full p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-bold">Detalhes do Interno</h3>
+            <button id="closeModal" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div id="modalContent">
+            <!-- Conteúdo será preenchido via JavaScript -->
         </div>
     </div>
 </div>
-{% endif %}
 
-<!-- Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/face-api.js/dist/face-api.min.js"></script>
+<style>
+    /* Estilos existentes... */
+    #faceFrame {
+        box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.5);
+        z-index: 10;
+    }
+
+    #video {
+        transform: scaleX(-1);
+        background: #000;
+    }
+
+    /* Estilos para a área de upload */
+    #uploadSection {
+        transition: all 0.3s ease;
+    }
+
+    .drag-over {
+        background-color: #f0f9ff;
+        border-color: #3b82f6;
+    }
+</style>
+
 <script>
-    // DOM Elements
+    // Variáveis globais
+    let videoStream = null;
+    let isRecognizing = false;
+    let currentMode = 'realtime';
+    let recognitionController = null;
+    let lastStableResult = null;
+    const RECOGNITION_INTERVAL = 1000; // Intervalo de 1 segundo entre verificações
+
+    // Elementos DOM
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
-    const capturarBtn = document.getElementById('capturar');
-    const fotoCameraInput = document.getElementById('foto_camera');
-    const fotoUploadInput = document.getElementById('foto_upload');
-    const fonteImagemRadios = document.querySelectorAll('input[name="fonte_imagem"]');
-    const cameraSection = document.getElementById('camera-section');
-    const uploadSection = document.getElementById('upload-section');
-    const previewContainer = document.getElementById('preview-container');
-    const previewImage = document.getElementById('preview-image');
-    const resultsSection = document.getElementById('results-section');
-    const resultsContent = document.getElementById('results-content');
+    const faceFrame = document.getElementById('faceFrame');
+    const startBtn = document.getElementById('startBtn');
+    const captureBtn = document.getElementById('captureBtn');
+    const resultsContainer = document.getElementById('resultsContainer');
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    const detailModal = document.getElementById('detailModal');
+    const closeModal = document.getElementById('closeModal');
+    const modalContent = document.getElementById('modalContent');
+    const realtimeBtn = document.getElementById('realtimeBtn');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const realtimeSection = document.getElementById('realtimeSection');
+    const uploadSection = document.getElementById('uploadSection');
+    const fileUpload = document.getElementById('fileUpload');
+    const uploadPreview = document.getElementById('uploadPreview');
+    const previewImage = document.getElementById('previewImage');
+    const processUpload = document.getElementById('processUpload');
 
-    // Toggle between camera and upload
-    fonteImagemRadios.forEach(radio => {
-        radio.addEventListener('change', () => {
-            if (radio.value === 'camera') {
-                cameraSection.classList.remove('hidden');
-                uploadSection.classList.add('hidden');
-                previewContainer.classList.add('hidden');
-                iniciarCamera();
-            } else {
-                cameraSection.classList.add('hidden');
-                uploadSection.classList.remove('hidden');
-                pararCamera();
-            }
-        });
-    });
+    // Função para exibir erros
+    function showError(message) {
+        resultsContainer.innerHTML = `
+            <div class="text-center text-red-500 py-8">
+                <i class="fas fa-exclamation-triangle text-4xl mb-2"></i>
+                <p>${message}</p>
+                <button onclick="location.reload()" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg">
+                    <i class="fas fa-sync-alt mr-2"></i> Tentar Novamente
+                </button>
+            </div>
+        `;
+    }
 
-    // Load face-api.js models
-    async function loadModels() {
-        try {
-            await faceapi.nets.tinyFaceDetector.loadFromUri('{% static "models" %}');
-            await faceapi.nets.faceLandmark68Net.loadFromUri('{% static "models" %}');
-            await faceapi.nets.faceRecognitionNet.loadFromUri('{% static "models" %}');
-            console.log('Modelos carregados com sucesso');
-        } catch (error) {
-            console.error('Erro ao carregar modelos:', error);
+    // Alternar entre modos
+    function switchMode(mode) {
+        currentMode = mode;
+
+        if (mode === 'realtime') {
+            realtimeBtn.classList.remove('bg-gray-200', 'text-gray-700');
+            realtimeBtn.classList.add('bg-blue-600', 'text-white');
+            uploadBtn.classList.remove('bg-blue-600', 'text-white');
+            uploadBtn.classList.add('bg-gray-200', 'text-gray-700');
+
+            realtimeSection.classList.remove('hidden');
+            uploadSection.classList.add('hidden');
+            uploadPreview.classList.add('hidden');
+        } else {
+            realtimeBtn.classList.remove('bg-blue-600', 'text-white');
+            realtimeBtn.classList.add('bg-gray-200', 'text-gray-700');
+            uploadBtn.classList.remove('bg-gray-200', 'text-gray-700');
+            uploadBtn.classList.add('bg-blue-600', 'text-white');
+
+            realtimeSection.classList.add('hidden');
+            uploadSection.classList.remove('hidden');
+            stopCamera();
         }
     }
 
-    // Initialize camera
-    async function iniciarCamera() {
+    // Funções da câmera
+    async function startCamera() {
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 5000);
+
+            const constraints = {
                 video: {
-                    width: { ideal: 640 },
-                    height: { ideal: 480 },
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 },
                     facingMode: 'user'
                 }
+            };
+
+            videoStream = await navigator.mediaDevices.getUserMedia({
+                ...constraints,
+                signal: controller.signal
             });
-            video.srcObject = stream;
+
+            clearTimeout(timeout);
+            video.srcObject = videoStream;
+
+            video.onloadedmetadata = () => {
+                faceFrame.classList.remove('hidden');
+                startBtn.textContent = 'Parar Reconhecimento';
+                startBtn.classList.remove('bg-green-600');
+                startBtn.classList.add('bg-red-600');
+                captureBtn.classList.remove('hidden');
+            };
+
+            return true;
         } catch (error) {
-            console.error('Erro ao acessar a câmera:', error);
-            alert('Não foi possível acessar a câmera. Verifique as permissões.');
+            console.error('Erro ao acessar câmera:', error);
+            showError('Não foi possível acessar a câmera. Verifique as permissões.');
+            return false;
         }
     }
 
-    // Stop camera
-    function pararCamera() {
-        if (video.srcObject) {
-            const stream = video.srcObject;
-            const tracks = stream.getTracks();
-            tracks.forEach(track => track.stop());
+    function stopCamera() {
+        if (videoStream) {
+            videoStream.getTracks().forEach(track => track.stop());
             video.srcObject = null;
+            videoStream = null;
+        }
+
+        faceFrame.classList.add('hidden');
+        startBtn.textContent = 'Iniciar Reconhecimento';
+        startBtn.classList.remove('bg-red-600');
+        startBtn.classList.add('bg-green-600');
+        captureBtn.classList.add('hidden');
+        stopRecognition();
+    }
+
+    async function startRecognition() {
+        if (isRecognizing) return;
+
+        isRecognizing = true;
+        recognitionController = new AbortController();
+
+        try {
+            while (isRecognizing) {
+                try {
+                    const currentResult = await processFrame();
+
+                    if (currentResult && currentResult.status === 'success' && currentResult.resultados?.length > 0) {
+                        // Verifica se é um rosto diferente do último reconhecido
+                        if (!lastStableResult || currentResult.resultados[0].id !== lastStableResult.resultados[0].id) {
+                            lastStableResult = currentResult;
+                            displayStableResult(currentResult);
+                        }
+                    }
+                    // Não faz nada quando não detecta rosto - mantém o último resultado
+
+                    await new Promise(resolve => setTimeout(resolve, RECOGNITION_INTERVAL));
+                } catch (error) {
+                    console.error('Erro no reconhecimento:', error);
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+            }
+        } finally {
+            recognitionController = null;
+            isRecognizing = false;
         }
     }
 
-    // Capture photo
-    capturarBtn.addEventListener('click', async () => {
-        // Set canvas dimensions to match video
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-
-        // Draw video frame to canvas
-        const context = canvas.getContext('2d');
-        context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-        // Verify face framing and lighting
-        const rostoEnquadrado = await verificarEnquadramento(canvas);
-        if (rostoEnquadrado) {
-            // Convert to base64
-            const fotoBase64 = canvas.toDataURL('image/jpeg');
-            fotoCameraInput.value = fotoBase64;
-
-            // Show success message
-            alert('Foto capturada com sucesso! O rosto foi detectado corretamente.');
+    function stopRecognition() {
+        isRecognizing = false;
+        if (recognitionController) {
+            recognitionController.abort();
+            recognitionController = null;
         }
-    });
+    }
 
-    // Handle file upload preview
-    fotoUploadInput.addEventListener('change', function(e) {
-        if (this.files && this.files[0]) {
-            const reader = new FileReader();
+    async function processFrame() {
+        if (!videoStream || video.paused || video.readyState < 2) {
+            return null;
+        }
 
-            reader.onload = function(e) {
-                previewImage.src = e.target.result;
-                previewContainer.classList.remove('hidden');
+        try {
+            // Pausa brevemente para captura
+            video.pause();
 
-                // Verify the uploaded image
-                verifyUploadedImage(e.target.result);
+            // Configura canvas
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Converte para blob
+            const imageBlob = await new Promise((resolve) => {
+                canvas.toBlob(resolve, 'image/jpeg', 0.8);
+            });
+
+            // Prepara form data
+            const formData = new FormData();
+            formData.append('imagem', imageBlob, 'frame.jpg');
+            formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+            // Envia para o servidor
+            const response = await fetch(window.location.href, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData,
+                signal: recognitionController?.signal
+            });
+
+            if (!response.ok) throw new Error('Erro na resposta do servidor');
+
+            return await response.json();
+
+        } catch (error) {
+            console.error('Erro no processamento:', error);
+            return null;
+        } finally {
+            video.play();
+        }
+    }
+
+    // Exibir resultados estáveis na aba lateral
+    function displayStableResult(data) {
+        if (!data || data.status !== 'success' || !data.resultados?.length) {
+            return;
+        }
+
+        const bestMatch = data.resultados[0];
+        const confidence = (1 - bestMatch.distancia) * 100;
+
+        const newHTML = `
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="flex items-center space-x-4 mb-3">
+                    <img src="${bestMatch.foto_url || '/static/images/default-profile.png'}"
+                         alt="Foto do interno"
+                         class="w-16 h-16 rounded-full object-cover border-2 border-blue-200">
+                    <div>
+                        <h3 class="font-semibold text-lg">${bestMatch.nome}</h3>
+                        <p class="text-sm text-gray-600">Prontuário: ${bestMatch.prontuario}</p>
+                        <p class="text-sm font-medium ${confidence > 80 ? 'text-green-600' : confidence > 60 ? 'text-yellow-600' : 'text-red-600'}">
+                            Confiança: ${confidence.toFixed(1)}%
+                        </p>
+                    </div>
+                </div>
+                <div class="flex space-x-2">
+                    <button onclick="showDetailModal(${bestMatch.id})"
+                            class="flex-1 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        <i class="fas fa-info-circle mr-2"></i> Detalhes
+                    </button>
+                    <a href="/interno/${bestMatch.id}/detalhes/"
+                       class="flex-1 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-center">
+                        <i class="fas fa-id-card mr-2"></i> Ficha
+                    </a>
+                </div>
+            </div>
+        `;
+
+        if (resultsContainer.innerHTML !== newHTML) {
+            resultsContainer.innerHTML = newHTML;
+        }
+    }
+
+    // Mostrar modal com detalhes completos
+    function showDetailModal(internoId) {
+        fetch(`/interno/${internoId}/detalhes/`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Erro na requisição');
+            return response.json();
+        })
+        .then(data => {
+            const formatField = (value, defaultValue = 'Não informado') =>
+                value ? value : defaultValue;
+
+            const formatDate = (dateStr) => {
+                if (!dateStr) return 'Não informado';
+                const date = new Date(dateStr);
+                return date.toLocaleDateString('pt-BR');
+            };
+
+            modalContent.innerHTML = `
+                <div class="space-y-4">
+                    <div class="flex justify-between items-start">
+                        <h2 class="text-xl font-bold">Detalhes do Interno</h2>
+                        <button onclick="detailModal.classList.add('hidden')"
+                                class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+
+                    <div class="text-center">
+                        <img src="${data.foto_url || '/static/images/default-profile.png'}"
+                             alt="Foto do interno"
+                             class="w-24 h-24 rounded-full object-cover mx-auto mb-4 border-2 border-blue-200">
+                        <h3 class="text-xl font-bold">${data.nome}</h3>
+                        <p class="text-gray-600">Prontuário: ${data.prontuario}</p>
+                    </div>
+
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-semibold mb-2">Informações Pessoais</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-sm text-gray-500">Nome da Mãe</p>
+                                <p>${formatField(data.nome_mae)}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Data de Nascimento</p>
+                                <p>${formatDate(data.data_nascimento)}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">CPF</p>
+                                <p>${formatField(data.cpf)}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-semibold mb-2">Informações do Internamento</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-sm text-gray-500">Unidade</p>
+                                <p>${formatField(data.unidade)}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Status</p>
+                                <p>${formatField(data.status)}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex space-x-2">
+                        <a href="/interno/${data.id}/detalhes/"
+                           class="flex-1 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-center">
+                            <i class="fas fa-id-card mr-2"></i> Ver Ficha Completa
+                        </a>
+                        <button onclick="detailModal.classList.add('hidden')"
+                                class="flex-1 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+                            <i class="fas fa-times mr-2"></i> Fechar
+                        </button>
+                    </div>
+                </div>
+            `;
+            detailModal.classList.remove('hidden');
+        })
+        .catch(error => {
+            console.error('Erro ao carregar detalhes:', error);
+            modalContent.innerHTML = `
+                <div class="text-center text-red-500 py-8">
+                    <i class="fas fa-exclamation-triangle text-4xl mb-2"></i>
+                    <p>Erro ao carregar detalhes</p>
+                    <p class="text-sm mt-2">${error.message}</p>
+                    <button onclick="detailModal.classList.add('hidden')"
+                            class="mt-4 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg">
+                        Fechar
+                    </button>
+                </div>
+            `;
+            detailModal.classList.remove('hidden');
+        });
+    }
+
+    // Funções de upload
+    function checkImageQuality(imageSrc, minWidth = 320, minHeight = 240) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => {
+                const isQualityOK = img.width >= minWidth && img.height >= minHeight;
+                resolve(isQualityOK);
+            };
+            img.onerror = () => resolve(false);
+            img.src = imageSrc;
+        });
+    }
+
+    function handleFileSelect(file) {
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            const isQualityOK = await checkImageQuality(e.target.result);
+            if (!isQualityOK) {
+                alert('A imagem é muito pequena ou inválida. Por favor, use uma imagem com maior resolução.');
+                return;
+            }
+            previewImage.src = e.target.result;
+            uploadPreview.classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+    }
+
+    async function processUploadedImage() {
+        if (!previewImage.src || !fileUpload.files[0]) return;
+
+        loadingIndicator.classList.remove('hidden');
+        resultsContainer.classList.add('hidden');
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+        try {
+            const formData = new FormData();
+            formData.append('foto_upload', fileUpload.files[0]);
+            formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+            const response = await fetch(window.location.href, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData,
+                signal: controller.signal
+            });
+
+            clearTimeout(timeoutId);
+
+            if (!response.ok) throw new Error('Erro na resposta do servidor');
+
+            const data = await response.json();
+            lastStableResult = data;
+            displayStableResult(data);
+
+        } catch (error) {
+            clearTimeout(timeoutId);
+            console.error('Erro no upload:', error);
+
+            let errorMessage = 'Erro ao processar imagem enviada';
+            if (error.name === 'AbortError') {
+                errorMessage = 'Tempo limite excedido no processamento';
             }
 
-            reader.readAsDataURL(this.files[0]);
+            showError(errorMessage);
+        } finally {
+            loadingIndicator.classList.add('hidden');
+            resultsContainer.classList.remove('hidden');
+        }
+    }
+
+    // Event Listeners
+    startBtn.addEventListener('click', async () => {
+        if (videoStream) {
+            stopCamera();
+        } else {
+            const started = await startCamera();
+            if (started) startRecognition();
         }
     });
 
-    // Verify uploaded image
-    async function verifyUploadedImage(imageData) {
-        const img = new Image();
-        img.src = imageData;
+    captureBtn.addEventListener('click', async () => {
+        if (!videoStream) return;
 
-        img.onload = async function() {
-            // Create a temporary canvas to analyze the image
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = img.width;
-            tempCanvas.height = img.height;
-            const tempCtx = tempCanvas.getContext('2d');
-            tempCtx.drawImage(img, 0, 0);
+        captureBtn.disabled = true;
+        captureBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processando...';
 
-            await verificarEnquadramento(tempCanvas);
+        try {
+            const result = await processFrame();
+            if (result) {
+                lastStableResult = result;
+                displayStableResult(result);
+            }
+        } catch (error) {
+            console.error('Erro na captura:', error);
+            showError('Erro ao capturar imagem');
+        } finally {
+            captureBtn.disabled = false;
+            captureBtn.innerHTML = '<i class="fas fa-camera mr-2"></i> Capturar Foto';
         }
-    }
+    });
 
-    // Verify face framing and lighting
-    async function verificarEnquadramento(canvas) {
-        await loadModels();
+    closeModal.addEventListener('click', () => {
+        detailModal.classList.add('hidden');
+    });
 
-        const options = new faceapi.TinyFaceDetectorOptions({
-            inputSize: 512,
-            scoreThreshold: 0.5
-        });
+    realtimeBtn.addEventListener('click', () => switchMode('realtime'));
+    uploadBtn.addEventListener('click', () => switchMode('upload'));
 
-        // Detect faces
-        const detections = await faceapi.detectAllFaces(canvas, options)
-            .withFaceLandmarks()
-            .withFaceDescriptors();
+    fileUpload.addEventListener('change', (e) => {
+        if (e.target.files?.length) handleFileSelect(e.target.files[0]);
+    });
 
-        if (detections.length === 0) {
-            alert('Nenhum rosto detectado na imagem. Por favor, tente novamente.');
-            return false;
-        }
+    processUpload.addEventListener('click', processUploadedImage);
 
-        if (detections.length > 1) {
-            alert('Mais de um rosto detectado. Por favor, capture apenas uma pessoa por vez.');
-            return false;
-        }
+    uploadSection.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadSection.querySelector('div').classList.add('drag-over');
+    });
 
-        // Check lighting (simplified)
-        const imageData = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height);
-        const data = imageData.data;
+    uploadSection.addEventListener('dragleave', () => {
+        uploadSection.querySelector('div').classList.remove('drag-over');
+    });
 
-        let brilhoTotal = 0;
-        for (let i = 0; i < data.length; i += 4) {
-            brilhoTotal += (data[i] + data[i+1] + data[i+2]) / 3;
-        }
+    uploadSection.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadSection.querySelector('div').classList.remove('drag-over');
+        if (e.dataTransfer.files?.length) handleFileSelect(e.dataTransfer.files[0]);
+    });
 
-        const brilhoMedio = brilhoTotal / (data.length / 4);
-
-        if (brilhoMedio < 50) {
-            alert('A iluminação está muito baixa. Por favor, melhore a iluminação e tente novamente.');
-            return false;
-        }
-
-        return true;
-    }
-
-    // Initialize camera on page load if camera option is selected
+    // Inicialização
     document.addEventListener('DOMContentLoaded', () => {
-        if (document.querySelector('input[name="fonte_imagem"]:checked').value === 'camera') {
-            iniciarCamera();
+        switchMode('realtime');
+
+        if (!navigator.mediaDevices?.getUserMedia) {
+            startBtn.disabled = true;
+            startBtn.textContent = 'Câmera não suportada';
+            startBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
+            switchMode('upload');
         }
-
-        // Load models when page loads
-        loadModels();
     });
 
-    // Clean up camera when leaving page
-    window.addEventListener('beforeunload', () => {
-        pararCamera();
-    });
+    // Expor funções para o HTML
+    window.showDetailModal = showDetailModal;
+    window.showError = showError;
 </script>
+
 
 {% endblock %}
