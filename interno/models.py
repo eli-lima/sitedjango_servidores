@@ -2,9 +2,26 @@ from django.db import models
 from seappb.models import Unidade, Usuario
 from gestao_prisional.models import OcorrenciaPlantao
 from datetime import datetime
+from django.utils.deconstruct import deconstructible
+import os
 
 
-# Create your models here.
+@deconstructible
+class PathAndRename:
+    def __init__(self, sub_folder):
+        self.sub_folder = sub_folder
+
+    def __call__(self, instance, filename):
+        # Usa o ID e nome do interno para criar uma pasta única
+        id_nome = f"{instance.id}_{instance.nome}"
+        # Garante que o nome do arquivo seja seguro
+        filename = os.path.basename(filename)
+        # Gera o caminho completo onde a imagem será salva
+        return os.path.join(self.sub_folder, id_nome, filename)
+
+
+# Instancia a função de caminho de upload
+upload_to = PathAndRename('internos_fotos')
 
 
 class Interno(models.Model):
@@ -16,10 +33,10 @@ class Interno(models.Model):
     status = models.CharField(max_length=50, blank=True, null=True)
     data_extracao = models.DateField()
     codificacao_facial = models.TextField(blank=True, null=True)  # Armazena a codificação facial como JSON
-    foto = models.ImageField(upload_to='internos_fotos/', blank=True, null=True)  # Novo campo para a foto
+    foto = models.ImageField(upload_to=upload_to, blank=True, null=True)  # Usando a função de upload personalizada
 
     def __str__(self):
-        return f"{self.nome}"
+        return f"{self.nome} (Prontuário: {self.prontuario})"
 
 
 class PopulacaoCarceraria(models.Model):
