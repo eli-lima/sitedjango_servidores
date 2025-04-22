@@ -1,17 +1,19 @@
-//codigo da navbar ao rolar a pagina
+// Código da navbar ao rolar a página
+const nav = document.querySelector('nav');
 
-const nav = document.querySelector('nav')
-
-        document.addEventListener("scroll",e=>{
-            if(scrollY>100){
-                if(scrollY>window.innerHeight){
-                nav.classList.add('invisible')
-            }else{
-
-                nav.classList.remove('invisible')
+document.addEventListener("scroll", e => {
+    // Verifica se é mobile (telas menores que 768px)
+    if (window.innerWidth < 768) {
+        if (scrollY > 100) {
+            if (scrollY > window.innerHeight) {
+                nav.classList.add('invisible');
+            } else {
+                nav.classList.remove('invisible');
             }
-            }
-        })
+        }
+    }
+    // Em desktop não faz nada - navbar sempre visível
+});
 
 
 
