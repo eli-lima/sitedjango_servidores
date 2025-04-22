@@ -20,6 +20,7 @@ class PathAndRename:
         # Gera o caminho completo onde a imagem será salva
         return os.path.join(self.sub_folder, matricula, filename)
 
+
 # Instancia a função de caminho de upload
 upload_to = PathAndRename('imagens_servidor')
 

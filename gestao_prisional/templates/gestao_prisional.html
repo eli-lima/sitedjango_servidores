@@ -239,47 +239,64 @@ Gestão de Unidade Prisional
 
         <!-- Table Filters -->
         <div class="p-4 bg-gray-50">
-            <form method="GET" class="flex flex-col sm:flex-row gap-4">
-                <input
-                    class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
-                    type="text"
-                    name="prontuario"
-                    placeholder="Prontuário..."
-                    value="{{ request.GET.prontuario }}"
-                    hx-get="{% url 'interno:interno_list' %}"
-                    hx-trigger="keyup delay:500ms"
-                    hx-target="#content2"
-                >
-                <input
-                    class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
-                    type="text"
-                    name="cpf"
-                    placeholder="CPF..."
-                    value="{{ request.GET.cpf }}"
-                    hx-get="{% url 'interno:interno_list' %}"
-                    hx-trigger="keyup delay:500ms"
-                    hx-target="#content2"
-                >
-                <input
-                    class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
-                    type="text"
-                    name="nome_mae"
-                    placeholder="Nome da Mãe..."
-                    value="{{ request.GET.nome_mae }}"
-                    hx-get="{% url 'interno:interno_list' %}"
-                    hx-trigger="keyup delay:500ms"
-                    hx-target="#content2"
-                >
-                <input
-                    type="text"
-                    name="query"
-                    class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
-                    placeholder="Pesquisar..."
-                    value="{{ request.GET.query }}"
-                    hx-get="{% url 'interno:interno_list' %}"
-                    hx-trigger="keyup delay:500ms"
-                    hx-target="#content2"
-                >
+            <form method="GET" onsubmit="return false;">
+                <div class="mt-4 px-0 flex flex-row justify-between w-full">
+                    <div class="flex flex-row">
+                        <!-- Campo Prontuario -->
+                        <input
+                            class="form-input w-full sm:w-auto sm:ml-4 p-1.5 rounded-md border-1 border-gray-600"
+                            type="text"
+                            name="prontuario"
+                            id="prontuario"
+                            value="{{ request.GET.nome_mae }}"
+                            placeholder="Prontuario..."
+                            hx-get="{% url 'interno:interno_list' %}"
+                            hx-trigger="keyup delay:500ms"
+                            hx-target="#content2"
+                            hx-include="[name='prontuario'], [name='cpf'], [name='nome_mae'], [name='query']"
+                        />
+                        <!-- Campo CPF -->
+                        <input
+                            class="form-input w-full sm:w-auto sm:ml-4 p-1.5 rounded-md border-1 border-gray-600"
+                            type="text"
+                            name="cpf"
+                            id="cpf"
+                            value="{{ request.GET.cpf }}"
+                            placeholder="CPF..."
+                            hx-get="{% url 'interno:interno_list' %}"
+                            hx-trigger="keyup delay:500ms"
+                            hx-target="#content2"
+                            hx-include="[name='cpf'], [name='nome_mae'], [name='query']"
+                        />
+
+                        <!-- Campo Nome da Mãe -->
+                        <input
+                            class="form-input w-full sm:w-auto sm:ml-4 p-1.5 rounded-md border-1 border-gray-600"
+                            type="text"
+                            name="nome_mae"
+                            id="nome_mae"
+                            value="{{ request.GET.nome_mae }}"
+                            placeholder="Nome da Mãe..."
+                            hx-get="{% url 'interno:interno_list' %}"
+                            hx-trigger="keyup delay:500ms"
+                            hx-target="#content2"
+                            hx-include="[name='cpf'], [name='nome_mae'], [name='query']"
+                        />
+
+                        <!-- Campo Pesquisa Geral -->
+                        <input
+                            type="text"
+                            name="query"
+                            class="form-input w-full sm:w-auto sm:ml-4 p-1.5 rounded-md border-1 border-gray-600"
+                            placeholder="Pesquisar..."
+                            value="{{ request.GET.query }}"
+                            hx-get="{% url 'interno:interno_list' %}"
+                            hx-trigger="keyup delay:500ms"
+                            hx-target="#content2"
+                            hx-include="[name='cpf'], [name='nome_mae'], [name='query']"
+                        />
+                    </div>
+                </div>
             </form>
         </div>
 
@@ -332,15 +349,15 @@ Gestão de Unidade Prisional
 </div>
 
 <script>
+    // Debug dos dados
     console.log("Bar Labels JSON:", {{ bar_labels|safe }});
     console.log("Bar Values JSON:", {{ bar_values|safe }});
 </script>
 
-
 <script>
     // Gráfico de Barras - População Prisional por reisp
-    var ctxBar = document.getElementById('chart-bar-reisp').getContext('2d');
-    var barChart = new Chart(ctxBar, {
+    var ctxBarReisp = document.getElementById('chart-bar-reisp').getContext('2d');
+    var barChartReisp = new Chart(ctxBarReisp, {
         type: 'bar',
         data: {
             labels: {{ bar_labels_reisp|safe }},
@@ -354,7 +371,6 @@ Gestão de Unidade Prisional
             }]
         },
         options: {
-
             responsive: true,
             maintainAspectRatio: false,
             scales: {
@@ -363,16 +379,12 @@ Gestão de Unidade Prisional
             }
         }
     });
-
-
-
-
 </script>
 
 <script>
     // Gráfico de Barras - População Prisional mensal
-    var ctxBar = document.getElementById('chart-bar-mensal').getContext('2d');
-    var barChart = new Chart(ctxBar, {
+    var ctxBarMensal = document.getElementById('chart-bar-mensal').getContext('2d');
+    var barChartMensal = new Chart(ctxBarMensal, {
         type: 'bar',
         data: {
             labels: {{ bar_labels_mensal|safe }},
@@ -386,7 +398,6 @@ Gestão de Unidade Prisional
             }]
         },
         options: {
-
             responsive: true,
             maintainAspectRatio: false,
             scales: {
@@ -395,118 +406,79 @@ Gestão de Unidade Prisional
             }
         }
     });
-
-
-
-
 </script>
-
-
 
 <script>
     // Gráfico de Barras - População Prisional por unidade
-var ctxBar = document.getElementById('chart-bar-populacao').getContext('2d');
-var barChart = new Chart(ctxBar, {
-    type: 'bar',
-    data: {
-        labels: {{ bar_labels|safe }},
-        datasets: [{
-            label: 'População por Unidade',
-            data: {{ bar_values|safe }},
-            backgroundColor: 'rgba(210, 0, 0, 1)',
-            borderColor: 'rgba(210, 0, 0, 1)',
-            borderWidth: 2,
-            borderRadius: 4
-        }]
-    },
-    options: {
-        indexAxis: 'y',
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-            x: {
-                grid: { display: false },
-                ticks: {
-                    font: {
-                        size: 12 // tamanho da fonte do eixo X
-                    }
-                }
-            },
-            y: {
-                beginAtZero: true,
-                grid: { display: false },
-                ticks: {
-                    font: {
-                        size: 8 // tamanho da fonte do eixo Y
-                    }
-                }
-            }
+    var ctxBarPopulacao = document.getElementById('chart-bar-populacao').getContext('2d');
+    var barChartPopulacao = new Chart(ctxBarPopulacao, {
+        type: 'bar',
+        data: {
+            labels: {{ bar_labels|safe }},
+            datasets: [{
+                label: 'População por Unidade',
+                data: {{ bar_values|safe }},
+                backgroundColor: 'rgba(210, 0, 0, 1)',
+                borderColor: 'rgba(210, 0, 0, 1)',
+                borderWidth: 2,
+                borderRadius: 4
+            }]
         },
-        plugins: {
-            legend: {
-                labels: {
-                    font: {
-                        size: 14 // tamanho da legenda
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: {
+                        font: { size: 12 }
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: { display: false },
+                    ticks: {
+                        font: { size: 8 }
                     }
                 }
             },
-            tooltip: {
-                titleFont: { size: 14 },
-                bodyFont: { size: 12 }
+            plugins: {
+                legend: {
+                    labels: {
+                        font: { size: 14 }
+                    }
+                },
+                tooltip: {
+                    titleFont: { size: 14 },
+                    bodyFont: { size: 12 }
+                }
             }
         }
-    }
-});
+    });
 
-
-<!--// Gráfico de Pizza - Gênero-->
-<!--var ctxPie = document.getElementById('genero-pizza').getContext('2d');-->
-<!--var pieChart = new Chart(ctxPie, {-->
-<!--    type: 'pie',-->
-<!--    data: {-->
-<!--        labels: {{ pie_labels|safe }},-->
-<!--        datasets: [{-->
-<!--            data: {{ pie_values|safe }},-->
-<!--            backgroundColor: [-->
-<!--                'rgba(54, 162, 235, 1)',  // Azul-->
-<!--                'rgba(255, 99, 132, 1)',   // Vermelho-->
-<!--                'rgba(201, 203, 207, 1)'   // Cinza-->
-<!--            ],-->
-<!--            borderWidth: 2-->
-<!--        }]-->
-<!--    },-->
-<!--    options: {-->
-<!--        responsive: true,-->
-<!--        maintainAspectRatio: false,-->
-<!--        plugins: {-->
-<!--            legend: {-->
-<!--                position: 'bottom'-->
-<!--            }-->
-<!--        }-->
-<!--    }-->
-<!--});-->
-
-// Comportamento das linhas clicáveis
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.clickable-row').forEach(row => {
-        row.addEventListener('click', (event) => {
-            if (!event.target.tagName === 'A') {
-                window.location.href = row.dataset.href;
-            }
+    // Comportamento das linhas clicáveis
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.clickable-row').forEach(row => {
+            row.addEventListener('click', (event) => {
+                if (event.target.tagName !== 'A') {
+                    window.location.href = row.dataset.href;
+                }
+            });
         });
     });
-});
 
-document.addEventListener('htmx:afterSwap', function() {
-    document.querySelectorAll('.clickable-row').forEach(row => {
-        row.addEventListener('click', (event) => {
-            if (!event.target.tagName === 'A') {
-                window.location.href = row.dataset.href;
-            }
+    document.addEventListener('htmx:afterSwap', function() {
+        document.querySelectorAll('.clickable-row').forEach(row => {
+            row.addEventListener('click', (event) => {
+                if (event.target.tagName !== 'A') {
+                    window.location.href = row.dataset.href;
+                }
+            });
         });
     });
-});
 </script>
+
 
 
 
