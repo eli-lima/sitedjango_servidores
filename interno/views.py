@@ -62,104 +62,163 @@ def detalhes_interno(request, interno_id):
 
 @csrf_exempt
 def cadastrar_rosto(request, interno_id):
-    print(f"\n\n=== INICIANDO CADASTRO DE ROSTO PARA INTERNO {interno_id} ===")
+    # Verificar dependências
+    try:
+        import cv2
+        OPENCV_AVAILABLE = True
+    except ImportError:
+        OPENCV_AVAILABLE = False
+        from PIL import Image
+        import io
+        import numpy as np
+
     interno = get_object_or_404(Interno, id=interno_id)
 
+    print(f"\n=== INÍCIO DO PROCESSAMENTO ===")
+    print(f"OpenCV disponível: {OPENCV_AVAILABLE}")
+    print(f"Registrando rosto para o interno: {interno.nome} (ID: {interno_id})")
+
     if request.method == 'POST':
-        print("\n[1] Request POST recebido")
-        try:
-            fonte_imagem = request.POST.get('fonte_imagem')
-            print(f"[2] Fonte da imagem: {fonte_imagem}")
+        fonte_imagem = request.POST.get('fonte_imagem')
+        print(f"Fonte da imagem: {fonte_imagem}")
 
-            if fonte_imagem == 'camera':
-                print("[3] Processando imagem da câmera")
-                foto_base64 = request.POST.get('foto_camera')
-                print(f"[4] Tamanho do base64 recebido: {len(foto_base64) if foto_base64 else 'VAZIO'}")
+        if fonte_imagem == 'camera':
+            print("Processando imagem da câmera...")
+            foto_base64 = request.POST.get('foto_camera')
+            if foto_base64:
+                try:
+                    formato, imagem_base64 = foto_base64.split(';base64,')
+                    if 'image/jpeg' not in formato.lower() and 'image/jpg' not in formato.lower():
+                        print("Erro: Formato de imagem não suportado")
+                        return render(request, 'cadastrar_rosto.html', {
+                            'interno': interno,
+                            'mensagem': 'Formato de imagem não suportado. Use apenas JPG/JPEG.'
+                        })
 
-                if foto_base64:
-                    try:
-                        formato, imagem_base64 = foto_base64.split(';base64,')
-                        extensao = formato.split('/')[-1]
-                        print(f"[5] Extensão detectada: {extensao}")
-
-                        imagem_decodificada = base64.b64decode(imagem_base64)
-                        print("[6] Imagem decodificada com sucesso")
-
-                        file_name = f"temp_foto_{interno_id}.{extensao}"
-                        file_path = default_storage.save(file_name, ContentFile(imagem_decodificada))
-                        print(f"[7] Arquivo temporário salvo em: {file_path}")
-                    except Exception as e:
-                        print(f"[ERRO] Falha ao processar imagem base64: {str(e)}")
-                        return render(request, 'cadastrar_rosto.html',
-                                      {'interno': interno, 'mensagem': f'Erro ao processar imagem: {str(e)}'})
-                else:
-                    print("[ERRO] Nenhuma imagem base64 recebida")
-                    return render(request, 'cadastrar_rosto.html',
-                                  {'interno': interno, 'mensagem': 'Nenhuma imagem foi capturada.'})
+                    print("Decodificando imagem base64...")
+                    imagem_decodificada = base64.b64decode(imagem_base64)
+                    file_name = "temp_foto.jpg"
+                    file_path = default_storage.save(file_name, ContentFile(imagem_decodificada))
+                    print(f"Imagem temporária salva em: {file_path}")
+                except Exception as e:
+                    print(f"Erro ao processar imagem da câmera: {str(e)}")
+                    return render(request, 'cadastrar_rosto.html', {
+                        'interno': interno,
+                        'mensagem': 'Erro ao processar imagem da câmera.'
+                    })
             else:
-                print("[3] Processando upload de arquivo")
-                if 'foto_upload' in request.FILES:
-                    foto = request.FILES['foto_upload']
-                    print(f"[4] Arquivo recebido: {foto.name} ({foto.size} bytes)")
+                print("Erro: Nenhuma imagem foi capturada")
+                return render(request, 'cadastrar_rosto.html', {
+                    'interno': interno,
+                    'mensagem': 'Nenhuma imagem foi capturada.'
+                })
+        else:
+            print("Processando upload de arquivo...")
+            if 'foto_upload' in request.FILES:
+                foto = request.FILES['foto_upload']
+                # Verificar extensão do arquivo
+                valid_extensions = ['.jpg', '.jpeg']
+                if not any(foto.name.lower().endswith(ext) for ext in valid_extensions):
+                    print("Erro: Formato de arquivo não suportado")
+                    return render(request, 'cadastrar_rosto.html', {
+                        'interno': interno,
+                        'mensagem': 'Formato de arquivo não suportado. Use apenas JPG/JPEG.'
+                    })
 
-                    file_name = default_storage.save(f"temp_upload_{interno_id}_{foto.name}", foto)
-                    file_path = default_storage.path(file_name)
-                    print(f"[5] Arquivo temporário salvo em: {file_path}")
+                file_name = default_storage.save(foto.name, foto)
+                file_path = default_storage.path(file_name)
+                print(f"Arquivo salvo temporariamente em: {file_path}")
+            else:
+                print("Erro: Nenhum arquivo foi enviado")
+                return render(request, 'cadastrar_rosto.html', {
+                    'interno': interno,
+                    'mensagem': 'Nenhum arquivo foi enviado.'
+                })
+
+        try:
+            print("\nCarregando imagem para detecção facial...")
+
+            if OPENCV_AVAILABLE:
+                # Processamento com OpenCV
+                img = cv2.imread(default_storage.path(file_path))
+                print(f"Dimensões originais (OpenCV): {img.shape}")
+
+                max_width = 1000
+                max_height = 1000
+                height, width = img.shape[:2]
+                if width > max_width or height > max_height:
+                    print("Redimensionando imagem grande com OpenCV...")
+                    scale = min(max_width / width, max_height / height)
+                    new_width = int(width * scale)
+                    new_height = int(height * scale)
+                    img = cv2.resize(img, (new_width, new_height), interpolation=cv2.INTER_AREA)
+                    print(f"Novas dimensões: {img.shape}")
+
+                    resized_path = default_storage.path("resized_" + file_name)
+                    cv2.imwrite(resized_path, img)
+                    file_path = resized_path
+
+                rgb_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            else:
+                # Fallback com PIL
+                img = Image.open(default_storage.path(file_path))
+                print(f"Dimensões originais (PIL): {img.width}x{img.height}")
+
+                max_width = 1000
+                max_height = 1000
+                if img.width > max_width or img.height > max_height:
+                    print("Redimensionando imagem grande com PIL...")
+                    img.thumbnail((max_width, max_height))
+                    print(f"Novas dimensões: {img.width}x{img.height}")
+
+                    buffer = io.BytesIO()
+                    img.save(buffer, format="JPEG", quality=85)
+                    img = Image.open(buffer)
+                    resized_path = default_storage.path("resized_" + file_name)
+                    img.save(resized_path)
+                    file_path = resized_path
+
+                rgb_img = np.array(img)
+
+            print("Detectando rostos...")
+            codificacoes = face_recognition.face_encodings(rgb_img)
+            print(f"Número de rostos detectados: {len(codificacoes)}")
+
+            if len(codificacoes) > 0:
+                codificacao = codificacoes[0]
+                print("Rosto detectado com sucesso. Salvando codificação...")
+
+                interno.codificacao_facial = json.dumps(codificacao.tolist())
+
+                if fonte_imagem == 'camera':
+                    nome_arquivo = f"foto_{interno.id}.jpg"
+                    interno.foto.save(nome_arquivo, ContentFile(imagem_decodificada))
                 else:
-                    print("[ERRO] Nenhum arquivo recebido no upload")
-                    return render(request, 'cadastrar_rosto.html',
-                                  {'interno': interno, 'mensagem': 'Nenhum arquivo foi enviado.'})
+                    interno.foto.save(foto.name, foto)
 
-            # Carrega a imagem e gera a codificação facial
-            print("[8] Iniciando detecção facial")
-            try:
-                full_path = default_storage.path(file_path)
-                print(f"[9] Caminho completo do arquivo: {full_path}")
+                interno.save()
+                print("Dados do rosto salvos com sucesso!")
 
-                imagem = face_recognition.load_image_file(full_path)
-                print("[10] Imagem carregada com sucesso")
+                default_storage.delete(file_path)
+                print("Arquivo temporário removido")
 
-                codificacoes = face_recognition.face_encodings(imagem)
-                print(f"[11] Número de rostos detectados: {len(codificacoes)}")
-
-                if len(codificacoes) > 0:
-                    codificacao = codificacoes[0]
-                    interno.codificacao_facial = json.dumps(codificacao.tolist())
-                    print("[12] Codificação facial convertida para JSON")
-
-                    if fonte_imagem == 'camera':
-                        interno.foto.save(f"foto_{interno.id}.{extensao}", ContentFile(imagem_decodificada))
-                        print("[13] Foto da câmera salva no modelo")
-                    else:
-                        interno.foto.save(foto.name, foto)
-                        print("[13] Foto do upload salva no modelo")
-
-                    interno.save()
-                    default_storage.delete(file_path)
-                    print("[14] Imagem temporária removida - Processo concluído com sucesso!")
-                    return redirect('interno:detalhes_interno', interno_id=interno.id)
-                else:
-                    default_storage.delete(file_path)
-                    print("[ERRO] Nenhum rosto detectado na imagem")
-                    return render(request, 'cadastrar_rosto.html',
-                                  {'interno': interno, 'mensagem': 'Nenhum rosto detectado na imagem.'})
-
-            except Exception as e:
-                print(f"[ERRO CRÍTICO] Durante detecção facial: {str(e)}")
-                if 'file_path' in locals():
-                    try:
-                        default_storage.delete(file_path)
-                        print("[LIMPEZA] Arquivo temporário removido após erro")
-                    except:
-                        print("[AVISO] Não foi possível remover o arquivo temporário")
-                return render(request, 'cadastrar_rosto.html',
-                              {'interno': interno, 'mensagem': f'Erro durante o processamento: {str(e)}'})
-
+                return redirect('interno:detalhes_interno', interno_id=interno.id)
+            else:
+                print("AVISO: Nenhum rosto detectado na imagem")
+                default_storage.delete(file_path)
+                return render(request, 'cadastrar_rosto.html', {
+                    'interno': interno,
+                    'mensagem': 'Nenhum rosto detectado na imagem. Certifique-se que o rosto está visível e bem iluminado.'
+                })
         except Exception as e:
-            print(f"[ERRO GRAVE] No processamento geral: {str(e)}")
-            return render(request, 'cadastrar_rosto.html',
-                          {'interno': interno, 'mensagem': f'Erro inesperado: {str(e)}'})
+            print(f"ERRO durante o processamento facial: {str(e)}")
+            default_storage.delete(file_path)
+            return render(request, 'cadastrar_rosto.html', {
+                'interno': interno,
+                'mensagem': f'Erro durante o processamento: {str(e)}'
+            })
 
+    print("Renderizando página inicial de cadastro")
     return render(request, 'cadastrar_rosto.html', {'interno': interno})
 
 

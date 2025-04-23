@@ -31,7 +31,7 @@ Cadastrar Rosto - {{ interno.nome }}
                     </label>
                     <label class="flex items-center space-x-2 cursor-pointer">
                         <input type="radio" name="fonte_imagem" value="upload" class="h-4 w-4 text-blue-600 focus:ring-blue-500">
-                        <span>Enviar Arquivo</span>
+                        <span>Enviar Arquivo (somente JPG/JPEG)</span>
                     </label>
                 </div>
             </div>
@@ -43,10 +43,19 @@ Cadastrar Rosto - {{ interno.nome }}
                     <div id="moldura" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-60 border-4 border-green-500 rounded-xl pointer-events-none"></div>
                 </div>
 
-                <div class="flex justify-center">
+                <div class="flex justify-center gap-4">
                     <button type="button" id="capturar" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
                         <i class="bi bi-camera-fill mr-2"></i> Capturar Foto
                     </button>
+                    <button type="button" id="reiniciar" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors">
+                        <i class="bi bi-arrow-repeat mr-2"></i> Reiniciar
+                    </button>
+                </div>
+
+                <div id="preview-camera" class="hidden">
+                    <h4 class="text-sm font-medium text-gray-700 mb-2">Pré-visualização:</h4>
+                    <img id="foto-preview" class="max-w-full h-auto rounded-lg border border-gray-300">
+                    <p id="resolucao-info" class="text-xs text-gray-500 mt-1"></p>
                 </div>
 
                 <canvas id="canvas" class="hidden"></canvas>
@@ -60,14 +69,16 @@ Cadastrar Rosto - {{ interno.nome }}
                         <div class="flex flex-col items-center justify-center pt-5 pb-6">
                             <i class="bi bi-cloud-arrow-up text-3xl text-gray-500 mb-2"></i>
                             <p class="text-sm text-gray-500">Clique para selecionar ou arraste uma foto</p>
+                            <p class="text-xs text-gray-400 mt-1">Formatos aceitos: .jpg, .jpeg</p>
                         </div>
-                        <input id="foto_upload" name="foto_upload" type="file" class="hidden" accept="image/*">
+                        <input id="foto_upload" name="foto_upload" type="file" class="hidden" accept="image/jpeg, image/jpg">
                     </label>
                 </div>
 
                 <div id="preview-container" class="hidden">
                     <h4 class="text-sm font-medium text-gray-700 mb-2">Pré-visualização:</h4>
                     <img id="preview-image" class="max-w-full h-auto rounded-lg border border-gray-300">
+                    <p id="upload-resolucao-info" class="text-xs text-gray-500 mt-1"></p>
                 </div>
             </div>
 
@@ -129,6 +140,10 @@ Cadastrar Rosto - {{ interno.nome }}
                     <i class="bi bi-check-circle-fill text-green-500 mr-2 mt-1"></i>
                     <span>Use fotos recentes para melhor reconhecimento</span>
                 </li>
+                <li class="flex items-start">
+                    <i class="bi bi-check-circle-fill text-green-500 mr-2 mt-1"></i>
+                    <span>Formatos aceitos: apenas imagens JPG/JPEG</span>
+                </li>
             </ul>
         </div>
     </div>
@@ -153,6 +168,7 @@ Cadastrar Rosto - {{ interno.nome }}
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
     const capturarBtn = document.getElementById('capturar');
+    const reiniciarBtn = document.getElementById('reiniciar');
     const fotoCameraInput = document.getElementById('foto_camera');
     const fotoUploadInput = document.getElementById('foto_upload');
     const fonteImagemRadios = document.querySelectorAll('input[name="fonte_imagem"]');
@@ -160,6 +176,15 @@ Cadastrar Rosto - {{ interno.nome }}
     const uploadSection = document.getElementById('upload-section');
     const previewContainer = document.getElementById('preview-container');
     const previewImage = document.getElementById('preview-image');
+    const previewCamera = document.getElementById('preview-camera');
+    const fotoPreview = document.getElementById('foto-preview');
+    const resolucaoInfo = document.getElementById('resolucao-info');
+    const uploadResolucaoInfo = document.getElementById('upload-resolucao-info');
+
+    // Configuration
+    const MAX_WIDTH = 1000;
+    const MAX_HEIGHT = 1000;
+    const JPEG_QUALITY = 0.85;
 
     // Toggle between camera and upload
     fonteImagemRadios.forEach(radio => {
@@ -180,22 +205,25 @@ Cadastrar Rosto - {{ interno.nome }}
     // Load face-api.js models
     async function loadModels() {
         try {
+            console.log('Carregando modelos de reconhecimento facial...');
             await faceapi.nets.tinyFaceDetector.loadFromUri('{% static "models" %}');
             await faceapi.nets.faceLandmark68Net.loadFromUri('{% static "models" %}');
             await faceapi.nets.faceRecognitionNet.loadFromUri('{% static "models" %}');
             console.log('Modelos carregados com sucesso');
         } catch (error) {
             console.error('Erro ao carregar modelos:', error);
+            alert('Erro ao carregar modelos de reconhecimento facial. Consulte o console para detalhes.');
         }
     }
 
     // Initialize camera
     async function iniciarCamera() {
         try {
+            console.log('Iniciando câmera...');
             const stream = await navigator.mediaDevices.getUserMedia({
                 video: {
-                    width: { ideal: 640 },
-                    height: { ideal: 480 },
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 },
                     facingMode: 'user'
                 }
             });
@@ -209,6 +237,7 @@ Cadastrar Rosto - {{ interno.nome }}
     // Stop camera
     function pararCamera() {
         if (video.srcObject) {
+            console.log('Parando câmera...');
             const stream = video.srcObject;
             const tracks = stream.getTracks();
             tracks.forEach(track => track.stop());
@@ -216,8 +245,48 @@ Cadastrar Rosto - {{ interno.nome }}
         }
     }
 
-    // Capture photo
+    // Reset camera
+    reiniciarBtn.addEventListener('click', () => {
+        console.log('Reiniciando câmera...');
+        fotoCameraInput.value = '';
+        previewCamera.classList.add('hidden');
+        iniciarCamera();
+    });
+
+    // Function to resize image while maintaining aspect ratio
+    function resizeImage(image, maxWidth, maxHeight) {
+        let width = image.width;
+        let height = image.height;
+        let originalWidth = width;
+        let originalHeight = height;
+
+        // Check if resizing is needed
+        if (width > maxWidth || height > maxHeight) {
+            const ratio = Math.min(maxWidth / width, maxHeight / height);
+            width = Math.floor(width * ratio);
+            height = Math.floor(height * ratio);
+        }
+
+        // Create canvas for resizing
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(image, 0, 0, width, height);
+
+        return {
+            canvas: canvas,
+            originalWidth: originalWidth,
+            originalHeight: originalHeight,
+            newWidth: width,
+            newHeight: height
+        };
+    }
+
+    // Capture photo with resizing
     capturarBtn.addEventListener('click', async () => {
+        console.log('Capturando foto...');
+
         // Set canvas dimensions to match video
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
@@ -226,102 +295,148 @@ Cadastrar Rosto - {{ interno.nome }}
         const context = canvas.getContext('2d');
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-        // Verify face framing and lighting
-        const rostoEnquadrado = await verificarEnquadramento(canvas);
-        if (rostoEnquadrado) {
-            // Convert to base64
-            const fotoBase64 = canvas.toDataURL('image/jpeg');
-            fotoCameraInput.value = fotoBase64;
+        // Create image element for resizing
+        const img = new Image();
+        img.src = canvas.toDataURL('image/jpeg');
 
-            // Show success message
-            alert('Foto capturada com sucesso! O rosto foi detectado corretamente.');
-        }
-    });
+        img.onload = async () => {
+            // Resize if necessary
+            const resized = resizeImage(img, MAX_WIDTH, MAX_HEIGHT);
 
-    // Handle file upload preview
-    fotoUploadInput.addEventListener('change', function(e) {
-        if (this.files && this.files[0]) {
-            const reader = new FileReader();
-
-            reader.onload = function(e) {
-                previewImage.src = e.target.result;
-                previewContainer.classList.remove('hidden');
-
-                // Verify the uploaded image
-                verifyUploadedImage(e.target.result);
+            // Show resolution info
+            if (resized.originalWidth !== resized.newWidth || resized.originalHeight !== resized.newHeight) {
+                resolucaoInfo.textContent = `Redimensionada de ${resized.originalWidth}x${resized.originalHeight} para ${resized.newWidth}x${resized.newHeight}`;
+                resolucaoInfo.classList.remove('hidden');
+            } else {
+                resolucaoInfo.textContent = `Resolução: ${resized.newWidth}x${resized.newHeight}`;
+                resolucaoInfo.classList.remove('hidden');
             }
 
-            reader.readAsDataURL(this.files[0]);
+            // Get JPEG data from resized canvas
+            const fotoBase64 = resized.canvas.toDataURL('image/jpeg', JPEG_QUALITY);
+
+            // Show preview
+            fotoPreview.src = fotoBase64;
+            previewCamera.classList.remove('hidden');
+
+            // Store in hidden input
+            fotoCameraInput.value = fotoBase64;
+
+            // Verify face detection
+            try {
+                console.log('Verificando detecção facial...');
+                const detections = await faceapi.detectAllFaces(resized.canvas,
+                    new faceapi.TinyFaceDetectorOptions({
+                        inputSize: 512,
+                        scoreThreshold: 0.5
+                    }))
+                    .withFaceLandmarks()
+                    .withFaceDescriptors();
+
+                console.log('Rostos detectados:', detections.length);
+
+                if (detections.length === 0) {
+                    alert('ATENÇÃO: Nenhum rosto detectado na foto. Por favor, tente novamente com melhor iluminação e enquadramento.');
+                    fotoCameraInput.value = '';
+                    previewCamera.classList.add('hidden');
+                } else if (detections.length > 1) {
+                    alert('ATENÇÃO: Mais de um rosto detectado. Por favor, capture apenas uma pessoa por vez.');
+                    fotoCameraInput.value = '';
+                    previewCamera.classList.add('hidden');
+                } else {
+                    alert('Foto capturada com sucesso! Rosto detectado corretamente.');
+                }
+            } catch (error) {
+                console.error('Erro na verificação facial:', error);
+                alert('Erro ao verificar o rosto na foto. Por favor, tente novamente.');
+            }
+        };
+    });
+
+    // Handle file upload preview with resizing
+    fotoUploadInput.addEventListener('change', function(e) {
+        console.log('Arquivo selecionado:', this.files[0]);
+
+        if (this.files && this.files[0]) {
+            const file = this.files[0];
+
+            // Verificar extensão do arquivo
+            const validExtensions = ['image/jpeg', 'image/jpg'];
+            if (!validExtensions.includes(file.type) &&
+                !file.name.toLowerCase().endsWith('.jpg') &&
+                !file.name.toLowerCase().endsWith('.jpeg')) {
+                alert('Formato de arquivo não suportado. Por favor, selecione uma imagem JPG/JPEG.');
+                this.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.src = e.target.result;
+
+                img.onload = function() {
+                    // Resize if necessary
+                    const resized = resizeImage(img, MAX_WIDTH, MAX_HEIGHT);
+
+                    // Show resolution info
+                    if (resized.originalWidth !== resized.newWidth || resized.originalHeight !== resized.newHeight) {
+                        uploadResolucaoInfo.textContent = `Redimensionada de ${resized.originalWidth}x${resized.originalHeight} para ${resized.newWidth}x${resized.newHeight}`;
+                        uploadResolucaoInfo.classList.remove('hidden');
+                    } else {
+                        uploadResolucaoInfo.textContent = `Resolução: ${resized.newWidth}x${resized.newHeight}`;
+                        uploadResolucaoInfo.classList.remove('hidden');
+                    }
+
+                    // Show preview
+                    previewImage.src = resized.canvas.toDataURL('image/jpeg', JPEG_QUALITY);
+                    previewContainer.classList.remove('hidden');
+
+                    // Verify the uploaded image
+                    verifyUploadedImage(resized.canvas);
+                }
+            }
+
+            reader.readAsDataURL(file);
         }
     });
 
     // Verify uploaded image
-    async function verifyUploadedImage(imageData) {
-        const img = new Image();
-        img.src = imageData;
+    async function verifyUploadedImage(canvas) {
+        console.log('Verificando imagem enviada...');
+        try {
+            const detections = await faceapi.detectAllFaces(canvas,
+                new faceapi.TinyFaceDetectorOptions({
+                    inputSize: 512,
+                    scoreThreshold: 0.5
+                }))
+                .withFaceLandmarks()
+                .withFaceDescriptors();
 
-        img.onload = async function() {
-            // Create a temporary canvas to analyze the image
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = img.width;
-            tempCanvas.height = img.height;
-            const tempCtx = tempCanvas.getContext('2d');
-            tempCtx.drawImage(img, 0, 0);
+            console.log('Rostos detectados na imagem enviada:', detections.length);
 
-            await verificarEnquadramento(tempCanvas);
+            if (detections.length === 0) {
+                alert('ATENÇÃO: Nenhum rosto detectado na imagem enviada. Por favor, selecione outra imagem.');
+                fotoUploadInput.value = '';
+                previewContainer.classList.add('hidden');
+                uploadResolucaoInfo.classList.add('hidden');
+            } else if (detections.length > 1) {
+                alert('ATENÇÃO: Mais de um rosto detectado na imagem. Por favor, envie uma imagem com apenas uma pessoa.');
+                fotoUploadInput.value = '';
+                previewContainer.classList.add('hidden');
+                uploadResolucaoInfo.classList.add('hidden');
+            }
+        } catch (error) {
+            console.error('Erro na verificação da imagem enviada:', error);
         }
-    }
-
-    // Verify face framing and lighting
-    async function verificarEnquadramento(canvas) {
-        await loadModels();
-
-        const options = new faceapi.TinyFaceDetectorOptions({
-            inputSize: 512,
-            scoreThreshold: 0.5
-        });
-
-        // Detect faces
-        const detections = await faceapi.detectAllFaces(canvas, options)
-            .withFaceLandmarks()
-            .withFaceDescriptors();
-
-        if (detections.length === 0) {
-            alert('Nenhum rosto detectado na imagem. Por favor, tente novamente.');
-            return false;
-        }
-
-        if (detections.length > 1) {
-            alert('Mais de um rosto detectado. Por favor, capture apenas uma pessoa por vez.');
-            return false;
-        }
-
-        // Check lighting (simplified)
-        const imageData = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height);
-        const data = imageData.data;
-
-        let brilhoTotal = 0;
-        for (let i = 0; i < data.length; i += 4) {
-            brilhoTotal += (data[i] + data[i+1] + data[i+2]) / 3;
-        }
-
-        const brilhoMedio = brilhoTotal / (data.length / 4);
-
-        if (brilhoMedio < 50) {
-            alert('A iluminação está muito baixa. Por favor, melhore a iluminação e tente novamente.');
-            return false;
-        }
-
-        return true;
     }
 
     // Initialize camera on page load if camera option is selected
     document.addEventListener('DOMContentLoaded', () => {
+        console.log('Página carregada. Inicializando...');
         if (document.querySelector('input[name="fonte_imagem"]:checked').value === 'camera') {
             iniciarCamera();
         }
-
-        // Load models when page loads
         loadModels();
     });
 
