@@ -43,12 +43,15 @@ Cadastrar Rosto - {{ interno.nome }}
                     <div id="moldura" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-60 border-4 border-green-500 rounded-xl pointer-events-none"></div>
                 </div>
 
-                <div class="flex justify-center gap-4">
+                <div class="flex flex-wrap justify-center gap-4">
                     <button type="button" id="capturar" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
                         <i class="bi bi-camera-fill mr-2"></i> Capturar Foto
                     </button>
                     <button type="button" id="reiniciar" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors">
                         <i class="bi bi-arrow-repeat mr-2"></i> Reiniciar
+                    </button>
+                    <button type="button" id="alternar-camera" class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors">
+                        <i class="bi bi-camera-video-fill mr-2"></i> Alternar Câmera
                     </button>
                 </div>
 
@@ -169,6 +172,7 @@ Cadastrar Rosto - {{ interno.nome }}
     const canvas = document.getElementById('canvas');
     const capturarBtn = document.getElementById('capturar');
     const reiniciarBtn = document.getElementById('reiniciar');
+    const alternarCameraBtn = document.getElementById('alternar-camera');
     const fotoCameraInput = document.getElementById('foto_camera');
     const fotoUploadInput = document.getElementById('foto_upload');
     const fonteImagemRadios = document.querySelectorAll('input[name="fonte_imagem"]');
@@ -185,6 +189,7 @@ Cadastrar Rosto - {{ interno.nome }}
     const MAX_WIDTH = 1000;
     const MAX_HEIGHT = 1000;
     const JPEG_QUALITY = 0.85;
+    let currentFacingMode = 'user'; // 'user' para frontal, 'environment' para traseira
 
     // Toggle between camera and upload
     fonteImagemRadios.forEach(radio => {
@@ -224,7 +229,7 @@ Cadastrar Rosto - {{ interno.nome }}
                 video: {
                     width: { ideal: 1280 },
                     height: { ideal: 720 },
-                    facingMode: 'user'
+                    facingMode: currentFacingMode
                 }
             });
             video.srcObject = stream;
@@ -244,6 +249,29 @@ Cadastrar Rosto - {{ interno.nome }}
             video.srcObject = null;
         }
     }
+
+    // Alternar entre câmeras frontal e traseira
+    alternarCameraBtn.addEventListener('click', async function() {
+        console.log('Alternando câmera...');
+
+        // Parar a câmera atual
+        pararCamera();
+
+        // Alternar o modo da câmera
+        currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
+        console.log('Modo da câmera alterado para:', currentFacingMode);
+
+        // Iniciar a nova câmera
+        try {
+            await iniciarCamera();
+        } catch (error) {
+            console.error('Erro ao alternar câmera:', error);
+            alert('Não foi possível alternar a câmera. Verifique as permissões.');
+            // Tentar voltar para a câmera frontal
+            currentFacingMode = 'user';
+            await iniciarCamera();
+        }
+    });
 
     // Reset camera
     reiniciarBtn.addEventListener('click', () => {
