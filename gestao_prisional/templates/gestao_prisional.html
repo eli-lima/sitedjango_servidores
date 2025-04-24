@@ -149,7 +149,7 @@ Gestão de Unidade Prisional
 </div>
 
 <!-- Quick Actions -->
-{% if 'Administrador' in user_groups or 'GerGesipe' in user_groups or 'EditInterno' in user_groups %}
+{% if request.user|permitido:'actions_gestaoprisional' %}
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 px-4 pb-6">
     <!-- Atualizar População -->
     <div class="bg-white rounded-lg shadow-md p-6 flex flex-col">
