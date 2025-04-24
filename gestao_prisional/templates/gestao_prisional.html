@@ -1,66 +1,97 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load permission_tags %}
 {% block titulo %}
 Gestão de Unidade Prisional
 {% endblock %}
 
 {% block content %}
 <style>
-      @keyframes marquee {
-      0% {
-        transform: translateX(100%);
-      }
-      100% {
-        transform: translateX(-100%);
-      }
+    @keyframes marquee {
+        0% { transform: translateX(100%); }
+        100% { transform: translateX(-100%); }
     }
-
-    .animate-marquee {
-      animation: marquee 40s linear infinite;
-    }
+    .animate-marquee { animation: marquee 40s linear infinite; }
 </style>
-
-
 
 <!-- Ticker estilo bolsa de valores -->
 <div class="w-full bg-black overflow-hidden border-b border-gray-800">
-  <div class="flex gap-8 px-4 py-2 whitespace-nowrap animate-marquee text-sm text-white">
-    {% for item in ticker_data %}
-      <div class="flex items-center gap-2 whitespace-nowrap">
-        <span class="font-semibold">{{ item.unidade }}:</span>
-        <span class="text-yellow-400">{{ item.populacao }}</span>
-        {% if item.variacao > 0 %}
-          <span class="text-red-400">▲ {{ item.variacao }}%</span>
-        {% elif item.variacao < 0 %}
-          <span class="text-green-400">▼ {{ item.variacao }}%</span>
-        {% else %}
-          <span class="text-gray-400">– 0.0%</span>
-        {% endif %}
-      </div>
-    {% endfor %}
-  </div>
+    <div class="flex gap-8 px-4 py-2 whitespace-nowrap animate-marquee text-sm text-white">
+        {% for item in ticker_data %}
+            <div class="flex items-center gap-2 whitespace-nowrap">
+                <span class="font-semibold">{{ item.unidade }}:</span>
+                <span class="text-yellow-400">{{ item.populacao }}</span>
+                {% if item.variacao > 0 %}
+                    <span class="text-red-400">▲ {{ item.variacao }}%</span>
+                {% elif item.variacao < 0 %}
+                    <span class="text-green-400">▼ {{ item.variacao }}%</span>
+                {% else %}
+                    <span class="text-gray-400">– 0.0%</span>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
 </div>
 
-
-
-
-
 <!-- Filtros Section -->
-<!--<div class="pt-4 px-4">-->
-<!--    <div class="flex flex-col xl:flex-row gap-4">-->
-<!--        {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups or 'Gerente' in user_groups %}-->
-<!--        <div class="py-3 bg-gray-600 text-white w-full xl:w-1/4 rounded-lg shadow-md flex justify-center items-center">-->
-<!--            <h3 class="text-lg xl:text-xl font-bold">-->
-<!--                {% if unidade_gerente %}-->
-<!--                    Unidade: {{ unidade_gerente }}-->
-<!--                {% else %}-->
-<!--                    Visão Geral-->
-<!--                {% endif %}-->
-<!--            </h3>-->
-<!--        </div>-->
-<!--        {% endif %}-->
-<!--    </div>-->
-<!--</div>-->
+<div class="pt-4 px-4">
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h3 class="text-lg font-semibold mb-4">Filtros</h3>
+        <form method="GET" id="filtros-form" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <!-- Filtro de Unidade -->
+            <div>
+                <label for="unidade" class="block text-sm font-medium text-gray-700 mb-1">Unidade</label>
+                <select name="unidade" id="unidade" class="w-full p-2 border border-gray-300 rounded-md">
+                    <option value="todas">Todas as Unidades</option>
+                    {% for unidade in unidades %}
+                        <option value="{{ unidade.id }}"
+                            {% if filtro_unidade == unidade.id|stringformat:"s" %}selected{% endif %}>
+                            {{ unidade.nome }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Filtro de Mês -->
+            <div>
+                <label for="mes" class="block text-sm font-medium text-gray-700 mb-1">Mês</label>
+                <select name="mes" id="mes" class="w-full p-2 border border-gray-300 rounded-md">
+                    <option value="">Todos os meses</option>
+                    {% for valor, nome in meses %}
+                        <option value="{{ valor }}"
+                            {% if filtro_mes == valor %}selected{% endif %}>
+                            {{ nome }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Filtro de Ano -->
+            <div>
+                <label for="ano" class="block text-sm font-medium text-gray-700 mb-1">Ano</label>
+                <select name="ano" id="ano" class="w-full p-2 border border-gray-300 rounded-md">
+                    <option value="">Todos os anos</option>
+                    {% for ano in anos reversed %}
+                        <option value="{{ ano }}"
+                            {% if filtro_ano == ano %}selected{% endif %}>
+                            {{ ano }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Botões -->
+            <div class="flex items-end gap-2">
+                <button type="submit" class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                    Aplicar Filtros
+                </button>
+                <button type="button" onclick="resetFilters()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">
+                    Limpar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 
 <!-- Stats Cards -->
 <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 px-4 py-6">
@@ -94,7 +125,7 @@ Gestão de Unidade Prisional
     <div class="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
         <div class="flex justify-between items-center">
             <div>
-                <h3 class="text-sm sm:text-base font-bold uppercase text-gray-600">Servidores Ativos</h3>
+                <h3 class="text-sm sm:text-base font-bold uppercase text-gray-600">Policiais Penais</h3>
                 <p class="mt-2 text-2xl font-bold">{{ total_servidores_ativos_policial_penal }}</p>
             </div>
             <div class="bg-green-600 rounded-full h-12 w-12 flex items-center justify-center">
@@ -107,11 +138,11 @@ Gestão de Unidade Prisional
     <div class="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
         <div class="flex justify-between items-center">
             <div>
-                <h3 class="text-sm sm:text-base font-bold uppercase text-gray-600">Internos Inativos</h3>
-                <p class="mt-2 text-2xl font-bold">{{ total_servidores_inativos_policial_penal }}</p>
+                <h3 class="text-sm sm:text-base font-bold uppercase text-gray-600">Servidores Totais</h3>
+                <p class="mt-2 text-2xl font-bold">{{ total_servidores }}</p>
             </div>
-            <div class="bg-red-600 rounded-full h-12 w-12 flex items-center justify-center">
-                <img src="{% static 'icons/prisoner.png' %}" alt="inativos" class="h-6 w-6">
+            <div class="bg-black rounded-full h-20 min-w-20 flex items-center justify-center">
+                <i class="fs-1 bi bi-people-fill text-white"></i>
             </div>
         </div>
     </div>
@@ -170,12 +201,20 @@ Gestão de Unidade Prisional
 {% endif %}
 
 <!-- Charts Section -->
-{% if 'GerGesipe' in user_groups or 'GerRh' in user_groups or 'Administrador' in user_groups or 'ServGesipe' in user_groups %}
+{% if request.user|permitido:'cards_gestaoprisional' %}
 <div class="flex flex-col xl:flex-row gap-6 px-4 pb-6 h-auto lg:h-[1000px]">
     <!-- Bar Chart - populacao prisional unidade -->
     <div class="h-full w-full xl:w-1/2 bg-white rounded-lg shadow-md p-4">
         <div class="border-b border-gray-200 pb-4 mb-4">
-            <h3 class="text-lg font-semibold">População Carcerária: Unidades</h3>
+            <h3 class="text-lg font-semibold">
+                {% if filtro_unidade_especifica %}
+                    População Carcerária: {{ unidade_filtrada.nome }}
+                {% elif tem_filtro_mes_ano %}
+                    População por Unidade em {{ filtro_mes }}/{{ filtro_ano }}
+                {% else %}
+                    População Carcerária: Unidades
+                {% endif %}
+            </h3>
         </div>
         <div class="h-[800px]">
             <canvas id="chart-bar-populacao"></canvas>
@@ -183,15 +222,19 @@ Gestão de Unidade Prisional
     </div>
 
     <div class="flex flex-col w-full xl:w-1/2 space-y-4">
-        <!-- Bar Chart - populacao prisional reisp -->
-        <div class="h-1/2 w-full bg-white rounded-lg shadow-md p-4">
-            <div class="border-b border-gray-200 pb-4 mb-4">
-                <h3 class="text-lg font-semibold">População Carcerária: Reisp</h3>
+        <!-- Bar Chart - populacao prisional reisp (SEM CONDIÇÃO) -->
+        <div class="h-1/2 w-full bg-white rounded-lg shadow-md p-4 flex flex-col justify-between">
+            <div>
+                <div class="border-b border-gray-200 pb-4 mb-4">
+                    <h3 class="text-lg font-semibold">População Carcerária: REISP</h3>
+                </div>
             </div>
-            <div class="">
+            <div class="mt-auto">
                 <canvas id="chart-bar-reisp"></canvas>
             </div>
         </div>
+
+
         <!-- Pie Chart - Gênero -->
         <div class="h-1/2 w-full xl:w-full bg-white rounded-lg shadow-md p-4">
             <div class="border-b border-gray-200 pb-4 mb-4">
@@ -205,11 +248,18 @@ Gestão de Unidade Prisional
         </div>
     </div>
 </div>
+
+<!-- Gráfico histórico mensal -->
 <div class="flex flex-col px-4">
-    <!-- Bar Chart - populacao prisional mensal -->
     <div class="h-full w-full bg-white rounded-lg shadow-md p-4">
         <div class="border-b border-gray-200">
-            <h3 class="text-lg font-semibold">População Carcerária: Unidades</h3>
+            <h3 class="text-lg font-semibold">
+                {% if filtro_unidade_especifica %}
+                    Histórico Mensal: {{ unidade_filtrada.nome }} (Últimos 12 meses)
+                {% else %}
+                    Histórico Mensal: Todas Unidades (Últimos 12 meses)
+                {% endif %}
+            </h3>
         </div>
         <div class="h-[500px]">
             <canvas id="chart-bar-mensal"></canvas>
@@ -349,137 +399,104 @@ Gestão de Unidade Prisional
 </div>
 
 <script>
-    // Debug dos dados
-    console.log("Bar Labels JSON:", {{ bar_labels|safe }});
-    console.log("Bar Values JSON:", {{ bar_values|safe }});
-</script>
-
-<script>
-    // Gráfico de Barras - População Prisional por reisp
-    var ctxBarReisp = document.getElementById('chart-bar-reisp').getContext('2d');
-    var barChartReisp = new Chart(ctxBarReisp, {
-        type: 'bar',
-        data: {
-            labels: {{ bar_labels_reisp|safe }},
-            datasets: [{
-                label: 'População por Reisp',
-                data: {{ bar_values_reisp|safe }},
-                backgroundColor: 'rgba(210, 0, 0, 1)',
-                borderColor: 'rgba(210, 0, 0, 1)',
-                borderWidth: 2,
-                borderRadius: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: { grid: { display: false } },
-                y: { beginAtZero: true, grid: { display: false } }
-            }
-        }
-    });
-</script>
-
-<script>
-    // Gráfico de Barras - População Prisional mensal
-    var ctxBarMensal = document.getElementById('chart-bar-mensal').getContext('2d');
-    var barChartMensal = new Chart(ctxBarMensal, {
-        type: 'bar',
-        data: {
-            labels: {{ bar_labels_mensal|safe }},
-            datasets: [{
-                label: 'População por Reisp',
-                data: {{ bar_values_mensal|safe }},
-                backgroundColor: 'rgba(210, 0, 0, 1)',
-                borderColor: 'rgba(210, 0, 0, 1)',
-                borderWidth: 2,
-                borderRadius: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: { grid: { display: false } },
-                y: { beginAtZero: true, grid: { display: false } }
-            }
-        }
-    });
-</script>
-
-<script>
-    // Gráfico de Barras - População Prisional por unidade
-    var ctxBarPopulacao = document.getElementById('chart-bar-populacao').getContext('2d');
-    var barChartPopulacao = new Chart(ctxBarPopulacao, {
-        type: 'bar',
-        data: {
-            labels: {{ bar_labels|safe }},
-            datasets: [{
-                label: 'População por Unidade',
-                data: {{ bar_values|safe }},
-                backgroundColor: 'rgba(210, 0, 0, 1)',
-                borderColor: 'rgba(210, 0, 0, 1)',
-                borderWidth: 2,
-                borderRadius: 4
-            }]
-        },
-        options: {
-            indexAxis: 'y',
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: {
-                    grid: { display: false },
-                    ticks: {
-                        font: { size: 12 }
-                    }
-                },
-                y: {
-                    beginAtZero: true,
-                    grid: { display: false },
-                    ticks: {
-                        font: { size: 8 }
-                    }
-                }
-            },
-            plugins: {
-                legend: {
-                    labels: {
-                        font: { size: 14 }
-                    }
-                },
-                tooltip: {
-                    titleFont: { size: 14 },
-                    bodyFont: { size: 12 }
-                }
-            }
-        }
-    });
-
-    // Comportamento das linhas clicáveis
     document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.clickable-row').forEach(row => {
-            row.addEventListener('click', (event) => {
-                if (event.target.tagName !== 'A') {
-                    window.location.href = row.dataset.href;
+        // Gráfico de população por unidade
+        if (document.getElementById('chart-bar-populacao')) {
+            var ctxBarPopulacao = document.getElementById('chart-bar-populacao').getContext('2d');
+            new Chart(ctxBarPopulacao, {
+                type: 'bar',
+                data: {
+                    labels: {{ bar_labels|safe }},
+                    datasets: [{
+                        label: 'População por Unidade',
+                        data: {{ bar_values|safe }},
+                        backgroundColor: 'rgba(210, 0, 0, 1)',
+                        borderColor: 'rgba(210, 0, 0, 1)',
+                        borderWidth: 2,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { grid: { display: false } }
+                    }
                 }
             });
-        });
-    });
+        }
 
-    document.addEventListener('htmx:afterSwap', function() {
-        document.querySelectorAll('.clickable-row').forEach(row => {
-            row.addEventListener('click', (event) => {
-                if (event.target.tagName !== 'A') {
-                    window.location.href = row.dataset.href;
+        // Gráfico por REISP (sempre visível)
+        if (document.getElementById('chart-bar-reisp')) {
+            var ctxBarReisp = document.getElementById('chart-bar-reisp').getContext('2d');
+            new Chart(ctxBarReisp, {
+                type: 'bar',
+                data: {
+                    labels: {{ bar_labels_reisp|safe }},
+                    datasets: [{
+                        label: 'População por REISP',
+                        data: {{ bar_values_reisp|safe }},
+                        backgroundColor: 'rgba(210, 0, 0, 1)',
+                        borderColor: 'rgba(210, 0, 0, 1)',
+                        borderWidth: 2,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { beginAtZero: true, grid: { display: false } }
+                    }
                 }
             });
+        }
+
+        // Gráfico histórico mensal (sempre visível)
+        if (document.getElementById('chart-bar-mensal')) {
+            var ctxBarMensal = document.getElementById('chart-bar-mensal').getContext('2d');
+            new Chart(ctxBarMensal, {
+                type: 'line',
+                data: {
+                    labels: {{ bar_labels_mensal|safe }},
+                    datasets: [{
+                        label: 'População',
+                        data: {{ bar_values_mensal|safe }},
+                        backgroundColor: 'rgba(210, 0, 0, 0.2)',
+                        borderColor: 'rgba(210, 0, 0, 1)',
+                        borderWidth: 2,
+                        tension: 0.1,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { beginAtZero: true, grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        // Função para resetar os filtros
+        function resetFilters() {
+            document.getElementById('unidade').value = 'todas';
+            document.getElementById('mes').value = '';
+            document.getElementById('ano').value = '';
+            document.getElementById('filtros-form').submit();
+        }
+
+        // Atualizar gráficos quando os filtros mudam
+        document.getElementById('filtros-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const params = new URLSearchParams(new FormData(this));
+            window.location.search = params.toString();
         });
     });
 </script>
-
-
-
-
 {% endblock %}

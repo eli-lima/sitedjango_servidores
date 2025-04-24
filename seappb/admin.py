@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import Usuario, Setor, Unidade
+from .models import Usuario, Setor, Unidade, PermissaoSecao
 
 # Registrar Setor com customizações
 class SetorAdmin(admin.ModelAdmin):
@@ -34,3 +34,9 @@ class UsuarioAdmin(UserAdmin):
     list_display = ('username', 'nome_completo', 'email', 'setor', 'is_staff')
 
 admin.site.register(Usuario, UsuarioAdmin)
+
+@admin.register(PermissaoSecao)
+class PermissaoSecaoAdmin(admin.ModelAdmin):
+    list_display = ('nome_secao', 'grupo', 'descricao')
+    list_filter = ('grupo',)
+    search_fields = ('nome_secao', 'descricao')

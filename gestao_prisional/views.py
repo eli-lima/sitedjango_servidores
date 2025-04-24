@@ -14,7 +14,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Max, OuterRef, Subquery, Sum
 import json
 from seappb.models import Unidade
-from datetime import timedelta
+from datetime import timedelta, date
 from dateutil.relativedelta import relativedelta
 from django.utils.timezone import now
 from django.db.models.functions import TruncMonth
@@ -79,7 +79,7 @@ class GestaoPrisional(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = Interno
     template_name = "gestao_prisional.html"
     context_object_name = 'datas'
-    paginate_by = 50  # Quantidade de registros por página
+    paginate_by = 50
 
     def test_func(self):
         user = self.request.user
@@ -92,155 +92,209 @@ class GestaoPrisional(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
     def get_queryset(self):
         queryset = Interno.objects.all()
-
         return queryset.order_by('-prontuario')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        # 1. Obter parâmetros de filtro
+        unidade_id = self.request.GET.get('unidade')
+        mes = self.request.GET.get('mes')
+        ano = self.request.GET.get('ano')
 
+        # 2. Configurar filtros básicos
+        filtros = {}
+        filtros_servidor = {}
 
-        # Subquery: pega o registro mais recente por unidade
-        subquery = PopulacaoCarceraria.objects.filter(
-            unidade=OuterRef('unidade')
-        ).order_by('-data_atualizacao')
+        if unidade_id and unidade_id != 'todas':
+            unidade_filtrada = Unidade.objects.get(id=unidade_id)
+            context.update({
+                'filtro_unidade_especifica': True,
+                'unidade_filtrada': unidade_filtrada
+            })
+            filtros['unidade_id'] = unidade_id
+            filtros_servidor['local_trabalho'] = unidade_id
+        else:
+            context['filtro_unidade_especifica'] = False
 
-        latest_records = PopulacaoCarceraria.objects.filter(
-            pk=Subquery(subquery.values('pk')[:1])  # só o mais recente por unidade
+        # 3. Configurar filtros de data
+        context['tem_filtro_mes_ano'] = bool(mes and ano)
+        data_inicio, data_fim = None, None
+
+        if mes and ano:
+            try:
+                mes = int(mes)
+                ano = int(ano)
+                data_inicio = date(ano, mes, 1)
+                data_fim = date(ano + 1, 1, 1) if mes == 12 else date(ano, mes + 1, 1)
+                context['data_filtrada'] = data_inicio
+            except (ValueError, TypeError):
+                pass
+
+        # 4. Dados de população carcerária
+        subquery_unidades = PopulacaoCarceraria.objects.filter(
+            unidade=OuterRef('unidade'),
+            **filtros
         )
 
-        # Total geral da população carcerária
-        total_populacao = sum(record.total for record in latest_records)
-        print("Total geral da população carcerária:", total_populacao)
+        if data_inicio and data_fim:
+            subquery_unidades = subquery_unidades.filter(
+                data_atualizacao__range=(data_inicio, data_fim)
+            )
 
-        # Dados para o gráfico de barra: população por unidade
-        bar_labels = [record.unidade.nome for record in latest_records]
-        bar_values = [record.total for record in latest_records]
-
-        print("População por unidade:")
-        for nome, total in zip(bar_labels, bar_values):
-            print(f"{nome}: {total}")
-
-        # Dados para o gráfico de barra: população por reisp
-        populacao_por_reisp = (
-            latest_records
-            .values('unidade__reisp')
-            .annotate(total=Sum('total'))
-            .order_by('unidade__reisp')
+        records_unidades = PopulacaoCarceraria.objects.filter(
+            pk=Subquery(subquery_unidades.order_by('-data_atualizacao').values('pk')[:1])
         )
 
-        # Labels dos REISPs (transformar número em string tipo "1º REISP")
-        reisp_labels = [f"{item['unidade__reisp']}º REISP" if item['unidade__reisp'] else 'Não informado' for item in
-                        populacao_por_reisp]
-        reisp_values = [item['total'] for item in populacao_por_reisp]
+        unidades_data = [{'unidade': r.unidade.nome, 'total': r.total} for r in records_unidades]
+        unidades_data.sort(key=lambda x: x['total'], reverse=True)
 
-        # Ordena os registros por total diretamente na hora de gerar os dados
-        sorted_records = sorted(latest_records, key=lambda r: r.total, reverse=True)
+        # 5. Dados para gráficos
+        context.update({
+            'bar_labels': json.dumps([u['unidade'] for u in unidades_data]),
+            'bar_values': json.dumps([u['total'] for u in unidades_data]),
+            'total_populacao': sum(u['total'] for u in unidades_data),
+            'internos_cadastrados': Interno.objects.count()
+        })
 
-        # Salvando no contexto
-        context['total_populacao'] = total_populacao
-        context['bar_labels'] = json.dumps([r.unidade.nome for r in sorted_records])
-        context['bar_values'] = json.dumps([r.total for r in sorted_records])
-        context['bar_labels_reisp'] = reisp_labels
-        context['bar_values_reisp'] = reisp_values
+        # 6. Dados REISP (sempre gerados)
+        reisp_data = {}
+        for r in records_unidades:
+            reisp = r.unidade.reisp
+            reisp_data[reisp] = reisp_data.get(reisp, 0) + r.total
 
+        context.update({
+            'bar_labels_reisp': json.dumps([f"{k}º REISP" for k in sorted(reisp_data)]),
+            'bar_values_reisp': json.dumps([reisp_data[k] for k in sorted(reisp_data)])
+        })
 
+        # 7. Dados de servidores (com filtros aplicados)
+        context.update({
+            'total_servidores': Servidor.objects.filter(**filtros_servidor).count(),
+            'total_servidores_ativos_policial_penal': Servidor.objects.filter(
+                status=True,
+                cargo='POLICIAL PENAL',
+                **filtros_servidor
+            ).count()
+        })
 
-        #internos cadastrados
-        internos_cadastrados = Interno.objects.count()
-        context['internos_cadastrados'] = internos_cadastrados
+        # 8. Opções de filtros
+        context.update({
+            'unidades': Unidade.objects.all().order_by('nome'),
+            'meses': [(i, nome) for i, nome in enumerate(
+                ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'], 1)],
+            'anos': range(2020, date.today().year + 1),
+            'filtro_unidade': unidade_id if unidade_id else 'todas',
+            'filtro_mes': int(mes) if mes else None,
+            'filtro_ano': int(ano) if ano else None
+        })
 
-        # Data mais recente geral
-        latest_date = PopulacaoCarceraria.objects.aggregate(Max('data_atualizacao'))['data_atualizacao__max']
-
-        ticker_data = []
-
-        if latest_date:
-            current_month_start = latest_date.replace(day=1)
-            previous_month_end = current_month_start - timedelta(days=1)
-            previous_month_start = previous_month_end.replace(day=1)
-
-            unidades = Unidade.objects.all()
-
-            for unidade in unidades:
-                # Último registro no mês atual
-                atual = PopulacaoCarceraria.objects.filter(
-                    unidade=unidade,
-                    data_atualizacao__year=current_month_start.year,
-                    data_atualizacao__month=current_month_start.month
-                ).order_by('-data_atualizacao').first()
-
-                # Último registro no mês anterior
-                anterior = PopulacaoCarceraria.objects.filter(
-                    unidade=unidade,
-                    data_atualizacao__year=previous_month_start.year,
-                    data_atualizacao__month=previous_month_start.month
-                ).order_by('-data_atualizacao').first()
-
-                if atual:
-                    variacao = 0
-                    if anterior and anterior.total != 0:
-                        try:
-                            variacao = ((atual.total - anterior.total) / anterior.total) * 100
-                        except ZeroDivisionError:
-                            variacao = 0
-
-                    ticker_data.append({
-                        'unidade': unidade.nome,
-                        'populacao': atual.total,
-                        'variacao': round(variacao, 1)
-                    })
-
-                # Ordenar o ticker_data pela população em ordem decrescente
-            ticker_data = sorted(ticker_data, key=lambda x: x['populacao'], reverse=True)
-
-        context['ticker_data'] = ticker_data
-        print(ticker_data)
-
-
-        # grafico com historico mensal
-
-        # Dicionário com os nomes dos meses em português
-        meses_em_portugues = {
-            1: "Janeiro",
-            2: "Fevereiro",
-            3: "Março",
-            4: "Abril",
-            5: "Maio",
-            6: "Junho",
-            7: "Julho",
-            8: "Agosto",
-            9: "Setembro",
-            10: "Outubro",
-            11: "Novembro",
-            12: "Dezembro"
-        }
-
-        # Data atual e data de 12 meses atrás
-        hoje = now().date()
-        doze_meses_atras = hoje - relativedelta(months=12)
-
-        # Consulta agrupando por mês
-        populacao_mensal = (
-            PopulacaoCarceraria.objects.filter(data_atualizacao__gte=doze_meses_atras)
-            .annotate(mes=TruncMonth('data_atualizacao'))
-            .values('mes')
-            .annotate(total=Sum('total'))
-            .order_by('mes')
-        )
-
-        # Converter os labels para "MÊS/ANO" (ex: Março/2025)
-        bar_labels_mensal = [
-            f"{meses_em_portugues[item['mes'].month]}/{item['mes'].year}"
-            for item in populacao_mensal
-        ]
-        bar_values_mensal = [item['total'] for item in populacao_mensal]
-
-        context['bar_labels_mensal'] = json.dumps(bar_labels_mensal)
-        context['bar_values_mensal'] = json.dumps(bar_values_mensal)
-
+        # 9. Dados adicionais
+        context.update({
+            'ticker_data': self.get_ticker_data(unidade_id, mes, ano)
+        })
+        context.update(self.get_historico_mensal(unidade_id, context.get('data_filtrada')))
 
         return context
+
+    def get_ticker_data(self, unidade_id, mes, ano):
+        filtros = {}
+        if unidade_id and unidade_id != 'todas':
+            filtros['unidade_id'] = unidade_id
+
+        latest_date = PopulacaoCarceraria.objects.filter(**filtros).aggregate(Max('data_atualizacao'))[
+            'data_atualizacao__max']
+        if not latest_date:
+            return []
+
+        current_month_start = latest_date.replace(day=1)
+        previous_month_end = current_month_start - timedelta(days=1)
+        previous_month_start = previous_month_end.replace(day=1)
+
+        unidades = Unidade.objects.filter(
+            id=unidade_id) if unidade_id and unidade_id != 'todas' else Unidade.objects.all()
+
+        ticker_data = []
+        for unidade in unidades:
+            atual = PopulacaoCarceraria.objects.filter(
+                unidade=unidade,
+                data_atualizacao__year=current_month_start.year,
+                data_atualizacao__month=current_month_start.month
+            ).order_by('-data_atualizacao').first()
+
+            anterior = PopulacaoCarceraria.objects.filter(
+                unidade=unidade,
+                data_atualizacao__year=previous_month_start.year,
+                data_atualizacao__month=previous_month_start.month
+            ).order_by('-data_atualizacao').first()
+
+            if atual:
+                variacao = 0
+                if anterior and anterior.total != 0:
+                    try:
+                        variacao = ((atual.total - anterior.total) / anterior.total) * 100
+                    except ZeroDivisionError:
+                        variacao = 0
+
+                ticker_data.append({
+                    'unidade': unidade.nome,
+                    'populacao': atual.total,
+                    'variacao': round(variacao, 1)
+                })
+
+        return sorted(ticker_data, key=lambda x: x['populacao'], reverse=True)
+
+    def get_historico_mensal(self, unidade_id, data_referencia=None):
+        meses_em_portugues = {
+            1: "Janeiro", 2: "Fevereiro", 3: "Março", 4: "Abril",
+            5: "Maio", 6: "Junho", 7: "Julho", 8: "Agosto",
+            9: "Setembro", 10: "Outubro", 11: "Novembro", 12: "Dezembro"
+        }
+
+        data_referencia = data_referencia or date.today()
+        data_inicio = (data_referencia - relativedelta(months=11)).replace(day=1)
+
+        filtros_historico = {}
+        if unidade_id and unidade_id != 'todas':
+            filtros_historico['unidade'] = unidade_id
+
+        historico_completo = []
+        for i in range(12):
+            mes_ref = data_inicio + relativedelta(months=i)
+            mes_inicio = mes_ref.replace(day=1)
+            mes_fim = (mes_inicio + relativedelta(months=1))
+
+            if unidade_id and unidade_id != 'todas':
+                registro = PopulacaoCarceraria.objects.filter(
+                    data_atualizacao__range=(mes_inicio, mes_fim),
+                    **filtros_historico
+                ).order_by('-data_atualizacao').first()
+                total = registro.total if registro else 0
+            else:
+                subquery_unidades = PopulacaoCarceraria.objects.filter(
+                    data_atualizacao__range=(mes_inicio, mes_fim),
+                    unidade=OuterRef('unidade')
+                ).order_by('-data_atualizacao')
+
+                registros = PopulacaoCarceraria.objects.filter(
+                    pk=Subquery(subquery_unidades.values('pk')[:1])
+                )
+                total = sum(r.total for r in registros) if registros else 0
+
+            historico_completo.append({
+                'mes': mes_ref,
+                'total': total
+            })
+
+        bar_labels = [f"{meses_em_portugues[item['mes'].month]}/{item['mes'].year}" for item in historico_completo]
+        bar_values = [item['total'] for item in historico_completo]
+
+        return {
+            'bar_labels_mensal': json.dumps(bar_labels),
+            'bar_values_mensal': json.dumps(bar_values)
+        }
+
 
 
 # ocorrencia plantoes
