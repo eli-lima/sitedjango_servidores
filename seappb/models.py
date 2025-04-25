@@ -111,14 +111,14 @@ class PermissaoSecao(models.Model):
     """
     Define quais grupos podem acessar quais seções do sistema
     """
-    grupo = models.ForeignKey(Group, on_delete=models.CASCADE)
     nome_secao = models.CharField(max_length=50, unique=True)
+    grupos = models.ManyToManyField(Group, related_name="permissoes_secao")
     descricao = models.TextField(blank=True)
 
     class Meta:
         verbose_name = "Permissão de Seção"
         verbose_name_plural = "Permissões de Seção"
-        unique_together = ('grupo', 'nome_secao')
 
     def __str__(self):
-        return f"{self.grupo.name} - {self.nome_secao}"
+        grupos = ", ".join(g.name for g in self.grupos.all())
+        return f"{grupos} - {self.nome_secao}" if grupos else self.nome_secao

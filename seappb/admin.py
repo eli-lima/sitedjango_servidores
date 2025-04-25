@@ -6,7 +6,10 @@ from .models import Usuario, Setor, Unidade, PermissaoSecao
 class SetorAdmin(admin.ModelAdmin):
     list_display = ('id', 'nome')
 
+
 admin.site.register(Setor, SetorAdmin)
+
+
 @admin.register(Unidade)
 class UnidadeAdmin(admin.ModelAdmin):
     # Definir quais campos aparecerão na listagem de Ajuda_Custo
@@ -33,10 +36,16 @@ class UsuarioAdmin(UserAdmin):
     # Listagem personalizada no admin
     list_display = ('username', 'nome_completo', 'email', 'setor', 'is_staff')
 
+
 admin.site.register(Usuario, UsuarioAdmin)
+
 
 @admin.register(PermissaoSecao)
 class PermissaoSecaoAdmin(admin.ModelAdmin):
-    list_display = ('nome_secao', 'grupo', 'descricao')
-    list_filter = ('grupo',)
+    list_display = ('nome_secao', 'listar_grupos', 'descricao')
+    list_filter = ('grupos',)
     search_fields = ('nome_secao', 'descricao')
+
+    def listar_grupos(self, obj):
+        return ", ".join([g.name for g in obj.grupos.all()])
+    listar_grupos.short_description = 'Grupos'
