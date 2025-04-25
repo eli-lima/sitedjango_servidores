@@ -27,8 +27,8 @@ from io import BytesIO
 from PIL import Image
 import numpy as np
 
-#modulo facial
 
+#modulo facial
 
 def detalhes_interno(request, interno_id):
     # Obtém o interno ou retorna 404

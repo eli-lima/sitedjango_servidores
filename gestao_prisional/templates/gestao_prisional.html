@@ -467,17 +467,55 @@ Gestão de Unidade Prisional
                         data: {{ bar_values_mensal|safe }},
                         backgroundColor: 'rgba(210, 0, 0, 0.2)',
                         borderColor: 'rgba(210, 0, 0, 1)',
-                        borderWidth: 2,
-                        tension: 0.1,
+                        borderWidth: 3,
+                        pointBackgroundColor: 'rgba(210, 0, 0, 1)',
+                        pointBorderColor: '#fff',
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        tension: 0.3,
                         fill: true
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            enabled: true,
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y.toLocaleString();
+                                }
+                            }
+                        }
+                    },
                     scales: {
-                        x: { grid: { display: false } },
-                        y: { beginAtZero: true, grid: { display: false } }
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: {
+                                    weight: 'bold'
+                                }
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: {
+                                    weight: 'bold'
+                                },
+                                callback: function(value) {
+                                    return value.toLocaleString();
+                                }
+                            }
+                        }
                     }
                 }
             });
