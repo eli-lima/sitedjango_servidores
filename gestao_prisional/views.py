@@ -83,7 +83,7 @@ class GestaoPrisional(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
     def test_func(self):
         user = self.request.user
-        grupos_permitidos = ['Administrador', 'Copen', 'GerGesipe']
+        grupos_permitidos = ['Administrador', 'Copen', 'GerGesipe', 'DiretorUnidade']
         return user.groups.filter(name__in=grupos_permitidos).exists()
 
     def handle_no_permission(self):

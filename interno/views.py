@@ -573,7 +573,7 @@ class Internos(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
     def test_func(self):
         user = self.request.user
-        grupos_permitidos = ['Administrador', 'Copen', 'GerGesipe']
+        grupos_permitidos = ['Administrador', 'Copen', 'GerGesipe', 'DiretorUnidade']
         return user.groups.filter(name__in=grupos_permitidos).exists()
 
     def handle_no_permission(self):
@@ -602,7 +602,7 @@ class RelatorioInterno(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
     def test_func(self):
         user = self.request.user
-        grupos_permitidos = ['Administrador', 'Copen', 'GerGesipe']
+        grupos_permitidos = ['Administrador', 'Copen', 'GerGesipe', 'DiretorUnidade']
         return user.groups.filter(name__in=grupos_permitidos).exists()
 
     def handle_no_permission(self):
@@ -705,7 +705,7 @@ class PopulacaoEdit(LoginRequiredMixin, UpdateView, UserPassesTestMixin):
 
     def test_func(self):
         user = self.request.user
-        grupos_permitidos = ['Administrador', 'GerGesipe', 'EditInterno']
+        grupos_permitidos = ['Administrador', 'GerGesipe', 'EditInterno', 'DiretorUnidade']
         return user.groups.filter(name__in=grupos_permitidos).exists()
 
     def handle_no_permission(self):
