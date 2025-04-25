@@ -499,4 +499,34 @@ Gestão de Unidade Prisional
         });
     });
 </script>
+
+<script>
+    // Função para adicionar o comportamento de clique nas linhas
+    function addClickableRowBehavior() {
+        document.querySelectorAll('.clickable-row').forEach(row => {
+            // Adiciona o evento de clique na linha
+            row.addEventListener('click', (event) => {
+                // Redireciona para o link definido no atributo 'data-href'
+                window.location.href = row.dataset.href;
+            });
+
+            // Adiciona um evento de clique específico para o link do prontuário
+            const linkProntuario = row.querySelector('a'); // Seleciona o link dentro da linha
+            if (linkProntuario) {
+                linkProntuario.addEventListener('click', (event) => {
+                    // Impede que o clique no link propague para a linha
+                    event.stopPropagation();
+                    // O link já tem target="_blank", então ele abrirá em uma nova aba
+                });
+            }
+        });
+    }
+
+    // Adiciona o comportamento de clique nas linhas ao carregar a página
+    document.addEventListener('DOMContentLoaded', addClickableRowBehavior);
+
+    // Adiciona o comportamento de clique nas linhas após o HTMX atualizar o conteúdo
+    document.addEventListener('htmx:afterSwap', addClickableRowBehavior);
+</script>
+
 {% endblock %}
