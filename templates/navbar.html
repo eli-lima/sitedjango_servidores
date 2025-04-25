@@ -117,7 +117,7 @@
                                 <span class="group-[.collapsed]:md:hidden">Ajuda De Custo</span>
                             </a>
 
-                            {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups or 'ServGesipe' in user_groups or 'Copen' in user_groups %}
+                            {% if request.user|permitido:'sidebar_gesipe' %}}
                             <div class="pr-4 group">
                                 <button id="gesipe-toggle" class="px-3 flex items-center justify-between font-medium text-gray-300 hover:text-white transition-colors duration-200">
                                     <div class="flex items-center h-12">
@@ -161,19 +161,21 @@
 
                                 </div>
                             </div>
-
+                            {% endif %}
+                            {% if request.user|permitido:'sidebar_rh' %}
                             <a href="{{ servidor_url }}" class="px-3 flex items-center gap-3 pr-4 py-3 font-medium rounded-md group h-12">
                                 <ion-icon name="people" class="text-xl"></ion-icon>
                                 <span class="group-[.collapsed]:md:hidden">Recursos Humanos</span>
                             </a>
-                                {% if request.user|permitido:'sidebar_gestaoprisional' %}
-                                <a href="{{ gestao_prisional_url }}" class="px-3 flex items-center gap-3 pr-4 py-3 font-medium rounded-md group h-12">
-                                    <ion-icon name="clipboard" class="text-xl"></ion-icon>
-                                    <span class="group-[.collapsed]:md:hidden">Gestão Prisional</span>
-                                </a>
-                                {% endif %}
-
                             {% endif %}
+                            {% if request.user|permitido:'sidebar_gestaoprisional' %}
+                            <a href="{{ gestao_prisional_url }}" class="px-3 flex items-center gap-3 pr-4 py-3 font-medium rounded-md group h-12">
+                                <ion-icon name="clipboard" class="text-xl"></ion-icon>
+                                <span class="group-[.collapsed]:md:hidden">Gestão Prisional</span>
+                            </a>
+                            {% endif %}
+
+
 
                             {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups %}
                             <a href="{{ estatistica_url }}" class="px-3 flex items-center gap-3 pr-4 py-3 font-medium rounded-md group h-12">
