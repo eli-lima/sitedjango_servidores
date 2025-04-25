@@ -276,7 +276,7 @@ Gestão de Unidade Prisional
                 <div>
                     <h3 class="text-lg sm:text-xl font-semibold">Relatório de Internos</h3>
                 </div>
-                {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups %}
+                {% if request.user|permitido:'cards_gestaoprisional' %}
                 <a href="{% url 'interno:relatorio_interno' %}" class="inline-flex items-center text-sm sm:text-base font-medium text-blue-600 hover:text-blue-800">
                     Dados Completos
                     <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
