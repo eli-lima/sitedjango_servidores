@@ -12,7 +12,8 @@ import os
 @shared_task
 def process_batch_internos(df_batch):
     novos_registros = []
-    atualizacoes = []
+    atualizacoes = []  # Lista para armazenar objetos Interno que serão atualizados
+    campos_para_atualizar = ['nome', 'cpf', 'nome_mae', 'unidade', 'status', 'data_extracao']
     erros = []
     csv_log = "log_atualizacoes.csv"
 
@@ -55,6 +56,7 @@ def process_batch_internos(df_batch):
                 alterado = False
                 campos_modificados = []
 
+                # Verifica e atualiza cada campo
                 if interno.nome != nome:
                     interno.nome = nome
                     campos_modificados.append("nome")
@@ -83,12 +85,11 @@ def process_batch_internos(df_batch):
                 if alterado:
                     interno.data_extracao = data_extracao
                     campos_modificados.append("data_extracao")
-                    atualizacoes.append(interno)
-
+                    atualizacoes.append(interno)  # Adiciona o objeto Interno à lista de atualizações
                     log_entries.append([prontuario, ", ".join(campos_modificados), str(timezone.now())])
 
             else:
-                novos_registros.append(Interno(
+                novo_interno = Interno(
                     prontuario=prontuario,
                     nome=nome,
                     cpf=cpf,
@@ -96,7 +97,8 @@ def process_batch_internos(df_batch):
                     unidade=unidade,
                     status=status,
                     data_extracao=data_extracao,
-                ))
+                )
+                novos_registros.append(novo_interno)
                 log_entries.append([prontuario, "Novo Registro", str(timezone.now())])
 
         except Exception as e:
@@ -113,7 +115,8 @@ def process_batch_internos(df_batch):
                 Interno.objects.bulk_create(novos_registros)
                 print(f"✅ {novos_count} novos registros inseridos.")
             if atualizacoes:
-                Interno.objects.bulk_update(atualizacoes, ['nome', 'cpf', 'nome_mae', 'unidade', 'status', 'data_extracao'])
+                # Usamos bulk_update com os campos específicos
+                Interno.objects.bulk_update(atualizacoes, campos_para_atualizar)
                 print(f"✅ {atualizados_count} registros atualizados.")
     except Exception as e:
         erro_msg = f"🔥 Erro ao salvar registros: {str(e)}"
@@ -122,21 +125,22 @@ def process_batch_internos(df_batch):
 
     print(f"📝 Salvando log em CSV no arquivo {csv_log}")
 
-    # Aqui é onde está a correção importante:
-    log_df = pd.DataFrame(log_entries, columns=["Prontuario", "Campos Modificados", "Data"])
+    try:
+        log_df = pd.DataFrame(log_entries, columns=["Prontuario", "Campos Modificados", "Data"])
 
-    # Se o arquivo já existe, salva sem o cabeçalho
-    if os.path.exists(csv_log):
-        log_df.to_csv(csv_log, mode="a", header=False, index=False)
-    else:
-        log_df.to_csv(csv_log, mode="w", header=True, index=False)
+        # Se o arquivo já existe, salva sem o cabeçalho
+        if os.path.exists(csv_log):
+            log_df.to_csv(csv_log, mode="a", header=False, index=False)
+        else:
+            log_df.to_csv(csv_log, mode="w", header=True, index=False)
+    except Exception as e:
+        erro_msg = f"🔥 Erro ao salvar log: {str(e)}"
+        erros.append(erro_msg)
+        print(erro_msg)
 
     print("✅ Atualização concluída!")
 
     return {'erros': erros, 'novos_count': novos_count, 'atualizados_count': atualizados_count}
-
-
-
 
 
 
