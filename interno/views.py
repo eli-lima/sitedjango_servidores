@@ -422,7 +422,6 @@ def save_in_batches(model, instances, fields=None):
 def upload_planilha_excel(request):
     print("📢 Iniciando upload da planilha...")
 
-
     if request.method == 'POST':
         print("📥 Método POST detectado.")
         form = UploadExcelInternosForm(request.POST, request.FILES)
@@ -436,16 +435,13 @@ def upload_planilha_excel(request):
                 print(f"📊 Planilha carregada com {len(df)} registros.")
 
                 # Criar um log para registrar alterações
-
                 csv_log = "log_atualizacoes.csv"
-
                 log_entries = []  # Lista para armazenar logs
-                novo_interno = []  # lista internos novos adicionados
-                atualizacoes = []
+                novos_prontuarios = []  # Lista para armazenar prontuários dos novos internos
+                atualizacoes = []  # Lista para armazenar prontuários atualizados
 
                 # Iterar pelos registros do Excel
                 for index, row in df.iterrows():
-
                     # Converte os valores para string e remove espaços em branco
                     prontuario = str(row.get('prontuario', '')).strip()
                     nome = str(row.get('nome', '')).strip()
@@ -453,12 +449,12 @@ def upload_planilha_excel(request):
                     nome_mae = str(row.get('nome_mae', '')).strip()
 
                     # Tratando a unidade para garantir que valores 'NaN' sejam tratados corretamente
-                    unidade = row.get('unidade', '')  # Atribui valor vazio se não encontrar o campo
-                    if pd.isna(unidade) or unidade == 'nan':  # Verifica se é NaN ou 'nan'
-                        unidade = ''  # Substitui por string vazia
-
+                    unidade = row.get('unidade', '')
+                    if pd.isna(unidade) or unidade == 'nan':
+                        unidade = ''
                     else:
-                        unidade = str(unidade).strip()  # Converte para string e remove espaços, caso contrário
+                        unidade = str(unidade).strip()
+
                     status = str(row.get('status', '')).strip()
 
                     # Garantir que data_extracao seja uma data normal (date)
@@ -473,11 +469,9 @@ def upload_planilha_excel(request):
                             raise ValueError(f"Data inválida: {data_extracao}")
 
                     # Buscar o interno no banco
-
                     interno = Interno.objects.filter(prontuario=prontuario).first()
 
                     if interno:
-
                         # Comparar campos para ver se há mudanças
                         alterado = False
                         campos_modificados = []
@@ -526,40 +520,42 @@ def upload_planilha_excel(request):
                         # Criar um novo registro
                         novo_interno = Interno(
                             prontuario=prontuario,
-                            nome=row["nome"],
-                            cpf=row["cpf"],
-                            nome_mae=row["nome_mae"],
-                            unidade=row["unidade"],
-                            status=row["status"],
+                            nome=nome,
+                            cpf=cpf,
+                            nome_mae=nome_mae,
+                            unidade=unidade,
+                            status=status,
                             data_extracao=data_extracao,
                         )
                         print(f"💾 Salvando novo interno: {novo_interno}")
                         novo_interno.save()
-                        novo_interno.append(prontuario)
+                        novos_prontuarios.append(prontuario)
 
                         # Criar log de novo registro
                         log_entries.append([prontuario, "Novo Registro", str(timezone.now())])
 
-
-
                 # Salvar log em CSV
                 print(f"📝 Salvando log em CSV no arquivo {csv_log}")
                 log_df = pd.DataFrame(log_entries, columns=["Prontuario", "Campos Modificados", "Data"])
-                log_df.to_csv(csv_log, mode="a", header=not os.path.exists(csv_log), index=False)
 
+                # Se o arquivo já existe, adiciona sem cabeçalho, senão cria novo com cabeçalho
+                log_df.to_csv(csv_log, mode='a', header=not os.path.exists(csv_log), index=False)
 
                 print("✅ Atualização concluída!")
-
                 messages.success(request,
-                                 f"Planilha processada! {len(novo_interno)} adicionados, {len(atualizacoes)} atualizados.")
+                                 f"Planilha processada! {len(novos_prontuarios)} adicionados, {len(atualizacoes)} atualizados.")
                 return redirect('interno:upload_interno')
 
             except Exception as e:
                 print(f"❌ Erro ao processar a planilha: {e}")
                 messages.error(request, f"Erro ao processar a planilha: {e}")
+                return redirect('interno:upload_interno')
+
+        else:
+            messages.error(request, "Formulário inválido.")
+            return redirect('interno:upload_interno')
 
     else:
-        messages.error(request, f"Erro ao processar a planilha:")
         form = UploadExcelInternosForm()
 
     return render(request, 'upload_interno.html', {'form': form})
