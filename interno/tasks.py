@@ -6,9 +6,7 @@ from django.utils import timezone
 from django.db import transaction
 import traceback
 from datetime import datetime
-
-
-
+import os
 
 
 @shared_task
@@ -27,20 +25,19 @@ def process_batch_internos(df_batch):
         nome = str(row.get('nome', '')).strip()
         cpf = str(row.get('cpf', '')).strip()
         nome_mae = str(row.get('nome_mae', '')).strip()
-        # Tratando a unidade para garantir que valores 'NaN' sejam tratados corretamente
-        unidade = row.get('unidade', '')  # Atribui valor vazio se não encontrar o campo
-        if pd.isna(unidade) or unidade == 'nan':  # Verifica se é NaN ou 'nan'
-            unidade = ''  # Substitui por string vazia
 
+        unidade = row.get('unidade', '')
+        if pd.isna(unidade) or unidade == 'nan':
+            unidade = ''
         else:
-            unidade = str(unidade).strip()  # Converte para string e remove espaços, caso contrário
+            unidade = str(unidade).strip()
+
         status = str(row.get('status', '')).strip()
         data_extracao = row.get('data_extracao')
         if not data_extracao or pd.isna(data_extracao):
             data_extracao = timezone.now()
         else:
             try:
-                # Converte de "DD-MM-YYYY" para "YYYY-MM-DD"
                 data_extracao = datetime.strptime(data_extracao, "%d-%m-%Y").date()
             except ValueError:
                 raise ValueError(f"Data inválida: {data_extracao}")
@@ -124,8 +121,15 @@ def process_batch_internos(df_batch):
         print(erro_msg)
 
     print(f"📝 Salvando log em CSV no arquivo {csv_log}")
+
+    # Aqui é onde está a correção importante:
     log_df = pd.DataFrame(log_entries, columns=["Prontuario", "Campos Modificados", "Data"])
-    log_df.to_csv(csv_log, mode="a", header=False, index=False)
+
+    # Se o arquivo já existe, salva sem o cabeçalho
+    if os.path.exists(csv_log):
+        log_df.to_csv(csv_log, mode="a", header=False, index=False)
+    else:
+        log_df.to_csv(csv_log, mode="w", header=True, index=False)
 
     print("✅ Atualização concluída!")
 
