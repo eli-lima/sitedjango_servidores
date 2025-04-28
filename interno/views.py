@@ -27,6 +27,22 @@ from io import BytesIO
 from PIL import Image
 import numpy as np
 
+def get_populacao_por_unidade(request):
+    unidade_id = request.GET.get('unidade_id')
+    try:
+        populacao = PopulacaoCarceraria.objects.filter(unidade_id=unidade_id).latest('data')
+        data = {
+            'populacao_presos': populacao.populacao_presos,
+            'populacao_feminina': populacao.populacao_feminina,
+            'populacao_masculina': populacao.populacao_masculina,
+            'populacao_provisoria': populacao.populacao_provisoria,
+            # adicione os campos que quiser atualizar
+        }
+        return JsonResponse(data)
+    except PopulacaoCarceraria.DoesNotExist:
+        return JsonResponse({'error': 'Sem dados para esta unidade'}, status=404)
+
+
 
 #modulo facial
 

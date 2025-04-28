@@ -1,6 +1,7 @@
 from django.urls import path
 from .views import (RelatorioInterno, Internos, upload_planilha_excel, cadastrar_rosto,
-                    reconhecer_interno, detalhes_interno, PopulacaoEdit)
+                    reconhecer_interno, detalhes_interno, PopulacaoEdit,
+                    get_populacao_por_unidade)
 from .htmx_views import interno_list
 
 app_name = 'interno'
@@ -13,7 +14,8 @@ urlpatterns = [
     path('<int:interno_id>/cadastrar-rosto/', cadastrar_rosto, name='cadastrar_rosto'),
     path('reconhecer-interno/', reconhecer_interno, name='reconhecer_interno'),
     path('<int:interno_id>/detalhes/', detalhes_interno, name='detalhes_interno'),
-
+    path('<int:interno_id>/detalhes/', detalhes_interno, name='detalhes_interno'),
+    path('ajax/get-populacao/', get_populacao_por_unidade, name='get_populacao_por_unidade'),
     # Nova URL
 ]
 
