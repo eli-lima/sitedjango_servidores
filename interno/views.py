@@ -712,11 +712,11 @@ class RelatorioInterno(LoginRequiredMixin, UserPassesTestMixin, ListView):
 #populacao edit
 
 
-class PopulacaoEdit(LoginRequiredMixin, UpdateView, UserPassesTestMixin):
+class PopulacaoEdit(LoginRequiredMixin, CreateView, UserPassesTestMixin):
     model = PopulacaoCarceraria
     form_class = PopulacaoCarcerariaForm
     template_name = 'populacao/populacao_edit.html'
-    success_url = reverse_lazy('interno:interno')  # Redirecionar para a página de sucesso
+    success_url = reverse_lazy('gestao_prisional:gestao_prisional')  # Redirecionar para a página de sucesso
 
     def test_func(self):
         user = self.request.user
@@ -744,16 +744,15 @@ class PopulacaoEdit(LoginRequiredMixin, UpdateView, UserPassesTestMixin):
 
     def form_valid(self, form):
         if self.request.POST.get('action') == 'delete':
-            # Lida com a exclusão do registro
             self.object.delete()
             messages.error(self.request, 'Atualização excluída com sucesso!')
             return redirect(self.success_url)
 
-        # Atualiza os dados do registro
         populacao = form.save(commit=False)
+        populacao.usuario = self.request.user  # Corrigido aqui
         populacao.save()
 
-        messages.success(self.request, 'População atualizada com sucesso!')
+        messages.success(self.request, 'População cadastrada com sucesso!')
         return super().form_valid(form)
 
     def get_form_kwargs(self):
@@ -764,14 +763,6 @@ class PopulacaoEdit(LoginRequiredMixin, UpdateView, UserPassesTestMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user
-        grupos_admin = ['Administrador', 'GerGesipe']
 
-        # Verifica se o usuário tem permissão para alterar outras unidades
-        pode_editar_todas = user.groups.filter(name__in=grupos_admin).exists()
-        context['pode_editar_unidade'] = pode_editar_todas
-
-        # Se não puder editar todas, força a unidade como local_trabalho
-        if not pode_editar_todas:
-            self.object.unidade = user.servidor.local_trabalho
 
         return context

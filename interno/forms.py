@@ -75,3 +75,4 @@ class PopulacaoCarcerariaForm(forms.ModelForm):
 
             # Sempre, para todos usuários, inicializa o campo unidade com o local de trabalho
             self.initial['unidade'] = user.servidor.local_trabalho
+
