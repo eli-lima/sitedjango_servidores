@@ -38,6 +38,20 @@ def get_periodo_12_meses(mes_referencia, ano_referencia):
     return periodo[::-1]
 
 
+def get_servidor_for_view(view):
+    """
+    Versão adaptada para class-based views que mantém a função original intacta
+    """
+    try:
+        # Usa a função original passando o request da view
+        return get_servidor(view.request)
+    except Exception as e:
+        # Adiciona a mensagem de erro ao sistema de mensagens
+        from django.contrib import messages
+        messages.error(view.request, str(e))
+        return None
+
+
 def get_servidor(request):
     try:
         return Servidor.objects.get(matricula=request.user.matricula)
