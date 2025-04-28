@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import Usuario, Setor, Unidade, PermissaoSecao
+from servidor.models import Servidor
 
 # Registrar Setor com customizações
 class SetorAdmin(admin.ModelAdmin):
@@ -25,19 +26,31 @@ class UnidadeAdmin(admin.ModelAdmin):
     ordering = ('nome',)
 
 # Registrar Usuario com customizações
+
+
+@admin.register(Usuario)
 class UsuarioAdmin(UserAdmin):
-    # Customizar os campos exibidos no formulário de admin
+    autocomplete_fields = ['servidor']  # Usa autocomplete para selecionar o servidor
+    search_fields = ['username', 'nome_completo', 'email', 'matricula']  # Permite busca
+
+    list_display = ('username', 'nome_completo', 'email', 'setor', 'is_staff', 'servidor')  # Listagem principal
+
     fieldsets = (
-        (None, {'fields': ('username', 'password', 'nome_completo', 'email', 'foto_perfil', 'matricula', 'setor')}),
-        ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
-        ('Important dates', {'fields': ('last_login', 'date_joined')}),
+        (None, {
+            'fields': ('username', 'password', 'nome_completo', 'email', 'foto_perfil', 'matricula', 'servidor', 'setor')
+        }),
+        ('Permissions', {
+            'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')
+        }),
+        ('Important dates', {
+            'fields': ('last_login', 'date_joined')
+        }),
     )
 
-    # Listagem personalizada no admin
-    list_display = ('username', 'nome_completo', 'email', 'setor', 'is_staff')
-
-
-admin.site.register(Usuario, UsuarioAdmin)
+# Também precisa registrar o modelo de Servidor para funcionar o autocomplete
+@admin.register(Servidor)
+class ServidorAdmin(admin.ModelAdmin):
+    search_fields = ['nome', 'matricula']
 
 
 @admin.register(PermissaoSecao)
