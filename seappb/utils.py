@@ -2,6 +2,7 @@
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from .models import Unidade
+from servidor.models import Servidor
 
 
 def get_unidade_choices():
@@ -36,3 +37,11 @@ def get_periodo_12_meses(mes_referencia, ano_referencia):
     # Inverte para começar do mais antigo para o mais recente
     return periodo[::-1]
 
+
+def get_servidor(request):
+    try:
+        return Servidor.objects.get(matricula=request.user.matricula)
+    except Servidor.DoesNotExist:
+        from django.contrib import messages
+        messages.error(request, 'Erro: Servidor não encontrado.')
+        raise
