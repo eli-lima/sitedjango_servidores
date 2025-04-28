@@ -1,9 +1,9 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import Usuario, Setor, Unidade, PermissaoSecao
-from servidor.models import Servidor
 
 # Registrar Setor com customizações
+
 class SetorAdmin(admin.ModelAdmin):
     list_display = ('id', 'nome')
 
@@ -46,11 +46,6 @@ class UsuarioAdmin(UserAdmin):
             'fields': ('last_login', 'date_joined')
         }),
     )
-
-# Também precisa registrar o modelo de Servidor para funcionar o autocomplete
-@admin.register(Servidor)
-class ServidorAdmin(admin.ModelAdmin):
-    search_fields = ['nome', 'matricula']
 
 
 @admin.register(PermissaoSecao)
