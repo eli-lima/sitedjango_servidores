@@ -10,12 +10,13 @@ urlpatterns = [
     path('', Internos.as_view(), name='interno'),
     path('upload-interno/', upload_planilha_excel, name='upload_interno'),
     path('relatorio_interno/', RelatorioInterno.as_view(), name='relatorio_interno'),
-    path('populacao-edit/', PopulacaoEdit.as_view(), name='populacao_edit'),
+    path('populacao-edit/<int:pk>', PopulacaoEdit.as_view(), name='populacao_edit'),
     path('<int:interno_id>/cadastrar-rosto/', cadastrar_rosto, name='cadastrar_rosto'),
     path('reconhecer-interno/', reconhecer_interno, name='reconhecer_interno'),
     path('<int:interno_id>/detalhes/', detalhes_interno, name='detalhes_interno'),
-    path('<int:interno_id>/detalhes/', detalhes_interno, name='detalhes_interno'),
     path('ajax/get-populacao/', get_populacao_por_unidade, name='get_populacao_por_unidade'),
+
+
     # Nova URL
 ]
 
