@@ -31,7 +31,7 @@ import numpy as np
 def get_populacao_por_unidade(request):
     unidade_id = request.GET.get('unidade_id')
     try:
-        populacao = PopulacaoCarceraria.objects.filter(unidade_id=unidade_id).latest('data')
+        populacao = PopulacaoCarceraria.objects.filter(unidade_id=unidade_id).latest('data_atualizacao')
         data = {
             'populacao_presos': populacao.populacao_presos,
             'populacao_feminina': populacao.populacao_feminina,
