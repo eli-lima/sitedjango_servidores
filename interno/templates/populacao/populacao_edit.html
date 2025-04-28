@@ -21,11 +21,24 @@ atualizar populacao
                     <div class="p-2">
                         <label class="form-label font-semibold lg:text-base text-2xl ">{{ field.label_tag }}</label>
                         {% if field.name == 'data' %}
-                            <!-- Adiciona readonly ao campo de data -->
                             <input type="date" name="{{ field.name }}" value="{{ field.value }}" class="form-control bg-dark-subtle fw-bold" readonly>
+
+                        {% elif field.name == 'unidade' %}
+                            {% if pode_editar_unidade %}
+                                {{ field }}
+                            {% else %}
+                                {{ field }}
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', function() {
+                                        document.getElementById("id_unidade").setAttribute("readonly", "readonly");
+                                    });
+                                </script>
+                            {% endif %}
+
                         {% else %}
                             {{ field }}
                         {% endif %}
+
                     </div>
                 {% endfor %}
             </div>
@@ -37,7 +50,6 @@ atualizar populacao
             <!-- Adicione mais seções conforme necessário -->
 
     </div>
-
 
 <!-- Modal -->
 <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -62,4 +74,41 @@ atualizar populacao
     </div>
 </div>
 
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const unidadeSelect = document.querySelector("select[name='unidade']");
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    if (unidadeSelect) {
+        unidadeSelect.addEventListener("change", function () {
+            const unidadeId = this.value;
+
+            fetch(`/interno/ajax/get-populacao/?unidade_id=${unidadeId}`, {
+                method: "GET",
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'Accept': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.error) {
+                    // Substitua pelos nomes reais dos campos do seu formulário
+                    document.querySelector("input[name='populacao_presos']").value = data.populacao_presos;
+                    document.querySelector("input[name='populacao_feminina']").value = data.populacao_feminina;
+                    document.querySelector("input[name='populacao_masculina']").value = data.populacao_masculina;
+                    document.querySelector("input[name='populacao_provisoria']").value = data.populacao_provisoria;
+                }
+            });
+        });
+    }
+});
+</script>
+
+
+
 {% endblock %}
+
+

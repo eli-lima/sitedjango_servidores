@@ -2,9 +2,8 @@ from django.db import models
 from django.utils.deconstruct import deconstructible
 import os
 from django.utils import timezone
+from django.apps import apps
 from django.conf import settings  # Importa as configurações do Django
-from seappb.models import Unidade
-
 
 # Create your models here.
 #classe para salvar a foto individualmente
@@ -54,7 +53,7 @@ class Servidor(models.Model):
     cargo = models.CharField(max_length=100)  # Cargo ou função
     cargo_comissionado = models.CharField(max_length=100, blank=True, null=True)
     simb_cargo_comissionado = models.CharField(max_length=30, blank=True, null=True) #Exemplo csp-1 csp-2
-    local_trabalho = models.ForeignKey(Unidade, on_delete=models.CASCADE)
+    local_trabalho = models.ForeignKey('seappb.Unidade', on_delete=models.CASCADE)
     genero = models.CharField( max_length=1, choices=GENEROS,)
     lotacao = models.CharField(max_length=50, blank=True, null=True)  # Setor onde o servidor trabalha
     data_admissao = models.DateField(blank=True, null=True)  # Data de admissão
@@ -65,8 +64,14 @@ class Servidor(models.Model):
     regime = models.CharField(
         max_length=50, choices=REGIMES, default='estatutario')   #prestador estatutario
     status = models.BooleanField(max_length=50, choices=STATUS, default='ativo')   #ativa ou afastado por algum motivo
+
+    def save(self, *args, **kwargs):
+        Unidade = apps.get_model('seappb', 'Unidade')  # Usando apps.get_model() quando precisar acessar dinamicamente
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.nome
+
 
 
 class ServidorHistory(models.Model):

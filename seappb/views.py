@@ -253,16 +253,30 @@ class Criarconta(HideNavMixin, FormView):
     success_url = reverse_lazy('seappb:login')  # Redirecionar para a página de login após a criação da conta
 
     def form_valid(self, form):
+        # Salva o usuário com a lógica personalizada do formulário
         usuario = form.save(commit=False)
+
+        # Se houver foto de perfil, ela será associada
         if self.request.FILES:
             usuario.foto_perfil = self.request.FILES['foto_perfil']
+
+        # Salva o usuário
         usuario.save()
 
-        # Adiciona o usuário ao grupo "Comum" após salvar
+        # Adiciona o usuário ao grupo "Padrao" após salvar
         padrao_group = Group.objects.get(name="Padrao")
         usuario.groups.add(padrao_group)
-        messages.success(self.request, 'Usuário Com Sucesso!')
+
+        # Exibe a mensagem de sucesso
+        messages.success(self.request, 'Conta criada com sucesso! Você pode agora fazer login.')
+
+        # Redireciona para a página de login
         return super().form_valid(form)
+
+    def form_invalid(self, form):
+        # Se houver erro, exibe a mensagem de erro no formulário
+        messages.error(self.request, 'Houve um erro ao criar sua conta. Verifique os dados inseridos.')
+        return super().form_invalid(form)
 
 
 class CustomLoginView(HideNavMixin, LoginView):

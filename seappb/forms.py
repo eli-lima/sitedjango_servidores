@@ -1,6 +1,8 @@
 from django.contrib.auth.forms import UserCreationForm
 from .models import Usuario, Unidade
 from django import forms
+from servidor.models import Servidor
+from django.core.exceptions import ValidationError
 
 
 class CriarContaForm(UserCreationForm):
@@ -14,8 +16,6 @@ class CriarContaForm(UserCreationForm):
             'foto_perfil': forms.ClearableFileInput(attrs={'class': 'form-control'}),
             'matricula': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Somente Números...'}),
             'setor': forms.Select(attrs={'class': 'form-control'}),
-
-
         }
         labels = {
             'username': 'Usuário',
@@ -38,6 +38,32 @@ class CriarContaForm(UserCreationForm):
         self.fields['password1'].widget = forms.PasswordInput(attrs={'class': 'form-control'})
         self.fields['password2'].widget = forms.PasswordInput(attrs={'class': 'form-control'})
 
+    def clean_matricula(self):
+        matricula = self.cleaned_data.get('matricula')
+
+        # Verifica se a matrícula já está associada a um usuário
+        if Usuario.objects.filter(matricula=matricula).exists():
+            raise ValidationError('Já existe um usuário com esta matrícula.')
+
+        # Verifica se a matrícula corresponde a um servidor existente
+        servidor = Servidor.objects.filter(matricula=matricula).first()
+        if not servidor:
+            raise ValidationError('Nenhum servidor encontrado com esta matrícula.')
+
+        return matricula
+
+    def save(self, commit=True):
+        # Cria o usuário como normalmente faria
+        usuario = super(CriarContaForm, self).save(commit=False)
+
+        # Associa o usuário ao servidor baseado na matrícula
+        matricula = self.cleaned_data.get('matricula')
+        servidor = Servidor.objects.get(matricula=matricula)
+        usuario.servidor = servidor
+
+        if commit:
+            usuario.save()
+        return usuario
 
 
 class UnidadeForm(forms.ModelForm):

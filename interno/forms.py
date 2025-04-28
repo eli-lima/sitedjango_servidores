@@ -1,6 +1,7 @@
 from django import forms
 from .models import PopulacaoCarceraria
 
+
 class UploadExcelInternosForm(forms.Form):
     arquivo = forms.FileField(label="Upload de Planilha (.xlsx)")
 
@@ -57,14 +58,20 @@ class PopulacaoCarcerariaForm(forms.ModelForm):
 
         }
 
-
     def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)  # Pega o usuário passado pela view
         super().__init__(*args, **kwargs)
 
+        self.fields['unidade'].empty_label = "Selecione uma Unidade"
+        self.fields['unidade'].queryset = self.fields['unidade'].queryset.order_by('nome')
 
-        self.fields['unidade'].empty_label = "Selecione uma Unidade"  # Define o texto padrão
+        if user:
+            grupos_admin = ['Administrador', 'GerGesipe']
+            pode_editar_unidade = user.groups.filter(name__in=grupos_admin).exists()
 
+            if not pode_editar_unidade:
+                # Se o usuário não pode editar, desabilita o campo
+                self.fields['unidade'].disabled = True
 
-        # Ordena as unidades em ordem alfabética
-        self.fields['unidade'].queryset = self.fields['unidade'].queryset.order_by(
-            'nome')  # Substitua 'nome_da_unidade' pelo nome do campo de unidade
+            # Sempre, para todos usuários, inicializa o campo unidade com o local de trabalho
+            self.initial['unidade'] = user.servidor.local_trabalho

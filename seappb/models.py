@@ -4,6 +4,8 @@ from django.utils.text import slugify
 from django.core.validators import RegexValidator
 import requests
 from django.contrib.auth.models import Group
+from servidor.models import Servidor
+from django.core.exceptions import ValidationError
 
 # Create your models here.
 
@@ -89,18 +91,22 @@ class Usuario(AbstractUser):
     foto_perfil = models.ImageField(upload_to=user_directory_path, blank=True, null=True)
     matricula = models.CharField(max_length=20, unique=True, blank=False)
     setor = models.ForeignKey('Setor', on_delete=models.CASCADE, null=True, blank=True)
+    servidor = models.OneToOneField(Servidor, on_delete=models.PROTECT, null=True, blank=True)
 
-    # Remover os campos first_name e last_name
     first_name = None
     last_name = None
-
-    # Garantir que o e-mail seja único
-    email = models.EmailField(unique=True)  # Adicionando o unique=True para garantir unicidade
+    email = models.EmailField(unique=True)
 
     def save(self, *args, **kwargs):
-        # Converte o nome completo para maiúsculas
         if self.nome_completo:
             self.nome_completo = self.nome_completo.upper()
+
+        if not self.servidor:
+            try:
+                self.servidor = Servidor.objects.get(matricula=self.matricula)
+            except Servidor.DoesNotExist:
+                raise ValidationError(f"Não existe servidor cadastrado com a matrícula {self.matricula}.")
+
         super().save(*args, **kwargs)
 
     def __str__(self):

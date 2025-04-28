@@ -691,7 +691,9 @@ class RelatorioInterno(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
         return context
 
+
 #populacao edit
+
 
 class PopulacaoEdit(LoginRequiredMixin, UpdateView, UserPassesTestMixin):
     model = PopulacaoCarceraria
@@ -708,16 +710,20 @@ class PopulacaoEdit(LoginRequiredMixin, UpdateView, UserPassesTestMixin):
         messages.error(self.request, "Você não tem permissão para acessar esta página.")
         return render(self.request, '403.html', status=403)
 
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
 
-    # def get_form_kwargs(self):
-    #     """Passa o formato correto da data para o formulário."""
-    #     kwargs = super().get_form_kwargs()
-    #     if self.object:
-    #         # Ajusta o valor da data para o formato 'yyyy-mm-dd'
-    #         kwargs['initial'] = {
-    #             'data': self.object.data.strftime('%Y-%m-%d'),
-    #         }
-    #     return kwargs
+        user = self.request.user
+        grupos_especiais = ['Administrador', 'GerGesipe']
+        pode_editar_unidade = user.groups.filter(name__in=grupos_especiais).exists()
+
+        if not pode_editar_unidade:
+            form.fields['unidade'].disabled = True
+
+        # Adiciona classe CSS direto aqui, sem add_class
+        form.fields['unidade'].widget.attrs['class'] = 'form-control bg-dark-subtle'
+
+        return form
 
     def form_valid(self, form):
         if self.request.POST.get('action') == 'delete':
@@ -733,6 +739,22 @@ class PopulacaoEdit(LoginRequiredMixin, UpdateView, UserPassesTestMixin):
         messages.success(self.request, 'População atualizada com sucesso!')
         return super().form_valid(form)
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user  # <-- aqui você passa o user
+        return kwargs
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        user = self.request.user
+        grupos_admin = ['Administrador', 'GerGesipe']
+
+        # Verifica se o usuário tem permissão para alterar outras unidades
+        pode_editar_todas = user.groups.filter(name__in=grupos_admin).exists()
+        context['pode_editar_unidade'] = pode_editar_todas
+
+        # Se não puder editar todas, força a unidade como local_trabalho
+        if not pode_editar_todas:
+            self.object.unidade = user.servidor.local_trabalho
+
         return context

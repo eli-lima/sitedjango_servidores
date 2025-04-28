@@ -196,7 +196,21 @@ class GestaoPrisional(LoginRequiredMixin, UserPassesTestMixin, ListView):
         })
         context.update(self.get_historico_mensal(unidade_id, context.get('data_filtrada')))
 
+
+        # pegar o servidor logado
+
+        # Adiciona o servidor ao contexto
+        servidor = get_servidor_for_view(self)
+        servidor_lotacao = servidor.local_trabalho
+        print(f'lotacao servidor: {servidor_lotacao}')
+        context.update({
+            'servidor': servidor,
+            'servidor_lotacao': servidor_lotacao
+        })
+        print(f'o servidor e : {servidor}')
+
         return context
+
 
     def get_ticker_data(self, unidade_id, mes, ano):
         filtros = {}
@@ -298,7 +312,6 @@ class GestaoPrisional(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
 
 # ocorrencia plantoes
-
 
 class OcorrenciaPlantaoAddView(UserPassesTestMixin, LoginRequiredMixin, FormView):
     form_class = OcorrenciaPlantaoForm
