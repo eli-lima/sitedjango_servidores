@@ -2,7 +2,7 @@
 from .forms import UploadExcelInternosForm
 
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.views.generic import ListView, UpdateView
+from django.views.generic import ListView, UpdateView, CreateView
 from django.db.models import Q
 
 import os
