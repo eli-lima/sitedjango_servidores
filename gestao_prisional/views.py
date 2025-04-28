@@ -311,7 +311,6 @@ class GestaoPrisional(LoginRequiredMixin, UserPassesTestMixin, ListView):
         }
 
 
-
 # ocorrencia plantoes
 
 class OcorrenciaPlantaoAddView(UserPassesTestMixin, LoginRequiredMixin, FormView):
