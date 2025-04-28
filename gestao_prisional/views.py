@@ -321,7 +321,7 @@ class OcorrenciaPlantaoAddView(UserPassesTestMixin, LoginRequiredMixin, FormView
 
     def test_func(self):
         user = self.request.user
-        grupos_permitidos = ['Administrador', 'GerGesipe']
+        grupos_permitidos = ['Administrador', 'GerGesipe', 'DiretorUnidade']
         return user.groups.filter(name__in=grupos_permitidos).exists()
 
     def handle_no_permission(self):
@@ -336,6 +336,13 @@ class OcorrenciaPlantaoAddView(UserPassesTestMixin, LoginRequiredMixin, FormView
             ordinario_ids = [int(id) for id in self.request.POST.get('ordinario_ids', '').split(',') if id]
             if not ordinario_ids:
                 messages.error(self.request, "Adicione pelo menos um servidor ordinário.")
+                return self.form_invalid(form)
+
+            # Garantir que a unidade seja preenchida corretamente
+            unidade = user.servidor.local_trabalho
+            print(f'a unidade e {unidade}')
+            if not unidade:
+                messages.error(self.request, "Unidade não pode estar vazia.")
                 return self.form_invalid(form)
 
             # Salva os dados usando o método save() do form
@@ -357,11 +364,24 @@ class OcorrenciaPlantaoAddView(UserPassesTestMixin, LoginRequiredMixin, FormView
                 )
         return super().form_invalid(form)
 
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+
+        try:
+            servidor = Servidor.objects.get(usuario=self.request.user)
+            if servidor.local_trabalho:
+                unidade_servidor = servidor.local_trabalho
+                form.fields['unidade'].initial = servidor.local_trabalho
+                form.fields['unidade'].widget.attrs['disabled'] = True
+        except Servidor.DoesNotExist:
+            pass  # Se não encontrar, apenas ignora
+
+        return form
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         try:
-
             subquery = PopulacaoCarceraria.objects.values('unidade').annotate(
                 latest_date=Max('data_atualizacao')
             )
@@ -376,6 +396,80 @@ class OcorrenciaPlantaoAddView(UserPassesTestMixin, LoginRequiredMixin, FormView
         except Exception as e:
             print(f"Erro ao calcular total geral: {e}")
             context['total_populacao'] = 0
+
+        return context
+
+
+
+class RelatorioOcorrenciaPlantao(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    model = OcorrenciaPlantao
+    template_name = "ocorrencia_plantao/relatorio_ocorrencia_plantao.html"
+    context_object_name = 'ocorrencias'
+    paginate_by = 50
+
+    def test_func(self):
+        user = self.request.user
+        grupos_permitidos = ['Administrador', 'GerGesipe']
+        return user.groups.filter(name__in=grupos_permitidos).exists()
+
+    def handle_no_permission(self):
+        messages.error(self.request, "Você não tem permissão para acessar esta página.")
+        return render(self.request, '403.html', status=403)
+
+    def get_queryset(self):
+        data_inicial = self.request.GET.get('dataInicial')
+        data_final = self.request.GET.get('dataFinal')
+        unidade_id = self.request.GET.get('unidade')
+        query = self.request.GET.get('query', '')
+
+        # Datas padrão (mês atual)
+        today = now().date()
+        first_day_of_month = today.replace(day=1)
+        last_day_of_month = (first_day_of_month + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+
+        data_inicial = parse_date(data_inicial) if data_inicial else first_day_of_month
+        data_final = parse_date(data_final) if data_final else last_day_of_month
+
+        queryset = OcorrenciaPlantao.objects.select_related(
+            'chefe_equipe', 'unidade', 'usuario'
+        ).prefetch_related(
+            'servidores_ordinario', 'servidores_extraordinario'
+        )
+
+        # Filtros
+        if unidade_id:
+            queryset = queryset.filter(unidade_id=unidade_id)
+
+        if query:
+            queryset = queryset.filter(
+                Q(chefe_equipe__nome__icontains=query) |
+                Q(descricao__icontains=query) |
+                Q(observacao__icontains=query)
+            )
+
+        # Filtro por data
+        queryset = queryset.filter(data__range=[data_inicial, data_final])
+
+        return queryset.order_by('-data')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Datas para o template
+        today = now().date()
+        first_day_of_month = today.replace(day=1)
+        last_day_of_month = (first_day_of_month + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+
+        data_inicial = self.request.GET.get('dataInicial', first_day_of_month)
+        data_final = self.request.GET.get('dataFinal', last_day_of_month)
+
+        context.update({
+            'query': self.request.GET.get('query', ''),
+            'dataInicial': data_inicial.strftime('%Y-%m-%d') if hasattr(data_inicial, 'strftime') else data_inicial,
+            'dataFinal': data_final.strftime('%Y-%m-%d') if hasattr(data_final, 'strftime') else data_final,
+            'unidades': Unidade.objects.all().order_by('nome'),
+            'user_groups': self.request.user.groups.values_list('name', flat=True),
+        })
 
         return context
 

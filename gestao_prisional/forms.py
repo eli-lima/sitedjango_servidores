@@ -11,6 +11,7 @@ from interno.models import PopulacaoCarceraria
 
 class OcorrenciaPlantaoForm(forms.Form):
     # Campos principais
+
     data = forms.DateField(
         widget=forms.DateInput(attrs={
             'class': 'form-control',
@@ -18,6 +19,7 @@ class OcorrenciaPlantaoForm(forms.Form):
         }),
         label="Data do Plantão"
     )
+
     chefe_equipe = forms.ModelChoiceField(
         queryset=Servidor.objects.all().order_by('nome'),
         widget=forms.Select(attrs={'class': 'form-select'}),
@@ -25,11 +27,16 @@ class OcorrenciaPlantaoForm(forms.Form):
         empty_label="Servidor..."
     )
 
+    # Campo unidade será preenchido automaticamente e não editável
     unidade = forms.ModelChoiceField(
         queryset=Unidade.objects.all().order_by('nome'),
-        widget=forms.Select(attrs={'class': 'form-select'}),
+        widget=forms.Select(attrs={
+            'class': 'form-select',
+            'readonly': 'readonly',
+            'disabled': 'disabled'
+        }),
         label="Unidade",
-        empty_label="Selecione uma unidade"
+        required=False
     )
 
     descricao = forms.CharField(
@@ -40,13 +47,16 @@ class OcorrenciaPlantaoForm(forms.Form):
         }),
         label="Descrição do Plantão"
     )
+
+    # Campo observação não obrigatório
     observacao = forms.CharField(
         widget=forms.Textarea(attrs={
             'class': 'form-control',
             'rows': 2,
             'placeholder': 'Observações no Plantão...'
         }),
-        label="Observações do Plantão"
+        label="Observações do Plantão",
+        required=False  # Tornando o campo não obrigatório
     )
 
 
@@ -173,14 +183,16 @@ class OcorrenciaPlantaoForm(forms.Form):
 
     def save(self, user):
         cleaned_data = self.cleaned_data
+        unidade = user.servidor.local_trabalho
+
 
         # Criar ocorrência de plantão
         plantao = OcorrenciaPlantao.objects.create(
             data=cleaned_data['data'],
-            unidade=cleaned_data['unidade'],
+            unidade=unidade,
             chefe_equipe=cleaned_data['chefe_equipe'],
-            descricao=cleaned_data['descricao'],  # ajuste conforme necessário
-            observacao=cleaned_data['observacao'],
+            descricao=cleaned_data['descricao'],
+            observacao=cleaned_data.get('observacao', ''),  # Campo não obrigatório
             usuario=user
         )
 
@@ -192,7 +204,7 @@ class OcorrenciaPlantaoForm(forms.Form):
         PopulacaoCarceraria.objects.create(
             plantao=plantao,  # <-- esse campo precisa existir no modelo!
             data_atualizacao=cleaned_data['data'],
-            unidade=cleaned_data['unidade'],
+            unidade=unidade,
             regime_aberto=cleaned_data['regime_aberto'],
             regime_semiaberto=cleaned_data['regime_semiaberto'],
             regime_fechado=cleaned_data['regime_fechado'],
@@ -205,6 +217,7 @@ class OcorrenciaPlantaoForm(forms.Form):
         )
 
         return plantao
+
 
 
 
