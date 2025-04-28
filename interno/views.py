@@ -27,6 +27,7 @@ from io import BytesIO
 from PIL import Image
 import numpy as np
 
+
 def get_populacao_por_unidade(request):
     unidade_id = request.GET.get('unidade_id')
     try:
