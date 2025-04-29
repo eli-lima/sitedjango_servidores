@@ -20,6 +20,7 @@ from django.utils.timezone import now
 from django.db.models.functions import TruncMonth
 from django.utils.dateparse import parse_date
 from seappb.utils import get_servidor_for_view
+from seappb.permissions import PermissionChecker
 
 # Create your views here.
 
@@ -83,9 +84,11 @@ class GestaoPrisional(LoginRequiredMixin, UserPassesTestMixin, ListView):
     paginate_by = 50
 
     def test_func(self):
-        user = self.request.user
-        grupos_permitidos = ['Administrador', 'Copen', 'GerGesipe', 'DiretorUnidade', 'AdmUnidade', 'CoordenadorUnidade']
-        return user.groups.filter(name__in=grupos_permitidos).exists()
+        # Verifica se o usuário tem permissão para gestao presional
+        return PermissionChecker.has_permission(
+            user=self.request.user,
+            permission_section='pagina_gestaoprisional'
+        )
 
     def handle_no_permission(self):
         messages.error(self.request, "Você não tem permissão para acessar esta página.")
