@@ -24,6 +24,7 @@
                     <div class="hidden ml-6 lg:block">
                         {% if user.is_authenticated %}
                         <div class="flex space-x-4">
+                            {% url 'seappb:homepage' as homepage_url %}
                             {% url 'ajuda_custo:ajuda_custo' as ajuda_custo_url %}
                             {% url 'gesipe:gesipe' as gesipe_url %}
                             {% url 'gesipe:gesipe_sga' as gesipe_sga_url %}
@@ -108,11 +109,11 @@
                         </div>
 
                         <div class="space-y-1">
-                            <a href="/" class="px-3 flex items-center gap-3 py-3 font-medium rounded-md group h-12">
+                            <a href="/" class="{% if request.path == homepage_url %}text-blue-300 font-semibold{% else %}text-gray-300 hover:text-blue-300{% endif %} px-3 flex items-center gap-3 py-3 font-medium rounded-md group h-12">
                                 <ion-icon name="home" class="text-xl"></ion-icon>
                                 <span class="group-[.collapsed]:md:hidden">Início</span>
                             </a>
-                            <a href="{{ ajuda_custo_url }}" class="px-3 flex items-center gap-3 py-3 font-medium rounded-md group h-12">
+                            <a href="{{ ajuda_custo_url }}" class="{% if request.path == ajuda_custo_url %}text-blue-300 font-semibold{% else %}text-gray-300 hover:text-blue-300{% endif %} px-3 flex items-center gap-3 py-3 font-medium rounded-md group h-12">
                                 <ion-icon name="time" class="text-xl"></ion-icon>
                                 <span class="group-[.collapsed]:md:hidden">Ajuda De Custo</span>
                             </a>
@@ -120,7 +121,7 @@
                             {% if request.user|permitido:'sidebar_gesipe' %}
                             <div class="pr-4 group">
                                 <button id="gesipe-toggle" class="px-3 flex items-center justify-between font-medium text-gray-300 hover:text-white transition-colors duration-200">
-                                    <div class="flex items-center h-12">
+                                    <div class="{% if request.path == gesipe_url or request.path == gesipe_sga_url or request.path == copen_url %}text-blue-300 font-semibold{% else %}text-gray-300 hover:text-blue-300{% endif %} flex items-center h-12">
                                         <ion-icon name="document-text" class="text-xl"></ion-icon>
                                         <span class="group-[.collapsed]:md:hidden pl-4">Gesipe</span>
                                     </div>
@@ -163,13 +164,13 @@
                             </div>
                             {% endif %}
                             {% if request.user|permitido:'sidebar_rh' %}
-                            <a href="{{ servidor_url }}" class="px-3 flex items-center gap-3 pr-4 py-3 font-medium rounded-md group h-12">
+                            <a href="{{ servidor_url }}" class="{% if request.path == servidor_url %}text-blue-300 font-semibold{% else %}text-gray-300 hover:text-blue-300{% endif %} px-3 flex items-center gap-3 pr-4 py-3 font-medium rounded-md group h-12">
                                 <ion-icon name="people" class="text-xl"></ion-icon>
                                 <span class="group-[.collapsed]:md:hidden">Recursos Humanos</span>
                             </a>
                             {% endif %}
                             {% if request.user|permitido:'sidebar_gestaoprisional' %}
-                            <a href="{{ gestao_prisional_url }}" class="px-3 flex items-center gap-3 pr-4 py-3 font-medium rounded-md group h-12">
+                            <a href="{{ gestao_prisional_url }}" class="{% if request.path == gestao_prisional_url %}text-blue-300 font-semibold{% else %}text-gray-300 hover:text-blue-300{% endif %} px-3 flex items-center gap-3 pr-4 py-3 font-medium rounded-md group h-12">
                                 <ion-icon name="clipboard" class="text-xl"></ion-icon>
                                 <span class="group-[.collapsed]:md:hidden">Gestão Prisional</span>
                             </a>
@@ -178,7 +179,7 @@
 
 
                             {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups %}
-                            <a href="{{ estatistica_url }}" class="px-3 flex items-center gap-3 pr-4 py-3 font-medium rounded-md group h-12">
+                            <a href="{{ estatistica_url }}" class="{% if request.path == estatistica_url %}text-blue-300 font-semibold{% else %}text-gray-300 hover:text-blue-300{% endif %} px-3 flex items-center gap-3 pr-4 py-3 font-medium rounded-md group h-12">
                                 <ion-icon name="stats-chart" class="text-xl"></ion-icon>
                                 <span class="group-[.collapsed]:md:hidden">Estatísticas</span>
                             </a>
@@ -192,7 +193,7 @@
                                 <h4 class="px-2 py-1 text-sm font-medium text-gray-400 group-[.collapsed]:md:hidden">Pessoal</h4>
                             </div>
                             <div class="space-y-1">
-                                <a href="{% url 'seappb:editarperfil' user.pk %}" class="px-3 flex items-center gap-3 py-3 font-medium rounded-md group h-12">
+                                <a href="{% url 'seappb:editarperfil' user.pk %}" class="{% if request.resolver_match.url_name == 'editarperfil' %}text-blue-300 font-semibold{% else %}text-gray-300 hover:text-blue-300{% endif %} px-3 flex items-center gap-3 py-3 font-medium rounded-md group h-12">
                                     <i class="bi bi-person mr-3 text-xl"></i>
                                     <span class="group-[.collapsed]:md:hidden">Perfil</span>
                                 </a>
