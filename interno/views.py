@@ -26,6 +26,7 @@ from django.forms.models import model_to_dict
 from io import BytesIO
 from PIL import Image
 import numpy as np
+from seappb.permissions import PermissionChecker
 
 
 def get_populacao_por_unidade(request):
@@ -585,9 +586,11 @@ class Internos(LoginRequiredMixin, UserPassesTestMixin, ListView):
     paginate_by = 50  # Quantidade de registros por página
 
     def test_func(self):
-        user = self.request.user
-        grupos_permitidos = ['Administrador', 'Copen', 'GerGesipe', 'DiretorUnidade', 'AdmUnidade', 'CoordenadorUnidade']
-        return user.groups.filter(name__in=grupos_permitidos).exists()
+        # Verifica se o usuário tem permissão para gestao presional
+        return PermissionChecker.has_permission(
+            user=self.request.user,
+            permission_section='pagina_gestaoprisional'
+        )
 
     def handle_no_permission(self):
         messages.error(self.request, "Você não tem permissão para acessar esta página.")
@@ -614,9 +617,11 @@ class RelatorioInterno(LoginRequiredMixin, UserPassesTestMixin, ListView):
     paginate_by = 50  # Quantidade de registros por página
 
     def test_func(self):
-        user = self.request.user
-        grupos_permitidos = ['Administrador', 'Copen', 'GerGesipe', 'DiretorUnidade', 'AdmUnidade', 'CoordenadorUnidade']
-        return user.groups.filter(name__in=grupos_permitidos).exists()
+        # Verifica se o usuário tem permissão para gestao presional
+        return PermissionChecker.has_permission(
+            user=self.request.user,
+            permission_section='pagina_gestaoprisional'
+        )
 
     def handle_no_permission(self):
         messages.error(self.request, "Você não tem permissão para acessar esta página.")
