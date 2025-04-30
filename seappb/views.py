@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .models import Usuario
+from .models import Usuario, Unidade
 from django.views.generic import TemplateView, ListView, FormView, UpdateView
 from gesipe.models import Gesipe_adm
 from servidor.models import Servidor
@@ -23,7 +23,7 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from django.db.models import Q
 from django.http import JsonResponse
 from .forms import UnidadeForm
-
+from django.views import View
 
 import os
 
@@ -317,3 +317,15 @@ class Estatisticas(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
         return render(self.request, '403.html', status=403)  # Substitua '404.html' pelo nome do seu template
 
 
+
+class UnidadeAutocomplete(View):
+    def get(self, request, *args, **kwargs):
+        term = request.GET.get('term', '')
+        unidades = Unidade.objects.filter(nome__icontains=term)[:20]
+
+        results = [{
+            'id': unidade.id,
+            'text': f"{unidade.nome}"
+        } for unidade in unidades]
+
+        return JsonResponse({'results': results})

@@ -157,5 +157,88 @@ Copen - Apreensao
         }
     });
 </script>
+
+<script>
+        $(document).ready(function() {
+        // Inicialização do Select2 com Tailwind
+        $('#id_unidade').select2({
+            width: '100%',
+            placeholder: $('#id_unidade').data('placeholder'),
+            minimumInputLength: $('#id_unidade').data('minimum-input-length'),
+            allowClear: true,
+
+            // Traduções
+            language: {
+                inputTooShort: () => 'Digite pelo menos 3 caracteres',
+                noResults: () => 'Nenhum resultado encontrado',
+                searching: () => 'Buscando...'
+            },
+
+            // Estilização com Tailwind
+            dropdownCssClass: `
+                !border !border-gray-300
+                !rounded-md
+                !shadow-lg
+                !bg-white
+                !mt-0
+                !z-50
+            `,
+
+            selectionCssClass: `
+                !min-h-[38px]  /* Altura igual aos outros campos */
+                !flex !items-center  /* Centraliza verticalmente */
+                !w-full
+                !px-3 !py-0
+                !text-gray-700
+                !bg-white
+                !border !border-gray-300
+                !rounded-lg
+                !shadow-sm
+                focus:!border-blue-500 focus:!ring-1 focus:!ring-blue-500
+            `,
+
+            // Correção aplicada aqui (removi as template strings aninhadas)
+            templateResult: function(data) {
+                if (!data.id) return $('<span class="text-gray-400">' + data.text + '</span>');
+                return $('<div class=" px-3 py-2 hover:bg-blue-400 cursor-pointer">' + data.text + '</div>');
+            },
+
+            templateSelection: function(data) {
+                return $('<span class="text-gray-700">' + data.text + '</span>');
+            },
+
+            // Configurações AJAX
+            ajax: {
+                url: $('#id_unidade').data('ajax--url'),
+                dataType: 'json',
+                delay: 250,
+                data: function(params) {
+                    return {
+                        term: params.term,
+                        page: params.page || 1
+                    };
+                },
+                processResults: function(data) {
+                    return {
+                        results: data.results || []
+                    };
+                },
+                cache: true
+            }
+        });
+
+        // Carrega valor inicial se existir
+        const initialId = $('#id_unidade').data('initial-id');
+        const initialText = $('#id_unidade').data('initial-text');
+        if (initialId && initialText) {
+            const option = new Option(initialText, initialId, true, true);
+            $('#id_unidade').append(option).trigger('change');
+        }
+    });
+</script>
+
+
+
+
 {% endblock %}
 
