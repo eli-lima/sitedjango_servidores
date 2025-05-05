@@ -736,7 +736,7 @@ class PopulacaoEdit(LoginRequiredMixin, CreateView, UserPassesTestMixin):
         form = super().get_form(form_class)
 
         user = self.request.user
-        grupos_especiais = ['Administrador', 'GerGesipe']
+        grupos_especiais = ['Administrador', 'GerGesipe', 'Copen']
         pode_editar_unidade = user.groups.filter(name__in=grupos_especiais).exists()
 
         if not pode_editar_unidade:
