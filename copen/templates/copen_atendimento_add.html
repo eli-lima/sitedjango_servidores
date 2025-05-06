@@ -1,180 +1,181 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
-
 {% load static %}
 
 {% block titulo %}
-Copen - Apreensao
+Copen - Atendimento
 {% endblock %}
 
-
-
 {% block content %}
-    <div class="flex flex-col pt-4">
-
-        <div class="flex flex-col ítems-end">
-            <h1 class="text-center text-3xl pb-5 font-mono">Cadastro de Atendimento:</h1>
-        </div>
-
-
-        <form class="mx-4 shadow rounded shadow-md border border-2 border-secondary" method="post" action="{% url 'copen:atendimento-add' %}">
-            {% csrf_token %}
-
-
-            <div class="flex justify-center space-x-4 w-full pb-8 pt-4">
-                <!-- Campo Data -->
-                <div class="w-auto text-center">
-                    <label for="id_data" class="form-label">Data:</label>
-                    <input type="date" name="data" id="id_data" class="form-control" required>
-                </div>
-                <!-- Campo nome pesquisado -->
-                <div class="w-auto text-center">
-                    <label for="id_data" class="form-label">Nome Pesquisado:</label>
-                    <input type="text" name="nome" id="id_nome" class="form-control" required>
-                </div>
-            </div>
-            <div class="flex justify-center space-x-4 w-full pt-4 mx-4 pb-2">
-                <h3 class="text-2xl font-semibold">Localizar Interno</h3>
-            </div>
-            <!-- Campo botao pesquisar inter -->
-                <!-- Botão Localizar Interno -->
-                <div class="w-auto text-center pb-6">
-                    <button type="button" class="btn btn-primary" id="btn-localizar">Localizar</button>
-                </div>
-            <div class="flex flex justify-center space-x-4 items-center flex-row text-center mx-4 pb-8">
-                <label class="form-label">Status</label>
-                <div class="form-check">
-                    {% for radio in form.localizado %}
-                        <div class="flex items-center space-x-2">
-                            {{ radio.tag }}
-                            <label class="text-gray-900">{{ radio.choice_label }}</label>
-                        </div>
-                    {% endfor %}
-                </div>
-            </div>
-            <div class="flex flex justify-center space-x-4 items-center flex-row text-center mx-4 pb-8">
-                <!-- Campo unidade -->
-                <div class="">
-                    <label  class="form-label">Se Localizado, Qual Unidade ou Regime:</label>
-                    {{form.unidade}}
-                </div>
-                <!-- Campo STATUS -->
-                <div class="">
-                    <label  class="form-label">Se Localizado, Qual Status:</label>
-                    {{form.status_preso}}
-                </div>
-            </div>
-
-
-
-
-            <div class="flex flex justify-center items-center flex-col w-full pb-2 pt-4 mx-4">
-                <div class="flex flex-col ítems-end">
-                    <h3 class="text-center text-2xl pb-2 font-semibold">Policial Penal</h3>
-                </div>
-
-                <!-- Campo servidor -->
-                <div class="w-1/4 text-center mx-4 pb-8">
-                    <div class="w-auto">
-
-                        {{form.servidor}}
-                    </div>
-                </div>
-            </div>
-            <div class="flex flex justify-center items-center flex-col w-full pb-2 pt-4">
-                <div class="flex flex-col ítems-end">
-                    <h3 class="text-center text-2xl pb-2 font-semibold">Outras Intituições:</h3>
-                </div>
-
-                <div class="flex flex justify-center items-center flex-row text-center pb-8">
-                    <!-- Campo outros -->
-                    <div class="p-2">
-                        <label  class="form-label">Nome / Cargo ou Função:</label>
-                        {{form.outros}}
-                    </div>
-                    <!-- Campo matricula outros -->
-                    <div class="p-2">
-                        <label  class="form-label">Matrícula:</label>
-                        {{form.matricula}}
-                    </div>
-                    <!-- Campo instituicao externa -->
-                    <div class="p-2">
-                        <label  class="form-label">Instituição:</label>
-                        {{form.instituicao}}
-                    </div>
-                </div>
-            </div>
-
-            <div class="flex flex justify-center items-center flex-col w-full pb-4 pt-4">
-
-                <!-- Campo observacao -->
-                <div class="w-auto text-center">
-                    <label  class="form-label">Observações:</label>
-                    {{form.observacao}}
-                </div>
-            </div>
-
-
-
-            <div class="flex flex justify-center items-center flex-col w-full pb-2 pt-4">
-                <button type="submit" class="btn btn-primary">Salvar</button>
-            </div>
-        </form>
+<div class="flex flex-col pt-4">
+    <div class="flex flex-col items-end">
+        <h1 class="text-center text-3xl pb-5 font-mono">Cadastro de Atendimento:</h1>
     </div>
 
-<!-- Script para modificar o link -->
+    <form class="mx-4 shadow rounded shadow-md border border-2 border-secondary" method="post" action="{% url 'copen:atendimento-add' %}" id="atendimento-form">
+        {% csrf_token %}
+
+        <!-- Data e Nome -->
+        <div class="flex justify-center space-x-4 w-full pb-8 pt-4">
+            <div class="w-auto text-center">
+                {{ form.data.label_tag }}
+                {{ form.data }}
+                {% if form.data.errors %}
+                    <div class="text-red-500 text-sm">{{ form.data.errors }}</div>
+                {% endif %}
+            </div>
+            <div class="w-auto text-center">
+                {{ form.nome.label_tag }}
+                {{ form.nome }}
+                {% if form.nome.errors %}
+                    <div class="text-red-500 text-sm">{{ form.nome.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Localizar Interno -->
+        <div class="flex justify-center space-x-4 w-full pt-4 mx-4 pb-2">
+            <h3 class="text-2xl font-semibold">Localizar Interno</h3>
+        </div>
+        <div class="w-auto text-center pb-6">
+            <button type="button" class="btn btn-primary" id="btn-localizar">Localizar</button>
+        </div>
+
+        <!-- Status Localizado -->
+        <div class="flex flex justify-center space-x-4 items-center flex-row text-center mx-4 pb-8">
+            <label class="form-label">Status</label>
+            <div class="form-check">
+                {% for radio in form.localizado %}
+                    <div class="flex items-center space-x-2">
+                        {{ radio.tag }}
+                        <label class="text-gray-900">{{ radio.choice_label }}</label>
+                    </div>
+                {% endfor %}
+                {% if form.localizado.errors %}
+                    <div class="text-red-500 text-sm">{{ form.localizado.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Unidade e Status Preso -->
+        <div class="flex flex justify-center space-x-4 items-center flex-row text-center mx-4 pb-8">
+            <div class="">
+                {{ form.unidade.label_tag }}
+                {{ form.unidade }}
+                {% if form.unidade.errors %}
+                    <div class="text-red-500 text-sm">{{ form.unidade.errors }}</div>
+                {% endif %}
+            </div>
+            <div class="">
+                {{ form.status_preso.label_tag }}
+                {{ form.status_preso }}
+                {% if form.status_preso.errors %}
+                    <div class="text-red-500 text-sm">{{ form.status_preso.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Policial Penal -->
+        <div class="flex flex justify-center items-center flex-col w-full pb-2 pt-4 mx-4">
+            <div class="flex flex-col items-end">
+                <h3 class="text-center text-2xl pb-2 font-semibold">Policial Penal</h3>
+            </div>
+            <div class="w-1/4 text-center mx-4 pb-8">
+                {{ form.servidor }}
+                {% if form.servidor.errors %}
+                    <div class="text-red-500 text-sm">{{ form.servidor.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Outras Instituições -->
+        <div class="flex flex justify-center items-center flex-col w-full pb-2 pt-4">
+            <div class="flex flex-col items-end">
+                <h3 class="text-center text-2xl pb-2 font-semibold">Outras Instituições:</h3>
+            </div>
+            <div class="flex flex justify-center items-center flex-row text-center pb-8">
+                <div class="p-2">
+                    {{ form.outros.label_tag }}
+                    {{ form.outros }}
+                    {% if form.outros.errors %}
+                        <div class="text-red-500 text-sm">{{ form.outros.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="p-2">
+                    {{ form.matricula.label_tag }}
+                    {{ form.matricula }}
+                    {% if form.matricula.errors %}
+                        <div class="text-red-500 text-sm">{{ form.matricula.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="p-2">
+                    {{ form.instituicao.label_tag }}
+                    {{ form.instituicao }}
+                    {% if form.instituicao.errors %}
+                        <div class="text-red-500 text-sm">{{ form.instituicao.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Observações -->
+        <div class="flex flex justify-center items-center flex-col w-full pb-4 pt-4">
+            {{ form.observacao.label_tag }}
+            {{ form.observacao }}
+            {% if form.observacao.errors %}
+                <div class="text-red-500 text-sm">{{ form.observacao.errors }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Botão Salvar -->
+        <div class="flex flex justify-center items-center flex-col w-full pb-2 pt-4">
+            <button type="submit" class="btn btn-primary">Salvar</button>
+        </div>
+    </form>
+</div>
+
+<!-- Script para o botão Localizar -->
 <script>
     document.getElementById("btn-localizar").addEventListener("click", function(event) {
-        event.preventDefault();  // Evita que o link siga sem modificação
-
-        let nomePesquisado = document.getElementById("id_nome").value.trim(); // Obtém o valor digitado
+        event.preventDefault();
+        let nomePesquisado = document.getElementById("id_nome").value.trim();
 
         if (nomePesquisado !== "") {
-            // Criando os parâmetros da URL manualmente
             let params = new URLSearchParams();
             params.set("query", nomePesquisado);
             params.set("action", "search");
-
             let url = "{% url 'interno:relatorio_interno' %}?" + params.toString();
-            window.open(url, "_blank"); // Abre a URL em uma nova aba
+            window.open(url, "_blank");
         } else {
             alert("Digite um nome antes de pesquisar.");
         }
     });
 </script>
 
-
-
-
-
-
+<!-- Script para preencher data atual -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const today = new Date().toISOString().split('T')[0]; // Obtém a data atual no formato YYYY-MM-DD
+        const today = new Date().toISOString().split('T')[0];
         const dateField = document.getElementById('id_data');
-        if (dateField && !dateField.value) { // Preenche apenas se o campo estiver vazio
+        if (dateField && !dateField.value) {
             dateField.value = today;
         }
     });
 </script>
 
+<!-- Configuração do Select2 para Unidade -->
 <script>
-        $(document).ready(function() {
-        // Inicialização do Select2 com Tailwind
+    $(document).ready(function() {
         $('#id_unidade').select2({
             width: '100%',
             placeholder: $('#id_unidade').data('placeholder'),
             minimumInputLength: $('#id_unidade').data('minimum-input-length'),
             allowClear: true,
-
-            // Traduções
             language: {
                 inputTooShort: () => 'Digite pelo menos 3 caracteres',
                 noResults: () => 'Nenhum resultado encontrado',
                 searching: () => 'Buscando...'
             },
-
-            // Estilização com Tailwind
             dropdownCssClass: `
                 !border !border-gray-300
                 !rounded-md
@@ -183,10 +184,9 @@ Copen - Apreensao
                 !mt-0
                 !z-50
             `,
-
             selectionCssClass: `
-                !min-h-[38px]  /* Altura igual aos outros campos */
-                !flex !items-center  /* Centraliza verticalmente */
+                !min-h-[38px]
+                !flex !items-center
                 !w-full
                 !px-3 !py-0
                 !text-gray-700
@@ -196,18 +196,13 @@ Copen - Apreensao
                 !shadow-sm
                 focus:!border-blue-500 focus:!ring-1 focus:!ring-blue-500
             `,
-
-            // Correção aplicada aqui (removi as template strings aninhadas)
             templateResult: function(data) {
                 if (!data.id) return $('<span class="text-gray-400">' + data.text + '</span>');
                 return $('<div class=" px-3 py-2 hover:bg-blue-400 cursor-pointer">' + data.text + '</div>');
             },
-
             templateSelection: function(data) {
                 return $('<span class="text-gray-700">' + data.text + '</span>');
             },
-
-            // Configurações AJAX
             ajax: {
                 url: $('#id_unidade').data('ajax--url'),
                 dataType: 'json',
@@ -234,11 +229,17 @@ Copen - Apreensao
             const option = new Option(initialText, initialId, true, true);
             $('#id_unidade').append(option).trigger('change');
         }
+
+        // Validação antes do submit
+        $('#atendimento-form').on('submit', function(e) {
+            if ($('#id_localizado_0').is(':checked') && !$('#id_unidade').val()) {
+                e.preventDefault();
+                alert('Se o interno foi localizado, você deve selecionar uma unidade');
+                $('#id_unidade').focus();
+                return false;
+            }
+            return true;
+        });
     });
 </script>
-
-
-
-
 {% endblock %}
-
