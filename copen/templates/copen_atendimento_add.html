@@ -15,6 +15,9 @@ Copen - Atendimento
     <form class="mx-4 shadow rounded shadow-md border border-2 border-secondary" method="post" action="{% url 'copen:atendimento-add' %}" id="atendimento-form">
         {% csrf_token %}
 
+        <!-- Campo hidden para garantir envio do valor da unidade -->
+        <input type="hidden" id="unidade_hidden" name="unidade" value="">
+
         <!-- Data e Nome -->
         <div class="flex justify-center space-x-4 w-full pb-8 pt-4">
             <div class="w-auto text-center">
@@ -57,21 +60,23 @@ Copen - Atendimento
             </div>
         </div>
 
-        <!-- Unidade e Status Preso -->
-        <div class="flex flex justify-center space-x-4 items-center flex-row text-center mx-4 pb-8">
-            <div class="">
-                {{ form.unidade.label_tag }}
-                {{ form.unidade }}
-                {% if form.unidade.errors %}
-                    <div class="text-red-500 text-sm">{{ form.unidade.errors }}</div>
-                {% endif %}
-            </div>
-            <div class="">
-                {{ form.status_preso.label_tag }}
-                {{ form.status_preso }}
-                {% if form.status_preso.errors %}
-                    <div class="text-red-500 text-sm">{{ form.status_preso.errors }}</div>
-                {% endif %}
+        <!-- Unidade e Status Preso (mostrado apenas quando localizado) -->
+        <div id="localizado-fields" class="hidden">
+            <div class="flex flex justify-center space-x-4 items-center flex-row text-center mx-4 pb-8">
+                <div class="">
+                    {{ form.unidade.label_tag }}
+                    {{ form.unidade }}
+                    {% if form.unidade.errors %}
+                        <div class="text-red-500 text-sm">{{ form.unidade.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="">
+                    {{ form.status_preso.label_tag }}
+                    {{ form.status_preso }}
+                    {% if form.status_preso.errors %}
+                        <div class="text-red-500 text-sm">{{ form.status_preso.errors }}</div>
+                    {% endif %}
+                </div>
             </div>
         </div>
 
@@ -163,10 +168,11 @@ Copen - Atendimento
     });
 </script>
 
-<!-- Configuração do Select2 para Unidade -->
+<!-- Configuração do Select2 para Unidade e lógica de campos condicionais -->
 <script>
     $(document).ready(function() {
-        $('#id_unidade').select2({
+        // Inicializa o Select2 para unidade
+        const selectUnidade = $('#id_unidade').select2({
             width: '100%',
             placeholder: $('#id_unidade').data('placeholder'),
             minimumInputLength: $('#id_unidade').data('minimum-input-length'),
@@ -230,14 +236,41 @@ Copen - Atendimento
             $('#id_unidade').append(option).trigger('change');
         }
 
+        // Atualiza o campo hidden quando o Select2 muda
+        selectUnidade.on('change', function() {
+            $('#unidade_hidden').val($(this).val());
+        });
+
+        // Mostra/esconde campos condicionais
+        function toggleLocalizadoFields() {
+            const localizado = $('input[name="localizado"]:checked').val() === 'True';
+            $('#localizado-fields').toggleClass('hidden', !localizado);
+
+            if (!localizado) {
+                $('#id_unidade').val(null).trigger('change');
+                $('#id_status_preso').val('');
+                $('#unidade_hidden').val('');
+            }
+        }
+
+        // Inicializa e configura listeners
+        toggleLocalizadoFields();
+        $('input[name="localizado"]').change(toggleLocalizadoFields);
+
         // Validação antes do submit
         $('#atendimento-form').on('submit', function(e) {
-            if ($('#id_localizado_0').is(':checked') && !$('#id_unidade').val()) {
+            const localizado = $('input[name="localizado"]:checked').val() === 'True';
+            const unidadeVal = $('#id_unidade').val();
+
+            if (localizado && !unidadeVal) {
                 e.preventDefault();
                 alert('Se o interno foi localizado, você deve selecionar uma unidade');
-                $('#id_unidade').focus();
+                $('#id_unidade').select2('open');
                 return false;
             }
+
+            // Garante que o valor do Select2 seja enviado
+            $('#unidade_hidden').val(unidadeVal);
             return true;
         });
     });
