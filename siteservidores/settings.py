@@ -219,8 +219,6 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost'
 ]
 
-
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -271,3 +269,7 @@ EMAIL_HOST_PASSWORD = 'dfpl ygsq hthl ohyi'
 SESSION_COOKIE_AGE = 10800  # 1 hora
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Fecha a sessão ao fechar o navegador
 SESSION_SAVE_EVERY_REQUEST = True  # Renova o tempo de sessão a cada requisição
+
+
+
+

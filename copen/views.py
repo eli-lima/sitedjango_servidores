@@ -26,6 +26,8 @@ import tempfile
 from django.template.loader import render_to_string
 from django.db.models import Q
 from django.utils.dateparse import parse_date
+import logging
+logger = logging.getLogger(__name__)
 
 
 #gerar pdf
@@ -530,30 +532,29 @@ class AtendimentoView(UserPassesTestMixin, LoginRequiredMixin, FormView):
         return render(self.request, '403.html', status=403)
 
     def form_valid(self, form):
-        print("\n--- INÍCIO DO form_valid ---")  # Debug
-        print(f"Dados do formulário: {form.cleaned_data}")  # Debug
+        logger.info("Iniciando processamento do formulário de atendimento")
+        logger.debug(f"Dados do formulário: {form.cleaned_data}")
 
         try:
             atendimento = form.save(commit=False)
-            print("Formulário instanciado sem salvar no banco")  # Debug
+            logger.debug("Formulário instanciado sem salvar no banco")
 
             atendimento.usuario = self.request.user
             atendimento.data_edicao = timezone.now()
-            print(f"Usuário atribuído: {atendimento.usuario}")  # Debug
-            print(f"Data de edição: {atendimento.data_edicao}")  # Debug
+            logger.debug(f"Usuário atribuído: {atendimento.usuario}")
+            logger.debug(f"Data de edição: {atendimento.data_edicao}")
 
             atendimento.save()
-            print("Atendimento salvo no banco com sucesso!")  # Debug
-            print(f"ID do atendimento: {atendimento.id}")  # Debug
+            logger.info(f"Atendimento salvo com sucesso! ID: {atendimento.id}")
 
             messages.success(self.request, 'Atendimento registrado com sucesso!')
             return redirect(self.success_url)
 
         except Exception as e:
-            print(f"ERRO ao salvar atendimento: {str(e)}")  # Debug
-            print(f"Tipo de erro: {type(e).__name__}")  # Debug
+            logger.error(f"Erro ao salvar atendimento: {str(e)}", exc_info=True)
             messages.error(self.request, f'Ocorreu um erro ao registrar o atendimento: {str(e)}')
             return self.form_invalid(form)
+
 
 class OcorrenciaView(UserPassesTestMixin, FormView, LoginRequiredMixin):
     form_class = OcorrenciaForm
