@@ -515,7 +515,7 @@ class ApreensaoAddView(UserPassesTestMixin, LoginRequiredMixin, FormView):
         return redirect(self.success_url)
 
 
-class AtendimentoView(UserPassesTestMixin, LoginRequiredMixin, FormView ):
+class AtendimentoView(UserPassesTestMixin, LoginRequiredMixin, FormView):
     form_class = AtendimentoForm
     template_name = 'copen_atendimento_add.html'
     success_url = reverse_lazy('copen:copen')
@@ -530,13 +530,30 @@ class AtendimentoView(UserPassesTestMixin, LoginRequiredMixin, FormView ):
         return render(self.request, '403.html', status=403)
 
     def form_valid(self, form):
-        atendimento = form.save(commit=False)
-        atendimento.usuario = self.request.user
-        atendimento.data_edicao = timezone.now()
-        atendimento.save()
-        messages.success(self.request, 'Atendimento registrado com sucesso!')
-        return redirect(self.success_url)
+        print("\n--- INÍCIO DO form_valid ---")  # Debug
+        print(f"Dados do formulário: {form.cleaned_data}")  # Debug
 
+        try:
+            atendimento = form.save(commit=False)
+            print("Formulário instanciado sem salvar no banco")  # Debug
+
+            atendimento.usuario = self.request.user
+            atendimento.data_edicao = timezone.now()
+            print(f"Usuário atribuído: {atendimento.usuario}")  # Debug
+            print(f"Data de edição: {atendimento.data_edicao}")  # Debug
+
+            atendimento.save()
+            print("Atendimento salvo no banco com sucesso!")  # Debug
+            print(f"ID do atendimento: {atendimento.id}")  # Debug
+
+            messages.success(self.request, 'Atendimento registrado com sucesso!')
+            return redirect(self.success_url)
+
+        except Exception as e:
+            print(f"ERRO ao salvar atendimento: {str(e)}")  # Debug
+            print(f"Tipo de erro: {type(e).__name__}")  # Debug
+            messages.error(self.request, f'Ocorreu um erro ao registrar o atendimento: {str(e)}')
+            return self.form_invalid(form)
 
 class OcorrenciaView(UserPassesTestMixin, FormView, LoginRequiredMixin):
     form_class = OcorrenciaForm
