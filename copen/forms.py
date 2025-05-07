@@ -43,12 +43,7 @@ class AtendimentoForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': 'Digite o nome da instituição'
             }),
-            'unidade': forms.Select(attrs={
-                'class': 'form-select select2-ajax',
-                'data-placeholder': 'Selecione a unidade',
-                'data-ajax--url': reverse_lazy('seappb:unidade-autocomplete'),
-                'data-minimum-input-length': '3',
-            }),
+            'unidade': forms.Select(attrs={'class': 'form-select'}),
             'status_preso': forms.Select(attrs={'class': 'form-select'}),
             'observacao': forms.Textarea(attrs={
                 'class': 'form-control',
@@ -62,16 +57,9 @@ class AtendimentoForm(forms.ModelForm):
         self.fields['servidor'].empty_label = "Selecione um servidor"
         self.fields['unidade'].empty_label = "Selecione a Unidade ou Regime se Localizado..."
         self.fields['status_preso'].empty_label = "Selecione o Status do Preso se Localizado..."
-        # Remove o queryset padrão para o campo unidade
-        self.fields['unidade'].queryset = Unidade.objects.none()
-
-        # Configuração do valor inicial para edição
-        if self.instance and self.instance.unidade:
-            self.fields['unidade'].widget.attrs.update({
-                'data-initial-id': self.instance.unidade.id,
-                'data-initial-text': str(self.instance.unidade),
-            })
-
+        # Ordena as unidades em ordem alfabética
+        self.fields['unidade'].queryset = self.fields['unidade'].queryset.order_by(
+            'nome')  # Substitua 'nome_da_unidade' pelo nome do campo de unidade
 
 
 class ApreensaoForm(forms.ModelForm):

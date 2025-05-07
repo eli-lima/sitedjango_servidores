@@ -82,13 +82,11 @@ def relatorio_resumido_apreensao(request):
             monthly_labels.append(f"{nome_mes[:3]}/{ano}")
 
 
-
         # Gráfico de pizza
         pie_labels_apreensao, pie_values_apreensao = calculate_pie_apreensao(
             mes=mes_selecionado,
             ano=ano_selecionado
         )
-
 
         # Contexto
         context = {
@@ -532,29 +530,12 @@ class AtendimentoView(UserPassesTestMixin, LoginRequiredMixin, FormView):
         return render(self.request, '403.html', status=403)
 
     def form_valid(self, form):
-        logger.info("Iniciando processamento do formulário de atendimento")
-        logger.debug(f"Dados do formulário: {form.cleaned_data}")
-
-        try:
-            atendimento = form.save(commit=False)
-            logger.debug("Formulário instanciado sem salvar no banco")
-
-            atendimento.usuario = self.request.user
-            atendimento.data_edicao = timezone.now()
-            logger.debug(f"Usuário atribuído: {atendimento.usuario}")
-            logger.debug(f"Data de edição: {atendimento.data_edicao}")
-
-            atendimento.save()
-            logger.info(f"Atendimento salvo com sucesso! ID: {atendimento.id}")
-
-            messages.success(self.request, 'Atendimento registrado com sucesso!')
-            return redirect(self.success_url)
-
-        except Exception as e:
-            logger.error(f"Erro ao salvar atendimento: {str(e)}", exc_info=True)
-            messages.error(self.request, f'Ocorreu um erro ao registrar o atendimento: {str(e)}')
-            return self.form_invalid(form)
-
+        atendimento = form.save(commit=False)
+        atendimento.usuario = self.request.user
+        atendimento.data_edicao = timezone.now()
+        atendimento.save()
+        messages.success(self.request, 'Atendimento registrado com sucesso!')
+        return redirect(self.success_url)
 
 class OcorrenciaView(UserPassesTestMixin, FormView, LoginRequiredMixin):
     form_class = OcorrenciaForm
