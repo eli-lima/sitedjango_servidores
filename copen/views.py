@@ -537,6 +537,7 @@ class AtendimentoView(UserPassesTestMixin, LoginRequiredMixin, FormView):
         messages.success(self.request, 'Atendimento registrado com sucesso!')
         return redirect(self.success_url)
 
+
 class OcorrenciaView(UserPassesTestMixin, FormView, LoginRequiredMixin):
     form_class = OcorrenciaForm
     template_name = 'copen_ocorrencia_add.html'
