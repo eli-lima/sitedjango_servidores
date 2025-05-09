@@ -346,7 +346,7 @@ def processar_imagem_da_memoria(image_stream):
                 codificacao_cadastrada = json.loads(interno.codificacao_facial)
                 distancia = face_recognition.face_distance([codificacao_cadastrada], codificacao_desconhecida)[0]
 
-                if distancia < 0.6:  # Limite de similaridade
+                if distancia < 0.4:  # Limite de similaridade
                     resultados.append({
                         'id': interno.id,
                         'nome': interno.nome,
