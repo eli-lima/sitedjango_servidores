@@ -317,7 +317,6 @@ class Estatisticas(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
         return render(self.request, '403.html', status=403)  # Substitua '404.html' pelo nome do seu template
 
 
-
 class UnidadeAutocomplete(View):
     def get(self, request, *args, **kwargs):
         term = request.GET.get('term', '')

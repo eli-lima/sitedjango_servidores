@@ -190,6 +190,13 @@ Cadastrar Rosto - {{ interno.nome }}
     const MAX_HEIGHT = 1000;
     const JPEG_QUALITY = 0.85;
     let currentFacingMode = 'user'; // 'user' para frontal, 'environment' para traseira
+    let videoStream = null;
+
+    // Função para atualizar a transformação do vídeo baseado no tipo de câmera
+    function updateVideoTransform() {
+        // Inverte apenas para câmera frontal (user)
+        video.style.transform = currentFacingMode === 'user' ? 'scaleX(-1)' : 'scaleX(1)';
+    }
 
     // Toggle between camera and upload
     fonteImagemRadios.forEach(radio => {
@@ -232,7 +239,9 @@ Cadastrar Rosto - {{ interno.nome }}
                     facingMode: currentFacingMode
                 }
             });
+            videoStream = stream;
             video.srcObject = stream;
+            updateVideoTransform(); // Aplica a transformação correta
         } catch (error) {
             console.error('Erro ao acessar a câmera:', error);
             alert('Não foi possível acessar a câmera. Verifique as permissões.');
@@ -241,11 +250,11 @@ Cadastrar Rosto - {{ interno.nome }}
 
     // Stop camera
     function pararCamera() {
-        if (video.srcObject) {
+        if (videoStream) {
             console.log('Parando câmera...');
-            const stream = video.srcObject;
-            const tracks = stream.getTracks();
+            const tracks = videoStream.getTracks();
             tracks.forEach(track => track.stop());
+            videoStream = null;
             video.srcObject = null;
         }
     }
@@ -259,6 +268,7 @@ Cadastrar Rosto - {{ interno.nome }}
 
         // Alternar o modo da câmera
         currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
+        updateVideoTransform(); // Atualiza a transformação ao alternar
         console.log('Modo da câmera alterado para:', currentFacingMode);
 
         // Iniciar a nova câmera

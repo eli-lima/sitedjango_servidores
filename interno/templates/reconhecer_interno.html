@@ -109,7 +109,6 @@
     }
 
     #video {
-        transform: scaleX(-1);
         background: #000;
     }
 
@@ -154,6 +153,12 @@
     const uploadPreview = document.getElementById('uploadPreview');
     const previewImage = document.getElementById('previewImage');
     const processUpload = document.getElementById('processUpload');
+
+    // Função para atualizar a transformação do vídeo baseado no tipo de câmera
+    function updateVideoTransform() {
+        // Inverte apenas para câmera frontal (user)
+        video.style.transform = currentFacingMode === 'user' ? 'scaleX(-1)' : 'scaleX(1)';
+    }
 
     // Função para exibir erros
     function showError(message) {
@@ -214,6 +219,7 @@
 
             clearTimeout(timeout);
             video.srcObject = videoStream;
+            updateVideoTransform(); // Aplica a transformação correta
 
             video.onloadedmetadata = () => {
                 faceFrame.classList.remove('hidden');
@@ -255,6 +261,7 @@
 
         // Alternar o modo da câmera
         currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
+        updateVideoTransform(); // Atualiza a transformação ao alternar
         console.log('Modo da câmera alterado para:', currentFacingMode);
 
         // Iniciar a nova câmera
