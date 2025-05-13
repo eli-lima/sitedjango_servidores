@@ -4,91 +4,116 @@
 Relatorio Internos
 {% endblock %}
 
-
 {% block content %}
 
-
-
-
-
-
-
-<!--tabela com internos-->
-
-<div class="mb-12 flex px-4 justify-start w-full">
+<div class="mb-12 px-4 w-full">
     <div class="bg-white shadow-lg rounded-lg w-full">
-        <div class="p-6 rounded-t-lg">
-            <div>
-               <div class="flex items-center justify-between pb-4 mb-4 border-b border-gray-200">
-                    <div>
-                        <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Relatório</h3>
-                        <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">Internos</span>
-                    </div>
-
-               </div>
+        <!-- Cabeçalho -->
+        <div class="p-4 sm:p-6 rounded-t-lg">
+            <div class="flex items-center justify-between pb-4 mb-4 border-b border-gray-200">
+                <div>
+                    <h3 class="text-base font-normal text-gray-500">Relatório</h3>
+                    <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl">Internos</span>
+                </div>
             </div>
 
-                <form method="GET">
-
-
-
-                        <div class="flex flex-col justify-center pt-4">
-                            <div class="flex flex-row justify-end pt-4">
-                                <select class="form-control w-1/6 mr-2" name="stat">
-                                    <option value="">Status...</option>
-                                    {% for stat in status %}
-                                    <option value="{{ stat }}" {% if request.GET.stat == stat %}selected{% endif %}>{{ stat }}</option>
-                                    {% endfor %}
-                                </select>
-                                <select class="form-control" name="unidade">
-                                    <option value="">Unidade...</option>
-                                    {% for unidade in unidades %}
-                                    <option value="{{ unidade }}" {% if request.GET.unidade == unidade %}selected{% endif %}>{{ unidade }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="flex flex-row justify-between pt-4 space-x-2">
-                                <input class="form-input w-full p-1.5 rounded-md border-1 border-gray-600" type="text" name="prontuario" id="prontuario" placeholder="Prontuario..." value="{{ cpf }}">
-                                <input class="form-input w-full p-1.5 rounded-md border-1 border-gray-600" type="text" name="cpf" id="cpf" placeholder="CPF..." value="{{ cpf }}">
-                                <input class="form-input w-full p-1.5 rounded-md border-1 border-gray-600" type="text" name="nome_mae" id="nome_mae" placeholder="Nome da Mãe..." value="{{ nome_mae  }}">
-                                <input type="text" name="query" id="searchInput" class="form-input w-full p-1.5 rounded-md border-1 border-gray-600" placeholder="Pesquisar..." value="{{ query }}">
-                                <button type="submit" name="action" value="search" id="searchButton" class="ml-2 btn btn-primary">Pesquisar</button>
-                            </div>
-                        </div>
-
-                </form>
-
-
+            <!-- Formulário de Filtros -->
+            <form method="GET">
+                <div class="flex flex-col space-y-2">
+                    <div class="flex flex-col sm:flex-row sm:space-x-2 sm:space-y-0 space-y-2">
+                        <select class="w-full sm:w-1/4 p-2 border border-gray-300 rounded-md" name="stat">
+                            <option value="">Status...</option>
+                            {% for stat in status %}
+                            <option value="{{ stat }}" {% if request.GET.stat == stat %}selected{% endif %}>{{ stat }}</option>
+                            {% endfor %}
+                        </select>
+                        <select class="w-full sm:w-1/4 p-2 border border-gray-300 rounded-md" name="unidade">
+                            <option value="">Unidade...</option>
+                            {% for unidade in unidades %}
+                            <option value="{{ unidade }}" {% if request.GET.unidade == unidade %}selected{% endif %}>{{ unidade }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="flex flex-col sm:flex-row sm:space-x-2 sm:space-y-0 space-y-2">
+                        <input class="w-full p-2 border border-gray-300 rounded-md"
+                               type="text" name="prontuario" placeholder="Prontuario..." value="{{ request.GET.prontuario }}">
+                        <input class="w-full p-2 border border-gray-300 rounded-md"
+                               type="text" name="cpf" placeholder="CPF..." value="{{ request.GET.cpf }}">
+                        <input class="w-full p-2 border border-gray-300 rounded-md"
+                               type="text" name="nome_mae" placeholder="Nome da Mãe..." value="{{ request.GET.nome_mae }}">
+                        <input class="w-full p-2 border border-gray-300 rounded-md"
+                               type="text" name="query" placeholder="Pesquisar..." value="{{ request.GET.query }}">
+                        <button type="submit" class="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                            Pesquisar
+                        </button>
+                    </div>
+                </div>
+            </form>
         </div>
+
+        <!-- Tabela de Internos -->
         <div class="overflow-x-auto">
-            <table class="min-w-full bg-white divide-y divide-gray-200">
-                <thead class="bg-gray-100">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-100 hidden sm:table-header-group">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prontuario</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unidade</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome da Mãe</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cpf</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Foto</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prontuario</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unidade</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     {% for interno in internos %}
-                    <tr class="clickable-row {% if interno.status == 'Inativo' %}bg-red-200{% else %}{% endif %}" data-href="{% url 'interno:detalhes_interno' interno.id %}">
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <a href="https://infopenpb.mj.gov.br/interno/show/{{ interno.prontuario }}" class="text-blue-500 hover:text-blue-700 underline hover:no-underline" target="_blank">
+                    <tr class="clickable-row hover:bg-gray-50 {% if interno.status == 'Inativo' %}bg-red-100{% endif %}"
+                        data-href="{% url 'interno:detalhes_interno' interno.id %}">
+                        <!-- Foto (visível em todas as telas) -->
+                        <td class="px-3 py-4 whitespace-nowrap">
+                            {% if interno.foto %}
+                                <img src="{{ interno.foto.url }}" alt="Foto de {{ interno.nome }}"
+                                     class="h-10 w-10 sm:h-12 sm:w-12 rounded-full object-cover mx-auto">
+                            {% else %}
+                                <span class="text-gray-400 text-sm">Sem foto</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Prontuário -->
+                        <td class="px-3 py-4 whitespace-nowrap">
+                            <a href="https://infopenpb.mj.gov.br/interno/show/{{ interno.prontuario }}"
+                               class="text-blue-500 hover:text-blue-700 underline hover:no-underline"
+                               target="_blank"
+                               onclick="event.stopPropagation()">
                                 {{ interno.prontuario }}
                             </a>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ interno.nome }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ interno.unidade|default:"Sem unidade" }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ interno.nome_mae }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ interno.cpf }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ interno.status }}</td>
+
+                        <!-- Nome -->
+                        <td class="px-3 py-4">
+                            <div class="text-sm font-medium text-gray-900">{{ interno.nome }}</div>
+                            <div class="sm:hidden text-xs text-gray-500">
+                                <div>Mãe: {{ interno.nome_mae|default:"-" }}</div>
+                                <div>CPF: {{ interno.cpf|default:"-" }}</div>
+                                <div>Unidade: {{ interno.unidade|default:"-" }}</div>
+                            </div>
+                        </td>
+
+                        <!-- Unidade (apenas desktop) -->
+                        <td class="px-3 py-4 whitespace-nowrap hidden sm:table-cell">
+                            {{ interno.unidade|default:"-" }}
+                        </td>
+
+                        <!-- Status -->
+                        <td class="px-3 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                                {% if interno.status == 'Ativo' %}bg-green-100 text-green-800
+                                {% else %}bg-red-100 text-red-800{% endif %}">
+                                {{ interno.status }}
+                            </span>
+                        </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="4" class="px-6 py-4 text-center text-gray-500">Nenhum interno encontrado</td>
+                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">Nenhum interno encontrado</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -96,46 +121,68 @@ Relatorio Internos
         </div>
 
         <!-- Paginação -->
-        <div class="p-6 bg-gray-100 rounded-b-lg">
+        <div class="p-4 sm:p-6 bg-gray-100 rounded-b-lg">
             <nav aria-label="Page navigation">
-                <ul class="inline-flex items-center -space-x-px">
+                <ul class="inline-flex flex-wrap justify-center -space-x-px">
                     {% if page_obj.has_previous %}
-                    <li>
-                        <a href="?page=1&query={{ query }}&cpf={{ cpf }}&nome_mae={{ nome_mae }}&unidade={{ request.GET.unidade }}&stat={{ request.GET.stat }}" class="px-3 py-2 ml-0 text-sm font-medium text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100">Primeira</a>
+                    <li class="m-1 sm:m-0">
+                        <a href="?page=1&query={{ request.GET.query }}&cpf={{ request.GET.cpf }}&nome_mae={{ request.GET.nome_mae }}&unidade={{ request.GET.unidade }}&stat={{ request.GET.stat }}"
+                           class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">
+                            Primeira
+                        </a>
                     </li>
-                    <li>
-                        <a href="?page={{ page_obj.previous_page_number }}&query={{ query }}&cpf={{ cpf }}&nome_mae={{ nome_mae }}&unidade={{ request.GET.unidade }}&stat={{ request.GET.stat }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">Anterior</a>
+                    <li class="m-1 sm:m-0">
+                        <a href="?page={{ page_obj.previous_page_number }}&query={{ request.GET.query }}&cpf={{ request.GET.cpf }}&nome_mae={{ request.GET.nome_mae }}&unidade={{ request.GET.unidade }}&stat={{ request.GET.stat }}"
+                           class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">
+                            Anterior
+                        </a>
                     </li>
                     {% endif %}
 
                     {% for p in page_range %}
-                    {% if p == page_obj.number %}
-                    <li>
-                        <span class="px-3 py-2 text-sm font-medium text-white bg-blue-500 border border-gray-300">{{ p }}</span>
+                    <li class="m-1 sm:m-0">
+                        {% if p == page_obj.number %}
+                        <span class="px-3 py-2 text-sm font-medium text-white bg-blue-500 border border-gray-300">
+                            {{ p }}
+                        </span>
+                        {% else %}
+                        <a href="?page={{ p }}&query={{ request.GET.query }}&cpf={{ request.GET.cpf }}&nome_mae={{ request.GET.nome_mae }}&unidade={{ request.GET.unidade }}&stat={{ request.GET.stat }}"
+                           class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">
+                            {{ p }}
+                        </a>
+                        {% endif %}
                     </li>
-                    {% else %}
-                    <li>
-                        <a href="?page={{ p }}&query={{ query }}&cpf={{ cpf }}&nome_mae={{ nome_mae }}&unidade={{ request.GET.unidade }}&stat={{ request.GET.stat }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">{{ p }}</a>
-                    </li>
-                    {% endif %}
                     {% endfor %}
 
                     {% if page_obj.has_next %}
-                    <li>
-                        <a href="?page={{ page_obj.next_page_number }}&query={{ query }}&cpf={{ cpf }}&nome_mae={{ nome_mae }}&unidade={{ request.GET.unidade }}&stat={{ request.GET.stat }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">Próxima</a>
+                    <li class="m-1 sm:m-0">
+                        <a href="?page={{ page_obj.next_page_number }}&query={{ request.GET.query }}&cpf={{ request.GET.cpf }}&nome_mae={{ request.GET.nome_mae }}&unidade={{ request.GET.unidade }}&stat={{ request.GET.stat }}"
+                           class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">
+                            Próxima
+                        </a>
                     </li>
-                    <li>
-                        <a href="?page={{ page_obj.paginator.num_pages }}&query={{ query }}&cpf={{ cpf }}&nome_mae={{ nome_mae }}&unidade={{ request.GET.unidade }}&stat={{ request.GET.stat }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100">Última</a>
+                    <li class="m-1 sm:m-0">
+                        <a href="?page={{ page_obj.paginator.num_pages }}&query={{ request.GET.query }}&cpf={{ request.GET.cpf }}&nome_mae={{ request.GET.nome_mae }}&unidade={{ request.GET.unidade }}&stat={{ request.GET.stat }}"
+                           class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">
+                            Última
+                        </a>
                     </li>
                     {% endif %}
                 </ul>
             </nav>
-        </div>'
+        </div>
     </div>
 </div>
 
-
-
-
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Comportamento de clique nas linhas
+        document.querySelectorAll('.clickable-row').forEach(row => {
+            row.addEventListener('click', function() {
+                window.location.href = this.dataset.href;
+            });
+        });
+    });
+</script>
 
 {% endblock %}
