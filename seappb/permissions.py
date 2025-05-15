@@ -38,6 +38,11 @@ class PermissionChecker:
     def get_permitted_groups(cls, permission_section):
         """
         Retorna os grupos que têm permissão para uma seção específica
+        grupos ja criados
+        -pagina_armaria
+        -pagina_gestao prisional
+        -pagina_rh
+        ver restante
         """
         try:
             section = PermissaoSecao.objects.get(nome_secao=permission_section)
