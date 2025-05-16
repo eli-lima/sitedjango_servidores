@@ -42,6 +42,7 @@ class PermissionChecker:
         -pagina_armaria
         -pagina_gestao prisional
         -pagina_rh
+        -pagina_armaria
         ver restante
         """
         try:

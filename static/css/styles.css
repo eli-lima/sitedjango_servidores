@@ -5,10 +5,19 @@ body {
 }
 
 
-/* Estilo para linhas clicáveis */
 .clickable-row {
-    cursor: pointer; /* Muda o cursor para uma mão ao passar o mouse */
-    transition: background-color 0.3s, box-shadow 0.3s; /* Transição suave para a cor de fundo e sombra */
+    user-select: none; /* Impede a seleção de texto */
+    -webkit-user-select: none; /* Para navegadores baseados no WebKit */
+    -moz-user-select: none; /* Para Firefox */
+    -ms-user-select: none; /* Para Internet Explorer/Edge */
+    cursor: pointer; /* Mantém o cursor como ponteiro */
+}
+
+.clickable-row td {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 /* Efeito ao passar o mouse */
