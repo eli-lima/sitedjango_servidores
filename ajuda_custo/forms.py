@@ -56,19 +56,19 @@ class EnvioDatasForm(forms.ModelForm):
         self.fields['unidade'].choices = get_unidade_choices()
 
         self.fields['dia'].label = 'Dia'
-        self.fields['dia'].widget.attrs.update({'class': 'form-control xl:text-base text-2xl'})
+        self.fields['dia'].widget.attrs.update({'class': 'mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm sm:text-base'})
 
         self.fields['mes'].label = 'Mês'
-        self.fields['mes'].widget.attrs.update({'class': 'form-control xl:text-base text-2xl'})
+        self.fields['mes'].widget.attrs.update({'class': 'mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm sm:text-base'})
 
         self.fields['ano'].label = 'Ano'
-        self.fields['ano'].widget.attrs.update({'class': 'form-control xl:text-base text-2xl'})
+        self.fields['ano'].widget.attrs.update({'class': 'mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm sm:text-base'})
 
         self.fields['unidade'].label = 'Unidade de Trabalho'
-        self.fields['unidade'].widget.attrs.update({'class': 'form-control xl:text-base text-2xl'})
+        self.fields['unidade'].widget.attrs.update({'class': 'mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm sm:text-base'})
 
         self.fields['carga_horaria'].label = 'Horas'
-        self.fields['carga_horaria'].widget.attrs.update({'class': 'form-control xl:text-base text-2xl'})
+        self.fields['carga_horaria'].widget.attrs.update({'class': 'mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm sm:text-base'})
 
     def clean(self):
         cleaned_data = super().clean()
