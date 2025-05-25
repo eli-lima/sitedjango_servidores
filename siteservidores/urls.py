@@ -33,6 +33,7 @@ urlpatterns = [
     path('copen/', include('copen.urls', namespace='copen')),
     path('interno/', include('interno.urls', namespace='interno')),
     path('gestao_prisional/', include('gestao_prisional.urls', namespace='gestao_prisional')),
+    path('armaria/', include('armaria.urls', namespace='armaria')),
     path('chained/', include('smart_selects.urls')),
 ]
 

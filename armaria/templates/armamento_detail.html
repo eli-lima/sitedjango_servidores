@@ -1,0 +1,259 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block titulo %}
+Detalhes do Armamento
+{% endblock %}
+
+{% block content %}
+<div class="pt-3 mx-4">
+    <div id="ficha-armamento" class="shadow-lg shadow-gray-700 rounded-lg">
+        <!-- Cabeçalho -->
+        <div class="flex {% if armamento.status %}bg-green-700{% else %}bg-red-700{% endif %} rounded-t-lg w-full p-5">
+            <div class="w-full text-center">
+                <p class="pb-2 font-poppins font-bold text-white text-2xl">
+                    {{ armamento.tipo_arma }} - {{ armamento.modelo }}
+                </p>
+                <p class="text-white">Nº Série: {{ armamento.numero_serie }}</p>
+            </div>
+        </div>
+
+        <!-- Dados Principais -->
+        <div class="p-5 shadow-lg border">
+            <div class="py-3">
+                <div>
+                    <h2 class="text-lg font-poppins font-bold text-slate-500">Dados do Armamento</h2>
+                    <div class="border-2 w-20 my-3"></div>
+                </div>
+                <div class="w-full border-gray-200 sm:p-0">
+                    <div class="rounded-lg">
+                        <dl class="flex flex-wrap">
+                            <div class="pl-3 py-2 border w-3/12">
+                                <div class="pb-1 text-lg font-bold text-gray-500">
+                                    Tipo
+                                </div>
+                                <div class="text-base text-gray-900">
+                                    {{ armamento.tipo_arma }}
+                                </div>
+                            </div>
+                            <div class="pl-3 py-2 border w-3/12">
+                                <div class="pb-1 text-lg font-bold text-gray-500">
+                                    Marca
+                                </div>
+                                <div class="text-base text-gray-900">
+                                    {{ armamento.marca }}
+                                </div>
+                            </div>
+                            <div class="pl-3 py-2 border w-3/12">
+                                <div class="pb-1 text-lg font-bold text-gray-500">
+                                    Modelo
+                                </div>
+                                <div class="text-base text-gray-900">
+                                    {{ armamento.modelo }}
+                                </div>
+                            </div>
+                            <div class="pl-3 py-2 border w-3/12">
+                                <div class="pb-1 text-lg font-bold text-gray-500">
+                                    Calibre
+                                </div>
+                                <div class="text-base text-gray-900">
+                                    {{ armamento.calibre }}
+                                </div>
+                            </div>
+                            <div class="pl-3 py-2 border w-4/12">
+                                <div class="pb-1 text-lg font-bold text-gray-500">
+                                    Número de Série
+                                </div>
+                                <div class="text-base text-gray-900">
+                                    {{ armamento.numero_serie }}
+                                </div>
+                            </div>
+                            <div class="pl-3 py-2 border w-4/12">
+                                <div class="pb-1 text-lg font-bold text-gray-500">
+                                    Data de Inclusão
+                                </div>
+                                <div class="text-base text-gray-900">
+                                    {{ armamento.data_inclusao|date:"d/m/Y H:i" }}
+                                </div>
+                            </div>
+                            <div class="pl-3 py-2 border w-4/12 {% if armamento.status %}bg-green-700{% else %}bg-red-700{% endif %}">
+                                <div class="pb-1 text-lg font-bold text-white">
+                                    Status
+                                </div>
+                                <div class="text-base text-white">
+                                    {% if armamento.status %}Ativo{% else %}Inativo{% endif %}
+                                </div>
+                            </div>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dados de Posse -->
+            <div class="pt-8 pb-3">
+                <div>
+                    <h2 class="text-lg font-poppins font-bold text-slate-500">Dados de Posse</h2>
+                    <div class="border-2 w-20 my-3"></div>
+                </div>
+                <div class="w-full border-gray-200 sm:p-0">
+                    <div class="rounded-lg">
+                        <dl class="flex flex-wrap">
+                            {% if armamento.servidor %}
+                            <div class="pl-3 py-2 border w-6/12">
+                                <div class="pb-1 text-lg font-bold text-gray-500 ">
+                                    Servidor Responsável
+                                </div>
+                                <div class="text-base text-gray-900">
+                                    {{ armamento.servidor.nome }}
+                                </div>
+                            </div>
+                            <div class="pl-3 py-2 border w-6/12">
+                                <div class="pb-1 text-lg font-bold text-gray-500">
+                                    Matrícula
+                                </div>
+                                <div class="text-base text-gray-900">
+                                    {{ armamento.servidor.matricula }}
+                                </div>
+                            </div>
+                            {% elif armamento.unidade %}
+                            <div class="pl-3 py-2 border w-full">
+                                <div class="pb-1 text-lg font-bold text-gray-500">
+                                    Unidade
+                                </div>
+                                <div class="text-base text-gray-900">
+                                    {{ armamento.unidade.nome }}
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="pl-3 py-2 border w-12/12">
+                                <div class="text-base text-gray-900">
+                                    Armamento não está associado a nenhum servidor ou unidade
+                                </div>
+                            </div>
+                            {% endif %}
+                        </dl>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Observações -->
+            <div class="pt-8 pb-3">
+                <div>
+                    <h2 class="text-lg font-poppins font-bold text-slate-500">Observações</h2>
+                    <div class="border-2 w-20 my-3"></div>
+                </div>
+                <div class="w-full border-gray-200 sm:p-0">
+                    <div class="rounded-lg p-3 border">
+                        <p class="text-gray-900">
+                            {{ armamento.observacao|default:"Nenhuma observação registrada" }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Histórico -->
+            <div class="pt-8 pb-3">
+                <div>
+                    <h2 class="text-lg font-poppins font-bold text-slate-500">Histórico de Alterações</h2>
+                    <div class="border-2 w-20 my-3"></div>
+                </div>
+                <div class="w-full border-gray-200 sm:p-0">
+                    <div class="rounded-lg">
+                        <div class="flex flex-wrap">
+                            {% for item in historico %}
+                            <div class="pl-2 border w-2/12">
+                                <div class="pb-1 text-base font-bold text-gray-500">
+                                    Campo
+                                </div>
+                                <div class="text-sm text-gray-900">
+                                    {{ item.campo_alterado }}
+                                </div>
+                            </div>
+                            <div class="pl-2 border w-3/12">
+                                <div class="pb-1 text-base font-bold text-gray-500">
+                                    De
+                                </div>
+                                <div class="text-sm text-gray-900">
+                                    {{ item.valor_antigo|default:"-" }}
+                                </div>
+                            </div>
+                            <div class="pl-2 border w-3/12">
+                                <div class="pb-1 text-base font-bold text-gray-500">
+                                    Para
+                                </div>
+                                <div class="text-sm text-gray-900">
+                                    {{ item.valor_novo|default:"-" }}
+                                </div>
+                            </div>
+                            <div class="pl-2 border w-2/12">
+                                <div class="pb-1 text-base font-bold text-gray-500">
+                                    Data
+                                </div>
+                                <div class="text-sm text-gray-900">
+                                    {{ item.data_alteracao|date:"d/m/Y H:i" }}
+                                </div>
+                            </div>
+                            <div class="pl-2 border w-2/12">
+                                <div class="pb-1 text-base font-bold text-gray-500">
+                                    Usuário
+                                </div>
+                                <div class="text-sm text-gray-900">
+                                    {{ item.usuario_responsavel.username }}
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="pl-2 py-2 w-full text-center">
+                                <p class="text-gray-500">Nenhum registro de alteração encontrado</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botões de Ação -->
+    <div class="w-full gap-x-4 px-3 flex justify-center pt-8">
+        {% if perms.armaria.change_armamento %}
+            <a href="{% url 'armaria:armamento_edit' armamento.id %}" class="btn btn-success">Editar Armamento</a>
+        {% endif %}
+
+        <button id="download-pdf-button" class="btn btn-primary" onclick="generatePDF()">Baixar PDF</button>
+        {% if armamento.servidor %}
+        <div class="mt-4">
+            <a href="{{ pdf_url }}" class="btn btn-primary">
+                <i class="fas fa-file-pdf mr-2"></i> Gerar Termo de Acautelamento
+            </a>
+        </div>
+        {% else %}
+        <div class="alert alert-warning mt-4">
+            Este armamento não está associado a um servidor. Não é possível gerar o termo de acautelamento.
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Estrutura do Termo de Acautelamento (oculto) -->
+<div id="termo-acautelamento" style="display: none; padding: 20px; max-width: 600px; margin: auto;">
+    <!-- Conteúdo do termo similar ao do servidor, adaptado para armamento -->
+</div>
+
+<script>
+    function generatePDF() {
+        const element = document.getElementById('ficha-armamento');
+        const opt = {
+            margin: 0.5,
+            filename: 'ficha_armamento_{{ armamento.numero_serie }}.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'pt', format: 'letter', orientation: 'portrait' }
+        };
+        html2pdf().set(opt).from(element).save();
+    }
+
+    function generateTermoAcautelamento() {
+        // Implementação similar à do servidor, adaptada para armamento
+    }
+</script>
+{% endblock %}

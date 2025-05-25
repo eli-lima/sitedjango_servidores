@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-4">Registrar Baixa de Munição</h2>
+  <form method="post" class="needs-validation" novalidate>
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger">
+        {{ form.non_field_errors }}
+      </div>
+    {% endif %}
+
+    <div class="mb-3">
+      <label class="form-label d-block">{{ form.destino_type.label }}</label>
+      {% for radio in form.destino_type %}
+        <div class="form-check form-check-inline">
+          {{ radio.tag }}
+          <label class="form-check-label">{{ radio.choice_label }}</label>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="mb-3" id="unidade-field" style="display: none;">
+      <label class="form-label">{{ form.unidade.label }}</label>
+      {{ form.unidade }}
+      {{ form.unidade.errors }}
+    </div>
+
+    <div class="mb-3" id="servidor-field" style="display: none;">
+      <label class="form-label">{{ form.servidor.label }}</label>
+      {{ form.servidor }}
+      {{ form.servidor.errors }}
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">{{ form.lote.label }}</label>
+      {{ form.lote }}
+      {{ form.lote.errors }}
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">{{ form.quantidade.label }}</label>
+      {{ form.quantidade }}
+      {{ form.quantidade.errors }}
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">{{ form.motivo.label }}</label>
+      {{ form.motivo }}
+      {{ form.motivo.errors }}
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">{{ form.documento_referencia.label }}</label>
+      {{ form.documento_referencia }}
+      {{ form.documento_referencia.errors }}
+    </div>
+
+    <button type="submit" class="btn btn-primary">Registrar Baixa</button>
+  </form>
+</div>
+
+<script>
+  function toggleDestinoFields() {
+    const tipo = document.querySelector('input[name="destino_type"]:checked').value;
+    document.getElementById('unidade-field').style.display = tipo === 'unidade' ? 'block' : 'none';
+    document.getElementById('servidor-field').style.display = tipo === 'servidor' ? 'block' : 'none';
+  }
+
+  document.querySelectorAll('input[name="destino_type"]').forEach(input => {
+    input.addEventListener('change', toggleDestinoFields);
+  });
+
+  window.onload = toggleDestinoFields;
+</script>
+{% endblock %}

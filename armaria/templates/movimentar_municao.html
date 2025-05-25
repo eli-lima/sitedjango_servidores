@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-3xl">
+    <div class="bg-white shadow-md rounded-lg p-6">
+        <h2 class="text-2xl font-bold mb-6 border-b pb-2">
+            {% if lote_selecionado %}
+                Transferir Munição - Lote {{ lote_selecionado.numero_lote }}
+            {% else %}
+                Transferir Munição
+            {% endif %}
+        </h2>
+
+        {% if form.errors %}
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            <strong>Erro!</strong> Corrija os campos indicados abaixo.
+        </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+
+
+            <!-- tipo-->
+            <div class="mb-4">
+                <label class="block text-gray-700 font-medium mb-2">{{ form.tipo.label }}</label>
+                {{ form.tipo }}
+                {% if form.tipo.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ form.tipo.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Unidade de origem -->
+            {% if unidade_origem %}
+            <div class="mb-4">
+                <label class="block text-gray-700 font-medium mb-2">Unidade de Origem</label>
+                <p class="p-2 bg-gray-100 rounded">{{ unidade_origem.nome }}</p>
+                {{ form.unidade_origem }}
+            </div>
+            {% else %}
+            <div class="mb-4">
+                <label class="block text-gray-700 font-medium mb-2">{{ form.unidade_origem.label }}</label>
+                {{ form.unidade_origem }}
+                {% if form.unidade_origem.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ form.unidade_origem.errors.0 }}</p>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Lote -->
+            {% if lote_selecionado %}
+            <div class="mb-4">
+                <label class="block text-gray-700 font-medium mb-2">Lote</label>
+                <p class="p-2 bg-gray-100 rounded">
+                    {{ lote_selecionado.numero_lote }} - {{ lote_selecionado.calibre.nome }}
+                    (Saldo: {{ lote_selecionado.saldo_atual }})
+                </p>
+                {{ form.lote }}
+            </div>
+            {% else %}
+            <div class="mb-4">
+                <label class="block text-gray-700 font-medium mb-2">{{ form.lote.label }}</label>
+                {{ form.lote }}
+                {% if form.lote.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ form.lote.errors.0 }}</p>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Quantidade -->
+            <div class="mb-4">
+                <label class="block text-gray-700 font-medium mb-2">{{ form.quantidade.label }}</label>
+                {{ form.quantidade }}
+                {% if form.quantidade.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ form.quantidade.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Tipo de destino: unidade ou servidor -->
+            <div class="mb-4">
+                <label class="block text-gray-700 font-medium mb-2">{{ form.destino_type.label }}</label>
+                {{ form.destino_type }}
+            </div>
+
+            <!-- Unidade destino -->
+            <div class="mb-4" id="unidade-destino-container">
+                <label class="block text-gray-700 font-medium mb-2">{{ form.unidade_destino.label }}</label>
+                {{ form.unidade_destino }}
+                {% if form.unidade_destino.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ form.unidade_destino.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Servidor destino -->
+            <div class="mb-4 hidden" id="servidor-destino-container">
+                <label class="block text-gray-700 font-medium mb-2">{{ form.servidor_destino.label }}</label>
+                {{ form.servidor_destino }}
+                {% if form.servidor_destino.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ form.servidor_destino.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Documento/Justificativa -->
+            <div class="mb-4">
+                <label class="block text-gray-700 font-medium mb-2">{{ form.documento_referencia.label }}</label>
+                {{ form.documento_referencia }}
+                {% if form.documento_referencia.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ form.documento_referencia.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- motivo bauxa -->
+            <div class="mb-4">
+                <label class="block text-gray-700 font-medium mb-2">{{ form.motivo_baixa.label }}</label>
+                {{ form.motivo_baixa }}
+                {% if form.motivo_baixa.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ form.motivo_baixa.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div class="flex justify-end space-x-3 mt-6">
+                <a href="{% url 'armaria:lista_municoes' %}" class="btn btn-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-primary">Confirmar Transferência</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const destinoRadios = document.querySelectorAll("input[name='destino_type']");
+    const unidadeDiv = document.getElementById("unidade-destino-container");
+    const servidorDiv = document.getElementById("servidor-destino-container");
+
+    function toggleDestino() {
+        const selected = document.querySelector("input[name='destino_type']:checked").value;
+        if (selected === "unidade") {
+            unidadeDiv.classList.remove("hidden");
+            servidorDiv.classList.add("hidden");
+        } else {
+            servidorDiv.classList.remove("hidden");
+            unidadeDiv.classList.add("hidden");
+        }
+    }
+
+    destinoRadios.forEach(radio => {
+        radio.addEventListener("change", toggleDestino);
+    });
+
+    toggleDestino(); // inicializa
+});
+</script>
+{% endblock %}

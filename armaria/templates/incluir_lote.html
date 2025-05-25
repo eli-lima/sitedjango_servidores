@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-3xl">
+    <div class="bg-white shadow-md rounded-lg p-6">
+        <h2 class="text-2xl font-bold mb-6 border-b pb-2">Cadastrar Novo Lote de Munição</h2>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-2">{{ form.numero_lote.label }}</label>
+                    {{ form.numero_lote }}
+                    {{ form.numero_lote.errors }}
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-2">{{ form.calibre.label }}</label>
+                    {{ form.calibre }}
+                    {{ form.calibre.errors }}
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-2">{{ form.tipo.label }}</label>
+                    {{ form.tipo }}
+                    {{ form.tipo.errors }}
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-2">{{ form.quantidade_inicial.label }}</label>
+                    {{ form.quantidade_inicial }}
+                    {{ form.quantidade_inicial.errors }}
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-2">{{ form.data_validade.label }}</label>
+                    {{ form.data_validade }}
+                    {{ form.data_validade.errors }}
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 font-medium mb-2">{{ form.observacoes.label }}</label>
+                {{ form.observacoes }}
+                {{ form.observacoes.errors }}
+            </div>
+            
+            <div class="flex justify-end space-x-3 mt-6">
+                <a href="{% url 'armaria:lista_municoes' %}" class="btn btn-secondary">
+                    Cancelar
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    Cadastrar Lote
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

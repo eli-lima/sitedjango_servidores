@@ -34,6 +34,7 @@
                             {% url 'interno:interno' as interno_url %}
                             {% url 'gestao_prisional:gestao_prisional' as gestao_prisional_url %}
                             {% url 'seappb:estatistica' as estatistica_url %}
+                            {% url 'armaria:armaria' as armaria_url %}
 
                         </div>
                         {% endif %}
@@ -114,7 +115,7 @@
                                 <span class="group-[.collapsed]:md:hidden">Início</span>
                             </a>
                             <a href="{{ ajuda_custo_url }}" class="{% if request.path == ajuda_custo_url %}text-blue-300 font-semibold{% else %}text-gray-300 hover:text-blue-300{% endif %} px-3 flex items-center gap-3 py-3 font-medium rounded-md group h-12">
-                                <ion-icon name="time" class="text-xl"></ion-icon>
+                                <i class="fa-solid fa-calendar-alt"></i>
                                 <span class="group-[.collapsed]:md:hidden">Ajuda De Custo</span>
                             </a>
 
@@ -171,8 +172,14 @@
                             {% endif %}
                             {% if request.user|permitido:'sidebar_gestaoprisional' %}
                             <a href="{{ gestao_prisional_url }}" class="{% if request.path == gestao_prisional_url %}text-blue-300 font-semibold{% else %}text-gray-300 hover:text-blue-300{% endif %} px-3 flex items-center gap-3 pr-4 py-3 font-medium rounded-md group h-12">
-                                <ion-icon name="clipboard" class="text-xl"></ion-icon>
+                                <i class="fa-solid fa-lock"></i>
                                 <span class="group-[.collapsed]:md:hidden">Gestão Prisional</span>
+                            </a>
+                            {% endif %}
+                            {% if request.user|permitido:'sidebar_gestaoprisional' %}
+                            <a href="{{ armaria_url }}" class="{% if request.path == armaria_url %}text-blue-300 font-semibold{% else %}text-gray-300 hover:text-blue-300{% endif %} px-3 flex items-center gap-3 pr-4 py-3 font-medium rounded-md group h-12">
+                                <i class="fa-solid fa-gun"></i>
+                                <span class="group-[.collapsed]:md:hidden">Armaria</span>
                             </a>
                             {% endif %}
 

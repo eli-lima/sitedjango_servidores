@@ -1,0 +1,29 @@
+{% for armamento in armamentos %}
+<tr class="clickable-row {% if not armamento.status %}bg-red-200{% endif %}"
+    data-href="{% url 'armaria:armamento_detail' armamento.id %}">
+    <td class="px-6 py-4 xl:text-base text-xl whitespace-nowrap">{{ armamento.modelo.nome }}</td>
+    <td class="px-6 py-4 xl:text-base text-xl whitespace-nowrap">{{ armamento.tipo_arma.nome }}</td>
+    <td class="px-6 py-4 xl:text-base text-xl whitespace-nowrap">{{ armamento.numero_serie }}</td>
+    <td class="px-6 py-4 xl:text-base text-xl whitespace-nowrap">
+        {% if armamento.servidor %}
+            {{ armamento.servidor.nome }}
+        {% else %}
+            -
+        {% endif %}
+    </td>
+    <td class="px-6 py-4 xl:text-base text-xl whitespace-nowrap">
+        {% if armamento.unidade %}
+            {{ armamento.unidade.nome }}
+        {% else %}
+            -
+        {% endif %}
+    </td>
+    <td class="px-6 py-4 xl:text-base text-xl whitespace-nowrap">
+        {% if armamento.status %}
+            <span class="text-green-600">Ativo</span>
+        {% else %}
+            <span class="text-red-600">Inativo</span>
+        {% endif %}
+    </td>
+</tr>
+{% endfor %}

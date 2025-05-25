@@ -1,0 +1,145 @@
+
+<!--    <img src="static/images/pdf/cabecalhoPP.png" alt="Logo-seap" class="logo">-->
+
+
+<!--    <footer>-->
+<!--        <img src="static/images/pdf/rodapePP.png" alt="rodape-seap" class="rodape">-->
+<!--    </footer>-->
+
+
+{% load static %}
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Relatório de Armamentos</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+
+            @frame header_frame {
+                -pdf-frame-content: header_content;
+                left: 2cm;
+                top: 1cm;
+                width: 17cm;
+                height: 3cm;
+            }
+
+            @frame content_frame {
+                left: 2cm;
+                top: 4.5cm;
+                width: 17cm;
+                height: 22cm;
+            }
+
+            @frame footer_frame {
+                -pdf-frame-content: footer_content;
+                left: 2cm;
+                bottom: 1cm;
+                width: 17cm;
+                height: 2cm;
+            }
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 8px;
+        }
+
+        table {
+            width: 100%;
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 4px;
+            text-align: left;
+        }
+
+        table thead th {
+            color: #ffffff;
+            background: #696969;
+        }
+
+        table tr:nth-child(even) {
+            background: #f8f8f8;
+        }
+
+        .col1 { width: 10%; }
+        .col2 { width: 10%; }
+        .col3 { width: 15%; }
+        .col4 { width: 10%; }
+        .col5 { width: 10%; }
+        .col6 { width: 22.5%; }
+        .col7 { width: 22.5%; }
+
+        .logo, .rodape {
+            width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .header-info {
+            text-align: center;
+            margin-bottom: 15px;
+            margin-top:30px
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Cabeçalho -->
+    <div id="header_content">
+        <img src="static/images/pdf/cabecalhoPP.png" alt="Logo-seap" class="logo">
+        <h1>Relatório de Armamentos</h1>
+
+    </div>
+
+    <!-- Rodapé -->
+    <div id="footer_content">
+        <img src="static/images/pdf/rodapePP.png" alt="rodape-seap" class="rodape">
+    </div>
+
+    <!-- Conteúdo Principal -->
+    <div id="content_frame">
+        <p>Total de Armamentos: {{ armamentos|length }} <p>Data de emissão: {% now "d/m/Y H:i" %}</p>
+        <table repeat="1">
+            <thead>
+                <tr>
+                    <th class="col1">N° Série</th>
+                    <th class="col2">Modelo</th>
+                    <th class="col3">Marca</th>
+                    <th class="col4">Calibre</th>
+                    <th class="col5">Status</th>
+                    <th class="col6">Responsável</th>
+                    <th class="col7">Local De Trabalho</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for armamento in armamentos %}
+                <tr>
+                    <td class="col1">{{ armamento.numero_serie }}</td>
+                    <td class="col2">{{ armamento.modelo }}</td>
+                    <td class="col3">{{ armamento.marca }}</td>
+                    <td class="col4">{{ armamento.calibre }}</td>
+                    <td class="col5">{{ armamento.get_status_display }}</td>
+                    <td class="col6">{% if armamento.servidor %}{{ armamento.servidor.nome }}{% else %}{{armamento.unidade.nome}}{% endif %}</td>
+                    <td class="col7">{% if armamento.servidor %}{{ armamento.servidor.local_trabalho }}{% else %}---{% endif %}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7">Nenhum armamento encontrado.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% load static %}
+
+{% block titulo %}
+Registro de Armamento
+{% endblock %}
+
+{% block content %}
+    <div class="flex flex-col pt-4">
+        <div class="flex flex-col ítems-end">
+            <h1 class="text-center text-3xl pb-5 font-mono">Registro de Armamento</h1>
+        </div>
+
+        <form class="mx-4 shadow rounded shadow-md border border-2 border-secondary" method="post" action="{% url 'armaria:armamento-add' %}">
+            {% csrf_token %}
+
+            <div class="flex justify-center space-x-4 w-full pb-8 pt-4">
+                <!-- Campo Tipo de Arma -->
+                <div class="w-auto">
+                    <label class="form-label">Tipo de Arma:</label>
+                    {{form.tipo_arma}}
+                    {% if form.tipo_arma.errors %}
+                        <ul class="text-danger">
+                            {% for error in form.tipo_arma.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+
+                <!-- Campo Calibre -->
+                <div class="w-auto">
+                    <label class="form-label">Calibre:</label>
+                    {{form.calibre}}
+                    {% if form.calibre.errors %}
+                        <ul class="text-danger">
+                            {% for error in form.calibre.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="flex justify-center space-x-4 w-full pb-8">
+                <!-- Campo Marca -->
+                <div class="w-auto">
+                    <label class="form-label">Marca:</label>
+                    {{form.marca}}
+                    {% if form.marca.errors %}
+                        <ul class="text-danger">
+                            {% for error in form.marca.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+
+                <!-- Campo Modelo -->
+                <div class="w-auto">
+                    <label class="form-label">Modelo:</label>
+                    {{form.modelo}}
+                    {% if form.modelo.errors %}
+                        <ul class="text-danger">
+                            {% for error in form.modelo.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="flex justify-center space-x-4 w-full pb-8">
+                <!-- Campo Número de Série -->
+                <div class="w-auto">
+                    <label class="form-label">Número de Série:</label>
+                    {{form.numero_serie}}
+                    {% if form.numero_serie.errors %}
+                        <ul class="text-danger">
+                            {% for error in form.numero_serie.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+
+                <!-- Campo Servidor -->
+                <div class="w-auto">
+                    <label class="form-label">Servidor:</label>
+                    {{form.servidor}}
+                    {% if form.servidor.errors %}
+                        <ul class="text-danger">
+                            {% for error in form.servidor.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="flex justify-center space-x-4 w-full pb-8">
+                <!-- Campo Unidade -->
+                <div class="w-auto">
+                    <label class="form-label">Unidade:</label>
+                    {{form.unidade}}
+                    {% if form.unidade.errors %}
+                        <ul class="text-danger">
+                            {% for error in form.unidade.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+
+                <!-- Campo Status -->
+                <div class="w-auto">
+                    <label class="form-label">Status:</label>
+                    {{form.status}}
+                    {% if form.status.errors %}
+                        <ul class="text-danger">
+                            {% for error in form.status.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="flex justify-center w-full pb-8 mx-6">
+                <!-- Campo Observação -->
+                <div class="w-2/3">
+                    <label class="form-label">Observação:</label>
+                    {{form.observacao}}
+                    {% if form.observacao.errors %}
+                        <ul class="text-danger">
+                            {% for error in form.observacao.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="flex justify-center space-x-4 w-full pb-8">
+                <button type="submit" class="btn btn-primary">Salvar</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}

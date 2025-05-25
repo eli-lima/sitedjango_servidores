@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-3xl">
+    <div class="bg-white shadow-md rounded-lg p-6">
+        <h2 class="text-2xl font-bold mb-6 border-b pb-2">
+            {% if lote_selecionado %}
+                Distribuir Munição para Servidor - Lote {{ lote_selecionado.numero_lote }}
+            {% else %}
+                Distribuir Munição para Servidor
+            {% endif %}
+        </h2>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            {% if unidade_origem %}
+            <div class="mb-4">
+                <label class="block text-gray-700 font-medium mb-2">Unidade de Origem</label>
+                <p class="p-2 bg-gray-100 rounded">{{ unidade_origem.nome }}</p>
+                {{ form.unidade_origem }}
+            </div>
+            {% endif %}
+            
+            {% if lote_selecionado %}
+            <div class="mb-4">
+                <label class="block text-gray-700 font-medium mb-2">Lote</label>
+                <p class="p-2 bg-gray-100 rounded">
+                    {{ lote_selecionado.numero_lote }} - 
+                    {{ lote_selecionado.calibre.nome }} 
+                    (Saldo: {{ lote_selecionado.saldo_atual }})
+                </p>
+                {{ form.lote }}
+            </div>
+            {% endif %}
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 font-medium mb-2">{{ form.quantidade.label }}</label>
+                {{ form.quantidade }}
+                {% if form.quantidade.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ form.quantidade.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 font-medium mb-2">{{ form.servidor_destino.label }}</label>
+                {{ form.servidor_destino }}
+                {% if form.servidor_destino.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ form.servidor_destino.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 font-medium mb-2">{{ form.documento_referencia.label }}</label>
+                {{ form.documento_referencia }}
+                {% if form.documento_referencia.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ form.documento_referencia.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="flex justify-end space-x-3 mt-6">
+                <a href="{% url 'armaria:lista_municoes' %}" class="btn btn-secondary">
+                    Cancelar
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    Confirmar Distribuição
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
