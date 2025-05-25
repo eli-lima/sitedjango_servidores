@@ -176,7 +176,7 @@
                                 <span class="group-[.collapsed]:md:hidden">Gestão Prisional</span>
                             </a>
                             {% endif %}
-                            {% if request.user|permitido:'sidebar_gestaoprisional' %}
+                            {% if request.user|permitido:'pagina_armaria' %}
                             <a href="{{ armaria_url }}" class="{% if request.path == armaria_url %}text-blue-300 font-semibold{% else %}text-gray-300 hover:text-blue-300{% endif %} px-3 flex items-center gap-3 pr-4 py-3 font-medium rounded-md group h-12">
                                 <i class="fa-solid fa-gun"></i>
                                 <span class="group-[.collapsed]:md:hidden">Armaria</span>
