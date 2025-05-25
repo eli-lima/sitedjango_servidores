@@ -13,6 +13,34 @@ Ajuda de Custo Confirmação
             <h1 class="text-3xl sm:text-4xl font-bold text-gray-900">Confirmação de Datas</h1>
         </div>
 
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+            <!-- Card 12h -->
+            <div class="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h3 class="text-sm sm:text-base font-bold uppercase text-gray-600">Plantões 12h</h3>
+                        <p class="mt-2 text-2xl font-bold" id="total-12h">0</p>
+                    </div>
+                    <div class="bg-blue-600 rounded-full h-12 w-12 flex items-center justify-center">
+                        <i class="bi bi-clock text-white text-lg"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 24h -->
+            <div class="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h3 class="text-sm sm:text-base font-bold uppercase text-gray-600">Plantões 24h</h3>
+                        <p class="mt-2 text-2xl font-bold" id="total-24h">0</p>
+                    </div>
+                    <div class="bg-green-600 rounded-full h-12 w-12 flex items-center justify-center">
+                        <i class="bi bi-clock-history text-white text-lg"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Table Section -->
         <div class="bg-white shadow-md rounded-lg overflow-hidden mb-8">
             <div class="overflow-x-auto">
@@ -176,4 +204,44 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 </script>
+
+<!-- contagem de 12 horas e 24 horas -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Função para contar as cargas horárias
+    function contarCargasHorarias() {
+        const linhas = document.querySelectorAll('tbody tr');
+        let total12h = 0;
+        let total24h = 0;
+
+        linhas.forEach(linha => {
+            // Pula a linha de "Nenhum servidor encontrado"
+            if (linha.querySelector('td[colspan]')) return;
+
+            // Obtém todas as células da linha
+            const celulas = linha.querySelectorAll('td');
+
+            // A quinta célula (índice 4) contém a carga horária
+            if (celulas.length >= 5) {
+                const cargaHoraria = celulas[4].textContent.trim();
+
+                // Converte para número e conta
+                const horas = parseInt(cargaHoraria) || 0;
+                if (horas === 12) total12h++;
+                if (horas === 24) total24h++;
+            }
+        });
+
+        // Atualiza os cards
+        document.querySelector('#total-12h').textContent = total12h;
+        document.querySelector('#total-24h').textContent = total24h;
+    }
+
+    // Chama a função quando a página carrega
+    contarCargasHorarias();
+
+
+});
+</script>
+
 {% endblock %}
