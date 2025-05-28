@@ -299,25 +299,17 @@
 
             const isMobile = window.innerWidth <= 768;
 
-            // Resoluções testadas para mobile (modo retrato)
-            const mobileResolutions = [
-                { width: 720, height: 1280 },  // 16:9 invertido
-                { width: 540, height: 960 },   // 16:9 invertido
-                { width: 480, height: 640 },   // 4:3 invertido
-                { width: 360, height: 640 }    // 9:16 nativo
-            ];
-
             const constraints = {
                 video: {
                     facingMode: currentFacingMode,
                     ...(isMobile ? {
                         width: { ideal: 480, min: 360, max: 720 },
                         height: { ideal: 640, min: 480, max: 1280 },
-                        aspectRatio: 9/16  // Força proporção retrato
+                        aspectRatio: { exact: 0.5625 } // Força 9/16 (retrato)
                     } : {
                         width: { ideal: 1280 },
                         height: { ideal: 720 },
-                        aspectRatio: 16/9
+                        aspectRatio: { exact: 1.777 } // Força 16/9 (paisagem)
                     })
                 }
             };
