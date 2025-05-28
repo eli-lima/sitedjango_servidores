@@ -39,7 +39,7 @@
                 </div>
 
                 <!-- Container dos botões para desktop (mantido como estava) -->
-                <div class="mt-4 flex-wrap justify-center gap-4 hidden md:flex">
+                <div class="mt-4 flex flex-wrap justify-center gap-4">
                     <button id="startBtn" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
                         <i class="fas fa-play mr-2"></i> Iniciar Reconhecimento
                     </button>
@@ -125,10 +125,6 @@
     #faceFrame {
         box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.5);
         z-index: 10;
-        width: 80% !important;  /* Ajuste conforme necessário */
-        height: 60% !important; /* Ajuste conforme necessário */
-        max-width: 400px;
-        max-height: 600px;
     }
 
     #video {
@@ -150,7 +146,7 @@
         #realtimeSection {
             width: 100%;
             padding: 0;
-            height: 40vh;
+            height: 70vh;
         }
 
         #video {
@@ -191,7 +187,7 @@
             display: flex;
             justify-content: center;
             gap: 10px;
-            z-index: 30;
+            z-index: 50;
             padding: 0 15px;
         }
 
@@ -206,7 +202,7 @@
 
         /* Ajuste para quando o reconhecimento estiver ativo */
         .recognizing-active .mobile-buttons-container {
-            bottom: 530px; /* Aumenta o espaço se houver resultados */
+            bottom: 80px; /* Aumenta o espaço se houver resultados */
         }
     }
 </style>
@@ -292,54 +288,21 @@
     }
 
     // Funções da câmera
-        async function startCamera() {
+    async function startCamera() {
         try {
-            const controller = new AbortController();
-            const timeout = setTimeout(() => controller.abort(), 5000);
-
-            const isMobile = window.innerWidth <= 768;
-
             const constraints = {
                 video: {
-                    facingMode: currentFacingMode,
-                    ...(isMobile ? {
-                        width: { ideal: 480, min: 360, max: 720 },
-                        height: { ideal: 640, min: 480, max: 1280 },
-                        aspectRatio: { exact: 0.5625 } // Força 9/16 (retrato)
-                    } : {
-                        width: { ideal: 1280 },
-                        height: { ideal: 720 },
-                        aspectRatio: { exact: 1.777 } // Força 16/9 (paisagem)
-                    })
+                    width: { ideal: window.innerWidth },
+                    height: { ideal: window.innerHeight },
+                    facingMode: currentFacingMode
                 }
             };
 
-            videoStream = await navigator.mediaDevices.getUserMedia({
-                ...constraints,
-                signal: controller.signal
-            });
-
-            clearTimeout(timeout);
+            videoStream = await navigator.mediaDevices.getUserMedia(constraints);
             video.srcObject = videoStream;
             updateVideoTransform();
 
             video.onloadedmetadata = () => {
-                // Ajustes visuais para mobile
-                if (isMobile) {
-                    const videoContainer = document.getElementById('realtimeSection');
-                    video.style.width = '100%';
-                    video.style.height = '100%';
-                    video.style.objectFit = 'cover';
-                    videoContainer.style.aspectRatio = '9/16';
-
-                    // Ajuste extra para garantir que ocupe a tela toda
-                    setTimeout(() => {
-                        const viewportHeight = window.innerHeight;
-                        const controlsHeight = 150; // Altura aproximada dos controles
-
-                    }, 100);
-                }
-
                 faceFrame.classList.remove('hidden');
                 startBtn.textContent = 'Parar Reconhecimento';
                 startBtn.classList.remove('bg-green-600');
@@ -801,14 +764,6 @@
     captureBtnMobile.addEventListener('click', () => captureBtn.click());
     switchCameraBtnMobile.addEventListener('click', () => switchCameraBtn.click());
 
-    // Adicione no final do seu script, antes do DOMContentLoaded
-    function handleResize() {
-        if (window.innerWidth <= 768 && videoStream) {
-            const realtimeSection = document.getElementById('realtimeSection');
-            realtimeSection.style.height = `${window.innerHeight - 300}px`; // Ajuste conforme necessário
-        }
-    }
-
     // Inicialização
     document.addEventListener('DOMContentLoaded', () => {
         switchMode('realtime');
@@ -825,8 +780,6 @@
     });
 
     // Expor funções para o HTML
-    // Adicione no DOMContentLoaded
-    window.addEventListener('resize', handleResize);
     window.showDetailModal = showDetailModal;
     window.showError = showError;
 </script>
