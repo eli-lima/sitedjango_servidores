@@ -4,7 +4,11 @@
 {% block titulo %}Reconhecimento Facial{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
+<div class="h-screen">
+<div class="container mx-auto px-4 py-0">
+    <!-- Card de identificação para mobile -->
+    <div class="mobile-result-card" id="mobileResultCard" style="display: none;"></div>
+
     <div class="bg-white rounded-lg shadow-xl overflow-hidden">
         <!-- Cabeçalho -->
         <div class="bg-blue-600 text-white px-6 py-4">
@@ -34,7 +38,8 @@
                     <canvas id="canvas" class="hidden"></canvas>
                 </div>
 
-                <div class="mt-4 flex flex-wrap justify-center gap-4">
+                <!-- Container dos botões para desktop (mantido como estava) -->
+                <div class="mt-4 flex-wrap justify-center gap-4 hidden md:flex">
                     <button id="startBtn" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
                         <i class="fas fa-play mr-2"></i> Iniciar Reconhecimento
                     </button>
@@ -43,6 +48,19 @@
                     </button>
                     <button id="switchCameraBtn" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
                         <i class="fas fa-camera-retro mr-2"></i> Alternar Câmera
+                    </button>
+                </div>
+
+                <!-- Container dos botões para mobile (novo) -->
+                <div class="mobile-buttons-container md:hidden">
+                    <button id="startBtnMobile" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                        <i class="fas fa-play mr-2"></i> Iniciar
+                    </button>
+                    <button id="captureBtnMobile" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 hidden">
+                        <i class="fas fa-camera mr-2"></i> Capturar
+                    </button>
+                    <button id="switchCameraBtnMobile" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+                        <i class="fas fa-camera-retro mr-2"></i> Alternar
                     </button>
                 </div>
             </div>
@@ -85,6 +103,7 @@
         </div>
     </div>
 </div>
+</div>
 
 <!-- Modal para detalhes -->
 <div id="detailModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
@@ -106,6 +125,10 @@
     #faceFrame {
         box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.5);
         z-index: 10;
+        width: 80% !important;  /* Ajuste conforme necessário */
+        height: 60% !important; /* Ajuste conforme necessário */
+        max-width: 400px;
+        max-height: 600px;
     }
 
     #video {
@@ -120,6 +143,71 @@
     .drag-over {
         background-color: #f0f9ff;
         border-color: #3b82f6;
+    }
+
+    /* Novos estilos para mobile */
+    @media (max-width: 768px) {
+        #realtimeSection {
+            width: 100%;
+            padding: 0;
+            height: 70vh;
+        }
+
+        #video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 0;
+            border: none;
+        }
+
+        .mobile-result-card {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 400px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 12px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 100;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .md\\:w-1\\/3 {
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        /* Estilos para os botões mobile */
+        .mobile-buttons-container {
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            z-index: 30;
+            padding: 0 15px;
+        }
+
+        .mobile-buttons-container button {
+            flex: 1;
+            max-width: 120px;
+            padding: 10px;
+            font-size: 14px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        /* Ajuste para quando o reconhecimento estiver ativo */
+        .recognizing-active .mobile-buttons-container {
+            bottom: 530px; /* Aumenta o espaço se houver resultados */
+        }
     }
 </style>
 
@@ -153,6 +241,10 @@
     const uploadPreview = document.getElementById('uploadPreview');
     const previewImage = document.getElementById('previewImage');
     const processUpload = document.getElementById('processUpload');
+    const mobileResultCard = document.getElementById('mobileResultCard');
+    const startBtnMobile = document.getElementById('startBtnMobile');
+    const captureBtnMobile = document.getElementById('captureBtnMobile');
+    const switchCameraBtnMobile = document.getElementById('switchCameraBtnMobile');
 
     // Função para atualizar a transformação do vídeo baseado no tipo de câmera
     function updateVideoTransform() {
@@ -171,6 +263,7 @@
                 </button>
             </div>
         `;
+        mobileResultCard.style.display = 'none';
     }
 
     // Alternar entre modos
@@ -199,16 +292,19 @@
     }
 
     // Funções da câmera
-    async function startCamera() {
-        try {
+        async function startCamera() {
+            try {
             const controller = new AbortController();
             const timeout = setTimeout(() => controller.abort(), 5000);
 
+            const isMobile = window.innerWidth <= 768;
+
+            // Configurações otimizadas para mobile
             const constraints = {
                 video: {
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 },
-                    facingMode: currentFacingMode
+                    facingMode: currentFacingMode,
+                    // Não definir width/height ideal para permitir que o navegador otimize
+                    aspectRatio: isMobile ? 9/16 : 16/9
                 }
             };
 
@@ -219,14 +315,32 @@
 
             clearTimeout(timeout);
             video.srcObject = videoStream;
-            updateVideoTransform(); // Aplica a transformação correta
+            updateVideoTransform();
 
             video.onloadedmetadata = () => {
+                // Ajustes específicos para mobile
+                if (isMobile) {
+                    video.style.width = '100%';
+                    video.style.height = '100%';
+                    video.style.objectPosition = 'center center';
+
+                    // Forçar redimensionamento do container
+                    const realtimeSection = document.getElementById('realtimeSection');
+                    realtimeSection.style.height = `${window.innerHeight - 150}px`; // Ajuste conforme necessário
+                }
+
                 faceFrame.classList.remove('hidden');
                 startBtn.textContent = 'Parar Reconhecimento';
                 startBtn.classList.remove('bg-green-600');
                 startBtn.classList.add('bg-red-600');
                 captureBtn.classList.remove('hidden');
+
+                // Atualiza botões mobile
+                startBtnMobile.innerHTML = '<i class="fas fa-stop mr-2"></i> Parar';
+                startBtnMobile.classList.remove('bg-green-600');
+                startBtnMobile.classList.add('bg-red-600');
+                captureBtnMobile.classList.remove('hidden');
+                document.body.classList.add('recognizing-active');
             };
 
             return true;
@@ -249,6 +363,14 @@
         startBtn.classList.remove('bg-red-600');
         startBtn.classList.add('bg-green-600');
         captureBtn.classList.add('hidden');
+
+        // Atualiza botões mobile
+        startBtnMobile.innerHTML = '<i class="fas fa-play mr-2"></i> Iniciar';
+        startBtnMobile.classList.remove('bg-red-600');
+        startBtnMobile.classList.add('bg-green-600');
+        captureBtnMobile.classList.add('hidden');
+        document.body.classList.remove('recognizing-active');
+
         stopRecognition();
     }
 
@@ -261,7 +383,7 @@
 
         // Alternar o modo da câmera
         currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
-        updateVideoTransform(); // Atualiza a transformação ao alternar
+        updateVideoTransform();
         console.log('Modo da câmera alterado para:', currentFacingMode);
 
         // Iniciar a nova câmera
@@ -296,8 +418,9 @@
                             lastStableResult = currentResult;
                             displayStableResult(currentResult);
                         }
+                    } else {
+                        mobileResultCard.style.display = 'none';
                     }
-                    // Não faz nada quando não detecta rosto - mantém o último resultado
 
                     await new Promise(resolve => setTimeout(resolve, RECOGNITION_INTERVAL));
                 } catch (error) {
@@ -317,6 +440,7 @@
             recognitionController.abort();
             recognitionController = null;
         }
+        mobileResultCard.style.display = 'none';
     }
 
     async function processFrame() {
@@ -366,15 +490,33 @@
         }
     }
 
-    // Exibir resultados estáveis na aba lateral
+    // Exibir resultados estáveis na aba lateral e no card mobile
     function displayStableResult(data) {
         if (!data || data.status !== 'success' || !data.resultados?.length) {
+            mobileResultCard.style.display = 'none';
             return;
         }
 
         const bestMatch = data.resultados[0];
         const confidence = (1 - bestMatch.distancia) * 100;
 
+        // Atualiza o card mobile
+        mobileResultCard.innerHTML = `
+            <div class="flex items-center space-x-3">
+                <img src="${bestMatch.foto_url || '/static/images/default-profile.png'}"
+                     class="w-10 h-10 rounded-full object-cover border-2 border-blue-200">
+                <div>
+                    <h3 class="font-semibold text-sm">${bestMatch.nome.split(' ')[0]}</h3>
+                    <p class="text-xs">Prontuário: ${bestMatch.prontuario}</p>
+                    <p class="text-xs ${confidence > 80 ? 'text-green-600' : confidence > 60 ? 'text-yellow-600' : 'text-red-600'}">
+                        Confiança: ${confidence.toFixed(0)}%
+                    </p>
+                </div>
+            </div>
+        `;
+        mobileResultCard.style.display = 'block';
+
+        // Mantém o resultado desktop (existente)
         const newHTML = `
             <div class="bg-white rounded-lg shadow p-4">
                 <div class="flex items-center space-x-4 mb-3">
@@ -541,6 +683,7 @@
 
         loadingIndicator.classList.remove('hidden');
         resultsContainer.classList.add('hidden');
+        mobileResultCard.style.display = 'none';
 
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 10000);
@@ -642,6 +785,19 @@
         if (e.dataTransfer.files?.length) handleFileSelect(e.dataTransfer.files[0]);
     });
 
+    // Event listeners para os botões mobile
+    startBtnMobile.addEventListener('click', () => startBtn.click());
+    captureBtnMobile.addEventListener('click', () => captureBtn.click());
+    switchCameraBtnMobile.addEventListener('click', () => switchCameraBtn.click());
+
+    // Adicione no final do seu script, antes do DOMContentLoaded
+    function handleResize() {
+        if (window.innerWidth <= 768 && videoStream) {
+            const realtimeSection = document.getElementById('realtimeSection');
+            realtimeSection.style.height = `${window.innerHeight - 150}px`; // Ajuste conforme necessário
+        }
+    }
+
     // Inicialização
     document.addEventListener('DOMContentLoaded', () => {
         switchMode('realtime');
@@ -650,11 +806,16 @@
             startBtn.disabled = true;
             startBtn.textContent = 'Câmera não suportada';
             startBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
+            startBtnMobile.disabled = true;
+            startBtnMobile.textContent = 'Não suportado';
+            startBtnMobile.classList.add('bg-gray-400', 'cursor-not-allowed');
             switchMode('upload');
         }
     });
 
     // Expor funções para o HTML
+    // Adicione no DOMContentLoaded
+    window.addEventListener('resize', handleResize);
     window.showDetailModal = showDetailModal;
     window.showError = showError;
 </script>
