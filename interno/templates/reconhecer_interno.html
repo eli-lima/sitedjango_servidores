@@ -293,18 +293,32 @@
 
     // Funções da câmera
         async function startCamera() {
-            try {
+        try {
             const controller = new AbortController();
             const timeout = setTimeout(() => controller.abort(), 5000);
 
             const isMobile = window.innerWidth <= 768;
 
-            // Configurações otimizadas para mobile
+            // Resoluções testadas para mobile (modo retrato)
+            const mobileResolutions = [
+                { width: 720, height: 1280 },  // 16:9 invertido
+                { width: 540, height: 960 },   // 16:9 invertido
+                { width: 480, height: 640 },   // 4:3 invertido
+                { width: 360, height: 640 }    // 9:16 nativo
+            ];
+
             const constraints = {
                 video: {
                     facingMode: currentFacingMode,
-                    // Não definir width/height ideal para permitir que o navegador otimize
-                    aspectRatio: isMobile ? 9/16 : 16/9
+                    ...(isMobile ? {
+                        width: { ideal: 480, min: 360, max: 720 },
+                        height: { ideal: 640, min: 480, max: 1280 },
+                        aspectRatio: 9/16  // Força proporção retrato
+                    } : {
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 },
+                        aspectRatio: 16/9
+                    })
                 }
             };
 
@@ -318,15 +332,20 @@
             updateVideoTransform();
 
             video.onloadedmetadata = () => {
-                // Ajustes específicos para mobile
+                // Ajustes visuais para mobile
                 if (isMobile) {
+                    const videoContainer = document.getElementById('realtimeSection');
                     video.style.width = '100%';
                     video.style.height = '100%';
-                    video.style.objectPosition = 'center center';
+                    video.style.objectFit = 'cover';
+                    videoContainer.style.aspectRatio = '9/16';
 
-                    // Forçar redimensionamento do container
-                    const realtimeSection = document.getElementById('realtimeSection');
-                    realtimeSection.style.height = `${window.innerHeight - 150}px`; // Ajuste conforme necessário
+                    // Ajuste extra para garantir que ocupe a tela toda
+                    setTimeout(() => {
+                        const viewportHeight = window.innerHeight;
+                        const controlsHeight = 150; // Altura aproximada dos controles
+                        videoContainer.style.height = `${viewportHeight - controlsHeight}px`;
+                    }, 100);
                 }
 
                 faceFrame.classList.remove('hidden');
