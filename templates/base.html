@@ -101,6 +101,8 @@
     </div>
 
     <!-- Rodapé -->
-    {% include 'footer.html' %}
+    {% if not hide_footer %}
+        {% include 'footer.html' %}
+    {% endif %}
 </body>
 </html>

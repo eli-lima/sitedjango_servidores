@@ -274,7 +274,9 @@ def reconhecer_interno(request):
             }, status=500)
 
     print("[DEBUG] Requisição GET recebida - exibindo página")
-    return render(request, 'reconhecer_interno.html')
+    return render(request, 'reconhecer_interno.html', {
+        'hide_footer': True
+    })
 
 
 def processar_imagem_da_memoria(image_stream):
