@@ -7,7 +7,7 @@
 <div class="h-screen">
 <div class="container mx-auto px-4 py-0">
     <!-- Card de identificação -->
-    <div class="fixed top-[82vh] md:top-[28vh] left-[0vw] md:left-[27vw] transform  -translate-y-1/2 z-50 w-full max-w-md" id="mobileResultCard" style="display: none;">
+    <div class="fixed top-[82vh] md:top-1/2 md:ml-56 ml-0 transform z-50 max-w-md" id="mobileResultCard" style="display: none;">
         <div class="shadow-lg p-3 mx-4">
             <!-- Conteúdo será preenchido via JavaScript -->
         </div>
@@ -36,7 +36,7 @@
         <div class="md:flex">
             <!-- Coluna da câmera (modo tempo real) -->
             <div id="realtimeSection" class="md:w-2/3 p-6">
-                <div class="relative mx-auto" style="width: 640px; height: 1280px; max-width: 100%; max-height: 80vh;">
+                <div class="relative mx-auto" style="width: 100%; max-width: 480px; aspect-ratio: 3 / 4; max-height: 80vh;">
                     <!-- Container da câmera com resolução fixa -->
                     <video id="video" class="w-full h-full object-cover bg-black" autoplay playsinline></video>
 
@@ -266,8 +266,7 @@
         try {
             const constraints = {
                 video: {
-                    width: { ideal: 640 },
-                    height: { ideal: 1280 },
+                     aspectRatio: 3 / 4, // ou 9/16 se quiser bem vertical
                     facingMode: currentFacingMode
                 }
             };
