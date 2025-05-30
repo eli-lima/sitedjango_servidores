@@ -42,12 +42,14 @@ from .utils import (get_intervalo_mes, calcular_horas_por_unidade, get_limites_h
 from datetime import datetime, timedelta
 from weasyprint import HTML
 import tempfile
+from django.template.loader import get_template
+from xhtml2pdf import pisa
 
 
 # Create your views here.
 
 #dados istribuir horas atualizar
-@transaction.atomic
+transaction.atomic
 def distribuir_horas(request, unidade_id):
     if request.method == 'POST':
         horas = int(request.POST.get('horas'))
@@ -62,29 +64,31 @@ def distribuir_horas(request, unidade_id):
         else:
             return JsonResponse({'status': 'error', 'message': 'Carga horária insuficiente.'}, status=400)
 
+    # <-- Aqui está o return faltante
+    return JsonResponse({'status': 'error', 'message': 'Método não permitido.'}, status=405)
+
 
 #relatorio em pdf ajuda_custo
 def gerar_pdf_ajuda_custo(request, queryset):
-    # Renderiza o template HTML com os dados
-    html_string = render_to_string('relatorio_ajuda_custo_pdf.html', {
-        'ajudas_custo': queryset,
-    })
+    # Define o caminho do template e o contexto
+    template_path = 'relatorio_ajuda_custo_pdf.html'
+    context = {'ajudas_custo': queryset}
 
-    # Cria um arquivo HTML temporário
-    html = HTML(string=html_string, base_url=request.build_absolute_uri())
+    # Renderiza o HTML com os dados
+    template = get_template(template_path)
+    html = template.render(context)
 
-    # Gera o PDF
-    pdf_file = tempfile.NamedTemporaryFile(delete=False)
-    html.write_pdf(target=pdf_file.name)
-
-    # Lê o conteúdo do arquivo PDF
-    pdf_file.seek(0)
-    pdf = pdf_file.read()
-    pdf_file.close()
-
-    # Retorna o PDF como uma resposta HTTP
-    response = HttpResponse(pdf, content_type='application/pdf')
+    # Cria a resposta como PDF
+    response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="relatorio_ajuda_custo.pdf"'
+
+    # Gera o PDF usando xhtml2pdf (pisa)
+    pisa_status = pisa.CreatePDF(html, dest=response)
+
+    # Se ocorrer erro na geração do PDF
+    if pisa_status.err:
+        return HttpResponse('Erro ao gerar PDF', status=500)
+
     return response
 
 

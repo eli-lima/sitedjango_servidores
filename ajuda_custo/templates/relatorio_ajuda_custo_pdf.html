@@ -1,4 +1,129 @@
-<!DOCTYPE html>
+{% load static %}
+
+<!--<!DOCTYPE html>-->
+<!--<html>-->
+<!--<head>-->
+<!--    <meta charset="utf-8">-->
+<!--    <title>Relatório de Ajudas de Custo</title>-->
+<!--    <style>-->
+<!--        @page {-->
+<!--        size: A4 landscape; /* Define o tamanho da página como A4 e a orientação como paisagem */-->
+<!--        margin: 1cm; /* Define uma margem de 1cm */-->
+<!--    }-->
+<!--        body {-->
+<!--            font-family: Arial, sans-serif;-->
+<!--            margin: 20px;-->
+<!--            font-size: 12px;-->
+<!--        }-->
+
+<!--        table {-->
+<!--            width: 100%;-->
+<!--            border: 1px solid black;-->
+<!--            border-collapse: collapse;-->
+<!--        }-->
+
+<!--        th, td {-->
+<!--            border: 1px solid black;-->
+<!--            padding-block: 8px;-->
+<!--            padding-top: 2px;-->
+<!--        }-->
+
+<!--        h1 {-->
+<!--            text-align: center;-->
+<!--        }-->
+
+<!--        table td {-->
+<!--            border-right: 1px solid #f1f1f1;-->
+<!--        }-->
+
+<!--        table tr:nth-child(even) {-->
+<!--            background: #f8f8f8;-->
+<!--        }-->
+
+<!--        table {-->
+<!--            border-collapse: collapse;-->
+<!--            width: 100%;-->
+<!--            background-color: white;-->
+<!--        }-->
+
+<!--        table thead th {-->
+<!--            color: #ffffff;-->
+<!--            background: #2f4961;-->
+<!--        }-->
+
+<!--        .col1 { width: 10%; }-->
+<!--        .col2 { width: 20%; }-->
+<!--        .col3 { width: 15%; }-->
+<!--        .col4 { width: 15%; }-->
+<!--        .col5 { width: 15%; }-->
+<!--        .col6 { width: 15%; }-->
+<!--        .negrito { font-weight: bold }-->
+<!--        .img {-->
+<!--            text-align: center;-->
+<!--         }-->
+<!--        .img-tamanho {-->
+<!--            width: 1000px;-->
+<!--            height: 60px; /* Ajusta a altura automaticamente */-->
+<!--         }-->
+<!--        .margin-top{-->
+<!--            margin-top: 20px-->
+<!--        }-->
+
+<!--    </style>-->
+<!--</head>-->
+<!--<body>-->
+<!--<div>-->
+<!--    <div class="img">-->
+<!--        <img src="https://i.imgur.com/4t5U2gL.png" alt="Logo-seap" class="img-tamanho">-->
+<!--    </div>-->
+<!--    <h1>Relatório de Ajudas de Custo</h1>-->
+<!--    <h3>Total de Registros: {{ ajudas_custo|length }}</h3>-->
+<!--</div>-->
+
+<!--<table>-->
+<!--    <thead>-->
+<!--        <tr>-->
+<!--            <th class="col1">Matrícula</th>-->
+<!--            <th class="col2">Nome</th>-->
+<!--            <th class="col3">Data</th>-->
+<!--            <th class="col4">Unidade</th>-->
+<!--            <th class="col5">Carga Horária</th>-->
+<!--            <th class="col6">Código de Verificação</th>-->
+<!--        </tr>-->
+<!--    </thead>-->
+<!--    <tbody>-->
+<!--        {% for ajuda in ajudas_custo %}-->
+<!--        <tr>-->
+<!--            <td class="col1">{{ ajuda.matricula }}</td>-->
+<!--            <td class="col2">{{ ajuda.nome }}</td>-->
+<!--            <td class="col3">{{ ajuda.data|date:"d/m/Y" }}</td>-->
+<!--            <td class="col4">{{ ajuda.unidade }}</td>-->
+<!--            <td class="col5">{{ ajuda.carga_horaria }}</td>-->
+<!--            <td class="col6 negrito">-->
+<!--                {% if ajuda.codigo_verificacao %}-->
+<!--                    {{ ajuda.codigo_verificacao }}-->
+<!--                {% else %}-->
+<!--                    Documento Físico-->
+<!--                {% endif %}-->
+<!--            </td>-->
+<!--        </tr>-->
+<!--        {% empty %}-->
+<!--        <tr>-->
+<!--            <td colspan="6">Nenhum registro encontrado.</td>-->
+<!--        </tr>-->
+<!--        {% endfor %}-->
+<!--    </tbody>-->
+<!--</table>-->
+
+<!--<footer id="myFooter">-->
+<!--    <div class="img margin-top">-->
+<!--        <img src="https://i.imgur.com/4t5U2gL.png" alt="Logo-seap" class="img-tamanho">-->
+<!--    </div>-->
+<!--</footer>-->
+<!--</body>-->
+<!--</html>-->
+
+
 <html>
 <head>
     <meta charset="utf-8">
@@ -22,8 +147,16 @@
 
         th, td {
             border: 1px solid black;
-            padding-block: 8px;
-            padding-top: 2px;
+            padding: 6px 1px; /* vertical 6px, horizontal 4px */
+
+        }
+        td {
+            text-align: left;
+            font-size: 10px;
+        }
+
+        th {
+            text-align: center;
         }
 
         h1 {
@@ -31,7 +164,8 @@
         }
 
         table td {
-            border-right: 1px solid #f1f1f1;
+            border-right: none; /* remova o conflito de borda lateral */
+
         }
 
         table tr:nth-child(even) {
@@ -46,25 +180,36 @@
 
         table thead th {
             color: #ffffff;
-            background: #2f4961;
+            background: #696969;
         }
 
-        .col1 { width: 10%; }
-        .col2 { width: 20%; }
-        .col3 { width: 15%; }
-        .col4 { width: 15%; }
-        .col5 { width: 15%; }
-        .col6 { width: 15%; }
+        .col1 { width: 8%; }
+        .col2 { width: 30%; }
+        .col3 { width: 10%; }
+        .col4 { width: 30%; }
+        .col5 { width: 8%; }
+        .col6 { width: 14%; }
+
         .negrito { font-weight: bold }
         .img {
             text-align: center;
          }
-        .img-tamanho {
-            width: 1000px;
-            height: 60px; /* Ajusta a altura automaticamente */
+        .img-cabecalho {
+            width: 100%;
+            height: 180px; /* Ajusta a altura automaticamente */
+        }
+        .img-rodape {
+            width: 100%;
+            height: 200px; /* Ajusta a altura automaticamente */
          }
+
         .margin-top{
             margin-top: 20px
+        }
+        .header-info{
+            display: flex;
+            justify-content: space-between;
+
         }
 
     </style>
@@ -72,10 +217,14 @@
 <body>
 <div>
     <div class="img">
-        <img src="https://i.imgur.com/4t5U2gL.png" alt="Logo-seap" class="img-tamanho">
+        <img src="static/images/pdf/cabecalhoPP.png" alt="Logo-seap" class="img-cabecalho">
     </div>
-    <h1>Relatório de Ajudas de Custo</h1>
-    <h3>Total de Registros: {{ ajudas_custo|length }}</h3>
+    <h1>Relatório Ajuda de Custo</h1>
+    <div class="header-info">
+        <h3>Total de Registros: {{ ajudas_custo|length }}</h3>
+        <span>Data de emissão: {% now "d/m/Y H:i" %}</span>
+    </div>
+
 </div>
 
 <table>
@@ -104,6 +253,7 @@
                     Documento Físico
                 {% endif %}
             </td>
+
         </tr>
         {% empty %}
         <tr>
@@ -115,7 +265,7 @@
 
 <footer id="myFooter">
     <div class="img margin-top">
-        <img src="https://i.imgur.com/4t5U2gL.png" alt="Logo-seap" class="img-tamanho">
+        <img src="static/images/pdf/rodapePP.png" alt="Logo-seap" class="img-rodape">
     </div>
 </footer>
 </body>
