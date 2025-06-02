@@ -171,14 +171,14 @@ Servidores
                 <div>
                     <h3 class="text-lg sm:text-xl font-semibold">Servidores Cadastrados</h3>
                 </div>
-                {% if 'GerGesipe' in user_groups or 'GerRh' in user_groups or 'Administrador' in user_groups or 'ServGesipe' in user_groups %}
+
                 <a href="{% url 'servidor:relatorio_rh' %}" class="inline-flex items-center text-sm sm:text-base font-medium text-blue-600 hover:text-blue-800">
                     Dados Completos
                     <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                     </svg>
                 </a>
-                {% endif %}
+
             </div>
         </div>
 
