@@ -196,7 +196,7 @@ class CriarServidorView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     def test_func(self):
         return PermissionChecker.has_permission(
             user=self.request.user,
-            permission_section='ServidorRh'
+            permission_section='servidor_rh'
         )
 
         # Levanta exceção em caso de falta de permissão
@@ -247,7 +247,7 @@ class ServidorEdit(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     def test_func(self):
         return PermissionChecker.has_permission(
             user=self.request.user,
-            permission_section='ServidorRh'
+            permission_section='servidor_rh'
         )
 
     def handle_no_permission(self):
@@ -328,7 +328,7 @@ class ServidorLote(LoginRequiredMixin, UserPassesTestMixin, View):
     def test_func(self):
         return PermissionChecker.has_permission(
             user=self.request.user,
-            permission_section='ServidorRh'
+            permission_section='servidor_rh'
         )
 
         # Levanta exceção em caso de falta de permissão
