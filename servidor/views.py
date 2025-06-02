@@ -391,7 +391,7 @@ class ServidorLote(LoginRequiredMixin, UserPassesTestMixin, View):
             except Exception as e:
                 messages.error(request, f'Ocorreu um erro ao processar o arquivo: {e}')
 
-            return redirect('servidor:recursos_humanos')
+        return redirect('servidor:recursos_humanos')
 
 
 
