@@ -1,433 +1,232 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block titulo %}
-Copen
+COPEN
 {% endblock %}
-
 
 {% block content %}
 
-<!--tela administrador-->
+<!-- Header Section -->
 {% if 'Administrador' in user_groups or 'Copen' in user_groups or 'GerGesipe' in user_groups %}
-
-<div class="flex flex-col items-center">
-
-    <div class="mx-4 mt-6 py-3 bg-gray-600 text-white w-2/4 self-center items-center shadow-xl rounded-2xl">
-
-        <div class="flex justify-center items-center h-full px-4">
-            <h3 class="font-bold xl:text-xl text-lg">
-
-                COPEN - Centro De Operações Penitenciárias
-            </h3>
-
-        </div>
+<div class="pt-4 px-4">
+    <div class="bg-gray-800 text-white rounded-lg shadow-md p-6 mb-6">
+        <h1 class="text-2xl font-bold text-center">COPEN - Centro De Operações Penitenciárias</h1>
+        <p class="mt-2 text-center text-gray-300">Controle e gerenciamento de operações</p>
     </div>
-
-
-
-
-
-<div class="flex flex-col w-full mb-6">
-  <div class=" flex justify-evenly flex-wrap">
-    <div class=" py-2 px-2 w-1/2 xl:w-1/5">
-          <!-- Card 1 -->
-
-        <div class="mr-4 xl:mr-0 flex-auto h-44 shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
-            <div class="flex flex-row justify-between items-center h-full px-4 relative"> <!-- Adicionei relative aqui -->
-                <!-- Contêiner dos textos com z-10 -->
-                <div class="z-10 flex flex-col justify-between h-full w-3/4 py-10">
-                    <div class="pb-4">
-                        <h3 class="font-bold text-size uppercase xl:text-base text-lg">Atendimentos do Mês</h3>
-                    </div>
-                    <div>
-                        <p class="px-2 bg-gray-600 rounded text-white font-semibold xl:text-base text-lg">{{atendimento_mes }}</p>
-                    </div>
-                </div>
-
-                <!-- Imagem com z-0 e posicionamento absoluto -->
-                <span class="z-0 absolute flex justify-center items-center text-gray-400 text-[150px] bottom-[10px] right-[10px]">
-                    <img src="{% static 'icons/copen/atendimento.png' %}" alt="add-grupo" class="w-28 h-28">
-                </span>
-            </div>
-        </div>
-
-    </div>
-
-    <div class="py-2 px-2 w-1/2 xl:w-1/5">
-          <!-- Card 2 -->
-
-        <div class="mr-4 xl:mr-0 flex-auto h-44 shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
-            <div class="flex flex-row justify-between items-center h-full px-4 relative"> <!-- Adicionei relative aqui -->
-                <!-- Contêiner dos textos com z-10 -->
-                <div class="z-10 flex flex-col justify-between h-full w-3/4 py-10">
-                    <div class="pb-4">
-                        <h3 class="font-bold text-size uppercase xl:text-base text-lg">Apreensões do Mês</h3>
-                    </div>
-                    <div>
-                        <p class="px-2 bg-gray-600 rounded text-white font-semibold xl:text-base text-lg">{{ apreensao_mes }}</p>
-                    </div>
-                </div>
-
-                <!-- Imagem com z-0 e posicionamento absoluto -->
-                <span class="z-0 absolute flex justify-center items-center text-gray-400 text-[150px] bottom-[10px] right-[10px]">
-                    <img src="{% static 'icons/copen/apreensao.png' %}" alt="add-grupo" class="w-28 h-28">
-                </span>
-            </div>
-        </div>
-
-    </div>
-
-    <div class="py-2 px-2 w-1/2 xl:w-1/5">
-          <!-- Card 3 -->
-
-         <div class="mr-4 xl:mr-0 flex-auto h-44 shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
-            <div class="flex flex-row justify-between items-center h-full px-4 relative"> <!-- Adicionei relative aqui -->
-                <!-- Contêiner dos textos com z-10 -->
-                <div class="z-10 flex flex-col justify-between h-full w-3/4 py-10">
-                    <div class="pb-4">
-                        <h3 class="font-bold text-size uppercase xl:text-base text-lg">Ocorrência do Mês</h3>
-                    </div>
-                    <div>
-                        <p class="px-2 bg-gray-600 rounded text-white font-semibold xl:text-base text-lg">{{ocorrencia_mes }}</p>
-                    </div>
-                </div>
-
-                <!-- Imagem com z-0 e posicionamento absoluto -->
-                <span class="z-0 absolute flex justify-center items-center text-gray-400 text-[150px] bottom-[10px] right-[10px]">
-                    <img src="{% static 'icons/copen/ocorrencia.png' %}" alt="add-grupo" class="w-28 h-28">
-                </span>
-            </div>
-        </div>
-
-    </div>
-
-    <div class=" py-2 px-2 w-1/2 xl:w-1/5">
-          <!-- Card 4 -->
-
-        <div class="mr-4 xl:mr-0 flex-auto h-44 shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
-            <div class="flex flex-row justify-between items-center h-full px-4 relative"> <!-- Adicionei relative aqui -->
-                <!-- Contêiner dos textos com z-10 -->
-                <div class="z-10 flex flex-col justify-between h-full w-3/4 py-10">
-                    <div class="pb-4">
-                        <h3 class="font-bold text-size uppercase xl:text-base text-lg">Cústodias Ativas</h3>
-                    </div>
-                    <div>
-                        <p class="px-2 bg-gray-600 rounded text-white font-semibold xl:text-base text-lg">{{custodias_ativas }}</p>
-                    </div>
-                </div>
-
-                <!-- Imagem com z-0 e posicionamento absoluto -->
-                <span class="z-0 absolute flex justify-center items-center text-gray-400 text-[150px] bottom-[10px] right-[10px]">
-                    <img src="{% static 'icons/copen/atendimento.png' %}" alt="add-grupo" class="w-28 h-28">
-                </span>
-            </div>
-        </div>
-
-
-
-
-    </div>
-    <div class=" py-2 px-2 w-1/2 xl:w-1/5">
-          <!-- Card 5 -->
-
-        <div class="mr-4 xl:mr-0 flex-auto h-44 shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
-            <div class="flex flex-row justify-between items-center h-full px-4 relative"> <!-- Adicionei relative aqui -->
-                <!-- Contêiner dos textos com z-10 -->
-                <div class="z-10 flex flex-col justify-between h-full w-3/4 py-10">
-                    <div class="pb-4">
-                        <h3 class="font-bold text-size uppercase xl:text-base text-lg">Cumprimentos de Mandado do Mês</h3>
-                    </div>
-                    <div>
-                        <p class="px-2 bg-gray-600 rounded text-white font-semibold xl:text-base text-lg">{{ mp_mes }}</p>
-                    </div>
-                </div>
-
-                <!-- Imagem com z-0 e posicionamento absoluto -->
-                <span class="z-0 absolute flex justify-center items-center text-gray-400 text-[150px] bottom-[10px] right-[10px]">
-                    <img src="{% static 'icons/copen/mp.png' %}" alt="add-grupo" class="w-28 h-28">
-                </span>
-            </div>
-        </div>
-
-
-    </div>
-  </div>
 </div>
 
-
-
-
-
-    <!--cards incluir dados-->
-    <div class="flex flex-row w-full px-4 space-x-8 pb-4">
-    <!-- atendimentos -->
-        <!-- Card com ícone como fundo -->
-        <div class="h-auto w-1/3 flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300 bg-white overflow-hidden relative"> <!-- Adicionei relative aqui -->
-
-            <!-- Conteúdo do card -->
-            <div class="mb-8 z-10">
-                <h3 class="xl:text-2xl text-4xl font-semibold">Atendimentos</h3>
-                <p class="mt-4 text-gray-800 font-medium z-10">Dados sobre: atendimento, localização e identificação de indivíduos.</p>
-            </div>
-
-            <div class="relative mb-8 flex flex-col items-center z-10">
-                <span class="text-red-600 absolute"></span>
-                <span class="text-3xl font-extrabold"></span>
-            </div>
-
-            <div class="pb-2 z-10">
-                <a href="#" class="z-10 block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md font-medium bg-gray-600 transform hover:scale-105 transition duration-300 overflow-hidden">
-                    Consultar:
-                </a>
-            </div>
-
-            <div class="pb-2 z-10">
-                <a href="{% url 'copen:atendimento-add' %}" class="z-10 block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md font-medium bg-gray-600 transform hover:scale-105 transition duration-300 overflow-hidden">
-                    Incluir Atendimento:
-                </a>
-            </div>
-
-            <!-- Ícone como fundo -->
-            <div class="z-0">
-                <span class="z-0 absolute flex justify-center items-center text-gray-400 text-[150px] bottom-[260px] right-[-43px]">
-                    <img src="{% static 'icons/copen/atendimento.png' %}" alt="add-grupo" class="size-40">
-                </span>
-            </div>
-        </div>
-        <!-- apreensoes -->
-        <!-- Card com ícone como fundo -->
-        <div class="h-auto w-1/3 flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300 bg-white overflow-hidden relative"> <!-- Adicionei relative aqui -->
-
-            <!-- Conteúdo do card -->
-            <div class="mb-8 z-10">
-              <h3 class="xl:text-2xl text-4xl font-semibold ">Apreensões</h3>
-              <p class="mt-4 text-gray-600">Dados sobre apreensões realizadas no sistema penitenciário paraibano.  </p>
-            </div>
-
-            <div class="relative mb-8 flex flex-col items-center z-10">
-                <span class="text-red-600 absolute"></span>
-                <span class="text-3xl font-extrabold"></span>
-            </div>
-
-            <div class="pb-2 z-10">
-                <a href="{% url 'copen:apreensao-relatorio' %}" class="z-10 block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md font-medium bg-gray-600 transform hover:scale-105 transition duration-300 overflow-hidden">
-                    Consultar:
-                </a>
-            </div>
-
-            <div class="pb-2 z-10">
-                <a href="{% url 'copen:apreensao-add' %}" class="z-10 block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md font-medium bg-gray-600 transform hover:scale-105 transition duration-300 overflow-hidden">
-                    Incluir Apreensāo:
-                </a>
-            </div>
-
-            <!-- Ícone como fundo -->
-            <div class="z-0">
-                <span class="z-0 absolute flex justify-center items-center text-gray-400 text-[150px] bottom-[260px] right-[-43px]">
-                    <img src="{% static 'icons/copen/apreensao.png' %}" alt="add-grupo" class="size-40">
-                </span>
-            </div>
-        </div>
-        <!-- ocorrencias -->
-        <!-- Card com ícone como fundo -->
-        <div class="h-auto w-1/3 flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300 bg-white overflow-hidden relative"> <!-- Adicionei relative aqui -->
-
-            <!-- Conteúdo do card -->
-            <div class="mb-8">
-              <h3 class="xl:text-2xl text-4xl font-semibold ">Ocorrências</h3>
-              <p class="mt-4 text-gray-600">Dados sobre: atendimento, Localização e identificação e indivíduos.  </p>
-            </div>
-
-            <div class="relative mb-8 flex flex-col items-center z-10">
-                <span class="text-red-600 absolute"></span>
-                <span class="text-3xl font-extrabold"></span>
-            </div>
-
-            <div class="pb-2 z-10">
-                <a href="#" class="z-10 block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md font-medium bg-gray-600 transform hover:scale-105 transition duration-300 overflow-hidden">
-                    Consultar:
-                </a>
-            </div>
-
-            <div class="pb-2 z-10">
-                <a href="{% url 'copen:ocorrencia-add' %}" class="z-10 block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md font-medium bg-gray-600 transform hover:scale-105 transition duration-300 overflow-hidden">
-                    Incluir Ocorrência:
-                </a>
-            </div>
-
-            <!-- Ícone como fundo -->
-            <div class="z-0">
-                <span class="z-0 absolute flex justify-center items-center text-gray-400 text-[150px] bottom-[260px] right-[-43px]">
-                    <img src="{% static 'icons/copen/ocorrencia.png' %}" alt="add-grupo" class="size-40">
-                </span>
-            </div>
-        </div>
-
-
-    </div>
-    <div class="flex flex-row w-full px-4 space-x-8">
-        <!-- custodias -->
-        <!-- Card com ícone como fundo -->
-        <div class="h-auto w-1/3 flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300 bg-white overflow-hidden relative"> <!-- Adicionei relative aqui -->
-
-            <!-- Conteúdo do card -->
-            <div class="mb-8 z-10">
-              <h3 class="xl:text-2xl text-4xl font-semibold ">Custódias</h3>
-              <p class="mt-4 text-gray-600">Dados sobre: atendimento, Localização e identificação e indivíduos.  </p>
-            </div>
-
-            <div class="relative mb-8 flex flex-col items-center z-10">
-                <span class="text-red-600 absolute"></span>
-                <span class="text-3xl font-extrabold"></span>
-            </div>
-
-            <div class="pb-2 z-10">
-                <a href="#" class="z-10 block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md font-medium bg-gray-600 transform hover:scale-105 transition duration-300 overflow-hidden">
-                    Consultar:
-                </a>
-            </div>
-
-            <div class="pb-2 z-10">
-                <a href="{% url 'copen:custodia-add' %}" class="z-10 block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md font-medium bg-gray-600 transform hover:scale-105 transition duration-300 overflow-hidden">
-                    Incluir Custódia:
-                </a>
-            </div>
-
-            <!-- Ícone como fundo -->
-            <div class="z-0">
-                <span class="z-0 absolute flex justify-center items-center text-gray-400 text-[150px] bottom-[260px] right-[-43px]">
-                    <img src="{% static 'icons/copen/custodia.png' %}" alt="add-grupo" class="size-40">
-                </span>
-            </div>
-        </div>
-        <!-- mandados de prisao -->
-        <!-- Card com ícone como fundo -->
-        <div class="h-auto w-1/3 flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300 bg-white overflow-hidden relative"> <!-- Adicionei relative aqui -->
-
-            <!-- Conteúdo do card -->
-            <div class="mb-8 z-10">
-              <h3 class="xl:text-2xl text-4xl font-semibold ">Mandados De Prisão</h3>
-              <p class="mt-4 text-gray-600">Cumprimento de Mandados de Prisão em Unidades Prisionais.  </p>
-            </div>
-
-            <div class="relative mb-8 flex flex-col items-center z-10">
-                <span class="text-red-600 absolute"></span>
-                <span class="text-3xl font-extrabold"></span>
-            </div>
-
-            <div class="pb-2 z-10">
-                <a href="#" class="z-10 block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md font-medium bg-gray-600 transform hover:scale-105 transition duration-300 overflow-hidden">
-                    Consultar:
-                </a>
-            </div>
-
-            <div class="pb-2 z-10">
-                <a href="{% url 'copen:mp-add' %}" class="z-10 block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md font-medium bg-gray-600 transform hover:scale-105 transition duration-300 overflow-hidden">
-                    Incluir MP:
-                </a>
-            </div>
-
-            <!-- Ícone como fundo -->
-            <div class="z-0">
-                <span class="z-0 absolute flex justify-center items-center text-gray-400 text-[150px] bottom-[260px] right-[-43px]">
-                    <img src="{% static 'icons/copen/mp.png' %}" alt="add-grupo" class="size-40">
-                </span>
-            </div>
-        </div>
-        <!-- consulta internos -->
-        <!-- Card com ícone como fundo -->
-        <div class="h-auto w-1/3 flex flex-col justify-between rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300 bg-white overflow-hidden relative"> <!-- Adicionei relative aqui -->
-
-            <!-- Conteúdo do card -->
-            <div class="mb-8 z-10">
-              <h3 class="xl:text-2xl text-4xl font-semibold ">Consulta INFOPEN</h3>
-              <p class="mt-4 text-gray-600">Consulta e localização Rápida de indivíduos no INFOPEN.  </p>
-            </div>
-
-            <div class="relative mb-8 flex flex-col items-center z-10">
-                <span class="text-red-600 absolute"></span>
-                <span class="text-3xl font-extrabold"></span>
-            </div>
-
-            <div class="pb-2 z-10">
-                <a href="#" class="z-10 block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md font-medium bg-gray-600 transform hover:scale-105 transition duration-300 overflow-hidden">
-                    Consultar:
-                </a>
-            </div>
-
-            <div class="pb-2 z-10">
-                <a href="{% url 'interno:interno' %}" class="z-10 block w-full xl:py-3 py-4 px-6 text-center text-white xl:text-base text-3xl rounded-md font-medium bg-gray-600 transform hover:scale-105 transition duration-300 overflow-hidden">
-                    Internos:
-                </a>
-            </div>
-
-            <!-- Ícone como fundo -->
-            <div class="z-0">
-                <span class="z-0 absolute flex justify-center items-center text-gray-400 text-[150px] bottom-[260px] right-[-43px]">
-                    <img src="{% static 'icons/copen/infopen.png' %}" alt="add-grupo" class="size-40">
-                </span>
-            </div>
-        </div>
-
-
-    </div>
-
-</div>
-
-<!--campos Apreensoes-->
-
-<div class="pt-4 flex flex-row px-4 xl:px-12 justify-start w-full xl:h-auto h-96">
-<!-- Gráfico de barra custodias-->
-    <div class=" w-3/4 mr-4 bg-white border border-gray-200 rounded-lg shadow-xl px-4 py-4">
-        <div class="flex items-center justify-between pb-4 mb-4 border-b border-gray-200">
+<!-- Stats Cards -->
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 px-4 py-6">
+    <!-- Card 1 - Atendimentos -->
+    <div class="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
+        <div class="flex justify-between items-center">
             <div>
-                <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Quantidade Total Mensal</h3>
-                <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">Apreensões</span>
+                <h3 class="text-sm font-bold uppercase text-gray-600">Atendimentos do Mês</h3>
+                <p class="mt-2 text-2xl font-bold">{{ atendimento_mes }}</p>
             </div>
-
-        </div>
-        <div class="">
-            <canvas id="chart-bar-apreensao" width="800" height="200"></canvas>
+            <div class="bg-blue-500 rounded-full h-12 w-12 flex items-center justify-center">
+                <img src="{% static 'icons/copen/atendimento.png' %}" alt="atendimento" class="h-6 w-6">
+            </div>
         </div>
     </div>
 
-<!--    GRAFICO natureza Apreensoes-->
-    <div class="w-1/4 flex flex-col items-stretch rounded-lg shadow-lg pr-4">
-        <div class="border-b border-gray-200 pb-4 mb-4 p-4">
-            <h3 class="text-base font-semibold text-gray-500 dark:text-gray-400">Natureza das Apreensões:</h3>
-
+    <!-- Card 2 - Apreensões -->
+    <div class="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
+        <div class="flex justify-between items-center">
+            <div>
+                <h3 class="text-sm font-bold uppercase text-gray-600">Apreensões do Mês</h3>
+                <p class="mt-2 text-2xl font-bold">{{ apreensao_mes }}</p>
+            </div>
+            <div class="bg-green-500 rounded-full h-12 w-12 flex items-center justify-center">
+                <img src="{% static 'icons/copen/apreensao.png' %}" alt="apreensao" class="h-6 w-6">
+            </div>
         </div>
-
-
-        <div class="h-[280px] xl:p-4 p-1">
-            <canvas id="pizza-apreensao" width="200" height="100"></canvas>
-        </div>
-
     </div>
 
+    <!-- Card 3 - Ocorrências -->
+    <div class="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
+        <div class="flex justify-between items-center">
+            <div>
+                <h3 class="text-sm font-bold uppercase text-gray-600">Ocorrências do Mês</h3>
+                <p class="mt-2 text-2xl font-bold">{{ ocorrencia_mes }}</p>
+            </div>
+            <div class="bg-yellow-500 rounded-full h-12 w-12 flex items-center justify-center">
+                <img src="{% static 'icons/copen/ocorrencia.png' %}" alt="ocorrencia" class="h-6 w-6">
+            </div>
+        </div>
+    </div>
 
+    <!-- Card 4 - Custódias -->
+    <div class="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
+        <div class="flex justify-between items-center">
+            <div>
+                <h3 class="text-sm font-bold uppercase text-gray-600">Custódias Ativas</h3>
+                <p class="mt-2 text-2xl font-bold">{{ custodias_ativas }}</p>
+            </div>
+            <div class="bg-red-500 rounded-full h-12 w-12 flex items-center justify-center">
+                <img src="{% static 'icons/copen/custodia.png' %}" alt="custodia" class="h-6 w-6">
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 5 - Mandados -->
+    <div class="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
+        <div class="flex justify-between items-center">
+            <div>
+                <h3 class="text-sm font-bold uppercase text-gray-600">Mandados do Mês</h3>
+                <p class="mt-2 text-2xl font-bold">{{ mp_mes }}</p>
+            </div>
+            <div class="bg-purple-500 rounded-full h-12 w-12 flex items-center justify-center">
+                <img src="{% static 'icons/copen/mp.png' %}" alt="mandado" class="h-6 w-6">
+            </div>
+        </div>
+    </div>
 </div>
 
+<!-- Quick Actions -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-4 pb-6">
+    <!-- Atendimentos -->
+    <div class="bg-white rounded-lg shadow-md p-6 flex flex-col">
+        <div class="mb-4">
+            <h3 class="text-lg font-semibold">Atendimentos</h3>
+            <p class="mt-2 text-sm text-gray-600">Dados sobre atendimento, localização e identificação</p>
+        </div>
+        <div class="mt-auto space-y-2">
+            <a href="#" class="block w-full py-2 px-4 text-center text-white text-sm rounded-md font-medium bg-gray-600 hover:bg-gray-700">
+                Consultar
+            </a>
+            <a href="{% url 'copen:atendimento-add' %}" class="block w-full py-2 px-4 text-center text-white text-sm rounded-md font-medium bg-blue-600 hover:bg-blue-700">
+                Incluir Atendimento
+            </a>
+        </div>
+    </div>
 
-<!--tabela com custodias ativas-->
+    <!-- Apreensões -->
+    <div class="bg-white rounded-lg shadow-md p-6 flex flex-col">
+        <div class="mb-4">
+            <h3 class="text-lg font-semibold">Apreensões</h3>
+            <p class="mt-2 text-sm text-gray-600">Registro de apreensões no sistema penitenciário</p>
+        </div>
+        <div class="mt-auto space-y-2">
+            <a href="{% url 'copen:apreensao-relatorio' %}" class="block w-full py-2 px-4 text-center text-white text-sm rounded-md font-medium bg-gray-600 hover:bg-gray-700">
+                Consultar
+            </a>
+            <a href="{% url 'copen:apreensao-add' %}" class="block w-full py-2 px-4 text-center text-white text-sm rounded-md font-medium bg-blue-600 hover:bg-blue-700">
+                Incluir Apreensão
+            </a>
+        </div>
+    </div>
 
-<div class="w-full mb-12 pt-8 flex justify-start px-4">
-    <div class="bg-white shadow-lg rounded-lg w-full">
-        <div class="p-6 rounded-t-lg">
-            <div class="flex flex-row justify-between">
-                <div>
-                    <h1 class="text-3xl font-bold text-center">Custódias em Andamento</h1>
-                </div>
-                <div>
-                    <a href="#" class="inline-flex items-center p-2 text-xs font-medium uppercase rounded-lg text-primary-700 sm:text-sm hover:bg-gray-100 dark:text-primary-500 dark:hover:bg-gray-700">
-                        Dados Completos
-                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                        </svg>
-                    </a>
-                </div>
+    <!-- Ocorrências -->
+    <div class="bg-white rounded-lg shadow-md p-6 flex flex-col">
+        <div class="mb-4">
+            <h3 class="text-lg font-semibold">Ocorrências</h3>
+            <p class="mt-2 text-sm text-gray-600">Registro de ocorrências no sistema</p>
+        </div>
+        <div class="mt-auto space-y-2">
+            <a href="#" class="block w-full py-2 px-4 text-center text-white text-sm rounded-md font-medium bg-gray-600 hover:bg-gray-700">
+                Consultar
+            </a>
+            <a href="{% url 'copen:ocorrencia-add' %}" class="block w-full py-2 px-4 text-center text-white text-sm rounded-md font-medium bg-blue-600 hover:bg-blue-700">
+                Incluir Ocorrência
+            </a>
+        </div>
+    </div>
+
+    <!-- Custódias -->
+    <div class="bg-white rounded-lg shadow-md p-6 flex flex-col">
+        <div class="mb-4">
+            <h3 class="text-lg font-semibold">Custódias</h3>
+            <p class="mt-2 text-sm text-gray-600">Gerenciamento de custódias ativas</p>
+        </div>
+        <div class="mt-auto space-y-2">
+            <a href="#" class="block w-full py-2 px-4 text-center text-white text-sm rounded-md font-medium bg-gray-600 hover:bg-gray-700">
+                Consultar
+            </a>
+            <a href="{% url 'copen:custodia-add' %}" class="block w-full py-2 px-4 text-center text-white text-sm rounded-md font-medium bg-blue-600 hover:bg-blue-700">
+                Incluir Custódia
+            </a>
+        </div>
+    </div>
+
+    <!-- Mandados -->
+    <div class="bg-white rounded-lg shadow-md p-6 flex flex-col">
+        <div class="mb-4">
+            <h3 class="text-lg font-semibold">Mandados</h3>
+            <p class="mt-2 text-sm text-gray-600">Cumprimento de mandados de prisão</p>
+        </div>
+        <div class="mt-auto space-y-2">
+            <a href="#" class="block w-full py-2 px-4 text-center text-white text-sm rounded-md font-medium bg-gray-600 hover:bg-gray-700">
+                Consultar
+            </a>
+            <a href="{% url 'copen:mp-add' %}" class="block w-full py-2 px-4 text-center text-white text-sm rounded-md font-medium bg-blue-600 hover:bg-blue-700">
+                Incluir MP
+            </a>
+        </div>
+    </div>
+
+    <!-- INFOPEN -->
+    <div class="bg-white rounded-lg shadow-md p-6 flex flex-col">
+        <div class="mb-4">
+            <h3 class="text-lg font-semibold">Consulta INFOPEN</h3>
+            <p class="mt-2 text-sm text-gray-600">Localização de indivíduos no sistema</p>
+        </div>
+        <div class="mt-auto space-y-2">
+            <a href="#" class="block w-full py-2 px-4 text-center text-white text-sm rounded-md font-medium bg-gray-600 hover:bg-gray-700">
+                Consultar
+            </a>
+            <a href="{% url 'interno:interno' %}" class="block w-full py-2 px-4 text-center text-white text-sm rounded-md font-medium bg-blue-600 hover:bg-blue-700">
+                Internos
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Section -->
+<div class="flex flex-col lg:flex-row gap-6 px-4 pb-6">
+    <!-- Bar Chart -->
+    <div class="w-full lg:w-3/4 bg-white rounded-lg shadow-md p-4">
+        <div class="border-b border-gray-200 pb-4 mb-4">
+            <h3 class="text-lg font-semibold">Quantidade Mensal de Apreensões</h3>
+        </div>
+        <div class="h-64 sm:h-80 md:h-96">
+            <canvas id="chart-bar-apreensao"></canvas>
+        </div>
+    </div>
+
+    <!-- Pie Chart -->
+    <div class="w-full lg:w-1/4 bg-white rounded-lg shadow-md p-4">
+        <div class="border-b border-gray-200 pb-4 mb-4">
+            <h3 class="text-lg font-semibold">Natureza das Apreensões</h3>
+        </div>
+        <div class="h-64 sm:h-80 flex justify-center">
+            <div class="aspect-square w-full max-w-xs">
+                <canvas id="pizza-apreensao"></canvas>
             </div>
-                <form method="GET">
+        </div>
+    </div>
+</div>
+
+<!-- Custódias Ativas Table -->
+<div class="px-4 pb-12">
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="p-4 border-b border-gray-200">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h3 class="text-lg sm:text-xl font-semibold">Custódias em Andamento</h3>
+                </div>
+                <a href="#" class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-800">
+                    Dados Completos
+                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </a>
+            </div>
+        </div>
+
+        <!-- Table Filters -->
+        <div class="p-4 bg-gray-50">
+            <form method="GET">
                     <div class="mt-4 px-0 flex flex-row justify-between w-full">
                         <div class="flex space-x-4 items-center">
 
@@ -439,69 +238,60 @@ Copen
                     </div>
                 </form>
         </div>
+
+        <!-- Table -->
         <div class="overflow-x-auto">
-            <table class="min-w-full bg-white divide-y divide-gray-200">
-                <thead class="bg-gray-100">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prontuário</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unidade Origem</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Responsável Pela Custódia</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data de Entrada:</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prontuário</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unidade Origem</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Responsável</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data Entrada</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody id="custodias-content" class="bg-white divide-y divide-gray-200">
                     {% for custodia in lista_custodias_ativas %}
-                    <tr class="clickable-row" data-href="{% url 'copen:custodia-edit' custodia.id %}">
-                        <td class="px-6 py-4 whitespace-nowrap">{{ custodia.interno.nome }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ custodia.interno.prontuario }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ custodia.unidade_hospitalar }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ custodia.responsavel }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ custodia.data_entrada |date:"d/m/Y" }}</td>
+                    <tr class="clickable-row hover:bg-gray-50 cursor-pointer" data-href="{% url 'copen:custodia-edit' custodia.id %}">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ custodia.interno.nome }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ custodia.interno.prontuario }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ custodia.unidade_hospitalar }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ custodia.responsavel }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ custodia.data_entrada|date:"d/m/Y" }}</td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="4" class="px-6 py-4 text-center text-gray-500">Nenhum servidor encontrado</td>
+                        <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">Nenhuma custódia ativa encontrada</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
 
-        <!-- Paginação -->
-        <div class="p-6 bg-gray-100 rounded-b-lg">
-            <nav aria-label="Page navigation">
-                <ul class="inline-flex items-center -space-x-px">
+        <!-- Pagination -->
+        <div class="px-4 py-3 bg-gray-50 border-t border-gray-200">
+            <nav class="flex items-center justify-between">
+                <div class="hidden sm:block">
+                    <p class="text-sm text-gray-700">
+                        Página <span class="font-medium">{{ page_obj.number }}</span> de <span class="font-medium">{{ page_obj.paginator.num_pages }}</span>
+                    </p>
+                </div>
+                <div class="flex-1 flex justify-between sm:justify-end">
                     {% if page_obj.has_previous %}
-                    <li>
-                        <a href="?page=1&query={{ request.GET.query }}" class="px-3 py-2 ml-0 text-sm font-medium text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100">Primeira</a>
-                    </li>
-                    <li>
-                        <a href="?page={{ page_obj.previous_page_number }}&query={{ request.GET.query }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">Anterior</a>
-                    </li>
+                    <a href="?page={{ page_obj.previous_page_number }}&query={{ query }}"
+                       class="relative inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        Anterior
+                    </a>
                     {% endif %}
-
-                    {% for p in page_range %}
-                    {% if p == page_obj.number %}
-                    <li>
-                        <span class="px-3 py-2 text-sm font-medium text-white bg-blue-500 border border-gray-300">{{ p }}</span>
-                    </li>
-                    {% else %}
-                    <li>
-                        <a href="?page={{ p }}&query={{ request.GET.query }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">{{ p }}</a>
-                    </li>
-                    {% endif %}
-                    {% endfor %}
 
                     {% if page_obj.has_next %}
-                    <li>
-                        <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">Próxima</a>
-                    </li>
-                    <li>
-                        <a href="?page={{ page_obj.paginator.num_pages }}&query={{ request.GET.query }}&cargo={{ request.GET.cargo }}&local_trabalho={{ request.GET.local_trabalho }}&cargo_comissionado={{ request.GET.cargo_comissionado }}&status={{ request.GET.status }}&genero={{ request.GET.genero }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100">Última</a>
-                    </li>
+                    <a href="?page={{ page_obj.next_page_number }}&query={{ query }}"
+                       class="ml-3 relative inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        Próxima
+                    </a>
                     {% endif %}
-                </ul>
+                </div>
             </nav>
         </div>
     </div>
@@ -509,122 +299,76 @@ Copen
 
 {% endif %}
 
-
-
-
-
 <!--scripts-->
 
 <script>
-    // Dados do gráfico de barra para Apreensoes
-    var ctx = document.getElementById('chart-bar-apreensao').getContext('2d');
-    var barLabels = {{ monthly_labels_apreensao|safe }};  // Labels dos meses com ano
-    var barValues = {{ monthly_totals_apreensao|safe }};  // Quantidade mensal de Apreensoes
-
-    var myBarChart = new Chart(ctx, {
-        type: 'bar', // Tipo de gráfico: barra
+    // Bar Chart - Apreensões Mensais
+    var ctxBar = document.getElementById('chart-bar-apreensao').getContext('2d');
+    var barChart = new Chart(ctxBar, {
+        type: 'bar',
         data: {
-            labels: barLabels, // Nomes dos meses (Janeiro 2024, Fevereiro 2024, etc.)
+            labels: {{ monthly_labels_apreensao|safe }},
             datasets: [{
                 label: 'Total de Apreensões',
-                data: barValues, // Valores mensais calculados no backend
-                backgroundColor: 'rgba(210, 0, 0, 1)', // Cor de fundo das barras (vermelho)
-                borderColor: 'rgba(210, 0, 0, 1)', // Cor da borda das barras (vermelho)
-                borderWidth: 2, // Largura da borda das barras
-                borderRadius: 4 // Arredondamento das bordas das barras
+                data: {{ monthly_totals_apreensao|safe }},
+                backgroundColor: 'rgba(210, 0, 0, 1)',
+                borderColor: 'rgba(210, 0, 0, 1)',
+                borderWidth: 2,
+                borderRadius: 4
             }]
         },
         options: {
+            responsive: true,
+            maintainAspectRatio: false,
             scales: {
-                x: {
-                    grid: {
-                        display: false // Oculta a grade no eixo X
-                    }
-                },
-                y: {
-                    beginAtZero: true, // Começa o eixo Y no zero
-                    grid: {
-                        display: false // Oculta a grade no eixo Y
-                    }
+                x: { grid: { display: false } },
+                y: { beginAtZero: true, grid: { display: false } }
+            }
+        }
+    });
+
+    // Pie Chart - Natureza das Apreensões
+    var ctxPie = document.getElementById('pizza-apreensao').getContext('2d');
+    var pieChart = new Chart(ctxPie, {
+        type: 'pie',
+        data: {
+            labels: {{ pie_labels_apreensao|safe }},
+            datasets: [{
+                data: {{ pie_values_apreensao|safe }},
+                backgroundColor: [
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(255, 99, 132, 0.7)',
+                    'rgba(255, 206, 86, 0.7)',
+                    'rgba(75, 192, 192, 0.7)',
+                    'rgba(153, 102, 255, 0.7)',
+                    'rgba(255, 159, 64, 0.7)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
                 }
             }
         }
     });
-</script>
 
-
-
-
-<!--grafico Pizza aprensao-->
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var ctx = document.getElementById('pizza-apreensao').getContext('2d');
-
-        // Função para gerar cores aleatórias para cada segmento
-        function gerarCoresAleatorias(qtd) {
-            var cores = [];
-            for (var i = 0; i < qtd; i++) {
-                var r = Math.floor(Math.random() * 255);
-                var g = Math.floor(Math.random() * 255);
-                var b = Math.floor(Math.random() * 255);
-                cores.push(`rgba(${r}, ${g}, ${b}, 1)`);
-            }
-            return cores;
-        }
-
-        // Certifique-se de que `pie_labels_apreensao` e `pie_values_apreensao` sejam arrays válidos
-        var labels = {{ pie_labels_apreensao|safe }};  // Ex.: ['Natureza 1', 'Natureza 2', ...]
-        var data = {{ pie_values_apreensao|safe }};    // Ex.: [10, 20, 30, ...]
-
-        // Gerar as cores para cada item no gráfico
-        var backgroundColors = gerarCoresAleatorias(labels.length);
-
-        var myPieChart = new Chart(ctx, {
-            type: 'pie',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Distribuição de Ajuda de Custo',
-                    data: data,
-                    backgroundColor: backgroundColors,
-                    borderColor: backgroundColors,
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            font: {
-                                size: 12
-                            }
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(tooltipItem) {
-                                return tooltipItem.label + ': ' + tooltipItem.raw;
-                            }
-                        }
-                    },
-                    datalabels: {
-                        display: true,
-                        color: '#ffffff',
-                        font: {
-                            weight: 'bold',
-                            size: 14
-                        },
-                        formatter: (value) => {
-                            return `${value}`;  // Exibe o valor numérico de cada segmento
-                        }
-                    }
-                },
-                cutout: '50%'  // Remova se não quiser um gráfico de donut
-            }
+    // Clickable rows for custodias table
+    document.querySelectorAll('.clickable-row').forEach(row => {
+        row.addEventListener('click', () => {
+            window.location.href = row.getAttribute('data-href');
         });
+    });
+
+    // Auto-search functionality
+    document.getElementById('searchInput').addEventListener('keyup', function(e) {
+        if (e.key === 'Enter') {
+            this.dispatchEvent(new Event('change'));
+        }
     });
 </script>
 
