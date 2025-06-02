@@ -62,7 +62,7 @@ class Armamento(models.Model):
     calibre = models.ForeignKey(Calibre, on_delete=models.CASCADE)
     marca = models.ForeignKey(Marca, on_delete=models.CASCADE)
     modelo = models.ForeignKey(Modelo, on_delete=models.CASCADE)
-    numero_serie = models.CharField(max_length=100)
+    numero_serie = models.CharField(max_length=100, unique=True)
     servidor = models.ForeignKey('servidor.Servidor', on_delete=models.CASCADE, null=True, blank=True)
     unidade = models.ForeignKey('seappb.Unidade', on_delete=models.CASCADE, null=True, blank=True)
     usuario = models.ForeignKey('seappb.Usuario', on_delete=models.CASCADE)

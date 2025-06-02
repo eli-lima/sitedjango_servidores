@@ -19,6 +19,7 @@ import os
 from django.conf import settings
 from celery.result import AsyncResult
 from seappb.models import Unidade
+from seappb.permissions import PermissionChecker
 
 #deletar documentos
 
@@ -193,11 +194,10 @@ class CriarServidorView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     success_url = reverse_lazy('servidor:recursos_humanos')
 
     def test_func(self):
-        user = self.request.user
-        # Define os grupos permitidos
-        grupos_permitidos = ['Administrador', 'GerHr']
-        # Retorna True se o usuário pertence a pelo menos um dos grupos
-        return user.groups.filter(name__in=grupos_permitidos).exists()
+        return PermissionChecker.has_permission(
+            user=self.request.user,
+            permission_section='servidor_rh'
+        )
 
         # Levanta exceção em caso de falta de permissão
 
@@ -245,9 +245,10 @@ class ServidorEdit(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     template_name = 'servidor_edit.html'
 
     def test_func(self):
-        user = self.request.user
-        grupos_permitidos = ['Administrador', 'GerHr']
-        return user.groups.filter(name__in=grupos_permitidos).exists()
+        return PermissionChecker.has_permission(
+            user=self.request.user,
+            permission_section='servidor_rh'
+        )
 
     def handle_no_permission(self):
         messages.error(self.request, "Você não tem permissão para acessar esta página.")
@@ -324,13 +325,11 @@ class ServidorLote(LoginRequiredMixin, UserPassesTestMixin, View):
     form_class = UploadFileForm
     template_name = 'servidor_lote.html'
 
-
     def test_func(self):
-        user = self.request.user
-        # Define os grupos permitidos
-        grupos_permitidos = ['Administrador', 'GerRh']
-        # Retorna True se o usuário pertence a pelo menos um dos grupos
-        return user.groups.filter(name__in=grupos_permitidos).exists()
+        return PermissionChecker.has_permission(
+            user=self.request.user,
+            permission_section='servidor_rh'
+        )
 
         # Levanta exceção em caso de falta de permissão
 
