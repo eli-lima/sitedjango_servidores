@@ -4,458 +4,306 @@
 Servidores
 {% endblock %}
 
-
 {% block content %}
 
-
-
-
-
-
-
-
-
-
-    <!--tela administrador-->
-
-
-
-    <!--cards com informacoes importantes-->
-
-    <div class="pt-3 grid grid-cols-2 xl:grid-cols-4 gap-4 pb-8 px-4">
-
-            <!-- Card 1 -->
-
-                <div class="shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
-                    <div class="flex flex-row justify-between items-center h-full px-4">
-                        <div class="flex flex-col justify-between h-full py-10">
-                            <div class="pb-4">
-                                <h3 class="font-bold text-size uppercase xl:text-base text-lg">Servidores Cadastrados</h3>
-                            </div>
-                            <div>
-                                <p class="px-2 bg-black rounded text-white font-semibold xl:text-base text-lg">{{ total_servidores }}</p>
-                            </div>
-                        </div>
-                        <div class="bg-black rounded-full h-20 min-w-20 flex items-center justify-center">
-                            <i class="fs-1 bi bi-people-fill text-white"></i>
-                        </div>
-
-                    </div>
-                </div>
-<!--            card 2-->
-
-               <div class="shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
-                    <div class="flex flex-row justify-between items-center h-full px-4">
-                        <div class="flex flex-col justify-between h-full py-10">
-                            <div class="pb-4">
-                                <h3 class="font-bold text-size uppercase xl:text-base text-lg">Policiais Penais Total</h3>
-
-                            </div>
-                            <div>
-                                <p class="px-2 bg-blue-600 rounded text-white font-semibold xl:text-base text-lg">{{ total_policiais_penal }}</p>
-                            </div>
-                        </div>
-                        <div class="bg-blue-600 rounded-full h-20 min-w-20 flex items-center justify-center">
-                            <img src="{% static 'icons/guard-prison.png' %}" alt="add-grupo" class=" h-10 w-10">
-                        </div>
-
-                    </div>
-                </div>
-
-
-
-            <!-- Card 3 -->
-            <div class="shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
-                <div class="flex flex-row justify-between items-center h-full px-4">
-                    <div class="flex flex-col justify-between h-full py-10">
-                        <div class="pb-4">
-                            <h3 class="font-bold text-size uppercase xl:text-base text-lg">Policiais Penais em Atividade</h3>
-                        </div>
-                        <div>
-                            <p class="px-2 bg-green-600 rounded text-white font-semibold xl:text-base text-lg">{{ total_servidores_ativos_policial_penal }}</p>
-                        </div>
-                    </div>
-                    <div class="bg-green-600 rounded-full h-20 min-w-20 flex items-center justify-center">
-                        <img src="{% static 'icons/guard-prison.png' %}" alt="add-grupo" class=" h-10 w-10">
-                    </div>
-                </div>
-            </div>
-
-<!--        card 4-->
-
-            <div class="shadow-xl rounded-2xl transform hover:scale-105 transition duration-300">
-                <div class="flex flex-row justify-between items-center h-full px-4">
-                    <div class="flex flex-col justify-between h-full py-10">
-                        <div class="pb-4">
-                            <h3 class="font-bold text-size uppercase xl:text-base text-lg">Policiais Penais Fora De Serviço</h3>
-                        </div>
-                        <div>
-                            <p class="px-2 bg-red-600 rounded text-white font-semibold xl:text-base text-lg">{{ total_servidores_inativos_policial_penal }}</p>
-                        </div>
-                    </div>
-                    <div class="bg-red-600 rounded-full h-20 min-w-20 flex items-center justify-center">
-                        <img src="{% static 'icons/guard-prison.png' %}" alt="add-grupo" class=" h-10 w-10">
-                    </div>
-                </div>
-            </div>
-
-
-
-    </div>
-
-        {% if 'Administrador' in user_groups or 'GerRh' in user_groups %}
-
-<!--    cartoes de cadastro-->
-    <div class="mb-8 grid grid-cols-2 gap-8 xl:grid-cols-4 px-4">
-
-            <!-- adicionar servidor -->
-            <div class="flex flex-col items-stretch rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
-                <div class="mb-8">
-                  <h3 class="text-2xl flex justify-center font-semibold "><img src="{% static 'icons/adicionar-usuario.png' %}" alt="add-servidor" class="h-12  text-center"></h3>
-                  <p class="mt-4 text-center text-gray-600">Inclua Novos Servidores e suas informações aqui, nesse link.</p>
-                </div>
-                <div class="mb-8">
-                  <span class="text-xl font-base text-gray-600"></span>
-                  <span class="text-3xl font-extrabold "></span>
-
-                </div>
-                <div class="mt-5 pt-2">
-                    <a href="{% url 'servidor:criar_servidor' %}" class="block w-full py-3 px-6 text-center text-white text-base rounded-md  font-medium bg-gray-400">
-                      Adicionar Servidor:
-                    </a>
-                </div>
-            </div>
-
-            <!-- ADICAO EDICAO EM LOTE -->
-            <div class="flex flex-col items-stretch rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
-            <div class="mb-8">
-              <h3 class="text-2xl flex justify-center font-semibold "><img src="{% static 'icons/adicionar-grupo.png' %}" alt="add-grupo" class="h-12  text-center"></h3>
-              <p class="mt-4 text-center text-gray-600">Adicione ou Edite servidores baixando o modelo em Excel.</p>
-            </div>
-            <div class="mb-8">
-              <span class="text-xl font-medium text-gray-600"></span>
-              <span class="text-3xl font-extrabold "></span>
-
-            </div>
-
-            <div class="mt-5 pt-2">
-                <a href="{% url 'servidor:servidor_lote' %}" class="block py-3 px-6 text-center text-white text-base rounded-md  font-medium bg-gray-400">
-                  Baixe e Envie Aqui:
-                </a>
-            </div>
-            </div>
-
-            <!-- breve -->
-            <div class="flex flex-col items-stretch rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
-                <div class="mb-8">
-                  <h3 class="text-2xl font-semibold ">Em Breve</h3>
-                  <p class="mt-4 text-gray-600">Em Breve Novas Funcionalidades, nessa aba.</p>
-                </div>
-                <div class="mb-8">
-                  <span class="text-xl font-medium text-gray-600"></span>
-                  <span class="text-3xl font-extrabold "></span>
-
-                </div>
-                <div class="mt-5 pt-3">
-                    <a href="#" class="block py-3 px-6 text-center text-white text-base rounded-md  font-medium bg-gray-400">
-                      Adicionar Informaçoes:
-                    </a>
-                </div>
-            </div>
-
-            <!-- breve -->
-            <div class="flex flex-col items-stretch rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
-                <div class="mb-8">
-                  <h3 class="text-2xl font-semibold ">Em Breve</h3>
-                  <p class="mt-4 text-gray-600">Em Breve Novas Funcionalidades, nessa aba.</p>
-                </div>
-                <div class="mb-8">
-                  <span class="text-xl font-medium text-gray-600"></span>
-                  <span class="text-3xl font-extrabold "></span>
-
-                </div>
-                <div class="mt-5 pt-3">
-                    <a href="#" class="block py-3 px-6 text-center text-white text-base rounded-md  font-medium bg-gray-400">
-                      Adicionar Informaçoes:
-                    </a>
-                </div>
-            </div>
-    </div>
+<!-- Filtros Section -->
+<div class="pt-4 px-4">
+    <div class="flex flex-col xl:flex-row gap-4">
+        {% if 'Administrador' in user_groups or 'GerRh' in user_groups or 'GerGesipe' in user_groups %}
+        <div class="py-3 bg-gray-600 text-white w-full xl:w-1/4 rounded-lg shadow-md flex justify-center items-center">
+            <h3 class="text-lg xl:text-xl font-bold">
+                {% if unidade_gerente %}
+                    Gerente - {{ unidade_gerente }}
+                {% else %}
+                    RH
+                {% endif %}
+            </h3>
+        </div>
         {% endif %}
 
-        {% if 'GerGesipe' in user_groups or 'GerRh' in user_groups or 'Administrador' in user_groups or 'ServGesipe' in user_groups %}
-
-    <div class="grid grid-cols-1 gap-8 sm:grid-cols-3 xl:grid-cols-4 px-4">
-
-
-            <!-- efetivo por unidade -->
-            <div class="col-span-3 flex flex-col items-stretch rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
-                <div class="mb-2">
-                  <h3 class="text-2xl font-semibold ">Efetivo Por Unidade</h3>
-                  <p class="mt-4 text-gray-600"></p>
-                </div>
-
-
-                <div>
-                    <canvas id="chart-bar" width="200" height="100"></canvas>
-                </div>
-
+        <form method="GET" class="flex-1 flex flex-col sm:flex-row gap-4 items-end">
+            <div class="w-full sm:w-1/3">
+                <input type="text" name="query" id="searchInput"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm sm:text-base"
+                       placeholder="Pesquisar..." value="{{ query }}">
             </div>
-
-            <!-- genero -->
-            <div class="flex flex-col items-stretch rounded-lg shadow-lg p-6 transform hover:scale-105 transition duration-300">
-                <div class="mb-2">
-                  <h3 class="text-2xl font-semibold ">Efetivo Por Gênero</h3>
-                  <p class="mt-4 text-gray-600"></p>
-                </div>
-
-
-                <div>
-                    <canvas id="genero-pizza" width="200" height="100"></canvas>
-                </div>
-
+            <div class="w-full sm:w-1/3">
+                <button type="submit" class="w-full px-4 py-2 bg-blue-600 text-white text-sm sm:text-base font-medium rounded-md hover:bg-blue-700">
+                    Filtrar
+                </button>
             </div>
+        </form>
+    </div>
+</div>
 
-
+<!-- Stats Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 px-4 py-6">
+    <!-- Card 1 -->
+    <div class="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
+        <div class="flex justify-between items-center">
+            <div>
+                <h3 class="text-sm sm:text-base font-bold uppercase text-gray-600">Servidores Cadastrados</h3>
+                <p class="mt-2 text-2xl font-bold">{{ total_servidores }}</p>
+            </div>
+            <div class="bg-black rounded-full h-12 w-12 flex items-center justify-center">
+                <i class="bi bi-people-fill text-white text-lg"></i>
+            </div>
+        </div>
     </div>
 
-
-
-
-
-
-
-<!--tabela com os servidores-->
-
-<div class="w-full mb-12 pt-8 flex justify-start px-4">
-    <div class="bg-white shadow-lg rounded-lg w-full">
-        <div class="p-6 rounded-t-lg">
-            <div class="flex flex-row justify-between">
-                <div>
-                    <h1 class="text-3xl font-bold text-center">Servidores Cadastrados</h1>
-                </div>
-                <div>
-                    <a href="{% url 'servidor:relatorio_rh' %}" class="inline-flex items-center p-2 text-xs font-medium uppercase rounded-lg text-primary-700 sm:text-sm hover:bg-gray-100 dark:text-primary-500 dark:hover:bg-gray-700">
-                        Dados Completos
-                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                        </svg>
-                    </a>
-                </div>
+    <!-- Card 2 -->
+    <div class="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
+        <div class="flex justify-between items-center">
+            <div>
+                <h3 class="text-sm sm:text-base font-bold uppercase text-gray-600">Policiais Penais Total</h3>
+                <p class="mt-2 text-2xl font-bold">{{ total_policiais_penal }}</p>
             </div>
-                <form method="GET">
-                    <div class="mt-4 px-0 flex flex-row justify-between w-full">
-                        <div class="flex space-x-4 items-center">
-
-                        </div>
-                        <div>
-                            <input type="text" name="query" id="searchInput" class="form-input w-full sm:w-auto sm:ml-4 p-1.5 rounded-md border-2 border-gray-600" placeholder="Pesquisar..." value="{{ query }}">
-                            <button type="submit" class="hidden"></button>
-                        </div>
-                    </div>
-                </form>
+            <div class="bg-blue-600 rounded-full h-12 w-12 flex items-center justify-center">
+                <img src="{% static 'icons/guard-prison.png' %}" alt="policial-penal" class="h-6 w-6">
+            </div>
         </div>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
+        <div class="flex justify-between items-center">
+            <div>
+                <h3 class="text-sm sm:text-base font-bold uppercase text-gray-600">Policiais Ativos</h3>
+                <p class="mt-2 text-2xl font-bold">{{ total_servidores_ativos_policial_penal }}</p>
+            </div>
+            <div class="bg-green-600 rounded-full h-12 w-12 flex items-center justify-center">
+                <img src="{% static 'icons/guard-prison.png' %}" alt="policial-ativo" class="h-6 w-6">
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 4 -->
+    <div class="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
+        <div class="flex justify-between items-center">
+            <div>
+                <h3 class="text-sm sm:text-base font-bold uppercase text-gray-600">Policiais Inativos</h3>
+                <p class="mt-2 text-2xl font-bold">{{ total_servidores_inativos_policial_penal }}</p>
+            </div>
+            <div class="bg-red-600 rounded-full h-12 w-12 flex items-center justify-center">
+                <img src="{% static 'icons/guard-prison.png' %}" alt="policial-inativo" class="h-6 w-6">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+{% if 'Administrador' in user_groups or 'GerRh' in user_groups %}
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 px-4 pb-6">
+    <div class="bg-white rounded-lg shadow-md p-6 flex flex-col">
+        <div class="mb-4">
+            <h3 class="text-lg font-semibold">Adicionar Servidor</h3>
+            <p class="mt-2 text-sm text-gray-600">Inclua novos servidores e suas informações</p>
+        </div>
+        <a href="{% url 'servidor:criar_servidor' %}" class="mt-auto w-full py-2 px-4 text-center text-white text-sm sm:text-base rounded-md font-medium bg-gray-600 hover:bg-gray-700">
+            Adicionar
+        </a>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md p-6 flex flex-col">
+        <div class="mb-4">
+            <h3 class="text-lg font-semibold">Edição em Lote</h3>
+            <p class="mt-2 text-sm text-gray-600">Adicione ou edite servidores via planilha</p>
+        </div>
+        <a href="{% url 'servidor:servidor_lote' %}" class="mt-auto w-full py-2 px-4 text-center text-white text-sm sm:text-base rounded-md font-medium bg-gray-600 hover:bg-gray-700">
+            Gerenciar
+        </a>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md p-6 flex flex-col">
+        <div class="mb-4">
+            <h3 class="text-lg font-semibold">Em Breve</h3>
+            <p class="mt-2 text-sm text-gray-600">Novas funcionalidades em desenvolvimento</p>
+        </div>
+        <a href="#" class="mt-auto w-full py-2 px-4 text-center text-white text-sm sm:text-base rounded-md font-medium bg-gray-600 hover:bg-gray-700">
+            Em Breve
+        </a>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md p-6 flex flex-col">
+        <div class="mb-4">
+            <h3 class="text-lg font-semibold">Em Breve</h3>
+            <p class="mt-2 text-sm text-gray-600">Novas funcionalidades em desenvolvimento</p>
+        </div>
+        <a href="#" class="mt-auto w-full py-2 px-4 text-center text-white text-sm sm:text-base rounded-md font-medium bg-gray-600 hover:bg-gray-700">
+            Em Breve
+        </a>
+    </div>
+</div>
+{% endif %}
+
+<!-- Charts Section -->
+{% if 'GerGesipe' in user_groups or 'GerRh' in user_groups or 'Administrador' in user_groups or 'ServGesipe' in user_groups %}
+<div class="flex flex-col xl:flex-row gap-6 px-4 pb-6">
+    <!-- Bar Chart -->
+    <div class="w-full xl:w-3/4 bg-white rounded-lg shadow-md p-4">
+        <div class="border-b border-gray-200 pb-4 mb-4">
+            <h3 class="text-lg font-semibold">Efetivo Por Unidade</h3>
+        </div>
+        <div class="h-64 sm:h-80 md:h-96">
+            <canvas id="chart-bar"></canvas>
+        </div>
+    </div>
+
+    <!-- Pie Chart -->
+    <div class="w-full xl:w-1/4 bg-white rounded-lg shadow-md p-4">
+        <div class="border-b border-gray-200 pb-4 mb-4">
+            <h3 class="text-lg font-semibold">Efetivo Por Gênero</h3>
+        </div>
+        <div class="h-64 sm:h-80 flex justify-center">
+            <div class="aspect-square w-full max-w-xs">
+                <canvas id="genero-pizza"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Table Section -->
+<div class="px-4 pb-12">
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="p-4 border-b border-gray-200">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h3 class="text-lg sm:text-xl font-semibold">Servidores Cadastrados</h3>
+                </div>
+                {% if 'GerGesipe' in user_groups or 'GerRh' in user_groups or 'Administrador' in user_groups or 'ServGesipe' in user_groups %}
+                <a href="{% url 'servidor:relatorio_rh' %}" class="inline-flex items-center text-sm sm:text-base font-medium text-blue-600 hover:text-blue-800">
+                    Dados Completos
+                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Table -->
         <div class="overflow-x-auto">
-            <table class="min-w-full bg-white divide-y divide-gray-200">
-                <thead class="bg-gray-100">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Matrícula</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cargo</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Local de Trabalho</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nome</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Matrícula</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cargo</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Local de Trabalho</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody class="divide-y divide-gray-200">
                     {% for servidor in servidores %}
-                    <tr class="clickable-row" data-href="{% url 'servidor:servidor_detail' servidor.id %}">
-                        <td class="px-6 py-4 whitespace-nowrap">{{ servidor.nome }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ servidor.matricula }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ servidor.cargo }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ servidor.local_trabalho }}</td>
+                    <tr class="clickable-row hover:bg-gray-50 cursor-pointer" data-href="{% url 'servidor:servidor_detail' servidor.id %}">
+                        <td class="px-4 py-4 whitespace-nowrap">{{ servidor.nome }}</td>
+                        <td class="px-4 py-4 whitespace-nowrap">{{ servidor.matricula }}</td>
+                        <td class="px-4 py-4 whitespace-nowrap">{{ servidor.cargo }}</td>
+                        <td class="px-4 py-4 whitespace-nowrap">{{ servidor.local_trabalho }}</td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="4" class="px-6 py-4 text-center text-gray-500">Nenhum servidor encontrado</td>
+                        <td colspan="4" class="px-4 py-4 text-center text-gray-500">Nenhum servidor encontrado</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
 
-        <!-- Paginação -->
-        <div class="p-6 bg-gray-100 rounded-b-lg">
-            <nav aria-label="Page navigation">
-                <ul class="inline-flex items-center -space-x-px">
+        <!-- Pagination -->
+        <div class="px-4 py-3 bg-gray-50 border-t border-gray-200">
+            <nav class="flex items-center justify-between">
+                <div class="hidden sm:block">
+                    <p class="text-sm text-gray-700">
+                        Página <span class="font-medium">{{ page_obj.number }}</span> de <span class="font-medium">{{ page_obj.paginator.num_pages }}</span>
+                    </p>
+                </div>
+                <div class="flex-1 flex justify-between sm:justify-end">
                     {% if page_obj.has_previous %}
-                    <li>
-                        <a href="?page=1&query={{ request.GET.query }}" class="px-3 py-2 ml-0 text-sm font-medium text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100">Primeira</a>
-                    </li>
-                    <li>
-                        <a href="?page={{ page_obj.previous_page_number }}&query={{ request.GET.query }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">Anterior</a>
-                    </li>
+                    <a href="?page={{ page_obj.previous_page_number }}&query={{ query }}"
+                       class="relative inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        Anterior
+                    </a>
                     {% endif %}
-
-                    {% for p in page_range %}
-                    {% if p == page_obj.number %}
-                    <li>
-                        <span class="px-3 py-2 text-sm font-medium text-white bg-blue-500 border border-gray-300">{{ p }}</span>
-                    </li>
-                    {% else %}
-                    <li>
-                        <a href="?page={{ p }}&query={{ request.GET.query }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">{{ p }}</a>
-                    </li>
-                    {% endif %}
-                    {% endfor %}
 
                     {% if page_obj.has_next %}
-                    <li>
-                        <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">Próxima</a>
-                    </li>
-                    <li>
-                        <a href="?page={{ page_obj.paginator.num_pages }}&query={{ request.GET.query }}&cargo={{ request.GET.cargo }}&local_trabalho={{ request.GET.local_trabalho }}&cargo_comissionado={{ request.GET.cargo_comissionado }}&status={{ request.GET.status }}&genero={{ request.GET.genero }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100">Última</a>
-                    </li>
+                    <a href="?page={{ page_obj.next_page_number }}&query={{ query }}"
+                       class="ml-3 relative inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        Próxima
+                    </a>
                     {% endif %}
-                </ul>
+                </div>
             </nav>
         </div>
     </div>
 </div>
 
-
-{% endif %}
-
-
-
-
-<script>
-    document.querySelectorAll('.clickable-row').forEach(row => {
-    row.addEventListener('click', () => {
-        window.location.href = row.getAttribute('data-href');
-    });
-});
-
-</script>
-
-
-<!--grafico pizza depois criar js proprios-->
-
-
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        var ctx = document.getElementById('genero-pizza').getContext('2d');
-        var myPieChart = new Chart(ctx, {
+        // Gráfico de pizza - Gênero
+        var ctxPie = document.getElementById('genero-pizza').getContext('2d');
+        var myPieChart = new Chart(ctxPie, {
             type: 'pie',
             data: {
-                labels: {{ pie_labels|safe }},  // Ex.: ['Masculino', 'Feminino', 'Outros']
+                labels: {{ pie_labels|safe }},
                 datasets: [{
-                    label: 'Distribuição por Gênero',
-                    data: {{ pie_values|safe }},  // Ex.: [50, 30, 20]
+                    data: {{ pie_values|safe }},
                     backgroundColor: [
-                        'rgba(54, 162, 235, 1)',  // Azul para Masculino
-                        'rgba(255, 99, 132, 1)',  // Vermelho para Feminino
-                        'rgba(201, 203, 207, 1)'  // Cinza para Outros
-                    ],
-                    borderColor: [
-                        'rgba(54, 162, 235, 1)',  // Azul
-                        'rgba(255, 99, 132, 1)',  // Vermelho
-                        'rgba(201, 203, 207, 1)'  // Cinza
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(201, 203, 207, 1)'
                     ],
                     borderWidth: 2
                 }]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        position: 'bottom',
-                        labels: {
-                            font: {
-                                size: 12
-                            }
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(tooltipItem) {
-                                return tooltipItem.label + ': ' + tooltipItem.raw;
-                            }
-                        }
-                    },
-                    datalabels: {
-                        display: true,
-                        color: '#ffffff',
-                        font: {
-                            weight: 'bold',
-                            size: 14
-                        },
-                        formatter: (value) => {
-                            return `${value}`;  // Exibe o valor numérico de cada segmento
-                        }
+                        position: 'bottom'
                     }
-                },
-                cutout: '50%'  // Ajusta a espessura do gráfico tipo donut, caso esteja usando um gráfico de donut
+                }
             }
         });
-    });
-</script>
 
-
-<!--grafico barra por unidade-->
-
-<script>
-    // Dados do gráfico de barra
-    var ctx = document.getElementById('chart-bar').getContext('2d');
-    var barLabels = {{ bar_labels|safe }};  // Usando as labels do contexto
-    var barValues = {{ bar_values|safe }};  // Usando os valores do contexto
-
-    // Função para dividir rótulos longos em várias linhas
-    function splitLabel(label, length) {
-        if (label.length > length) {
-            return label.match(new RegExp(`.{1,${length}}`, 'g')); // Divide a cada 'length' caracteres
-        }
-        return [label]; // Retorna o rótulo como array para multi-linha
-    }
-
-    var multiLineLabels = barLabels.map(label => splitLabel(label, 15)); // Divide rótulos a cada 15 caracteres
-
-    var myBarChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: multiLineLabels,
-            datasets: [{
-                label: 'Total de Servidores',
-                data: barValues,
-                backgroundColor: 'rgba(210, 0, 0, 1)',
-                borderColor: 'rgba(210, 0, 0, 1)',
-                borderWidth: 2,
-                borderRadius: 4
-            }]
-        },
-        options: {
-            scales: {
-                x: {
-                    grid: {
-                        display: false
-                    },
-                    ticks: {
-                        font: {
-                            size: 10 // Ajusta o tamanho da fonte
-                        }
-                    }
-                },
-                y: {
-                    beginAtZero: true,
-                    grid: {
-                        display: false
-                    }
-                }
+        // Gráfico de barras - Unidades
+        var ctxBar = document.getElementById('chart-bar').getContext('2d');
+        var barChart = new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: {{ bar_labels|safe }},
+                datasets: [{
+                    label: 'Total de Servidores',
+                    data: {{ bar_values|safe }},
+                    backgroundColor: 'rgba(210, 0, 0, 1)',
+                    borderColor: 'rgba(210, 0, 0, 1)',
+                    borderWidth: 2,
+                    borderRadius: 4
+                }]
             },
-            layout: {
-                padding: {
-                    bottom: 40 // Adiciona espaço para rótulos multi-linha
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { size: 10 } }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: { display: false }
+                    }
                 }
             }
-        }
+        });
+
+        // Clickable rows
+        document.querySelectorAll('.clickable-row').forEach(row => {
+            row.addEventListener('click', () => {
+                window.location.href = row.getAttribute('data-href');
+            });
+        });
     });
 </script>
 
