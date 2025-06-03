@@ -143,16 +143,20 @@ HomePage SeapPB
     {% if 'Administrador' in user_groups or 'GerGesipe' in user_groups or 'GerRh' in user_groups  or 'ServGesipe' in user_groups %}
     <section class="px-4 sm:px-6 lg:mx-4">
         <!-- Primeira linha de gráficos -->
-        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 pb-4">
-            <!-- Efetivo por unidade (ocupa toda a linha em mobile) -->
-            <div class="hidden lg:flex col-span-1 md:col-span-2 xl:col-span-4 bg-white rounded-lg shadow-lg p-4 sm:p-6">
-                <div class="mb-4">
-                    <h3 class="text-xl sm:text-2xl font-semibold">Efetivo Por Unidade</h3>
-                </div>
-                <div class="h-auto w-full">
-                    <canvas id="chart-bar-unidade"></canvas>
-                </div>
+
+        <!-- Efetivo por unidade (ocupa toda a linha em mobile) -->
+        <div class="w-full bg-white rounded-lg shadow-md p-4 mb-4">
+            <div class="border-b border-gray-200 pb-4 mb-4">
+                <h3 class="text-lg font-semibold">Efetivo Por Unidade</h3>
             </div>
+            <div class="h-[600px] w-full text-center">
+                <canvas class="h-full w-full" id="chart-bar-unidade"></canvas>
+            </div>
+        </div>
+
+
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 pb-4">
+
 
             <!-- Gráfico de Pizza - Versão Corrigida -->
             <div class="bg-white rounded-lg shadow-lg p-4 sm:p-6 flex flex-col">
@@ -331,21 +335,23 @@ HomePage SeapPB
 
 <script>
     // Dados do gráfico de barra
-    var ctx = document.getElementById('chart-bar-unidade').getContext('2d');
-    var barLabels = {{ bar_labels|safe }};  // Usando as labels do contexto
-    var barValues = {{ bar_values|safe }};  // Usando os valores do contexto
+    const ctx = document.getElementById('chart-bar-unidade').getContext('2d');
+    const barLabels = {{ bar_labels|safe }};
+    const barValues = {{ bar_values|safe }};
 
-    // Função para dividir rótulos longos em várias linhas
     function splitLabel(label, length) {
         if (label.length > length) {
-            return label.match(new RegExp(`.{1,${length}}`, 'g')); // Divide a cada 'length' caracteres
+            return label.match(new RegExp(`.{1,${length}}`, 'g'));
         }
-        return [label]; // Retorna o rótulo como array para multi-linha
+        return [label];
     }
 
-    var multiLineLabels = barLabels.map(label => splitLabel(label, 15)); // Divide rótulos a cada 15 caracteres
+    const multiLineLabels = barLabels.map(label => splitLabel(label, 15));
 
-    var myBarChart = new Chart(ctx, {
+    // Detectar se está em mobile (768px ou menos)
+    const isMobile = window.innerWidth <= 768;
+
+    const myBarChart = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: multiLineLabels,
@@ -359,32 +365,42 @@ HomePage SeapPB
             }]
         },
         options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: isMobile ? 'y' : 'x', // <- alterna o eixo com base na largura
             scales: {
                 x: {
+                    beginAtZero: true,
                     grid: {
                         display: false
                     },
                     ticks: {
                         font: {
-                            size: 10 // Ajusta o tamanho da fonte
+                            size: 10
                         }
                     }
                 },
                 y: {
-                    beginAtZero: true,
                     grid: {
                         display: false
+                    },
+                    ticks: {
+                        font: {
+                            size: 10
+                        }
                     }
                 }
             },
             layout: {
                 padding: {
-                    bottom: 40 // Adiciona espaço para rótulos multi-linha
+                    left: 20,
+                    right: 20
                 }
             }
         }
     });
 </script>
+
 
 
 
@@ -502,11 +518,6 @@ HomePage SeapPB
 
 
 <!-- Incluir os dados diretamente no script -->
-
-
-
-
-
 
 
 {% endblock %}

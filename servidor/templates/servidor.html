@@ -144,7 +144,7 @@ Servidores
         <div class="border-b border-gray-200 pb-4 mb-4">
             <h3 class="text-lg font-semibold">Efetivo Por Unidade</h3>
         </div>
-        <div class="h-[600px] md:h-auto w-full text-center">
+        <div class="h-[600px] w-full text-center">
             <canvas class="h-full w-full" id="chart-bar"></canvas>
         </div>
     </div>
@@ -280,21 +280,23 @@ Servidores
 
 <script>
     // Dados do gráfico de barra
-    var ctx = document.getElementById('chart-bar').getContext('2d');
-    var barLabels = {{ bar_labels|safe }};  // Usando as labels do contexto
-    var barValues = {{ bar_values|safe }};  // Usando os valores do contexto
+    const ctx = document.getElementById('chart-bar').getContext('2d');
+    const barLabels = {{ bar_labels|safe }};
+    const barValues = {{ bar_values|safe }};
 
-    // Função para dividir rótulos longos em várias linhas
     function splitLabel(label, length) {
         if (label.length > length) {
-            return label.match(new RegExp(`.{1,${length}}`, 'g')); // Divide a cada 'length' caracteres
+            return label.match(new RegExp(`.{1,${length}}`, 'g'));
         }
-        return [label]; // Retorna o rótulo como array para multi-linha
+        return [label];
     }
 
-    var multiLineLabels = barLabels.map(label => splitLabel(label, 15)); // Divide rótulos a cada 15 caracteres
+    const multiLineLabels = barLabels.map(label => splitLabel(label, 15));
 
-    var myBarChart = new Chart(ctx, {
+    // Detectar se está em mobile (768px ou menos)
+    const isMobile = window.innerWidth <= 768;
+
+    const myBarChart = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: multiLineLabels,
@@ -309,13 +311,18 @@ Servidores
         },
         options: {
             responsive: true,
-            maintainAspectRatio: false, // <--- ESSENCIAL para permitir altura controlada por CSS
-            indexAxis: 'y',
+            maintainAspectRatio: false,
+            indexAxis: isMobile ? 'y' : 'x', // <- alterna o eixo com base na largura
             scales: {
                 x: {
                     beginAtZero: true,
                     grid: {
                         display: false
+                    },
+                    ticks: {
+                        font: {
+                            size: 10
+                        }
                     }
                 },
                 y: {
@@ -337,7 +344,6 @@ Servidores
             }
         }
     });
-
 </script>
 
 {% endblock %}
