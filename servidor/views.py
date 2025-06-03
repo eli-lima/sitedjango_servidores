@@ -316,6 +316,7 @@ class ServidorEdit(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         context['documentos'] = Documento.objects.filter(servidor=self.object)
         # Extrai apenas os nomes dos arquivos dos documentos
         context['nomes_arquivos'] = [os.path.basename(doc.arquivo.name) for doc in context['documentos']]
+        context['servidor'] = self.object
         return context
 
 
