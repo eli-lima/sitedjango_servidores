@@ -136,15 +136,15 @@ Detalhes do Servidor
     <div class="mt-6 flex flex-col sm:flex-row gap-4 justify-center">
         {% if 'Administrador' in user_groups or 'GerRh' in user_groups %}
         {% if user.is_authenticated %}
-        <a href="{% url 'servidor:servidor_edit' pk=servidor.pk %}" class="px-4 py-2 bg-blue-600 text-white text-sm sm:text-base font-medium rounded-md hover:bg-blue-700">
+        <a href="{% url 'servidor:servidor_edit' pk=servidor.pk %}" class="w-auto md:w-32 mx-8 text-center px-4 py-2 bg-blue-600 text-white text-sm sm:text-base font-medium rounded-md hover:bg-blue-700">
             Editar Servidor
         </a>
         {% endif %}
         {% endif %}
-        <button onclick="generatePDF()" class="px-4 py-2 bg-green-600 text-white text-sm sm:text-base font-medium rounded-md hover:bg-green-700">
+        <button onclick="generatePDF()" class="w-auto mx-8 text-center px-4 py-2 bg-green-600 text-white text-sm sm:text-base font-medium rounded-md hover:bg-green-700">
             Baixar PDF
         </button>
-        <a href="{% url 'servidor:relatorio_rh' %}" class="px-4 py-2 bg-gray-600 text-white text-sm sm:text-base font-medium rounded-md hover:bg-gray-700">
+        <a href="{% url 'servidor:relatorio_rh' %}" class="w-auto mx-8 text-center px-4 py-2 bg-gray-600 text-white text-sm sm:text-base font-medium rounded-md hover:bg-gray-700">
             voltar
         </a>
     </div>
