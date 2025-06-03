@@ -144,8 +144,8 @@ Servidores
         <div class="border-b border-gray-200 pb-4 mb-4">
             <h3 class="text-lg font-semibold">Efetivo Por Unidade</h3>
         </div>
-        <div class="h-96 w-full">
-            <canvas class="h-auto w-full" id="chart-bar"></canvas>
+        <div class="h-[600px] md:h-auto w-full text-center">
+            <canvas class="h-full w-full" id="chart-bar"></canvas>
         </div>
     </div>
 
@@ -178,7 +178,6 @@ Servidores
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                     </svg>
                 </a>
-
             </div>
         </div>
 
@@ -267,36 +266,7 @@ Servidores
             }
         });
 
-        // Gráfico de barras - Unidades
-        var ctxBar = document.getElementById('chart-bar').getContext('2d');
-        var barChart = new Chart(ctxBar, {
-            type: 'bar',
-            data: {
-                labels: {{ bar_labels|safe }},
-                datasets: [{
-                    label: 'Total de Servidores',
-                    data: {{ bar_values|safe }},
-                    backgroundColor: 'rgba(210, 0, 0, 1)',
-                    borderColor: 'rgba(210, 0, 0, 1)',
-                    borderWidth: 2,
-                    borderRadius: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        grid: { display: false },
-                        ticks: { font: { size: 10 } }
-                    },
-                    y: {
-                        beginAtZero: true,
-                        grid: { display: false }
-                    }
-                }
-            }
-        });
+
 
         // Clickable rows
         document.querySelectorAll('.clickable-row').forEach(row => {
@@ -305,6 +275,69 @@ Servidores
             });
         });
     });
+</script>
+
+
+<script>
+    // Dados do gráfico de barra
+    var ctx = document.getElementById('chart-bar').getContext('2d');
+    var barLabels = {{ bar_labels|safe }};  // Usando as labels do contexto
+    var barValues = {{ bar_values|safe }};  // Usando os valores do contexto
+
+    // Função para dividir rótulos longos em várias linhas
+    function splitLabel(label, length) {
+        if (label.length > length) {
+            return label.match(new RegExp(`.{1,${length}}`, 'g')); // Divide a cada 'length' caracteres
+        }
+        return [label]; // Retorna o rótulo como array para multi-linha
+    }
+
+    var multiLineLabels = barLabels.map(label => splitLabel(label, 15)); // Divide rótulos a cada 15 caracteres
+
+    var myBarChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: multiLineLabels,
+            datasets: [{
+                label: 'Total de Servidores',
+                data: barValues,
+                backgroundColor: 'rgba(210, 0, 0, 1)',
+                borderColor: 'rgba(210, 0, 0, 1)',
+                borderWidth: 2,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false, // <--- ESSENCIAL para permitir altura controlada por CSS
+            indexAxis: 'y',
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    grid: {
+                        display: false
+                    }
+                },
+                y: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        font: {
+                            size: 10
+                        }
+                    }
+                }
+            },
+            layout: {
+                padding: {
+                    left: 20,
+                    right: 20
+                }
+            }
+        }
+    });
+
 </script>
 
 {% endblock %}
