@@ -312,7 +312,7 @@ Servidores
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            indexAxis: isMobile ? 'y' : 'x', // <- alterna o eixo com base na largura
+            indexAxis: isMobile ? 'y' : 'x',
             scales: {
                 x: {
                     beginAtZero: true,
@@ -338,12 +338,18 @@ Servidores
             },
             layout: {
                 padding: {
-                    left: 20,
-                    right: 20
+                    left: 5,
+                    right: 5
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false // Remove o rótulo "Total de Servidores"
                 }
             }
         }
     });
 </script>
+
 
 {% endblock %}
